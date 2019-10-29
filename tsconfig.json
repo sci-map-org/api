@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
-      "allowSyntheticDefaultImports": true,
-      "alwaysStrict": true,
-      "lib": ["es2017"],
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "noEmitOnError": false,
-      "outDir": "dist",
-      "removeComments": true,
-      "sourceMap": true,
-      "target": "ES6",
-      "types": ["node"],
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "lib": ["es2017"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmitOnError": false,
+    "outDir": "dist",
+    "removeComments": true,
+    "sourceMap": true,
+    "target": "ES6",
+    "types": ["node"]
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules"]

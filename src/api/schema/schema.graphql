@@ -1,11 +1,15 @@
 type User {
   _id: String!
   email: String!
+  displayName: String!
+  uniqueName: String!
 }
 
 type CurrentUser {
   _id: String!
   email: String!
+  displayName: String!
+  uniqueName: String!
   # private stuff here
 }
 
@@ -18,7 +22,7 @@ type Query {
   currentUser: CurrentUser!
 }
 
-input SignupPayload {
+input RegisterPayload {
   displayName: String!
   uniqueName: String! # For profile url, @...
   email: String!
@@ -27,5 +31,5 @@ input SignupPayload {
 
 type Mutation {
   login(email: String!, password: String!): LoginResponse!
-  signup(payload: SignupPayload!): CurrentUser!
+  register(payload: RegisterPayload!): CurrentUser!
 }

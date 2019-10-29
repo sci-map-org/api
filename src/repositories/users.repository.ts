@@ -1,8 +1,8 @@
-import { db } from '../infra/database';
-import { IObjectID } from 'monk';
-import { NotFoundError } from '../errors/NotFoundError';
-import { encryptPassword } from '../services/auth/password_hashing';
 import { omit } from 'lodash';
+import { IObjectID } from 'monk';
+
+import { db } from '../infra/database';
+import { encryptPassword } from '../services/auth/password_hashing';
 
 const userCollection = db.get<User>('users');
 
@@ -11,12 +11,6 @@ interface CreateUserData {
   uniqueName: string;
   email: string;
   password: string;
-}
-
-class UserNotFoundError extends NotFoundError {
-  constructor(value: string, fieldName: string) {
-    super('User', value, fieldName);
-  }
 }
 
 class NonUniqueUserEmail extends Error {
@@ -35,6 +29,7 @@ export interface User {
 
 export const createUser = async (data: CreateUserData): Promise<User> => {
   const existingUser = await findUserByEmail(data.email);
+
   if (!!existingUser) {
     throw new NonUniqueUserEmail(data.email);
   }
@@ -44,12 +39,12 @@ export const createUser = async (data: CreateUserData): Promise<User> => {
   });
 };
 
-export const findUserByEmail = async (email: string): Promise<User> => {
+export const findUserByEmail = async (email: string): Promise<User | null> => {
   const user = await userCollection.findOne({
     email,
   });
   if (!user) {
-    throw new UserNotFoundError(email, 'email');
+    return null;
   }
   return user;
 };

@@ -1,7 +1,8 @@
 import { createUser, findUserByEmail, User } from '../../repositories/users.repository';
 import { getJWT } from '../../services/auth/jwt';
-import { APICurrentUser, APIMutationResolvers, APIUser } from '../schema/types';
+import { APICurrentUser, APIMutationResolvers, APIUser, APIQueryResolvers } from '../schema/types';
 import { passwordsMatch } from '../../services/auth/password_hashing';
+import { UserNotFoundError } from '../../errors/NotFoundError';
 
 class InvalidCredentialsError extends Error {
   constructor() {
@@ -26,6 +27,8 @@ function toAPICurrentUser(user: User): APICurrentUser {
 export const loginResolver: APIMutationResolvers['login'] = async (_parent, { email, password }, ctx) => {
   try {
     const user = await findUserByEmail(email);
+    if (!user) throw new UserNotFoundError(email, 'email');
+
     // throw unauthorized if pwd doesn't match
     if (!(await passwordsMatch(user.password_hash, password))) {
       throw new Error();
@@ -39,6 +42,13 @@ export const loginResolver: APIMutationResolvers['login'] = async (_parent, { em
   }
 };
 
-export const signupResolver: APIMutationResolvers['signup'] = async (_parent, { payload }, ctx) => {
+export const registerResolver: APIMutationResolvers['register'] = async (_parent, { payload }, ctx) => {
   return toAPICurrentUser(await createUser(payload));
+};
+
+export const currentUserResolver: APIQueryResolvers['currentUser'] = async (_parent, _payload, { user }) => {
+  if (!user) throw new Error();
+  const foundUser = await findUserByEmail(user.email);
+  if (!foundUser) throw new Error('User logged in but no user found. This should never happen');
+  return toAPICurrentUser(foundUser);
 };

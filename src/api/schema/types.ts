@@ -15,6 +15,8 @@ export type APICurrentUser = {
    __typename?: 'CurrentUser',
   _id: Scalars['String'],
   email: Scalars['String'],
+  displayName: Scalars['String'],
+  uniqueName: Scalars['String'],
 };
 
 export type APILoginResponse = {
@@ -26,7 +28,7 @@ export type APILoginResponse = {
 export type APIMutation = {
    __typename?: 'Mutation',
   login: APILoginResponse,
-  signup: APICurrentUser,
+  register: APICurrentUser,
 };
 
 
@@ -36,8 +38,8 @@ export type APIMutationLoginArgs = {
 };
 
 
-export type APIMutationSignupArgs = {
-  payload: APISignupPayload
+export type APIMutationRegisterArgs = {
+  payload: APIRegisterPayload
 };
 
 export type APIQuery = {
@@ -45,7 +47,7 @@ export type APIQuery = {
   currentUser: APICurrentUser,
 };
 
-export type APISignupPayload = {
+export type APIRegisterPayload = {
   displayName: Scalars['String'],
   uniqueName: Scalars['String'],
   email: Scalars['String'],
@@ -56,6 +58,8 @@ export type APIUser = {
    __typename?: 'User',
   _id: Scalars['String'],
   email: Scalars['String'],
+  displayName: Scalars['String'],
+  uniqueName: Scalars['String'],
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -135,7 +139,7 @@ export type APIResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']>,
   Mutation: ResolverTypeWrapper<{}>,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
-  SignupPayload: APISignupPayload,
+  RegisterPayload: APIRegisterPayload,
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   User: ResolverTypeWrapper<APIUser>,
 }>;
@@ -147,7 +151,7 @@ export type APIResolversParentTypes = ResolversObject<{
   String: Scalars['String'],
   Mutation: {},
   LoginResponse: APILoginResponse,
-  SignupPayload: APISignupPayload,
+  RegisterPayload: APIRegisterPayload,
   Boolean: Scalars['Boolean'],
   User: APIUser,
 }>;
@@ -155,6 +159,8 @@ export type APIResolversParentTypes = ResolversObject<{
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  uniqueName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
 }>;
 
 export type APILoginResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LoginResponse'] = APIResolversParentTypes['LoginResponse']> = ResolversObject<{
@@ -164,7 +170,7 @@ export type APILoginResponseResolvers<ContextType = APIContext, ParentType exten
 
 export type APIMutationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Mutation'] = APIResolversParentTypes['Mutation']> = ResolversObject<{
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
-  signup?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationSignupArgs, 'payload'>>,
+  register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
 }>;
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
@@ -174,6 +180,8 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
 export type APIUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['User'] = APIResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  uniqueName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
 }>;
 
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{

@@ -3,20 +3,17 @@ import { importSchema } from 'graphql-import';
 
 import { APIContext } from './server';
 import { APIResolvers } from './schema/types';
-import { loginResolver, signupResolver } from './resolvers/users.resolvers';
+import { loginResolver, registerResolver, currentUserResolver } from './resolvers/users.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
 const resolvers: APIResolvers<APIContext> = {
   Mutation: {
     login: loginResolver,
-    signup: signupResolver,
+    register: registerResolver,
   },
   Query: {
-    currentUser: async (a, b, { user }) => {
-      if (!!user) return user;
-      throw new Error();
-    },
+    currentUser: currentUserResolver,
   },
 };
 

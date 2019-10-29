@@ -14,7 +14,7 @@ export async function getJWT(user: User): Promise<string> {
     email: user.email,
   };
   return new Promise((resolve, reject) => {
-    sign(jwtPayload, JWT_SECRET, undefined, (err, token) => {
+    sign(jwtPayload, JWT_SECRET, {}, (err, token) => {
       if (!!err) {
         return reject(err);
       }
