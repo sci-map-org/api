@@ -9,3 +9,9 @@ export class UserNotFoundError extends NotFoundError {
     super('User', value, fieldName);
   }
 }
+
+export class ArticleNotFoundError extends NotFoundError {
+  constructor(value: string, fieldName: string) {
+    super('Article', value, fieldName);
+  }
+}

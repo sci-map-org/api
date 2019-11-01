@@ -1,0 +1,31 @@
+enum ArticleContentType {
+  markdown
+}
+
+type Article {
+  _id: String!
+  key: String!
+  contentType: ArticleContentType!
+  title: String!
+  content: String!
+  authorId: String!
+}
+
+type Query {
+  getArticle(id: String!): Article!
+}
+
+input CreateArticlePayload {
+  contentType: ArticleContentType!
+  title: String!
+  content: String!
+}
+input UpdateArticlePayload {
+  title: String
+  content: String
+}
+
+type Mutation {
+  createArticle(payload: CreateArticlePayload!): Article!
+  updateArticle(id: String!, payload: UpdateArticlePayload!): Article!
+}

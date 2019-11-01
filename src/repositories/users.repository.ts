@@ -8,7 +8,7 @@ const userCollection = db.get<User>('users');
 
 interface CreateUserData {
   displayName: string;
-  uniqueName: string;
+  key: string;
   email: string;
   password: string;
 }
@@ -23,7 +23,7 @@ export interface User {
   _id: IObjectID;
   email: string;
   displayName: string;
-  uniqueName: string;
+  key: string;
   password_hash: string;
 }
 

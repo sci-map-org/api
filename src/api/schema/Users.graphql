@@ -1,0 +1,35 @@
+type User {
+  _id: String!
+  email: String!
+  displayName: String!
+  key: String!
+}
+
+type CurrentUser {
+  _id: String!
+  email: String!
+  displayName: String!
+  key: String!
+  # private stuff here
+}
+
+type LoginResponse {
+  currentUser: CurrentUser!
+  jwt: String!
+}
+
+type Query {
+  currentUser: CurrentUser!
+}
+
+input RegisterPayload {
+  displayName: String!
+  key: String! # For profile url, @...
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  login(email: String!, password: String!): LoginResponse!
+  register(payload: RegisterPayload!): CurrentUser!
+}

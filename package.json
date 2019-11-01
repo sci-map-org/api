@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./dist && tsc",
     "codegen": "graphql-codegen",
-    "start": "node ./dist/server.js",
-    "watch": "tsc-watch --onSuccess \"node ./dist/server.js\" --onFailure \"echo Beep! Compilation Failed\" --compiler typescript/bin/tsc",
+    "start": "node ./dist/index .js",
+    "watch": "tsc-watch --onSuccess \"node ./dist/index.js\" --onFailure \"echo Beep! Compilation Failed\" --compiler typescript/bin/tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -26,6 +26,7 @@
     "koa": "^2.10.0",
     "lodash": "^4.17.15",
     "monk": "^7.1.1",
+    "shortid": "^2.2.15",
     "typescript": "^3.6.4"
   },
   "devDependencies": {
@@ -35,6 +36,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/koa": "^2.0.51",
     "@types/node": "^12.11.7",
+    "@types/shortid": "^0.0.29",
     "graphql": "^14.5.8",
     "tsc-watch": "^4.0.0"
   },

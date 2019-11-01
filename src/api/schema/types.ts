@@ -1,3 +1,4 @@
+import { ArticleContentType } from '../../repositories/articles.repository';
 import { GraphQLResolveInfo } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -11,12 +12,30 @@ export type Scalars = {
   Float: number,
 };
 
+export type APIArticle = {
+   __typename?: 'Article',
+  _id: Scalars['String'],
+  key: Scalars['String'],
+  contentType: ArticleContentType,
+  title: Scalars['String'],
+  content: Scalars['String'],
+  authorId: Scalars['String'],
+};
+
+export { ArticleContentType };
+
+export type APICreateArticlePayload = {
+  contentType: ArticleContentType,
+  title: Scalars['String'],
+  content: Scalars['String'],
+};
+
 export type APICurrentUser = {
    __typename?: 'CurrentUser',
   _id: Scalars['String'],
   email: Scalars['String'],
   displayName: Scalars['String'],
-  uniqueName: Scalars['String'],
+  key: Scalars['String'],
 };
 
 export type APILoginResponse = {
@@ -27,8 +46,21 @@ export type APILoginResponse = {
 
 export type APIMutation = {
    __typename?: 'Mutation',
+  createArticle: APIArticle,
+  updateArticle: APIArticle,
   login: APILoginResponse,
   register: APICurrentUser,
+};
+
+
+export type APIMutationCreateArticleArgs = {
+  payload: APICreateArticlePayload
+};
+
+
+export type APIMutationUpdateArticleArgs = {
+  id: Scalars['String'],
+  payload: APIUpdateArticlePayload
 };
 
 
@@ -44,14 +76,25 @@ export type APIMutationRegisterArgs = {
 
 export type APIQuery = {
    __typename?: 'Query',
+  getArticle: APIArticle,
   currentUser: APICurrentUser,
+};
+
+
+export type APIQueryGetArticleArgs = {
+  id: Scalars['String']
 };
 
 export type APIRegisterPayload = {
   displayName: Scalars['String'],
-  uniqueName: Scalars['String'],
+  key: Scalars['String'],
   email: Scalars['String'],
   password: Scalars['String'],
+};
+
+export type APIUpdateArticlePayload = {
+  title?: Maybe<Scalars['String']>,
+  content?: Maybe<Scalars['String']>,
 };
 
 export type APIUser = {
@@ -59,7 +102,7 @@ export type APIUser = {
   _id: Scalars['String'],
   email: Scalars['String'],
   displayName: Scalars['String'],
-  uniqueName: Scalars['String'],
+  key: Scalars['String'],
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -135,9 +178,13 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type APIResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>,
-  CurrentUser: ResolverTypeWrapper<APICurrentUser>,
   String: ResolverTypeWrapper<Scalars['String']>,
+  Article: ResolverTypeWrapper<APIArticle>,
+  ArticleContentType: ArticleContentType,
+  CurrentUser: ResolverTypeWrapper<APICurrentUser>,
   Mutation: ResolverTypeWrapper<{}>,
+  CreateArticlePayload: APICreateArticlePayload,
+  UpdateArticlePayload: APIUpdateArticlePayload,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
@@ -147,20 +194,33 @@ export type APIResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type APIResolversParentTypes = ResolversObject<{
   Query: {},
-  CurrentUser: APICurrentUser,
   String: Scalars['String'],
+  Article: APIArticle,
+  ArticleContentType: ArticleContentType,
+  CurrentUser: APICurrentUser,
   Mutation: {},
+  CreateArticlePayload: APICreateArticlePayload,
+  UpdateArticlePayload: APIUpdateArticlePayload,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   Boolean: Scalars['Boolean'],
   User: APIUser,
 }>;
 
+export type APIArticleResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Article'] = APIResolversParentTypes['Article']> = ResolversObject<{
+  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  contentType?: Resolver<APIResolversTypes['ArticleContentType'], ParentType, ContextType>,
+  title?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  content?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  authorId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+}>;
+
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  uniqueName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
 }>;
 
 export type APILoginResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LoginResponse'] = APIResolversParentTypes['LoginResponse']> = ResolversObject<{
@@ -169,11 +229,14 @@ export type APILoginResponseResolvers<ContextType = APIContext, ParentType exten
 }>;
 
 export type APIMutationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Mutation'] = APIResolversParentTypes['Mutation']> = ResolversObject<{
+  createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
+  updateArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationUpdateArticleArgs, 'id' | 'payload'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
 }>;
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
+  getArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleArgs, 'id'>>,
   currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
 }>;
 
@@ -181,10 +244,11 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  uniqueName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
 }>;
 
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
+  Article?: APIArticleResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   Mutation?: APIMutationResolvers<ContextType>,
