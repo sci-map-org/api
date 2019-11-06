@@ -39,8 +39,28 @@ export const createArticle = async (data: CreateArticleData): Promise<Article> =
   return createdArticle;
 };
 
+export const findArticles = async (
+  filter: { authorId?: string },
+  pagination?: { offset?: number; limit?: number }
+): Promise<Article[]> => {
+  return await articleCollection.find(
+    {
+      ...(!!filter.authorId && { authorId: filter.authorId }),
+    },
+    { limit: (pagination && pagination.limit) || 5, skip: (pagination && pagination.offset) || 0 }
+  );
+};
+
 export const findArticleById = async (id: string): Promise<Article | null> => {
   const article = await articleCollection.findOne(id);
+
+  if (!article) return null;
+
+  return article;
+};
+
+export const findArticleByKey = async (key: string): Promise<Article | null> => {
+  const article = await articleCollection.findOne({ key });
 
   if (!article) return null;
 

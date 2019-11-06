@@ -1,10 +1,12 @@
-import { NotFoundError, ArticleNotFoundError } from '../../errors/NotFoundError';
+import { ArticleNotFoundError } from '../../errors/NotFoundError';
 import {
   Article,
   createArticle,
   CreateArticleData,
   findArticleById,
+  findArticleByKey,
   updateArticle,
+  findArticles,
 } from '../../repositories/articles.repository';
 import { UnauthenticatedError, UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIArticle, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
@@ -20,10 +22,16 @@ export const createArticleResolver: APIMutationResolvers['createArticle'] = asyn
   return toAPIArticle(await createArticle(data));
 };
 
-export const getArticleResolver: APIQueryResolvers['getArticle'] = async (_parent, { id }, ctx) => {
-  const article = await findArticleById(id);
+export const listArticlesResolver: APIQueryResolvers['listArticles'] = async (_, { options }) => {
+  const { filter, pagination } = nullToUndefined(options);
+  const articles = await findArticles(filter || {}, pagination);
+  return { items: articles.map(toAPIArticle) };
+};
 
-  if (!article) throw new ArticleNotFoundError(id, 'id');
+export const getArticleResolver: APIQueryResolvers['getArticle'] = async (_parent, { key }, ctx) => {
+  const article = await findArticleByKey(key);
+
+  if (!article) throw new ArticleNotFoundError(key, 'key');
 
   return toAPIArticle(article);
 };

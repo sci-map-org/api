@@ -38,6 +38,20 @@ export type APICurrentUser = {
   key: Scalars['String'],
 };
 
+export type APIListArticlesFilter = {
+  authorId?: Maybe<Scalars['String']>,
+};
+
+export type APIListArticlesOptions = {
+  filter?: Maybe<APIListArticlesFilter>,
+  pagination?: Maybe<APIPaginationOptions>,
+};
+
+export type APIListArticlesResult = {
+   __typename?: 'ListArticlesResult',
+  items: Array<APIArticle>,
+};
+
 export type APILoginResponse = {
    __typename?: 'LoginResponse',
   currentUser: APICurrentUser,
@@ -74,15 +88,26 @@ export type APIMutationRegisterArgs = {
   payload: APIRegisterPayload
 };
 
+export type APIPaginationOptions = {
+  limit?: Maybe<Scalars['Int']>,
+  offset?: Maybe<Scalars['Int']>,
+};
+
 export type APIQuery = {
    __typename?: 'Query',
   getArticle: APIArticle,
+  listArticles: APIListArticlesResult,
   currentUser: APICurrentUser,
 };
 
 
 export type APIQueryGetArticleArgs = {
-  id: Scalars['String']
+  key: Scalars['String']
+};
+
+
+export type APIQueryListArticlesArgs = {
+  options: APIListArticlesOptions
 };
 
 export type APIRegisterPayload = {
@@ -181,6 +206,11 @@ export type APIResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']>,
   Article: ResolverTypeWrapper<APIArticle>,
   ArticleContentType: ArticleContentType,
+  ListArticlesOptions: APIListArticlesOptions,
+  ListArticlesFilter: APIListArticlesFilter,
+  PaginationOptions: APIPaginationOptions,
+  Int: ResolverTypeWrapper<Scalars['Int']>,
+  ListArticlesResult: ResolverTypeWrapper<APIListArticlesResult>,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
   Mutation: ResolverTypeWrapper<{}>,
   CreateArticlePayload: APICreateArticlePayload,
@@ -197,6 +227,11 @@ export type APIResolversParentTypes = ResolversObject<{
   String: Scalars['String'],
   Article: APIArticle,
   ArticleContentType: ArticleContentType,
+  ListArticlesOptions: APIListArticlesOptions,
+  ListArticlesFilter: APIListArticlesFilter,
+  PaginationOptions: APIPaginationOptions,
+  Int: Scalars['Int'],
+  ListArticlesResult: APIListArticlesResult,
   CurrentUser: APICurrentUser,
   Mutation: {},
   CreateArticlePayload: APICreateArticlePayload,
@@ -223,6 +258,10 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
 }>;
 
+export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ListArticlesResult'] = APIResolversParentTypes['ListArticlesResult']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Article']>, ParentType, ContextType>,
+}>;
+
 export type APILoginResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LoginResponse'] = APIResolversParentTypes['LoginResponse']> = ResolversObject<{
   currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
   jwt?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -236,7 +275,8 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
 }>;
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
-  getArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleArgs, 'id'>>,
+  getArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleArgs, 'key'>>,
+  listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
   currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
 }>;
 
@@ -250,6 +290,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Article?: APIArticleResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
+  ListArticlesResult?: APIListArticlesResultResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   Mutation?: APIMutationResolvers<ContextType>,
   Query?: APIQueryResolvers<ContextType>,

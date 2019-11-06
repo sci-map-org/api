@@ -11,8 +11,22 @@ type Article {
   authorId: String!
 }
 
+input ListArticlesFilter {
+  authorId: String
+}
+
+input ListArticlesOptions {
+  filter: ListArticlesFilter
+  pagination: PaginationOptions
+}
+
+type ListArticlesResult {
+  items: [Article!]!
+}
+
 type Query {
-  getArticle(id: String!): Article!
+  getArticle(key: String!): Article!
+  listArticles(options: ListArticlesOptions!): ListArticlesResult!
 }
 
 input CreateArticlePayload {
@@ -20,6 +34,7 @@ input CreateArticlePayload {
   title: String!
   content: String!
 }
+
 input UpdateArticlePayload {
   title: String
   content: String

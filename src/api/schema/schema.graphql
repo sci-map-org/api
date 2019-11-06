@@ -1,2 +1,3 @@
+# import * from "common/PaginationOptions.graphql"
 # import Query.*, Mutation.* from "Users.graphql"
 # import Query.*, Mutation.* from "Articles.graphql"
