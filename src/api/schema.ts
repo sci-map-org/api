@@ -4,7 +4,7 @@ import { importSchema } from 'graphql-import';
 import {
   getArticleResolver,
   createArticleResolver,
-  updateArticleResolver,
+  // updateArticleResolver,
   listArticlesResolver,
 } from './resolvers/articles.resolvers';
 import { currentUserResolver, loginResolver, registerResolver } from './resolvers/users.resolvers';
@@ -17,7 +17,7 @@ const resolvers: APIResolvers<APIContext> = {
   Mutation: {
     login: loginResolver,
     register: registerResolver,
-    updateArticle: updateArticleResolver,
+    // updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,
   },
   Query: {

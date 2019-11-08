@@ -11,6 +11,13 @@ import {
 import { UnauthenticatedError, UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIArticle, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
+import * as TE from 'fp-ts/lib/TaskEither';
+import { identity } from 'fp-ts/lib/function';
+import * as O from 'fp-ts/lib/Option';
+import * as T from 'fp-ts/lib/Task';
+import { of } from 'fp-ts/lib/Task';
+import { pipe } from 'fp-ts/lib/pipeable';
+import { APIContext } from '../server';
 
 function toAPIArticle(article: Article): APIArticle {
   return article;
@@ -28,24 +35,113 @@ export const listArticlesResolver: APIQueryResolvers['listArticles'] = async (_,
   return { items: articles.map(toAPIArticle) };
 };
 
-export const getArticleResolver: APIQueryResolvers['getArticle'] = async (_parent, { key }, ctx) => {
-  const article = await findArticleByKey(key);
+// export const getArticleResolver: APIQueryResolvers['getArticle'] = async (_parent, { key }, ctx) => {
+//   const article = await findArticleByKey(key);
 
-  if (!article) throw new ArticleNotFoundError(key, 'key');
+//   if (!article) throw new ArticleNotFoundError(key, 'key');
 
-  return toAPIArticle(article);
+//   return toAPIArticle(article);
+// };
+
+// map(map(toAPIArticle))(findArticleByKey(key))()
+
+// const throwIfNotFound = (article: Article) => {
+//   if (!article) throw new Error();
+//   return article;
+// };
+
+// export const getArticleResolver: APIQueryResolvers['getArticle'] = (_parent, { key }, ctx) => {
+//   pipe(
+//     findArticleByKey,
+//     throwIfNotFound,
+
+//     // O.map(TE.map(toAPIArticle))
+//   )(key);
+// };
+class InternalServerError extends Error {
+  constructor(m: string) {
+    super(m);
+  }
+}
+
+const catchError = <E, T>(t: TE.TaskEither<E, T>): T.Task<T> =>
+  TE.fold<E, T, T>(
+    (e: E) => {
+      throw new InternalServerError(JSON.stringify(e));
+    },
+    (f: T) => {
+      return T.of(f);
+    }
+  )(t);
+
+const throwIfNotFound = <T>(t: O.Option<T>): T => {
+  return O.fold<T, T>(
+    () => {
+      throw new ArticleNotFoundError('test', 'key');
+    },
+    (a: T) => {
+      return a;
+    }
+  )(t);
 };
 
-export const updateArticleResolver: APIMutationResolvers['updateArticle'] = async (_parent, { id, payload }, ctx) => {
-  if (!ctx.user) throw new UnauthenticatedError('Must be logged in to create an article');
+// export const getArticleResolver: APIQueryResolvers['getArticle'] = (_parent, { key }, ctx) =>
+//   pipe(
+//     findArticleByKey(key),
+//     TE.fold<Error, O.Option<Article>, APIArticle>(
+//       (e: Error) => {
+//         throw new InternalServerError(e.message);
+//       },
+//       (article: O.Option<Article>) => {
+//         return O.fold<Article, T.Task<APIArticle>>(
+//           () => {
+//             throw new ArticleNotFoundError(key, 'key');
+//           },
+//           (a: Article) => {
+//             return T.of(toAPIArticle(a));
+//           }
+//         )(article);
+//       }
+//     )
+//   )();
 
-  const article = await findArticleById(id);
+export const getArticleResolver: APIQueryResolvers['getArticle'] = (_parent, { key }, ctx) =>
+  pipe(
+    findArticleByKey(key),
+    catchError,
+    T.map(throwIfNotFound),
+    T.map(toAPIArticle)
+  )();
 
-  if (!article) throw new ArticleNotFoundError(id, 'id');
+const x = O.fold<Article, APIArticle>(
+  () => {
+    throw new ArticleNotFoundError('tes§', 'key');
+  },
+  (a: Article) => {
+    return toAPIArticle(a);
+  }
+);
+// export const getArticleResolver: APIQueryResolvers['getArticle'] =  (_parent, { key }, ctx) => {
+//   const article = await findArticleByKey(key);
 
-  if (article.authorId !== ctx.user._id) throw new UnauthorizedError();
+//   if (!article) throw new ArticleNotFoundError(key, 'key');
 
-  const updatedArticle = await updateArticle(id, nullToUndefined(payload));
+//   return toAPIArticle(article);
+// };
 
-  return toAPIArticle(updatedArticle);
-};
+// map(identity)(findArticleByKey('test'));
+
+const checkUserLoggedIn = (user?: APIContext['user']) => {};
+// export const updateArticleResolver: APIMutationResolvers['updateArticle'] = async (_parent, { id, payload }, ctx) => {
+//   if (!ctx.user) throw new UnauthenticatedError('Must be logged in to create an article');
+
+//   const article = await findArticleById(id);
+
+//   if (!article) throw new ArticleNotFoundError(id, 'id');
+
+//   if (article.authorId !== ctx.user._id) throw new UnauthorizedError();
+
+//   const updatedArticle = await updateArticle(id, nullToUndefined(payload));
+
+//   return toAPIArticle(updatedArticle);
+// };

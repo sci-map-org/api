@@ -1,6 +1,9 @@
 import { db } from '../infra/database';
 import { generate } from 'shortid';
 import { ArticleNotFoundError } from '../errors/NotFoundError';
+import { TaskEither, tryCatch } from 'fp-ts/lib/TaskEither';
+import { Option, some, fromNullable } from 'fp-ts/lib/Option';
+import { ICollection, TQuery } from 'monk';
 
 const articleCollection = db.get<Article>('articles');
 
@@ -29,6 +32,25 @@ export interface UpdateArticleData {
   content?: string;
 }
 
+const findOne = <T>(collection: ICollection<T>) => (query?: TQuery, options?: object): TaskEither<Error, Option<T>> => {
+  return tryCatch(
+    () => collection.findOne(query, options).then(fromNullable),
+    reason => new Error(JSON.stringify(reason))
+  );
+};
+
+// const findOne = <T>(collection: ICollection<T>) => async (query?: TQuery, options?: object): Promise<T | null> => {
+//   const found = await collection.findOne(query, options);
+
+//   return found || null;
+// };
+
+const findOneArticle = findOne(articleCollection);
+
+export const findArticleByKey = (key: string) => findOneArticle({ key });
+
+export const findArticleById = (id: string) => findOneArticle({ _id: id });
+
 const generateKey = generate;
 
 export const createArticle = async (data: CreateArticleData): Promise<Article> => {
@@ -51,21 +73,36 @@ export const findArticles = async (
   );
 };
 
-export const findArticleById = async (id: string): Promise<Article | null> => {
-  const article = await articleCollection.findOne(id);
+// export const findArticleById = async (id: string): Promise<Article | null> => {
+//   const article = await articleCollection.findOne(id);
 
-  if (!article) return null;
+//   if (!article) return null;
 
-  return article;
-};
+//   return article;
+// };
 
-export const findArticleByKey = async (key: string): Promise<Article | null> => {
-  const article = await articleCollection.findOne({ key });
+// export const findArticleByKey = async (key: string): Promise<Article | null> => {
+//   const article = await articleCollection.findOne({ key });
 
-  if (!article) return null;
+//   if (!article) return null;
 
-  return article;
-};
+//   return article;
+// };
+
+// export const findArticleByKey = (key: string) => {
+//   return tryCatch<Error, Option<Article>>(
+//     () => articleCollection.findOne({ key }).then(fromNullable),
+//     (err: any) => new Error(err)
+//   );
+// };
+
+// async (key: string): TaskEither<Article | null> => {
+//   const article = await articleCollection.findOne({ key });
+
+//   if (!article) return null;
+
+//   return article;
+// };
 
 export const updateArticle = async (id: string, data: UpdateArticleData): Promise<Article> => {
   const updatedArticle = await articleCollection.findOneAndUpdate(id, {
