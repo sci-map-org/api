@@ -64,63 +64,17 @@ class InternalServerError extends Error {
   }
 }
 
-const catchError = <E, T>(t: TE.TaskEither<E, T>): T.Task<T> =>
-  TE.fold<E, T, T>(
-    (e: E) => {
-      throw new InternalServerError(JSON.stringify(e));
-    },
-    (f: T) => {
-      return T.of(f);
-    }
-  )(t);
-
-// const throwIfNotFound = <T>(t: O.Option<T>): T => {
-//   return O.fold<T, T>(
-//     () => {
-//       throw new ArticleNotFoundError('test', 'key');
-//     },
-//     (a: T) => {
-//       return a;
-//     }
-//   )(t);
-// };
-
-const handleNotFound = <E extends Error, T>(
-  t: TE.TaskEither<E, O.Option<T>>
-): TE.TaskEither<E | ArticleNotFoundError, T> => {
-  return TE.chain(
-    O.fold<T, TE.TaskEither<E | ArticleNotFoundError, T>>(
-      () => TE.left<E | ArticleNotFoundError, T>(new ArticleNotFoundError('test', 'key')),
-      (a: T) => TE.right<E, T>(a)
-    )
+const handleNotFound = <T>(t: O.Option<T>): TE.TaskEither<ArticleNotFoundError, T> => {
+  return O.fold<T, TE.TaskEither<ArticleNotFoundError, T>>(
+    () => TE.left<ArticleNotFoundError, T>(new ArticleNotFoundError('test', 'key')),
+    (a: T) => TE.right<ArticleNotFoundError, T>(a)
   )(t);
 };
-
-// export const getArticleResolver: APIQueryResolvers['getArticle'] = (_parent, { key }, ctx) =>
-//   pipe(
-//     findArticleByKey(key),
-//     TE.fold<Error, O.Option<Article>, APIArticle>(
-//       (e: Error) => {
-//         throw new InternalServerError(e.message);
-//       },
-//       (article: O.Option<Article>) => {
-//         return O.fold<Article, T.Task<APIArticle>>(
-//           () => {
-//             throw new ArticleNotFoundError(key, 'key');
-//           },
-//           (a: Article) => {
-//             return T.of(toAPIArticle(a));
-//           }
-//         )(article);
-//       }
-//     )
-//   )();
 
 export const getArticleResolver: APIQueryResolvers['getArticle'] = (_parent, { key }, ctx) =>
   pipe(
     findArticleByKey(key),
-    // catchError,
-    handleNotFound,
+    TE.chain(handleNotFound),
     TE.map(toAPIArticle),
     TE.getOrElse(e => {
       throw e;
