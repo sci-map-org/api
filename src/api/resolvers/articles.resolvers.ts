@@ -74,14 +74,25 @@ const catchError = <E, T>(t: TE.TaskEither<E, T>): T.Task<T> =>
     }
   )(t);
 
-const throwIfNotFound = <T>(t: O.Option<T>): T => {
-  return O.fold<T, T>(
-    () => {
-      throw new ArticleNotFoundError('test', 'key');
-    },
-    (a: T) => {
-      return a;
-    }
+// const throwIfNotFound = <T>(t: O.Option<T>): T => {
+//   return O.fold<T, T>(
+//     () => {
+//       throw new ArticleNotFoundError('test', 'key');
+//     },
+//     (a: T) => {
+//       return a;
+//     }
+//   )(t);
+// };
+
+const handleNotFound = <E extends Error, T>(
+  t: TE.TaskEither<E, O.Option<T>>
+): TE.TaskEither<E | ArticleNotFoundError, T> => {
+  return TE.chain(
+    O.fold<T, TE.TaskEither<E | ArticleNotFoundError, T>>(
+      () => TE.left<E | ArticleNotFoundError, T>(new ArticleNotFoundError('test', 'key')),
+      (a: T) => TE.right<E, T>(a)
+    )
   )(t);
 };
 
@@ -108,9 +119,12 @@ const throwIfNotFound = <T>(t: O.Option<T>): T => {
 export const getArticleResolver: APIQueryResolvers['getArticle'] = (_parent, { key }, ctx) =>
   pipe(
     findArticleByKey(key),
-    catchError,
-    T.map(throwIfNotFound),
-    T.map(toAPIArticle)
+    // catchError,
+    handleNotFound,
+    TE.map(toAPIArticle),
+    TE.getOrElse(e => {
+      throw e;
+    })
   )();
 
 const x = O.fold<Article, APIArticle>(
