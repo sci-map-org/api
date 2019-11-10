@@ -16,6 +16,7 @@ import { identity } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/lib/Option';
 import * as T from 'fp-ts/lib/Task';
 import { of } from 'fp-ts/lib/Task';
+import * as E from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { APIContext } from '../server';
 
@@ -66,8 +67,8 @@ class InternalServerError extends Error {
 
 const handleNotFound = <T>(t: O.Option<T>): TE.TaskEither<ArticleNotFoundError, T> => {
   return O.fold<T, TE.TaskEither<ArticleNotFoundError, T>>(
-    () => TE.left<ArticleNotFoundError, T>(new ArticleNotFoundError('test', 'key')),
-    (a: T) => TE.right<ArticleNotFoundError, T>(a)
+    () => TE.left(new ArticleNotFoundError('test', 'key')),
+    (a: T) => TE.right(a)
   )(t);
 };
 
@@ -81,14 +82,6 @@ export const getArticleResolver: APIQueryResolvers['getArticle'] = (_parent, { k
     })
   )();
 
-const x = O.fold<Article, APIArticle>(
-  () => {
-    throw new ArticleNotFoundError('tes§', 'key');
-  },
-  (a: Article) => {
-    return toAPIArticle(a);
-  }
-);
 // export const getArticleResolver: APIQueryResolvers['getArticle'] =  (_parent, { key }, ctx) => {
 //   const article = await findArticleByKey(key);
 

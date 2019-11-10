@@ -39,12 +39,6 @@ const findOne = <T>(collection: ICollection<T>) => (query?: TQuery, options?: ob
   );
 };
 
-// const findOne = <T>(collection: ICollection<T>) => async (query?: TQuery, options?: object): Promise<T | null> => {
-//   const found = await collection.findOne(query, options);
-
-//   return found || null;
-// };
-
 const findOneArticle = findOne(articleCollection);
 
 export const findArticleByKey = (key: string) => findOneArticle({ key });
