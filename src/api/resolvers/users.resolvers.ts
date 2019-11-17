@@ -1,8 +1,19 @@
 import { createUser, findUserByEmail, User } from '../../repositories/users.repository';
 import { getJWT } from '../../services/auth/jwt';
-import { APICurrentUser, APIMutationResolvers, APIUser, APIQueryResolvers } from '../schema/types';
+import {
+  APICurrentUser,
+  APIMutationResolvers,
+  APIUser,
+  APIQueryResolvers,
+  APIUserResolvers,
+  APICurrentUserResolvers,
+  APICurrentUserArticlesArgs,
+} from '../schema/types';
 import { passwordsMatch } from '../../services/auth/password_hashing';
 import { UserNotFoundError } from '../../errors/NotFoundError';
+import { findArticlesWrittenBy } from '../../repositories/articles.repository';
+import { nullToUndefined } from '../util/nullToUndefined';
+import { toAPIArticle } from './articles.resolvers';
 
 class InvalidCredentialsError extends Error {
   constructor() {
@@ -10,7 +21,7 @@ class InvalidCredentialsError extends Error {
   }
 }
 
-function toAPIUser(user: User): APIUser {
+export function toAPIUser(user: User): APIUser {
   return {
     ...user,
     _id: user._id.toString(),
@@ -52,3 +63,27 @@ export const currentUserResolver: APIQueryResolvers['currentUser'] = async (_par
   if (!foundUser) throw new Error('User logged in but no user found. This should never happen');
   return toAPICurrentUser(foundUser);
 };
+
+export const getWrittenArticlesResolver = async (
+  user: APIUser | APICurrentUser,
+  payload: APICurrentUserArticlesArgs
+) => {
+  const articles = await findArticlesWrittenBy(
+    { _id: user._id },
+    payload.options.pagination ? nullToUndefined(payload.options.pagination) : undefined
+  );
+
+  return { items: articles.map(toAPIArticle) };
+};
+
+export const getUserWrittenArticlesResolver: APIUserResolvers['articles'] = getWrittenArticlesResolver;
+
+export const getCurrentUserWrittenArticlesResolver: APICurrentUserResolvers['articles'] = getWrittenArticlesResolver;
+// async (user, payload) => {
+//   const articles = await findArticlesWrittenBy(
+//     { _id: user._id },
+//     payload.options.pagination ? nullToUndefined(payload.options.pagination) : undefined
+//   );
+
+//   return { items: articles.map(toAPIArticle) };
+// };

@@ -3,6 +3,7 @@ type User {
   email: String!
   displayName: String!
   key: String!
+  articles(options: ListArticlesOptions!): ListArticlesResult
 }
 
 type CurrentUser {
@@ -10,6 +11,7 @@ type CurrentUser {
   email: String!
   displayName: String!
   key: String!
+  articles(options: ListArticlesOptions!): ListArticlesResult
   # private stuff here
 }
 

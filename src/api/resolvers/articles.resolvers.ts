@@ -1,28 +1,25 @@
-import { ArticleNotFoundError } from '../../errors/NotFoundError';
+import { ArticleNotFoundError, NotFoundError } from '../../errors/NotFoundError';
 import {
   Article,
-  createArticle,
-  CreateArticleData,
-  findArticleById,
   findArticleByKey,
-  updateArticle,
   findArticles,
-  writeArticle,
   updateArticleWrittenBy,
+  writeArticle,
+  getArticleAuthor,
 } from '../../repositories/articles.repository';
-import { UnauthenticatedError, UnauthorizedError } from '../errors/UnauthenticatedError';
-import { APIArticle, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
+import { UnauthenticatedError } from '../errors/UnauthenticatedError';
+import { APIArticle, APIMutationResolvers, APIQueryResolvers, APIArticleResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
+import { toAPIUser } from './users.resolvers';
 
-function toAPIArticle(article: Article): APIArticle {
+export function toAPIArticle(article: Article): APIArticle {
   return article;
 }
 
 export const createArticleResolver: APIMutationResolvers['createArticle'] = async (_parent, { payload }, ctx) => {
   if (!ctx.user) throw new UnauthenticatedError('Must be logged in to create an article');
-  // const data: CreateArticleData = { ...payload, authorId: ctx.user._id };
+
   return toAPIArticle(await writeArticle({ _id: ctx.user._id }, payload));
-  // return toAPIArticle(await createArticle(data));
 };
 
 export const listArticlesResolver: APIQueryResolvers['listArticles'] = async (_, { options }) => {
@@ -45,4 +42,10 @@ export const updateArticleResolver: APIMutationResolvers['updateArticle'] = asyn
   const updatedArticle = await updateArticleWrittenBy({ _id: ctx.user._id }, { _id: id }, nullToUndefined(payload));
 
   return toAPIArticle(updatedArticle);
+};
+
+export const getArticleAuthorResolver: APIArticleResolvers['author'] = async article => {
+  const author = await getArticleAuthor({ _id: article._id });
+
+  return toAPIUser(author);
 };

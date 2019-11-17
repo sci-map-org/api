@@ -6,8 +6,15 @@ import {
   createArticleResolver,
   updateArticleResolver,
   listArticlesResolver,
+  getArticleAuthorResolver,
 } from './resolvers/articles.resolvers';
-import { currentUserResolver, loginResolver, registerResolver } from './resolvers/users.resolvers';
+import {
+  currentUserResolver,
+  loginResolver,
+  registerResolver,
+  getWrittenArticlesResolver,
+  getCurrentUserWrittenArticlesResolver,
+} from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
 
@@ -24,6 +31,15 @@ const resolvers: APIResolvers<APIContext> = {
     currentUser: currentUserResolver,
     getArticle: getArticleResolver,
     listArticles: listArticlesResolver,
+  },
+  Article: {
+    author: getArticleAuthorResolver,
+  },
+  User: {
+    articles: getWrittenArticlesResolver,
+  },
+  CurrentUser: {
+    articles: getCurrentUserWrittenArticlesResolver,
   },
 };
 

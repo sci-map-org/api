@@ -8,10 +8,11 @@ type Article {
   contentType: ArticleContentType!
   title: String!
   content: String!
+  author: User
 }
 
 input ListArticlesFilter {
-  authorId: String # to remove
+  contentType: ArticleContentType
 }
 
 input ListArticlesOptions {

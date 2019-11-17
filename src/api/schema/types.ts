@@ -19,6 +19,7 @@ export type APIArticle = {
   contentType: ArticleContentType,
   title: Scalars['String'],
   content: Scalars['String'],
+  author?: Maybe<APIUser>,
 };
 
 export { ArticleContentType };
@@ -35,10 +36,16 @@ export type APICurrentUser = {
   email: Scalars['String'],
   displayName: Scalars['String'],
   key: Scalars['String'],
+  articles?: Maybe<APIListArticlesResult>,
+};
+
+
+export type APICurrentUserArticlesArgs = {
+  options: APIListArticlesOptions
 };
 
 export type APIListArticlesFilter = {
-  authorId?: Maybe<Scalars['String']>,
+  contentType?: Maybe<ArticleContentType>,
 };
 
 export type APIListArticlesOptions = {
@@ -127,6 +134,12 @@ export type APIUser = {
   email: Scalars['String'],
   displayName: Scalars['String'],
   key: Scalars['String'],
+  articles?: Maybe<APIListArticlesResult>,
+};
+
+
+export type APIUserArticlesArgs = {
+  options: APIListArticlesOptions
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -205,6 +218,7 @@ export type APIResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']>,
   Article: ResolverTypeWrapper<APIArticle>,
   ArticleContentType: ArticleContentType,
+  User: ResolverTypeWrapper<APIUser>,
   ListArticlesOptions: APIListArticlesOptions,
   ListArticlesFilter: APIListArticlesFilter,
   PaginationOptions: APIPaginationOptions,
@@ -217,7 +231,6 @@ export type APIResolversTypes = ResolversObject<{
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
-  User: ResolverTypeWrapper<APIUser>,
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -226,6 +239,7 @@ export type APIResolversParentTypes = ResolversObject<{
   String: Scalars['String'],
   Article: APIArticle,
   ArticleContentType: ArticleContentType,
+  User: APIUser,
   ListArticlesOptions: APIListArticlesOptions,
   ListArticlesFilter: APIListArticlesFilter,
   PaginationOptions: APIPaginationOptions,
@@ -238,7 +252,6 @@ export type APIResolversParentTypes = ResolversObject<{
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   Boolean: Scalars['Boolean'],
-  User: APIUser,
 }>;
 
 export type APIArticleResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Article'] = APIResolversParentTypes['Article']> = ResolversObject<{
@@ -247,6 +260,7 @@ export type APIArticleResolvers<ContextType = APIContext, ParentType extends API
   contentType?: Resolver<APIResolversTypes['ArticleContentType'], ParentType, ContextType>,
   title?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   content?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  author?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
 }>;
 
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
@@ -254,6 +268,7 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
 }>;
 
 export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ListArticlesResult'] = APIResolversParentTypes['ListArticlesResult']> = ResolversObject<{
@@ -283,6 +298,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APIUserArticlesArgs, 'options'>>,
 }>;
 
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
