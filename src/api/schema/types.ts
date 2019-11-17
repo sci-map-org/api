@@ -19,7 +19,6 @@ export type APIArticle = {
   contentType: ArticleContentType,
   title: Scalars['String'],
   content: Scalars['String'],
-  authorId: Scalars['String'],
 };
 
 export { ArticleContentType };
@@ -248,7 +247,6 @@ export type APIArticleResolvers<ContextType = APIContext, ParentType extends API
   contentType?: Resolver<APIResolversTypes['ArticleContentType'], ParentType, ContextType>,
   title?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   content?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  authorId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
 }>;
 
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{

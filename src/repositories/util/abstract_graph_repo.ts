@@ -1,11 +1,12 @@
 import { neo4jDriver } from '../../infra/neo4j';
 
-export function getFilterString(filter: object): string {
+export function getFilterString(filter: object, filterName: string = 'filter'): string {
+  if (Object.keys.length == 0) return '';
   const s = Object.keys(filter).reduce((acc, key, index) => {
     if (index === 0) {
-      return `${acc} ${key}: {filter}.${key}`;
+      return `${acc} ${key}: {${filterName}}.${key}`;
     }
-    return `, ${acc} ${key}: {filter}.${key}`;
+    return `, ${acc} ${key}: {${filterName}}.${key}`;
   }, '{ ');
   return s + ' }';
 }
@@ -40,4 +41,72 @@ export const createNode = <C, E>({ label }: { label: string }) => async (props: 
   if (!record) throw new Error();
 
   return record.get('node');
+};
+
+export const createRelatedNode = async <OF extends object, RP extends object, NP extends object>({
+  originNode,
+  relationship,
+  newNode,
+}: {
+  originNode: { label: string; filter: OF };
+  relationship: { label: string; props: RP };
+  newNode: { label: string; props: NP };
+}): Promise<NP> => {
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')}) CREATE (newNode:${
+      newNode.label
+    } $newNodeProps) CREATE (originNode)-[relationship:${
+      relationship.label
+    } $relationshipProps]->(newNode) RETURN properties(newNode) as newNode`,
+    {
+      originNodeFilter: originNode.filter,
+      newNodeProps: newNode.props,
+      relationshipProps: relationship.props,
+    }
+  );
+
+  session.close();
+
+  const record = records.pop();
+
+  if (!record) throw new Error();
+
+  return record.get('newNode');
+};
+
+export const updateRelatedNode = async <OF extends object, RP extends object, NP extends object>({
+  originNode,
+  relationship,
+  destinationNode,
+}: {
+  originNode: { label: string; filter: OF };
+  relationship: { label: string; filter: RP };
+  destinationNode: { label: string; filter: {}; props: NP };
+}): Promise<any> => {
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})-[relationship:${
+      relationship.label
+    } ${getFilterString(relationship.filter, 'relationshipFilter')}]-(destinationNode:${
+      destinationNode.label
+    } ${getFilterString(
+      destinationNode.filter,
+      'destinationNodeFilter'
+    )}) SET destinationNode += $destinationNodeProps RETURN properties(destinationNode) as destinationNode`,
+    {
+      originNodeFilter: originNode.filter,
+      relationshipFilter: relationship.filter,
+      destinationNodeFilter: destinationNode.filter,
+      destinationNodeProps: destinationNode.props,
+    }
+  );
+
+  session.close();
+
+  const record = records.pop();
+
+  if (!record) throw new Error('Not found');
+
+  return record.get('destinationNode');
 };
