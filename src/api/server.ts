@@ -3,6 +3,7 @@ import * as Koa from 'koa';
 
 import { schema } from '../api/schema';
 import { validateAndDecodeJWT } from '../services/auth/jwt';
+import { env } from '../env';
 
 export interface APIContext {
   user?: {
@@ -14,7 +15,7 @@ export interface APIContext {
 const server = new ApolloServer({
   schema,
   introspection: true,
-  mocks: process.env.GRAPHQL_MOCK_ENABLED === 'true' && {
+  mocks: env.api.GRAPHQL_MOCK_ENABLED === 'true' && {
     Date: () => new Date(),
   },
   mockEntireSchema: true,

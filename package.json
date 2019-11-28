@@ -7,7 +7,7 @@
     "build": "rm -rf ./dist && tsc",
     "codegen": "graphql-codegen",
     "start": "node ./dist/index .js",
-    "watch": "tsc-watch --onSuccess \"node ./dist/index.js\" --onFailure \"echo Beep! Compilation Failed\" --compiler typescript/bin/tsc",
+    "dev": "tsc-watch --onSuccess \"node ./dist/index.js\" --onFailure \"echo Beep! Compilation Failed\" --compiler typescript/bin/tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,9 +17,11 @@
     "yarn": ">=1.17.3"
   },
   "dependencies": {
+    "@freighthub/typed-env": "^1.3.4",
     "@types/jsonwebtoken": "^8.3.5",
     "apollo-server-koa": "^2.9.7",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^8.2.0",
     "fp-ts": "^2.1.1",
     "graphql-import": "^0.7.1",
     "jsonwebtoken": "^8.5.1",
