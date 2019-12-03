@@ -2,18 +2,20 @@ import { makeExecutableSchema } from 'apollo-server-koa';
 import { importSchema } from 'graphql-import';
 
 import {
-  getArticleResolver,
   createArticleResolver,
-  updateArticleResolver,
-  listArticlesResolver,
   getArticleAuthorResolver,
+  getArticleResolver,
+  listArticlesResolver,
+  updateArticleResolver,
+  deleteArticleResolver,
 } from './resolvers/articles.resolvers';
 import {
   currentUserResolver,
+  getCurrentUserWrittenArticlesResolver,
+  getUserResolver,
+  getUserWrittenArticlesResolver,
   loginResolver,
   registerResolver,
-  getWrittenArticlesResolver,
-  getCurrentUserWrittenArticlesResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
@@ -26,17 +28,19 @@ const resolvers: APIResolvers<APIContext> = {
     register: registerResolver,
     updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,
+    deleteArticle: deleteArticleResolver,
   },
   Query: {
     currentUser: currentUserResolver,
     getArticle: getArticleResolver,
     listArticles: listArticlesResolver,
+    getUser: getUserResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
   },
   User: {
-    articles: getWrittenArticlesResolver,
+    articles: getUserWrittenArticlesResolver,
   },
   CurrentUser: {
     articles: getCurrentUserWrittenArticlesResolver,

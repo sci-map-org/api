@@ -179,3 +179,38 @@ export const updateRelatedNode = async <OF extends object, RP extends object, NP
 
   return record.get('destinationNode');
 };
+
+export const deleteRelatedNode = async <OF extends object, RP extends object>({
+  originNode,
+  relationship,
+  destinationNode,
+}: {
+  originNode: { label: string; filter: OF };
+  relationship: { label: string; filter: RP };
+  destinationNode: { label: string; filter: {} };
+}): Promise<any> => {
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})-[relationship:${
+      relationship.label
+    } ${getFilterString(relationship.filter, 'relationshipFilter')}]-(destinationNode:${
+      destinationNode.label
+    } ${getFilterString(
+      destinationNode.filter,
+      'destinationNodeFilter'
+    )}) DETACH DELETE destinationNode RETURN properties(destinationNode) as destinationNode`,
+    {
+      originNodeFilter: originNode.filter,
+      relationshipFilter: relationship.filter,
+      destinationNodeFilter: destinationNode.filter,
+    }
+  );
+
+  session.close();
+
+  const record = records.pop();
+
+  if (!record) throw new Error('Not found');
+
+  return record.get('destinationNode');
+};

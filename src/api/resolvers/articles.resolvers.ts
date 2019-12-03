@@ -1,14 +1,15 @@
-import { ArticleNotFoundError, NotFoundError } from '../../errors/NotFoundError';
+import { ArticleNotFoundError } from '../../errors/NotFoundError';
 import {
   Article,
   findArticleByKey,
   findArticles,
+  getArticleAuthor,
   updateArticleWrittenBy,
   writeArticle,
-  getArticleAuthor,
+  deleteArticleWrittenBy,
 } from '../../repositories/articles.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import { APIArticle, APIMutationResolvers, APIQueryResolvers, APIArticleResolvers } from '../schema/types';
+import { APIArticle, APIArticleResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
 
@@ -48,4 +49,10 @@ export const getArticleAuthorResolver: APIArticleResolvers['author'] = async art
   const author = await getArticleAuthor({ _id: article._id });
 
   return toAPIUser(author);
+};
+
+export const deleteArticleResolver: APIMutationResolvers['deleteArticle'] = async (_parent, { id }, ctx) => {
+  if (!ctx.user) throw new UnauthenticatedError('Must be logged in to create an article');
+  await deleteArticleWrittenBy({ _id: ctx.user._id }, { _id: id });
+  return { success: true };
 };

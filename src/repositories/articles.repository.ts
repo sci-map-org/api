@@ -11,6 +11,7 @@ import {
   updateRelatedNode,
   getRelatedNode,
   getRelatedNodes,
+  deleteRelatedNode,
 } from './util/abstract_graph_repo';
 import { User } from './users.repository';
 
@@ -140,5 +141,24 @@ export const getArticleAuthor = (articleFilter: { key: string } | { _id: string 
     destinationNode: {
       label: 'User',
       filter: {},
+    },
+  });
+
+export const deleteArticleWrittenBy = async (
+  authorFilter: { _id: string } | { key: string },
+  articleFilter: { key: string } | { _id: string }
+) =>
+  deleteRelatedNode({
+    originNode: {
+      label: 'User',
+      filter: authorFilter,
+    },
+    relationship: {
+      label: 'WROTE',
+      filter: {},
+    },
+    destinationNode: {
+      label: 'Article',
+      filter: articleFilter,
     },
   });

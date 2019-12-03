@@ -5,6 +5,7 @@ import { db } from '../infra/mongo';
 import { encryptPassword } from '../services/auth/password_hashing';
 import { neo4jDriver } from '../infra/neo4j';
 import shortid = require('shortid');
+import { findOne } from './util/abstract_graph_repo';
 
 const userCollection = db.get<User>('users');
 
@@ -68,3 +69,5 @@ export const findUserByEmail = async (email: string): Promise<User | null> => {
 
   return record.get('user');
 };
+
+export const findUserByKey = (key: string) => findOne<User>({ label: 'User' })({ key });

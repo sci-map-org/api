@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail, User } from '../../repositories/users.repository';
+import { createUser, findUserByEmail, User, findUserByKey } from '../../repositories/users.repository';
 import { getJWT } from '../../services/auth/jwt';
 import {
   APICurrentUser,
@@ -79,11 +79,9 @@ export const getWrittenArticlesResolver = async (
 export const getUserWrittenArticlesResolver: APIUserResolvers['articles'] = getWrittenArticlesResolver;
 
 export const getCurrentUserWrittenArticlesResolver: APICurrentUserResolvers['articles'] = getWrittenArticlesResolver;
-// async (user, payload) => {
-//   const articles = await findArticlesWrittenBy(
-//     { _id: user._id },
-//     payload.options.pagination ? nullToUndefined(payload.options.pagination) : undefined
-//   );
 
-//   return { items: articles.map(toAPIArticle) };
-// };
+export const getUserResolver: APIQueryResolvers['getUser'] = async (_parent, { key }) => {
+  const foundUser = await findUserByKey(key);
+  if (!foundUser) throw new Error('User not found');
+  return toAPIUser(foundUser);
+};
