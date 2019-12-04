@@ -8,7 +8,7 @@
     "codegen": "graphql-codegen",
     "start": "node ./dist/index .js",
     "dev": "tsc-watch --onSuccess \"node ./dist/index.js\" --onFailure \"echo Beep! Compilation Failed\" --compiler typescript/bin/tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -38,10 +38,13 @@
     "@graphql-codegen/typescript": "^1.8.2",
     "@graphql-codegen/typescript-resolvers": "^1.8.2",
     "@types/bcryptjs": "^2.4.2",
+    "@types/jest": "^24.0.23",
     "@types/koa": "^2.0.51",
     "@types/node": "^12.11.7",
     "@types/shortid": "^0.0.29",
     "graphql": "^14.5.8",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.2.0",
     "tsc-watch": "^4.0.0"
   },
   "prettier": {
