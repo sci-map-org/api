@@ -2,7 +2,7 @@ import { Article } from '../../entities/Article';
 import { ArticleNotFoundError } from '../../errors/NotFoundError';
 import {
   deleteArticleWrittenBy,
-  findArticleByKey,
+  findArticle,
   findArticles,
   getArticleAuthor,
   updateArticleWrittenBy,
@@ -30,7 +30,7 @@ export const listArticlesResolver: APIQueryResolvers['listArticles'] = async (_,
 };
 
 export const getArticleResolver: APIQueryResolvers['getArticle'] = async (_parent, { key }, ctx) => {
-  const article = await findArticleByKey(key);
+  const article = await findArticle({ key });
 
   if (!article) throw new ArticleNotFoundError(key, 'key');
 

@@ -1,4 +1,5 @@
 import { ArticleContentType } from '../../entities/Article';
+import { UserRole } from '../../entities/User';
 import { GraphQLResolveInfo } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -10,6 +11,13 @@ export type Scalars = {
   Boolean: boolean,
   Int: number,
   Float: number,
+};
+
+export type APIAdminUpdateUserPayload = {
+  displayName?: Maybe<Scalars['String']>,
+  key?: Maybe<Scalars['String']>,
+  email?: Maybe<Scalars['String']>,
+  role?: Maybe<UserRole>,
 };
 
 export type APIArticle = {
@@ -36,6 +44,7 @@ export type APICurrentUser = {
   email: Scalars['String'],
   displayName: Scalars['String'],
   key: Scalars['String'],
+  role: UserRole,
   articles?: Maybe<APIListArticlesResult>,
 };
 
@@ -71,6 +80,7 @@ export type APIMutation = {
   deleteArticle: APIArticle,
   login: APILoginResponse,
   register: APICurrentUser,
+  adminUpdateUser: APIUser,
 };
 
 
@@ -98,6 +108,12 @@ export type APIMutationLoginArgs = {
 
 export type APIMutationRegisterArgs = {
   payload: APIRegisterPayload
+};
+
+
+export type APIMutationAdminUpdateUserArgs = {
+  id: Scalars['String'],
+  payload: APIAdminUpdateUserPayload
 };
 
 export type APIPaginationOptions = {
@@ -153,6 +169,8 @@ export type APIUser = {
 export type APIUserArticlesArgs = {
   options: APIListArticlesOptions
 };
+
+export { UserRole };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
@@ -237,11 +255,13 @@ export type APIResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']>,
   ListArticlesResult: ResolverTypeWrapper<APIListArticlesResult>,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
+  UserRole: UserRole,
   Mutation: ResolverTypeWrapper<{}>,
   CreateArticlePayload: APICreateArticlePayload,
   UpdateArticlePayload: APIUpdateArticlePayload,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
+  AdminUpdateUserPayload: APIAdminUpdateUserPayload,
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
 }>;
 
@@ -258,11 +278,13 @@ export type APIResolversParentTypes = ResolversObject<{
   Int: Scalars['Int'],
   ListArticlesResult: APIListArticlesResult,
   CurrentUser: APICurrentUser,
+  UserRole: UserRole,
   Mutation: {},
   CreateArticlePayload: APICreateArticlePayload,
   UpdateArticlePayload: APIUpdateArticlePayload,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
+  AdminUpdateUserPayload: APIAdminUpdateUserPayload,
   Boolean: Scalars['Boolean'],
 }>;
 
@@ -280,6 +302,7 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
 }>;
 
@@ -298,6 +321,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   deleteArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationDeleteArticleArgs, 'id'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
+  adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
 }>;
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{

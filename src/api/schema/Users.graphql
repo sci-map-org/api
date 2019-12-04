@@ -1,3 +1,8 @@
+enum UserRole {
+  ADMIN
+  USER
+}
+
 type User {
   _id: String!
   email: String!
@@ -11,6 +16,7 @@ type CurrentUser {
   email: String!
   displayName: String!
   key: String!
+  role: UserRole!
   articles(options: ListArticlesOptions!): ListArticlesResult
   # private stuff here
 }
@@ -32,7 +38,15 @@ input RegisterPayload {
   password: String!
 }
 
+input AdminUpdateUserPayload {
+  displayName: String
+  key: String
+  email: String
+  role: UserRole
+}
+
 type Mutation {
   login(email: String!, password: String!): LoginResponse!
   register(payload: RegisterPayload!): CurrentUser!
+  adminUpdateUser(id: String!, payload: AdminUpdateUserPayload!): User!
 }

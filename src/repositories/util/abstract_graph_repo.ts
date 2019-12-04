@@ -11,7 +11,9 @@ export function getFilterString(filter: object, filterName: string = 'filter'): 
   return s + ' }';
 }
 
-export const findOne = <E>({ label }: { label: string }) => async (filter: object): Promise<E | null> => {
+export const findOne = <E, F extends Partial<E>>({ label }: { label: string }) => async (
+  filter: F
+): Promise<E | null> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
     `MATCH (node:${label} ${getFilterString(filter)}) RETURN properties(node) AS node`,
@@ -26,6 +28,27 @@ export const findOne = <E>({ label }: { label: string }) => async (filter: objec
 
   return record.get('node');
 };
+
+export const updateOne = <E, F extends Partial<E>, D extends Partial<E>>({ label }: { label: string }) => async (
+  filter: F,
+  data: D
+): Promise<E | null> => {
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (node:${label} ${getFilterString(filter)}) SET node += $props RETURN properties(node) AS node`,
+    {
+      filter,
+      props: data,
+    }
+  );
+  session.close();
+  const record = records.pop();
+
+  if (!record) return null;
+
+  return record.get('node');
+};
+
 export const getRelatedNodes = async <E>({
   originNode,
   relationship,

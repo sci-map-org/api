@@ -16,6 +16,7 @@ import {
   getUserWrittenArticlesResolver,
   loginResolver,
   registerResolver,
+  adminUpdateUserResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
@@ -26,6 +27,7 @@ const resolvers: APIResolvers<APIContext> = {
   Mutation: {
     login: loginResolver,
     register: registerResolver,
+    adminUpdateUser: adminUpdateUserResolver,
     updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,
     deleteArticle: deleteArticleResolver,

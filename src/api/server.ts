@@ -2,14 +2,11 @@ import { ApolloServer } from 'apollo-server-koa';
 import * as Koa from 'koa';
 
 import { schema } from '../api/schema';
-import { validateAndDecodeJWT } from '../services/auth/jwt';
+import { validateAndDecodeJWT, JWTPayload } from '../services/auth/jwt';
 import { env } from '../env';
 
 export interface APIContext {
-  user?: {
-    _id: string;
-    email: string;
-  };
+  user?: JWTPayload;
 }
 
 const server = new ApolloServer({

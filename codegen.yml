@@ -14,3 +14,4 @@ generates:
             contextType: ../server#APIContext
             enumValues:
                 ArticleContentType: ../../entities/Article#ArticleContentType
+                UserRole: ../../entities/User#UserRole

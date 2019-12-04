@@ -81,11 +81,7 @@ export const findArticlesWrittenBy = (
     pagination,
   });
 
-export const findArticleById = (id: string): Promise<Article | null> =>
-  findOne<Article>({ label: 'Article' })({ _id: id });
-
-export const findArticleByKey = async (key: string): Promise<Article | null> =>
-  findOne<Article>({ label: 'Article' })({ key });
+export const findArticle = findOne<Article, { key: string } | { _id: string }>({ label: 'Article' });
 
 export const updateArticleWrittenBy = async (
   authorFilter: { _id: string } | { key: string },
