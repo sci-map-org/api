@@ -1,4 +1,4 @@
-import { ArticleContentType } from '../../repositories/articles.repository';
+import { ArticleContentType } from '../../entities/Article';
 import { GraphQLResolveInfo } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -44,11 +44,6 @@ export type APICurrentUserArticlesArgs = {
   options: APIListArticlesOptions
 };
 
-export type APIDeleteEntityResult = {
-   __typename?: 'DeleteEntityResult',
-  success: Scalars['Boolean'],
-};
-
 export type APIListArticlesFilter = {
   contentType?: Maybe<ArticleContentType>,
 };
@@ -73,7 +68,7 @@ export type APIMutation = {
    __typename?: 'Mutation',
   createArticle: APIArticle,
   updateArticle: APIArticle,
-  deleteArticle: APIDeleteEntityResult,
+  deleteArticle: APIArticle,
   login: APILoginResponse,
   register: APICurrentUser,
 };
@@ -245,10 +240,9 @@ export type APIResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>,
   CreateArticlePayload: APICreateArticlePayload,
   UpdateArticlePayload: APIUpdateArticlePayload,
-  DeleteEntityResult: ResolverTypeWrapper<APIDeleteEntityResult>,
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -267,10 +261,9 @@ export type APIResolversParentTypes = ResolversObject<{
   Mutation: {},
   CreateArticlePayload: APICreateArticlePayload,
   UpdateArticlePayload: APIUpdateArticlePayload,
-  DeleteEntityResult: APIDeleteEntityResult,
-  Boolean: Scalars['Boolean'],
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
+  Boolean: Scalars['Boolean'],
 }>;
 
 export type APIArticleResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Article'] = APIResolversParentTypes['Article']> = ResolversObject<{
@@ -290,10 +283,6 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
 }>;
 
-export type APIDeleteEntityResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteEntityResult'] = APIResolversParentTypes['DeleteEntityResult']> = ResolversObject<{
-  success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
-}>;
-
 export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ListArticlesResult'] = APIResolversParentTypes['ListArticlesResult']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Article']>, ParentType, ContextType>,
 }>;
@@ -306,7 +295,7 @@ export type APILoginResponseResolvers<ContextType = APIContext, ParentType exten
 export type APIMutationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Mutation'] = APIResolversParentTypes['Mutation']> = ResolversObject<{
   createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
   updateArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationUpdateArticleArgs, 'id' | 'payload'>>,
-  deleteArticle?: Resolver<APIResolversTypes['DeleteEntityResult'], ParentType, ContextType, RequireFields<APIMutationDeleteArticleArgs, 'id'>>,
+  deleteArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationDeleteArticleArgs, 'id'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
 }>;
@@ -329,7 +318,6 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Article?: APIArticleResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
-  DeleteEntityResult?: APIDeleteEntityResultResolvers<ContextType>,
   ListArticlesResult?: APIListArticlesResultResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   Mutation?: APIMutationResolvers<ContextType>,

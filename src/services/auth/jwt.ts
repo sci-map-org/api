@@ -1,16 +1,18 @@
 import { sign, verify } from 'jsonwebtoken';
-import { User } from '../../repositories/users.repository';
+import { User } from '../../entities/User';
 
 const JWT_SECRET = 'SECRET';
 
 export interface JWTPayload {
   _id: string;
+  key: string;
   email: string;
 }
 
 export async function getJWT(user: User): Promise<string> {
   const jwtPayload: JWTPayload = {
-    _id: user._id.toString(),
+    _id: user._id,
+    key: user.key,
     email: user.email,
   };
   return new Promise((resolve, reject) => {

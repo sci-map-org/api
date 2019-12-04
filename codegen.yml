@@ -13,4 +13,4 @@ generates:
             useIndexSignature: true
             contextType: ../server#APIContext
             enumValues:
-                ArticleContentType: ../../repositories/articles.repository#ArticleContentType
+                ArticleContentType: ../../entities/Article#ArticleContentType

@@ -1,12 +1,12 @@
+import { Article } from '../../entities/Article';
 import { ArticleNotFoundError } from '../../errors/NotFoundError';
 import {
-  Article,
+  deleteArticleWrittenBy,
   findArticleByKey,
   findArticles,
   getArticleAuthor,
   updateArticleWrittenBy,
   writeArticle,
-  deleteArticleWrittenBy,
 } from '../../repositories/articles.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APIArticle, APIArticleResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
@@ -53,6 +53,6 @@ export const getArticleAuthorResolver: APIArticleResolvers['author'] = async art
 
 export const deleteArticleResolver: APIMutationResolvers['deleteArticle'] = async (_parent, { id }, ctx) => {
   if (!ctx.user) throw new UnauthenticatedError('Must be logged in to create an article');
-  await deleteArticleWrittenBy({ _id: ctx.user._id }, { _id: id });
-  return { success: true };
+  const deletedArticle = await deleteArticleWrittenBy({ _id: ctx.user._id }, { _id: id });
+  return toAPIArticle(deletedArticle);
 };

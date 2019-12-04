@@ -1,13 +1,10 @@
 import { omit } from 'lodash';
-import { IObjectID } from 'monk';
-
-import { db } from '../infra/mongo';
-import { encryptPassword } from '../services/auth/password_hashing';
-import { neo4jDriver } from '../infra/neo4j';
 import shortid = require('shortid');
-import { findOne } from './util/abstract_graph_repo';
 
-const userCollection = db.get<User>('users');
+import { User } from '../entities/User';
+import { neo4jDriver } from '../infra/neo4j';
+import { encryptPassword } from '../services/auth/password_hashing';
+import { findOne } from './util/abstract_graph_repo';
 
 interface CreateUserData {
   displayName: string;
@@ -20,14 +17,6 @@ class NonUniqueUserEmail extends Error {
   constructor(email: string) {
     super(`Email address ${email} already in use`);
   }
-}
-
-export interface User {
-  _id: IObjectID;
-  email: string;
-  displayName: string;
-  key: string;
-  password_hash: string;
 }
 
 export const createUser = async (data: CreateUserData): Promise<User> => {

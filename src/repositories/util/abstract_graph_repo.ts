@@ -180,14 +180,14 @@ export const updateRelatedNode = async <OF extends object, RP extends object, NP
   return record.get('destinationNode');
 };
 
-export const deleteRelatedNode = async <OF extends object, RP extends object>({
+export const deleteRelatedNode = async <OF extends object, RF extends object, DF extends object>({
   originNode,
   relationship,
   destinationNode,
 }: {
   originNode: { label: string; filter: OF };
-  relationship: { label: string; filter: RP };
-  destinationNode: { label: string; filter: {} };
+  relationship: { label: string; filter: RF };
+  destinationNode: { label: string; filter: DF };
 }): Promise<any> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(

@@ -40,11 +40,8 @@ input UpdateArticlePayload {
   content: String
 }
 
-type DeleteEntityResult {
-  success: Boolean!
-}
 type Mutation {
   createArticle(payload: CreateArticlePayload!): Article!
   updateArticle(id: String!, payload: UpdateArticlePayload!): Article!
-  deleteArticle(id: String!): DeleteEntityResult!
+  deleteArticle(id: String!): Article!
 }

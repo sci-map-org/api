@@ -1,31 +1,18 @@
 import { generate } from 'shortid';
 import * as shortid from 'shortid';
 
-import { ArticleNotFoundError } from '../errors/NotFoundError';
+import { Article, ArticleContentType } from '../entities/Article';
+import { User } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import {
-  createNode,
+  createRelatedNode,
+  deleteRelatedNode,
   findOne,
   getFilterString,
-  createRelatedNode,
-  updateRelatedNode,
   getRelatedNode,
   getRelatedNodes,
-  deleteRelatedNode,
+  updateRelatedNode,
 } from './util/abstract_graph_repo';
-import { User } from './users.repository';
-
-export enum ArticleContentType {
-  Markdown = 'markdown',
-}
-
-export interface Article {
-  _id: string;
-  key: string;
-  contentType: ArticleContentType;
-  title: string;
-  content: string;
-}
 
 export interface CreateArticleData {
   contentType: ArticleContentType;
@@ -39,13 +26,6 @@ export interface UpdateArticleData {
 }
 
 const generateKey = generate;
-
-// export const createArticle = (data: CreateArticleData): Promise<Article> =>
-//   createNode<CreateArticleData & { key: string; _id: string }, Article>({ label: 'Article' })({
-//     ...data,
-//     _id: shortid.generate(),
-//     key: generateKey(),
-//   });
 
 export const writeArticle = (
   author: { _id: string } | { key: string },
@@ -147,7 +127,7 @@ export const getArticleAuthor = (articleFilter: { key: string } | { _id: string 
 export const deleteArticleWrittenBy = async (
   authorFilter: { _id: string } | { key: string },
   articleFilter: { key: string } | { _id: string }
-) =>
+): Promise<Article> =>
   deleteRelatedNode({
     originNode: {
       label: 'User',

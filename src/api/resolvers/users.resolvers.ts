@@ -1,17 +1,18 @@
-import { createUser, findUserByEmail, User, findUserByKey } from '../../repositories/users.repository';
-import { getJWT } from '../../services/auth/jwt';
-import {
-  APICurrentUser,
-  APIMutationResolvers,
-  APIUser,
-  APIQueryResolvers,
-  APIUserResolvers,
-  APICurrentUserResolvers,
-  APICurrentUserArticlesArgs,
-} from '../schema/types';
-import { passwordsMatch } from '../../services/auth/password_hashing';
+import { User } from '../../entities/User';
 import { UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesWrittenBy } from '../../repositories/articles.repository';
+import { createUser, findUserByEmail, findUserByKey } from '../../repositories/users.repository';
+import { getJWT } from '../../services/auth/jwt';
+import { passwordsMatch } from '../../services/auth/password_hashing';
+import {
+  APICurrentUser,
+  APICurrentUserArticlesArgs,
+  APICurrentUserResolvers,
+  APIMutationResolvers,
+  APIQueryResolvers,
+  APIUser,
+  APIUserResolvers,
+} from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIArticle } from './articles.resolvers';
 
