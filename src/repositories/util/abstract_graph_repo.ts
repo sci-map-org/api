@@ -159,11 +159,7 @@ export const createRelatedNode = async <OF extends object, RP extends object, NP
   newNode: { label: string; props: NP };
 }): Promise<NP> => {
   const session = neo4jDriver.session();
-  console.log({
-    originNodeFilter: originNode.filter,
-    newNodeProps: newNode.props,
-    relationshipProps: relationship.props,
-  });
+
   const { records } = await session.run(
     `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')}) CREATE (newNode:${
       newNode.label
