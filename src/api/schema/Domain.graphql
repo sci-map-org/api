@@ -19,6 +19,10 @@ input UpdateDomainPayload {
   key: String
 }
 
+type DeleteDomainResponse {
+  _id: String!
+  success: Boolean!
+}
 type Query {
   getDomainByKey(key: String!): Domain!
 }
@@ -26,4 +30,5 @@ type Query {
 type Mutation {
   createDomain(payload: CreateDomainPayload!): Domain!
   updateDomain(id: String!, payload: UpdateDomainPayload!): Domain!
+  deleteDomain(id: String!): DeleteDomainResponse!
 }

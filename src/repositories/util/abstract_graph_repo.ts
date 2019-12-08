@@ -49,6 +49,20 @@ export const updateOne = <E, F extends Partial<E>, D extends Partial<E>>({ label
   return record.get('node');
 };
 
+export const deleteOne = <E, F extends Partial<E>>({ label }: { label: string }) => async (
+  filter: F
+): Promise<{ deletedCount: number }> => {
+  const session = neo4jDriver.session();
+  const results = await session.run(
+    `MATCH (node:${label} ${getFilterString(filter)}) DETACH DELETE node RETURN properties(node) AS node`,
+    {
+      filter,
+    }
+  );
+  session.close();
+  return { deletedCount: results.records.length };
+};
+
 export const getRelatedNodes = async <E>({
   originNode,
   relationship,
@@ -145,6 +159,11 @@ export const createRelatedNode = async <OF extends object, RP extends object, NP
   newNode: { label: string; props: NP };
 }): Promise<NP> => {
   const session = neo4jDriver.session();
+  console.log({
+    originNodeFilter: originNode.filter,
+    newNodeProps: newNode.props,
+    relationshipProps: relationship.props,
+  });
   const { records } = await session.run(
     `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')}) CREATE (newNode:${
       newNode.label
@@ -211,7 +230,7 @@ export const deleteRelatedNode = async <OF extends object, RF extends object, DF
   originNode: { label: string; filter: OF };
   relationship: { label: string; filter: RF };
   destinationNode: { label: string; filter: DF };
-}): Promise<any> => {
+}): Promise<{ deletedCount: number }> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
     `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})-[relationship:${
@@ -231,9 +250,7 @@ export const deleteRelatedNode = async <OF extends object, RF extends object, DF
 
   session.close();
 
-  const record = records.pop();
-
-  if (!record) throw new Error('Not found');
-
-  return record.get('destinationNode');
+  return {
+    deletedCount: records.length,
+  };
 };

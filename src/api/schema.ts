@@ -3,24 +3,29 @@ import { importSchema } from 'graphql-import';
 
 import {
   createArticleResolver,
+  deleteArticleResolver,
   getArticleAuthorResolver,
   getArticleResolver,
   listArticlesResolver,
   updateArticleResolver,
-  deleteArticleResolver,
 } from './resolvers/articles.resolvers';
 import {
+  createDomainResolver,
+  deleteDomainResolver,
+  getDomainByKeyResolver,
+  updateDomainResolver,
+} from './resolvers/domains.resolvers';
+import {
+  adminUpdateUserResolver,
   currentUserResolver,
   getCurrentUserWrittenArticlesResolver,
   getUserResolver,
   getUserWrittenArticlesResolver,
   loginResolver,
   registerResolver,
-  adminUpdateUserResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
-import { createDomainResolver, updateDomainResolver, getDomainByKeyResolver } from './resolvers/domains.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -34,6 +39,7 @@ const resolvers: APIResolvers<APIContext> = {
     deleteArticle: deleteArticleResolver,
     createDomain: createDomainResolver,
     updateDomain: updateDomainResolver,
+    deleteDomain: deleteDomainResolver,
   },
   Query: {
     currentUser: currentUserResolver,

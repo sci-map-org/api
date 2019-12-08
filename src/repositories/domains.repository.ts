@@ -1,7 +1,7 @@
 import * as shortid from 'shortid';
 
 import { Domain } from '../entities/Domain';
-import { createRelatedNode, findOne, updateOne } from './util/abstract_graph_repo';
+import { createRelatedNode, findOne, updateOne, deleteOne } from './util/abstract_graph_repo';
 
 const label = 'Domain';
 
@@ -25,3 +25,5 @@ export const createDomain = (user: { _id: string } | { key: string }, data: Crea
 export const findDomain = findOne<Domain, { key: string } | { _id: string }>({ label });
 
 export const updateDomain = updateOne<Domain, { _id: string } | { key: string }, UpdateDomainData>({ label });
+
+export const deleteDomain = deleteOne<Domain, { _id: string } | { key: string }>({ label });
