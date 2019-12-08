@@ -1,0 +1,29 @@
+type Domain {
+  _id: String!
+  name: String!
+  key: String!
+  # subDomains(options: ListSubDomainsOptions!): SubDomainRelationship
+}
+
+input ListSubDomainsOptions {
+  pagination: PaginationOptions
+}
+
+input CreateDomainPayload {
+  name: String!
+  key: String!
+}
+
+input UpdateDomainPayload {
+  name: String
+  key: String
+}
+
+type Query {
+  getDomainByKey(key: String!): Domain!
+}
+
+type Mutation {
+  createDomain(payload: CreateDomainPayload!): Domain!
+  updateDomain(id: String!, payload: UpdateDomainPayload!): Domain!
+}

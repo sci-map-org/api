@@ -20,6 +20,7 @@ import {
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
+import { createDomainResolver, updateDomainResolver, getDomainByKeyResolver } from './resolvers/domains.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -31,12 +32,15 @@ const resolvers: APIResolvers<APIContext> = {
     updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,
     deleteArticle: deleteArticleResolver,
+    createDomain: createDomainResolver,
+    updateDomain: updateDomainResolver,
   },
   Query: {
     currentUser: currentUserResolver,
     getArticle: getArticleResolver,
     listArticles: listArticlesResolver,
     getUser: getUserResolver,
+    getDomainByKey: getDomainByKeyResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
