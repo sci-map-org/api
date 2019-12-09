@@ -34,7 +34,7 @@ export const writeArticle = (author: { _id: string } | { key: string }, data: Cr
       filter: author,
     },
     relationship: {
-      label: 'WROTE',
+      label: 'CREATED',
       props: {
         createdAt: Date.now(),
       },
@@ -69,7 +69,7 @@ export const findArticlesWrittenBy = (
 ) =>
   getRelatedNodes({
     originNode: { label: 'User', filter: authorFilter },
-    relationship: { label: 'WROTE', filter: {} },
+    relationship: { label: 'CREATED', filter: {} },
     destinationNode: { label: 'Article', filter: {} },
     pagination,
   });
@@ -87,7 +87,7 @@ export const updateArticleWrittenBy = async (
       filter: authorFilter,
     },
     relationship: {
-      label: 'WROTE',
+      label: 'CREATED',
       filter: {},
     },
     destinationNode: {
@@ -104,7 +104,7 @@ export const getArticleAuthor = (articleFilter: { key: string } | { _id: string 
       filter: articleFilter,
     },
     relationship: {
-      label: 'WROTE',
+      label: 'CREATED',
       filter: {},
     },
     destinationNode: {
@@ -123,7 +123,7 @@ export const deleteArticleWrittenBy = async (
       filter: authorFilter,
     },
     relationship: {
-      label: 'WROTE',
+      label: 'CREATED',
       filter: {},
     },
     destinationNode: {
