@@ -3,20 +3,27 @@ import { importSchema } from 'graphql-import';
 
 import {
   createArticleResolver,
+  deleteArticleResolver,
   getArticleAuthorResolver,
   getArticleResolver,
   listArticlesResolver,
   updateArticleResolver,
-  deleteArticleResolver,
 } from './resolvers/articles.resolvers';
 import {
+  createDomainResolver,
+  deleteDomainResolver,
+  getDomainByKeyResolver,
+  updateDomainResolver,
+  searchDomainsResolver,
+} from './resolvers/domains.resolvers';
+import {
+  adminUpdateUserResolver,
   currentUserResolver,
   getCurrentUserWrittenArticlesResolver,
   getUserResolver,
   getUserWrittenArticlesResolver,
   loginResolver,
   registerResolver,
-  adminUpdateUserResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
@@ -31,12 +38,17 @@ const resolvers: APIResolvers<APIContext> = {
     updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,
     deleteArticle: deleteArticleResolver,
+    createDomain: createDomainResolver,
+    updateDomain: updateDomainResolver,
+    deleteDomain: deleteDomainResolver,
   },
   Query: {
     currentUser: currentUserResolver,
     getArticle: getArticleResolver,
     listArticles: listArticlesResolver,
     getUser: getUserResolver,
+    searchDomains: searchDomainsResolver,
+    getDomainByKey: getDomainByKeyResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

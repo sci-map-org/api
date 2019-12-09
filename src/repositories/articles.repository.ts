@@ -27,21 +27,14 @@ export interface UpdateArticleData {
 
 const generateKey = generate;
 
-export const writeArticle = (
-  author: { _id: string } | { key: string },
-  data: {
-    contentType: ArticleContentType;
-    title: string;
-    content: string;
-  }
-): Promise<Article> =>
+export const writeArticle = (author: { _id: string } | { key: string }, data: CreateArticleData): Promise<Article> =>
   createRelatedNode({
     originNode: {
       label: 'User',
       filter: author,
     },
     relationship: {
-      label: 'WROTE',
+      label: 'CREATED',
       props: {
         createdAt: Date.now(),
       },
@@ -76,7 +69,7 @@ export const findArticlesWrittenBy = (
 ) =>
   getRelatedNodes({
     originNode: { label: 'User', filter: authorFilter },
-    relationship: { label: 'WROTE', filter: {} },
+    relationship: { label: 'CREATED', filter: {} },
     destinationNode: { label: 'Article', filter: {} },
     pagination,
   });
@@ -94,7 +87,7 @@ export const updateArticleWrittenBy = async (
       filter: authorFilter,
     },
     relationship: {
-      label: 'WROTE',
+      label: 'CREATED',
       filter: {},
     },
     destinationNode: {
@@ -111,7 +104,7 @@ export const getArticleAuthor = (articleFilter: { key: string } | { _id: string 
       filter: articleFilter,
     },
     relationship: {
-      label: 'WROTE',
+      label: 'CREATED',
       filter: {},
     },
     destinationNode: {
@@ -123,14 +116,14 @@ export const getArticleAuthor = (articleFilter: { key: string } | { _id: string 
 export const deleteArticleWrittenBy = async (
   authorFilter: { _id: string } | { key: string },
   articleFilter: { key: string } | { _id: string }
-): Promise<Article> =>
+): Promise<{ deletedCount: number }> =>
   deleteRelatedNode({
     originNode: {
       label: 'User',
       filter: authorFilter,
     },
     relationship: {
-      label: 'WROTE',
+      label: 'CREATED',
       filter: {},
     },
     destinationNode: {

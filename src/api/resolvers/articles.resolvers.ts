@@ -53,6 +53,10 @@ export const getArticleAuthorResolver: APIArticleResolvers['author'] = async art
 
 export const deleteArticleResolver: APIMutationResolvers['deleteArticle'] = async (_parent, { id }, ctx) => {
   if (!ctx.user) throw new UnauthenticatedError('Must be logged in to create an article');
-  const deletedArticle = await deleteArticleWrittenBy({ _id: ctx.user._id }, { _id: id });
-  return toAPIArticle(deletedArticle);
+  const { deletedCount } = await deleteArticleWrittenBy({ _id: ctx.user._id }, { _id: id });
+  if (!deletedCount) throw new ArticleNotFoundError(id, '_id');
+  return {
+    success: true,
+    _id: id,
+  };
 };
