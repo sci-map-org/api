@@ -1,0 +1,37 @@
+enum ResourceMediaType {
+  video
+  text
+}
+
+# polymorphic ? By type or just internal / external ?
+# what info in the relationships ? approach taken ?
+type VideoResource implements ResourceInterface {
+  _id: String!
+  name: String!
+  description: String
+  mediaType: ResourceMediaType.video!
+  external: Boolean!
+  url: String!
+  durationMs: Int!
+}
+
+interface ResourceInterface {
+  _id: String!
+  name: String!
+  description: String
+  mediaType: ResourceMediaType!
+  external: Boolean!
+  durationMs: Int!
+}
+
+
+# External -> Url + abstract/description if possible ? E.g. youtube description
+# Internal -> 
+# Polymorphic relationship ?
+# approach taken
+# mapping to concepts
+# duration estimation
+
+type Mutation {
+  createResource(payload: CreateResourcePayload!): Resource!
+}
