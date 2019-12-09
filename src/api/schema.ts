@@ -14,6 +14,7 @@ import {
   deleteDomainResolver,
   getDomainByKeyResolver,
   updateDomainResolver,
+  searchDomainsResolver,
 } from './resolvers/domains.resolvers';
 import {
   adminUpdateUserResolver,
@@ -46,6 +47,7 @@ const resolvers: APIResolvers<APIContext> = {
     getArticle: getArticleResolver,
     listArticles: listArticlesResolver,
     getUser: getUserResolver,
+    searchDomains: searchDomainsResolver,
     getDomainByKey: getDomainByKeyResolver,
   },
   Article: {
