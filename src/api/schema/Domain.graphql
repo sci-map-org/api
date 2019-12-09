@@ -2,6 +2,7 @@ type Domain {
   _id: String!
   name: String!
   key: String!
+  description: String
   # subDomains(options: ListSubDomainsOptions!): SubDomainRelationship
 }
 
@@ -9,21 +10,34 @@ input ListSubDomainsOptions {
   pagination: PaginationOptions
 }
 
+input SearchDomainsOptions {
+  query: String
+  pagination: PaginationOptions!
+}
+
+type SearchDomainsResult {
+  items: [Domain!]!
+}
+
 input CreateDomainPayload {
   name: String!
   key: String!
+  description: String
 }
 
 input UpdateDomainPayload {
   name: String
   key: String
+  description: String
 }
 
 type DeleteDomainResponse {
   _id: String!
   success: Boolean!
 }
+
 type Query {
+  searchDomains(options: SearchDomainsOptions!): SearchDomainsResult!
   getDomainByKey(key: String!): Domain!
 }
 

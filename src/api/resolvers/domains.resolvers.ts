@@ -1,6 +1,12 @@
 import { Domain } from '../../entities/Domain';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { createDomain, deleteDomain, findDomain, updateDomain } from '../../repositories/domains.repository';
+import {
+  createDomain,
+  deleteDomain,
+  findDomain,
+  updateDomain,
+  searchDomains,
+} from '../../repositories/domains.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIDomain, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
@@ -8,6 +14,14 @@ import { nullToUndefined } from '../util/nullToUndefined';
 function toAPIDomain(domain: Domain): APIDomain {
   return domain;
 }
+
+export const searchDomainsResolver: APIQueryResolvers['searchDomains'] = async (
+  _parent,
+  { options: { query, pagination } }
+) => {
+  const domains = await searchDomains(nullToUndefined({ query }), nullToUndefined(pagination));
+  return { items: domains.map(toAPIDomain) };
+};
 
 export const createDomainResolver: APIMutationResolvers['createDomain'] = async (_parent, { payload }, ctx) => {
   if (!ctx.user || ctx.user.role !== UserRole.ADMIN)
