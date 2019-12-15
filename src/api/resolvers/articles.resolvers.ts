@@ -29,7 +29,7 @@ export const listArticlesResolver: APIQueryResolvers['listArticles'] = async (_,
   return { items: articles.map(toAPIArticle) };
 };
 
-export const getArticleResolver: APIQueryResolvers['getArticle'] = async (_parent, { key }, ctx) => {
+export const getArticleByKeyResolver: APIQueryResolvers['getArticle'] = async (_parent, { key }, ctx) => {
   const article = await findArticle({ key });
 
   if (!article) throw new ArticleNotFoundError(key, 'key');

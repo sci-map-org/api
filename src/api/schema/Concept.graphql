@@ -7,3 +7,20 @@ type Concept {
   _id: String!
   name: String!
 }
+
+input CreateConceptPayload {
+  name: String!
+}
+
+type SearchConceptsResults {
+  items: [Concept!]!
+}
+
+type Query {
+  searchConcepts(query: String!, pagination: PaginationOptions!): SearchConceptsResults!
+}
+
+type Mutation {
+  createConcept(payload: CreateConceptPayload): Concept!
+  addConceptToDomain(domainId: String!, payload: CreateConceptPayload!): Concept!
+}

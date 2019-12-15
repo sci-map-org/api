@@ -25,7 +25,7 @@ type ListArticlesResult {
 }
 
 type Query {
-  getArticle(key: String!): Article!
+  getArticleByKey(key: String!): Article!
   listArticles(options: ListArticlesOptions!): ListArticlesResult!
 }
 

@@ -15,6 +15,10 @@ const server = new ApolloServer({
   mocks: env.api.GRAPHQL_MOCK_ENABLED === 'true' && {
     Date: () => new Date(),
   },
+  formatError: err => {
+    console.log(err);
+    return err;
+  },
   mockEntireSchema: true,
   context: async (context): Promise<APIContext> => {
     const jwt = context.ctx.request.header.authorization;
