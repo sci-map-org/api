@@ -6,7 +6,6 @@
 
 ## Improvements to do
 
-- Rename WROTE relationship to CREATED
 - Abstract auth check in resolvers (don't check for user in context every time)
 - Abstract entities schema: ListResult, ListOptions, etc.
 - key vs \_id ?

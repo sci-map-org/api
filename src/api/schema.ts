@@ -19,9 +19,9 @@ import {
 import {
   adminUpdateUserResolver,
   currentUserResolver,
-  getCurrentUserWrittenArticlesResolver,
+  getCurrentUserCreatedArticlesResolver,
   getUserResolver,
-  getUserWrittenArticlesResolver,
+  getUserCreatedArticlesResolver,
   loginResolver,
   registerResolver,
 } from './resolvers/users.resolvers';
@@ -64,10 +64,10 @@ const resolvers: APIResolvers<APIContext> = {
     author: getArticleAuthorResolver,
   },
   User: {
-    articles: getUserWrittenArticlesResolver,
+    articles: getUserCreatedArticlesResolver,
   },
   CurrentUser: {
-    articles: getCurrentUserWrittenArticlesResolver,
+    articles: getCurrentUserCreatedArticlesResolver,
   },
 };
 
