@@ -17,6 +17,9 @@ const server = new ApolloServer({
   },
   formatError: err => {
     console.log(err);
+    err.extensions &&
+      err.extensions.exception.stacktrace &&
+      err.extensions.exception.stacktrace.map(s => console.log(s));
     return err;
   },
   mockEntireSchema: true,

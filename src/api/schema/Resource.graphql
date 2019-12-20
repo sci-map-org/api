@@ -8,6 +8,17 @@ enum ResourceType {
   tutorial
   introduction
 }
+
+enum PedagogicalApproach {
+  practical
+  theoretical
+  intuitive
+  gamified
+  visual
+  interactive
+  abstract
+  detailed
+}
 # polymorphic ? By type or just internal / external ?
 # what info in the relationships ? approach taken ?
 # should just be a wrapper ?
@@ -28,6 +39,7 @@ type Resource {
   mediaType: ResourceMediaType!
   url: String!
   description: String
+  approaches: [PedagogicalApproach!]
   # durationMs: Int
 }
 
@@ -37,6 +49,7 @@ input CreateResourcePayload {
   mediaType: ResourceMediaType!
   url: String!
   description: String
+  approaches: [PedagogicalApproach!]
 }
 # External -> Url + abstract/description if possible ? E.g. youtube description
 # Internal ->

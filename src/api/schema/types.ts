@@ -2,6 +2,7 @@ import { ArticleContentType } from '../../entities/Article';
 import { UserRole } from '../../entities/User';
 import { ResourceType } from '../../entities/Resource';
 import { ResourceMediaType } from '../../entities/Resource';
+import { PedagogicalApproach } from '../../entities/Resource';
 import { GraphQLResolveInfo } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -62,6 +63,7 @@ export type APICreateResourcePayload = {
   mediaType: ResourceMediaType,
   url: Scalars['String'],
   description?: Maybe<Scalars['String']>,
+  approaches?: Maybe<Array<PedagogicalApproach>>,
 };
 
 export type APICurrentUser = {
@@ -224,6 +226,8 @@ export type APIPaginationOptions = {
   offset?: Maybe<Scalars['Int']>,
 };
 
+export { PedagogicalApproach };
+
 export type APIQuery = {
    __typename?: 'Query',
   getArticleByKey: APIArticle,
@@ -287,6 +291,7 @@ export type APIResource = {
   mediaType: ResourceMediaType,
   url: Scalars['String'],
   description?: Maybe<Scalars['String']>,
+  approaches?: Maybe<Array<PedagogicalApproach>>,
 };
 
 export { ResourceMediaType };
@@ -425,6 +430,7 @@ export type APIResolversTypes = ResolversObject<{
   Resource: ResolverTypeWrapper<APIResource>,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
+  PedagogicalApproach: PedagogicalApproach,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
   UserRole: UserRole,
   Mutation: ResolverTypeWrapper<{}>,
@@ -463,6 +469,7 @@ export type APIResolversParentTypes = ResolversObject<{
   Resource: APIResource,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
+  PedagogicalApproach: PedagogicalApproach,
   CurrentUser: APICurrentUser,
   UserRole: UserRole,
   Mutation: {},
@@ -565,6 +572,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  approaches?: Resolver<Maybe<Array<APIResolversTypes['PedagogicalApproach']>>, ParentType, ContextType>,
 }>;
 
 export type APISearchConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchConceptsResults'] = APIResolversParentTypes['SearchConceptsResults']> = ResolversObject<{
