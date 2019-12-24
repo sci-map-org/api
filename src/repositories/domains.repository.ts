@@ -12,6 +12,8 @@ import {
 import { neo4jDriver } from '../infra/neo4j';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { ConceptDomainBelongsToLabel } from '../entities/relationships/ConceptDomainBelongsTo';
+import { Resource, ResourceLabel } from '../entities/Resource';
+import { ResourceDomainBelongsToLabel } from '../entities/relationships/ResourceDomainBelongsTo';
 
 interface CreateDomainData {
   key: string;
@@ -71,6 +73,22 @@ export const getDomainConcepts = (domainFilter: { key: string } | { _id: string 
     },
     destinationNode: {
       label: ConceptLabel,
+      filter: {},
+    },
+  });
+
+export const getDomainResources = (domainFilter: { key: string } | { _id: string }) =>
+  getRelatedNodes<Resource>({
+    originNode: {
+      label: DomainLabel,
+      filter: domainFilter,
+    },
+    relationship: {
+      label: ResourceDomainBelongsToLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: ResourceLabel,
       filter: {},
     },
   });

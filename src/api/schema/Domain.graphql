@@ -4,15 +4,25 @@ type Domain {
   key: String!
   description: String
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
+  resources(options: DomainResourcesOptions!): DomainResourcesResults
   # subDomains(options: ListSubDomainsOptions!): SubDomainRelationship
   # taughtByResources(options: ListResourcesOptions!): # Relationship ?
 }
+
 input DomainConceptsOptions {
   pagination: PaginationOptions!
 }
 
 type DomainConceptsResults {
   items: [Concept!]!
+}
+
+input DomainResourcesOptions {
+  pagination: PaginationOptions!
+}
+
+type DomainResourcesResults {
+  items: [Resource!]!
 }
 # input ListSubDomainsOptions {
 #   pagination: PaginationOptions

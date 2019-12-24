@@ -7,6 +7,7 @@ import {
   updateDomain,
   searchDomains,
   getDomainConcepts,
+  getDomainResources,
 } from '../../repositories/domains.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIDomain, APIMutationResolvers, APIQueryResolvers, UserRole, APIDomainResolvers } from '../schema/types';
@@ -57,4 +58,8 @@ export const deleteDomainResolver: APIMutationResolvers['deleteDomain'] = async 
 
 export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (domain, {}, ctx) => {
   return { items: await getDomainConcepts({ _id: domain._id }) };
+};
+
+export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, {}, ctx) => {
+  return { items: await getDomainResources({ _id: domain._id }) };
 };

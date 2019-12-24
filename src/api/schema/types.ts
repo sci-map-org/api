@@ -109,11 +109,17 @@ export type APIDomain = {
   key: Scalars['String'],
   description?: Maybe<Scalars['String']>,
   concepts?: Maybe<APIDomainConceptsResults>,
+  resources?: Maybe<APIDomainResourcesResults>,
 };
 
 
 export type APIDomainConceptsArgs = {
   options: APIDomainConceptsOptions
+};
+
+
+export type APIDomainResourcesArgs = {
+  options: APIDomainResourcesOptions
 };
 
 export type APIDomainConceptsOptions = {
@@ -123,6 +129,15 @@ export type APIDomainConceptsOptions = {
 export type APIDomainConceptsResults = {
    __typename?: 'DomainConceptsResults',
   items: Array<APIConcept>,
+};
+
+export type APIDomainResourcesOptions = {
+  pagination: APIPaginationOptions,
+};
+
+export type APIDomainResourcesResults = {
+   __typename?: 'DomainResourcesResults',
+  items: Array<APIResource>,
 };
 
 export type APIListArticlesFilter = {
@@ -452,12 +467,14 @@ export type APIResolversTypes = ResolversObject<{
   Domain: ResolverTypeWrapper<APIDomain>,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptsResults: ResolverTypeWrapper<APIDomainConceptsResults>,
-  SearchDomainsOptions: APISearchDomainsOptions,
-  SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
+  DomainResourcesOptions: APIDomainResourcesOptions,
+  DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
   Resource: ResolverTypeWrapper<APIResource>,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
   PedagogicalApproach: PedagogicalApproach,
+  SearchDomainsOptions: APISearchDomainsOptions,
+  SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
   UserRole: UserRole,
   Mutation: ResolverTypeWrapper<{}>,
@@ -493,12 +510,14 @@ export type APIResolversParentTypes = ResolversObject<{
   Domain: APIDomain,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptsResults: APIDomainConceptsResults,
-  SearchDomainsOptions: APISearchDomainsOptions,
-  SearchDomainsResult: APISearchDomainsResult,
+  DomainResourcesOptions: APIDomainResourcesOptions,
+  DomainResourcesResults: APIDomainResourcesResults,
   Resource: APIResource,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
   PedagogicalApproach: PedagogicalApproach,
+  SearchDomainsOptions: APISearchDomainsOptions,
+  SearchDomainsResult: APISearchDomainsResult,
   CurrentUser: APICurrentUser,
   UserRole: UserRole,
   Mutation: {},
@@ -564,10 +583,15 @@ export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIR
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   concepts?: Resolver<Maybe<APIResolversTypes['DomainConceptsResults']>, ParentType, ContextType, RequireFields<APIDomainConceptsArgs, 'options'>>,
+  resources?: Resolver<Maybe<APIResolversTypes['DomainResourcesResults']>, ParentType, ContextType, RequireFields<APIDomainResourcesArgs, 'options'>>,
 }>;
 
 export type APIDomainConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainConceptsResults'] = APIResolversParentTypes['DomainConceptsResults']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
+}>;
+
+export type APIDomainResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainResourcesResults'] = APIResolversParentTypes['DomainResourcesResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
 }>;
 
 export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ListArticlesResult'] = APIResolversParentTypes['ListArticlesResult']> = ResolversObject<{
@@ -639,6 +663,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   Domain?: APIDomainResolvers<ContextType>,
   DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,
+  DomainResourcesResults?: APIDomainResourcesResultsResolvers<ContextType>,
   ListArticlesResult?: APIListArticlesResultResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   Mutation?: APIMutationResolvers<ContextType>,

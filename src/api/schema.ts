@@ -16,6 +16,7 @@ import {
   updateDomainResolver,
   searchDomainsResolver,
   getDomainConceptsResolver,
+  getDomainResourcesResolver,
 } from './resolvers/domains.resolvers';
 import {
   adminUpdateUserResolver,
@@ -83,6 +84,7 @@ const resolvers: APIResolvers<APIContext> = {
   },
   Domain: {
     concepts: getDomainConceptsResolver,
+    resources: getDomainResourcesResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,
