@@ -1,7 +1,7 @@
 import { Concept } from '../../entities/Concept';
 import { NotFoundError } from '../../errors/NotFoundError';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
-import { APIConcept, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
+import { APIConcept, APIMutationResolvers, APIQueryResolvers, UserRole, APIConceptResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import {
   findConcept,
@@ -9,6 +9,7 @@ import {
   updateConcept,
   deleteConcept,
   attachConceptToDomain,
+  getConceptDomain,
 } from '../../repositories/concepts.repository';
 
 function toAPIConcept(concept: Concept): APIConcept {
@@ -49,4 +50,8 @@ export const deleteConceptResolver: APIMutationResolvers['deleteConcept'] = asyn
   const { deletedCount } = await deleteConcept({ _id });
   if (!deletedCount) throw new NotFoundError('Concept', _id, '_id');
   return { _id, success: true };
+};
+
+export const getConceptDomainResolver: APIConceptResolvers['domain'] = async concept => {
+  return await getConceptDomain(concept._id);
 };

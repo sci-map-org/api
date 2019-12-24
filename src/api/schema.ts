@@ -39,6 +39,7 @@ import {
   getConceptResolver,
   updateConceptResolver,
   deleteConceptResolver,
+  getConceptDomainResolver,
 } from './resolvers/concepts.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
@@ -82,6 +83,9 @@ const resolvers: APIResolvers<APIContext> = {
   },
   Domain: {
     concepts: getDomainConceptsResolver,
+  },
+  Concept: {
+    domain: getConceptDomainResolver,
   },
 };
 

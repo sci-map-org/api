@@ -40,6 +40,7 @@ export type APIConcept = {
   _id: Scalars['String'],
   name: Scalars['String'],
   description?: Maybe<Scalars['String']>,
+  domain?: Maybe<APIDomain>,
 };
 
 export type APICreateArticlePayload = {
@@ -448,11 +449,11 @@ export type APIResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']>,
   ListArticlesResult: ResolverTypeWrapper<APIListArticlesResult>,
   Concept: ResolverTypeWrapper<APIConcept>,
-  SearchDomainsOptions: APISearchDomainsOptions,
-  SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   Domain: ResolverTypeWrapper<APIDomain>,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptsResults: ResolverTypeWrapper<APIDomainConceptsResults>,
+  SearchDomainsOptions: APISearchDomainsOptions,
+  SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   Resource: ResolverTypeWrapper<APIResource>,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
@@ -489,11 +490,11 @@ export type APIResolversParentTypes = ResolversObject<{
   Int: Scalars['Int'],
   ListArticlesResult: APIListArticlesResult,
   Concept: APIConcept,
-  SearchDomainsOptions: APISearchDomainsOptions,
-  SearchDomainsResult: APISearchDomainsResult,
   Domain: APIDomain,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptsResults: APIDomainConceptsResults,
+  SearchDomainsOptions: APISearchDomainsOptions,
+  SearchDomainsResult: APISearchDomainsResult,
   Resource: APIResource,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
@@ -530,6 +531,7 @@ export type APIConceptResolvers<ContextType = APIContext, ParentType extends API
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  domain?: Resolver<Maybe<APIResolversTypes['Domain']>, ParentType, ContextType>,
 }>;
 
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{

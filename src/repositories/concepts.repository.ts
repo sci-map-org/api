@@ -1,8 +1,15 @@
 import * as shortid from 'shortid';
 
 import { Concept, ConceptLabel } from '../entities/Concept';
-import { createRelatedNode, deleteOne, findOne, updateOne, attachNodes } from './util/abstract_graph_repo';
-import { DomainLabel } from '../entities/Domain';
+import {
+  createRelatedNode,
+  deleteOne,
+  findOne,
+  updateOne,
+  attachNodes,
+  getRelatedNode,
+} from './util/abstract_graph_repo';
+import { DomainLabel, Domain } from '../entities/Domain';
 import { ConceptDomainBelongsToLabel } from '../entities/relationships/ConceptDomainBelongsTo';
 
 interface CreateConceptData {
@@ -33,4 +40,11 @@ export const attachConceptToDomain = (conceptId: string, domainId: string) =>
     originNode: { label: ConceptLabel, filter: { _id: conceptId } },
     relationship: { label: ConceptDomainBelongsToLabel, props: {} },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
+  });
+
+export const getConceptDomain = (conceptId: string) =>
+  getRelatedNode<Domain>({
+    originNode: { label: ConceptLabel, filter: { _id: conceptId } },
+    relationship: { label: ConceptDomainBelongsToLabel, filter: {} },
+    destinationNode: { label: DomainLabel, filter: {} },
   });
