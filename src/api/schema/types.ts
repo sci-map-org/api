@@ -39,6 +39,7 @@ export type APIConcept = {
    __typename?: 'Concept',
   _id: Scalars['String'],
   name: Scalars['String'],
+  description?: Maybe<Scalars['String']>,
 };
 
 export type APICreateArticlePayload = {
@@ -49,6 +50,7 @@ export type APICreateArticlePayload = {
 
 export type APICreateConceptPayload = {
   name: Scalars['String'],
+  description?: Maybe<Scalars['String']>,
 };
 
 export type APICreateDomainPayload = {
@@ -87,6 +89,12 @@ export type APIDeleteArticleResponse = {
   success: Scalars['Boolean'],
 };
 
+export type APIDeleteConceptResult = {
+   __typename?: 'DeleteConceptResult',
+  success: Scalars['Boolean'],
+  _id: Scalars['String'],
+};
+
 export type APIDeleteDomainResponse = {
    __typename?: 'DeleteDomainResponse',
   _id: Scalars['String'],
@@ -99,6 +107,21 @@ export type APIDomain = {
   name: Scalars['String'],
   key: Scalars['String'],
   description?: Maybe<Scalars['String']>,
+  concepts?: Maybe<APIDomainConceptsResults>,
+};
+
+
+export type APIDomainConceptsArgs = {
+  options: APIDomainConceptsOptions
+};
+
+export type APIDomainConceptsOptions = {
+  pagination: APIPaginationOptions,
+};
+
+export type APIDomainConceptsResults = {
+   __typename?: 'DomainConceptsResults',
+  items: Array<APIConcept>,
 };
 
 export type APIListArticlesFilter = {
@@ -115,10 +138,6 @@ export type APIListArticlesResult = {
   items: Array<APIArticle>,
 };
 
-export type APIListSubDomainsOptions = {
-  pagination?: Maybe<APIPaginationOptions>,
-};
-
 export type APILoginResponse = {
    __typename?: 'LoginResponse',
   currentUser: APICurrentUser,
@@ -130,8 +149,9 @@ export type APIMutation = {
   createArticle: APIArticle,
   updateArticle: APIArticle,
   deleteArticle: APIDeleteArticleResponse,
-  createConcept: APIConcept,
   addConceptToDomain: APIConcept,
+  updateConcept: APIConcept,
+  deleteConcept: APIDeleteConceptResult,
   createDomain: APIDomain,
   updateDomain: APIDomain,
   deleteDomain: APIDeleteDomainResponse,
@@ -161,14 +181,20 @@ export type APIMutationDeleteArticleArgs = {
 };
 
 
-export type APIMutationCreateConceptArgs = {
-  payload?: Maybe<APICreateConceptPayload>
-};
-
-
 export type APIMutationAddConceptToDomainArgs = {
   domainId: Scalars['String'],
   payload: APICreateConceptPayload
+};
+
+
+export type APIMutationUpdateConceptArgs = {
+  _id: Scalars['String'],
+  payload: APIUpdateConceptPayload
+};
+
+
+export type APIMutationDeleteConceptArgs = {
+  _id: Scalars['String']
 };
 
 
@@ -232,7 +258,7 @@ export type APIQuery = {
    __typename?: 'Query',
   getArticleByKey: APIArticle,
   listArticles: APIListArticlesResult,
-  searchConcepts: APISearchConceptsResults,
+  getConcept: APIConcept,
   searchDomains: APISearchDomainsResult,
   getDomainByKey: APIDomain,
   getResourceById: APIResource,
@@ -251,9 +277,8 @@ export type APIQueryListArticlesArgs = {
 };
 
 
-export type APIQuerySearchConceptsArgs = {
-  query: Scalars['String'],
-  pagination: APIPaginationOptions
+export type APIQueryGetConceptArgs = {
+  _id: Scalars['String']
 };
 
 
@@ -298,11 +323,6 @@ export { ResourceMediaType };
 
 export { ResourceType };
 
-export type APISearchConceptsResults = {
-   __typename?: 'SearchConceptsResults',
-  items: Array<APIConcept>,
-};
-
 export type APISearchDomainsOptions = {
   query?: Maybe<Scalars['String']>,
   pagination: APIPaginationOptions,
@@ -316,6 +336,11 @@ export type APISearchDomainsResult = {
 export type APIUpdateArticlePayload = {
   title?: Maybe<Scalars['String']>,
   content?: Maybe<Scalars['String']>,
+};
+
+export type APIUpdateConceptPayload = {
+  name?: Maybe<Scalars['String']>,
+  description?: Maybe<Scalars['String']>,
 };
 
 export type APIUpdateDomainPayload = {
@@ -422,11 +447,12 @@ export type APIResolversTypes = ResolversObject<{
   PaginationOptions: APIPaginationOptions,
   Int: ResolverTypeWrapper<Scalars['Int']>,
   ListArticlesResult: ResolverTypeWrapper<APIListArticlesResult>,
-  SearchConceptsResults: ResolverTypeWrapper<APISearchConceptsResults>,
   Concept: ResolverTypeWrapper<APIConcept>,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   Domain: ResolverTypeWrapper<APIDomain>,
+  DomainConceptsOptions: APIDomainConceptsOptions,
+  DomainConceptsResults: ResolverTypeWrapper<APIDomainConceptsResults>,
   Resource: ResolverTypeWrapper<APIResource>,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
@@ -439,6 +465,8 @@ export type APIResolversTypes = ResolversObject<{
   DeleteArticleResponse: ResolverTypeWrapper<APIDeleteArticleResponse>,
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   CreateConceptPayload: APICreateConceptPayload,
+  UpdateConceptPayload: APIUpdateConceptPayload,
+  DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
   CreateDomainPayload: APICreateDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
@@ -446,7 +474,6 @@ export type APIResolversTypes = ResolversObject<{
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
-  ListSubDomainsOptions: APIListSubDomainsOptions,
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -461,11 +488,12 @@ export type APIResolversParentTypes = ResolversObject<{
   PaginationOptions: APIPaginationOptions,
   Int: Scalars['Int'],
   ListArticlesResult: APIListArticlesResult,
-  SearchConceptsResults: APISearchConceptsResults,
   Concept: APIConcept,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: APISearchDomainsResult,
   Domain: APIDomain,
+  DomainConceptsOptions: APIDomainConceptsOptions,
+  DomainConceptsResults: APIDomainConceptsResults,
   Resource: APIResource,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
@@ -478,6 +506,8 @@ export type APIResolversParentTypes = ResolversObject<{
   DeleteArticleResponse: APIDeleteArticleResponse,
   Boolean: Scalars['Boolean'],
   CreateConceptPayload: APICreateConceptPayload,
+  UpdateConceptPayload: APIUpdateConceptPayload,
+  DeleteConceptResult: APIDeleteConceptResult,
   CreateDomainPayload: APICreateDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: APIDeleteDomainResponse,
@@ -485,7 +515,6 @@ export type APIResolversParentTypes = ResolversObject<{
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
-  ListSubDomainsOptions: APIListSubDomainsOptions,
 }>;
 
 export type APIArticleResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Article'] = APIResolversParentTypes['Article']> = ResolversObject<{
@@ -500,6 +529,7 @@ export type APIArticleResolvers<ContextType = APIContext, ParentType extends API
 export type APIConceptResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Concept'] = APIResolversParentTypes['Concept']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
 }>;
 
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
@@ -516,6 +546,11 @@ export type APIDeleteArticleResponseResolvers<ContextType = APIContext, ParentTy
   success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
 }>;
 
+export type APIDeleteConceptResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteConceptResult'] = APIResolversParentTypes['DeleteConceptResult']> = ResolversObject<{
+  success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
+  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+}>;
+
 export type APIDeleteDomainResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteDomainResponse'] = APIResolversParentTypes['DeleteDomainResponse']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
@@ -526,6 +561,11 @@ export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIR
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  concepts?: Resolver<Maybe<APIResolversTypes['DomainConceptsResults']>, ParentType, ContextType, RequireFields<APIDomainConceptsArgs, 'options'>>,
+}>;
+
+export type APIDomainConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainConceptsResults'] = APIResolversParentTypes['DomainConceptsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
 }>;
 
 export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ListArticlesResult'] = APIResolversParentTypes['ListArticlesResult']> = ResolversObject<{
@@ -541,8 +581,9 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
   updateArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationUpdateArticleArgs, 'id' | 'payload'>>,
   deleteArticle?: Resolver<APIResolversTypes['DeleteArticleResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteArticleArgs, 'id'>>,
-  createConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, APIMutationCreateConceptArgs>,
   addConceptToDomain?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptToDomainArgs, 'domainId' | 'payload'>>,
+  updateConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptArgs, '_id' | 'payload'>>,
+  deleteConcept?: Resolver<APIResolversTypes['DeleteConceptResult'], ParentType, ContextType, RequireFields<APIMutationDeleteConceptArgs, '_id'>>,
   createDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationCreateDomainArgs, 'payload'>>,
   updateDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationUpdateDomainArgs, 'id' | 'payload'>>,
   deleteDomain?: Resolver<APIResolversTypes['DeleteDomainResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteDomainArgs, 'id'>>,
@@ -557,7 +598,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
-  searchConcepts?: Resolver<APIResolversTypes['SearchConceptsResults'], ParentType, ContextType, RequireFields<APIQuerySearchConceptsArgs, 'query' | 'pagination'>>,
+  getConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptArgs, '_id'>>,
   searchDomains?: Resolver<APIResolversTypes['SearchDomainsResult'], ParentType, ContextType, RequireFields<APIQuerySearchDomainsArgs, 'options'>>,
   getDomainByKey?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIQueryGetDomainByKeyArgs, 'key'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
@@ -573,10 +614,6 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   approaches?: Resolver<Maybe<Array<APIResolversTypes['PedagogicalApproach']>>, ParentType, ContextType>,
-}>;
-
-export type APISearchConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchConceptsResults'] = APIResolversParentTypes['SearchConceptsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
 }>;
 
 export type APISearchDomainsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchDomainsResult'] = APIResolversParentTypes['SearchDomainsResult']> = ResolversObject<{
@@ -596,14 +633,15 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Concept?: APIConceptResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   DeleteArticleResponse?: APIDeleteArticleResponseResolvers<ContextType>,
+  DeleteConceptResult?: APIDeleteConceptResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   Domain?: APIDomainResolvers<ContextType>,
+  DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,
   ListArticlesResult?: APIListArticlesResultResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   Mutation?: APIMutationResolvers<ContextType>,
   Query?: APIQueryResolvers<ContextType>,
   Resource?: APIResourceResolvers<ContextType>,
-  SearchConceptsResults?: APISearchConceptsResultsResolvers<ContextType>,
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
 }>;
