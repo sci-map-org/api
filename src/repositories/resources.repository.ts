@@ -3,7 +3,7 @@ import * as shortid from 'shortid';
 import { Resource, ResourceType, ResourceMediaType, ResourceLabel } from '../entities/Resource';
 import { UserLabel } from '../entities/User';
 import { DomainLabel } from '../entities/Domain';
-import { ResourceDomainBelongsToLabel } from '../entities/relationships/ResourceDomainBelongsTo';
+import { ResourceBelongsToDomainLabel } from '../entities/relationships/ResourceBelongsToDomain';
 
 interface CreateResourceData {
   name: string;
@@ -23,7 +23,7 @@ export const createResource = (user: { _id: string }, data: CreateResourceData):
 export const attachResourceToDomain = (resourceId: string, domainId: string) =>
   attachNodes({
     originNode: { label: ResourceLabel, filter: { _id: resourceId } },
-    relationship: { label: ResourceDomainBelongsToLabel, props: {} },
+    relationship: { label: ResourceBelongsToDomainLabel, props: {} },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   });
 

@@ -1,8 +1,8 @@
 import { generate } from 'shortid';
-import * as shortid from 'shortid';
 
-import { Article, ArticleContentType } from '../entities/Article';
-import { User } from '../entities/User';
+import { Article, ArticleContentType, ArticleLabel } from '../entities/Article';
+import { UserCreatedArticleLabel } from '../entities/relationships/UserCreatedArticle';
+import { User, UserLabel } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import {
   createRelatedNode,
@@ -30,18 +30,18 @@ const generateKey = generate;
 export const createArticle = (author: { _id: string } | { key: string }, data: CreateArticleData): Promise<Article> =>
   createRelatedNode({
     originNode: {
-      label: 'User',
+      label: UserLabel,
       filter: author,
     },
     relationship: {
-      label: 'CREATED',
+      label: UserCreatedArticleLabel,
       props: {
         createdAt: Date.now(),
       },
     },
     newNode: {
-      label: 'Article',
-      props: { ...data, _id: shortid.generate(), key: generateKey() },
+      label: ArticleLabel,
+      props: { ...data, _id: generate(), key: generateKey() },
     },
   });
 
@@ -51,7 +51,7 @@ export const findArticles = async (
 ): Promise<Article[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:Article ${getFilterString(filter)}) RETURN properties(node) AS node${
+    `MATCH (node:${ArticleLabel} ${getFilterString(filter)}) RETURN properties(node) AS node${
       pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''
     }${pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''}`,
     {
@@ -68,9 +68,9 @@ export const findArticlesCreatedBy = (
   pagination?: { offset?: number; limit?: number }
 ) =>
   getRelatedNodes({
-    originNode: { label: 'User', filter: authorFilter },
-    relationship: { label: 'CREATED', filter: {} },
-    destinationNode: { label: 'Article', filter: {} },
+    originNode: { label: UserLabel, filter: authorFilter },
+    relationship: { label: UserCreatedArticleLabel, filter: {} },
+    destinationNode: { label: ArticleLabel, filter: {} },
     pagination,
   });
 
@@ -83,15 +83,15 @@ export const updateArticleCreatedBy = async (
 ): Promise<Article> =>
   updateRelatedNode({
     originNode: {
-      label: 'User',
+      label: UserLabel,
       filter: authorFilter,
     },
     relationship: {
-      label: 'CREATED',
+      label: UserCreatedArticleLabel,
       filter: {},
     },
     destinationNode: {
-      label: 'Article',
+      label: ArticleLabel,
       filter: articleFilter,
       props: data,
     },
@@ -100,15 +100,15 @@ export const updateArticleCreatedBy = async (
 export const getArticleAuthor = (articleFilter: { key: string } | { _id: string }) =>
   getRelatedNode<User>({
     originNode: {
-      label: 'Article',
+      label: ArticleLabel,
       filter: articleFilter,
     },
     relationship: {
-      label: 'CREATED',
+      label: UserCreatedArticleLabel,
       filter: {},
     },
     destinationNode: {
-      label: 'User',
+      label: UserLabel,
       filter: {},
     },
   });
@@ -119,15 +119,15 @@ export const deleteArticleCreatedBy = async (
 ): Promise<{ deletedCount: number }> =>
   deleteRelatedNode({
     originNode: {
-      label: 'User',
+      label: UserLabel,
       filter: authorFilter,
     },
     relationship: {
-      label: 'CREATED',
+      label: UserCreatedArticleLabel,
       filter: {},
     },
     destinationNode: {
-      label: 'Article',
+      label: ArticleLabel,
       filter: articleFilter,
     },
   });

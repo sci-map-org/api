@@ -67,5 +67,6 @@ type Mutation {
   addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
   # addResourceToConcept(conceptId: String!, payload: CreateResourcePayload!): Resource!
   attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
-  # attachResourceToConcept(conceptId: String!, resourceId: String!): Resource!
+  attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
+  detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
 }

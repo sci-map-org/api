@@ -1,19 +1,12 @@
 import * as shortid from 'shortid';
 
-import { Domain, DomainLabel } from '../entities/Domain';
-import {
-  createRelatedNode,
-  findOne,
-  updateOne,
-  deleteOne,
-  getFilterString,
-  getRelatedNodes,
-} from './util/abstract_graph_repo';
-import { neo4jDriver } from '../infra/neo4j';
 import { Concept, ConceptLabel } from '../entities/Concept';
-import { ConceptDomainBelongsToLabel } from '../entities/relationships/ConceptDomainBelongsTo';
+import { Domain, DomainLabel } from '../entities/Domain';
+import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
+import { ResourceBelongsToDomainLabel } from '../entities/relationships/ResourceBelongsToDomain';
 import { Resource, ResourceLabel } from '../entities/Resource';
-import { ResourceDomainBelongsToLabel } from '../entities/relationships/ResourceDomainBelongsTo';
+import { neo4jDriver } from '../infra/neo4j';
+import { createRelatedNode, deleteOne, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
 
 interface CreateDomainData {
   key: string;
@@ -68,7 +61,7 @@ export const getDomainConcepts = (domainFilter: { key: string } | { _id: string 
       filter: domainFilter,
     },
     relationship: {
-      label: ConceptDomainBelongsToLabel,
+      label: ConceptBelongsToDomainLabel,
       filter: {},
     },
     destinationNode: {
@@ -84,7 +77,7 @@ export const getDomainResources = (domainFilter: { key: string } | { _id: string
       filter: domainFilter,
     },
     relationship: {
-      label: ResourceDomainBelongsToLabel,
+      label: ResourceBelongsToDomainLabel,
       filter: {},
     },
     destinationNode: {

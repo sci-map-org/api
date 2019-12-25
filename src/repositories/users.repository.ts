@@ -55,20 +55,6 @@ export const createUser = async (data: CreateUserData): Promise<User> => {
   return record.get('user');
 };
 
-// export const findUserByEmail = async (email: string): Promise<User | null> => {
-//   const session = neo4jDriver.session();
-
-//   const { records } = await session.run(`MATCH (user:User {email: $email}) RETURN properties(user) AS user`, {
-//     email,
-//   });
-//   session.close();
-//   const record = records.pop();
-
-//   if (!record) return null;
-
-//   return record.get('user');
-// };
-
 export const findUser = findOne<User, { key: string } | { email: string }>({ label: 'User' });
 
 export const updateUser = updateOne<User, { _id: string }, UpdateUserData>({ label: 'User' });

@@ -10,7 +10,7 @@ import {
   getRelatedNode,
 } from './util/abstract_graph_repo';
 import { DomainLabel, Domain } from '../entities/Domain';
-import { ConceptDomainBelongsToLabel } from '../entities/relationships/ConceptDomainBelongsTo';
+import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 
 interface CreateConceptData {
   name: string;
@@ -38,13 +38,13 @@ export const deleteConcept = deleteOne<Concept, { _id: string }>({ label: Concep
 export const attachConceptToDomain = (conceptId: string, domainId: string) =>
   attachNodes({
     originNode: { label: ConceptLabel, filter: { _id: conceptId } },
-    relationship: { label: ConceptDomainBelongsToLabel, props: {} },
+    relationship: { label: ConceptBelongsToDomainLabel, props: {} },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   });
 
 export const getConceptDomain = (conceptId: string) =>
   getRelatedNode<Domain>({
     originNode: { label: ConceptLabel, filter: { _id: conceptId } },
-    relationship: { label: ConceptDomainBelongsToLabel, filter: {} },
+    relationship: { label: ConceptBelongsToDomainLabel, filter: {} },
     destinationNode: { label: DomainLabel, filter: {} },
   });
