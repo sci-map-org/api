@@ -1,0 +1,71 @@
+enum ResourceMediaType {
+  video
+  text
+}
+
+enum ResourceType {
+  article
+  tutorial
+  introduction
+}
+
+enum PedagogicalApproach {
+  practical
+  theoretical
+  intuitive
+  gamified
+  visual
+  interactive
+  abstract
+  detailed
+}
+# polymorphic ? By type or just internal / external ?
+# what info in the relationships ? approach taken ?
+# should just be a wrapper ?
+# type VideoResource implements ResourceInterface {
+#   _id: String!
+#   name: String!
+#   description: String
+#   mediaType: ResourceMediaType.video!
+#   external: Boolean!
+#   url: String!
+#   durationMs: Int!
+# }
+
+type Resource {
+  _id: String!
+  name: String!
+  type: ResourceType!
+  mediaType: ResourceMediaType!
+  url: String!
+  description: String
+  approaches: [PedagogicalApproach!]
+  # durationMs: Int
+}
+
+input CreateResourcePayload {
+  name: String!
+  type: ResourceType!
+  mediaType: ResourceMediaType!
+  url: String!
+  description: String
+  approaches: [PedagogicalApproach!]
+}
+# External -> Url + abstract/description if possible ? E.g. youtube description
+# Internal ->
+# Polymorphic relationship ?
+# approach taken
+# mapping to concepts
+# duration estimation
+
+type Query {
+  getResourceById(id: String!): Resource!
+}
+
+type Mutation {
+  createResource(payload: CreateResourcePayload!): Resource!
+  addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
+  # addResourceToConcept(conceptId: String!, payload: CreateResourcePayload!): Resource!
+  attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
+  # attachResourceToConcept(conceptId: String!, resourceId: String!): Resource!
+}

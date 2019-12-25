@@ -5,7 +5,7 @@ import {
   createArticleResolver,
   deleteArticleResolver,
   getArticleAuthorResolver,
-  getArticleResolver,
+  getArticleByKeyResolver,
   listArticlesResolver,
   updateArticleResolver,
 } from './resolvers/articles.resolvers';
@@ -19,14 +19,20 @@ import {
 import {
   adminUpdateUserResolver,
   currentUserResolver,
-  getCurrentUserWrittenArticlesResolver,
+  getCurrentUserCreatedArticlesResolver,
   getUserResolver,
-  getUserWrittenArticlesResolver,
+  getUserCreatedArticlesResolver,
   loginResolver,
   registerResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
+import {
+  createResourceResolver,
+  getResourceByIdResolver,
+  addResourceToDomainResolver,
+  attachResourceToDomainResolver,
+} from './resolvers/resources.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -41,23 +47,27 @@ const resolvers: APIResolvers<APIContext> = {
     createDomain: createDomainResolver,
     updateDomain: updateDomainResolver,
     deleteDomain: deleteDomainResolver,
+    createResource: createResourceResolver,
+    addResourceToDomain: addResourceToDomainResolver,
+    attachResourceToDomain: attachResourceToDomainResolver,
   },
   Query: {
     currentUser: currentUserResolver,
-    getArticle: getArticleResolver,
+    getArticleByKey: getArticleByKeyResolver,
     listArticles: listArticlesResolver,
     getUser: getUserResolver,
     searchDomains: searchDomainsResolver,
     getDomainByKey: getDomainByKeyResolver,
+    getResourceById: getResourceByIdResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
   },
   User: {
-    articles: getUserWrittenArticlesResolver,
+    articles: getUserCreatedArticlesResolver,
   },
   CurrentUser: {
-    articles: getCurrentUserWrittenArticlesResolver,
+    articles: getCurrentUserCreatedArticlesResolver,
   },
 };
 

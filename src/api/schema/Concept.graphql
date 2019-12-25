@@ -1,0 +1,26 @@
+# Has dependencies + is depended upon with/by other concepts
+# Represents an atomic knowledge, something that can be understood
+# learning content cover one or several concepts
+# Should we go for modelling something atomic
+
+type Concept {
+  _id: String!
+  name: String!
+}
+
+input CreateConceptPayload {
+  name: String!
+}
+
+type SearchConceptsResults {
+  items: [Concept!]!
+}
+
+type Query {
+  searchConcepts(query: String!, pagination: PaginationOptions!): SearchConceptsResults!
+}
+
+type Mutation {
+  createConcept(payload: CreateConceptPayload): Concept!
+  addConceptToDomain(domainId: String!, payload: CreateConceptPayload!): Concept!
+}

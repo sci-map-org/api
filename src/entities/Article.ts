@@ -1,3 +1,5 @@
+export const ArticleLabel = 'Article';
+
 export enum ArticleContentType {
   Markdown = 'markdown',
 }

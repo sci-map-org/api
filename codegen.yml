@@ -15,3 +15,6 @@ generates:
             enumValues:
                 ArticleContentType: ../../entities/Article#ArticleContentType
                 UserRole: ../../entities/User#UserRole
+                ResourceType: ../../entities/Resource#ResourceType
+                ResourceMediaType: ../../entities/Resource#ResourceMediaType
+                PedagogicalApproach: ../../entities/Resource#PedagogicalApproach

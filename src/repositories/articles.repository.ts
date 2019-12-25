@@ -27,7 +27,7 @@ export interface UpdateArticleData {
 
 const generateKey = generate;
 
-export const writeArticle = (author: { _id: string } | { key: string }, data: CreateArticleData): Promise<Article> =>
+export const createArticle = (author: { _id: string } | { key: string }, data: CreateArticleData): Promise<Article> =>
   createRelatedNode({
     originNode: {
       label: 'User',
@@ -63,7 +63,7 @@ export const findArticles = async (
   return records.map(r => r.get('node'));
 };
 
-export const findArticlesWrittenBy = (
+export const findArticlesCreatedBy = (
   authorFilter: { _id: string } | { key: string },
   pagination?: { offset?: number; limit?: number }
 ) =>
@@ -76,7 +76,7 @@ export const findArticlesWrittenBy = (
 
 export const findArticle = findOne<Article, { key: string } | { _id: string }>({ label: 'Article' });
 
-export const updateArticleWrittenBy = async (
+export const updateArticleCreatedBy = async (
   authorFilter: { _id: string } | { key: string },
   articleFilter: { key: string } | { _id: string },
   data: UpdateArticleData
@@ -113,7 +113,7 @@ export const getArticleAuthor = (articleFilter: { key: string } | { _id: string 
     },
   });
 
-export const deleteArticleWrittenBy = async (
+export const deleteArticleCreatedBy = async (
   authorFilter: { _id: string } | { key: string },
   articleFilter: { key: string } | { _id: string }
 ): Promise<{ deletedCount: number }> =>

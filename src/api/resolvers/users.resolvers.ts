@@ -1,6 +1,6 @@
 import { User, UserRole } from '../../entities/User';
 import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
-import { findArticlesWrittenBy } from '../../repositories/articles.repository';
+import { findArticlesCreatedBy } from '../../repositories/articles.repository';
 import { createUser, findUser, updateUser } from '../../repositories/users.repository';
 import { getJWT } from '../../services/auth/jwt';
 import { passwordsMatch } from '../../services/auth/password_hashing';
@@ -66,11 +66,11 @@ export const currentUserResolver: APIQueryResolvers['currentUser'] = async (_par
   return toAPICurrentUser(foundUser);
 };
 
-export const getWrittenArticlesResolver = async (
+export const getCreatedArticlesResolver = async (
   user: APIUser | APICurrentUser,
   payload: APICurrentUserArticlesArgs
 ) => {
-  const articles = await findArticlesWrittenBy(
+  const articles = await findArticlesCreatedBy(
     { _id: user._id },
     payload.options.pagination ? nullToUndefined(payload.options.pagination) : undefined
   );
@@ -78,9 +78,9 @@ export const getWrittenArticlesResolver = async (
   return { items: articles.map(toAPIArticle) };
 };
 
-export const getUserWrittenArticlesResolver: APIUserResolvers['articles'] = getWrittenArticlesResolver;
+export const getUserCreatedArticlesResolver: APIUserResolvers['articles'] = getCreatedArticlesResolver;
 
-export const getCurrentUserWrittenArticlesResolver: APICurrentUserResolvers['articles'] = getWrittenArticlesResolver;
+export const getCurrentUserCreatedArticlesResolver: APICurrentUserResolvers['articles'] = getCreatedArticlesResolver;
 
 export const getUserResolver: APIQueryResolvers['getUser'] = async (_parent, { key }) => {
   const foundUser = await findUser({ key });

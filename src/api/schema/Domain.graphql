@@ -4,6 +4,7 @@ type Domain {
   key: String!
   description: String
   # subDomains(options: ListSubDomainsOptions!): SubDomainRelationship
+  # taughtByResources(options: ListResourcesOptions!): # Relationship ?
 }
 
 input ListSubDomainsOptions {
