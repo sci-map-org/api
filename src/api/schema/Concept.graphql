@@ -6,21 +6,31 @@
 type Concept {
   _id: String!
   name: String!
+  description: String
+  domain: Domain
 }
 
 input CreateConceptPayload {
   name: String!
+  description: String
 }
 
-type SearchConceptsResults {
-  items: [Concept!]!
+input UpdateConceptPayload {
+  name: String
+  description: String
+}
+
+type DeleteConceptResult {
+  success: Boolean!
+  _id: String!
 }
 
 type Query {
-  searchConcepts(query: String!, pagination: PaginationOptions!): SearchConceptsResults!
+  getConcept(_id: String!): Concept!
 }
 
 type Mutation {
-  createConcept(payload: CreateConceptPayload): Concept!
   addConceptToDomain(domainId: String!, payload: CreateConceptPayload!): Concept!
+  updateConcept(_id: String!, payload: UpdateConceptPayload!): Concept!
+  deleteConcept(_id: String!): DeleteConceptResult!
 }

@@ -6,9 +6,11 @@ import {
   findDomain,
   updateDomain,
   searchDomains,
+  getDomainConcepts,
+  getDomainResources,
 } from '../../repositories/domains.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
-import { APIDomain, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
+import { APIDomain, APIMutationResolvers, APIQueryResolvers, UserRole, APIDomainResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 
 function toAPIDomain(domain: Domain): APIDomain {
@@ -26,7 +28,7 @@ export const searchDomainsResolver: APIQueryResolvers['searchDomains'] = async (
 export const createDomainResolver: APIMutationResolvers['createDomain'] = async (_parent, { payload }, ctx) => {
   if (!ctx.user || ctx.user.role !== UserRole.ADMIN)
     throw new UnauthorizedError('Must be logged in and an admin to create an article');
-  const createdDomain = await createDomain({ _id: ctx.user._id }, payload);
+  const createdDomain = await createDomain({ _id: ctx.user._id }, nullToUndefined(payload));
   return toAPIDomain(createdDomain);
 };
 
@@ -52,4 +54,12 @@ export const deleteDomainResolver: APIMutationResolvers['deleteDomain'] = async 
   const { deletedCount } = await deleteDomain({ _id: id });
   if (!deletedCount) throw new NotFoundError('Domain', id, 'id');
   return { _id: id, success: true };
+};
+
+export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (domain, {}, ctx) => {
+  return { items: await getDomainConcepts({ _id: domain._id }) };
+};
+
+export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, {}, ctx) => {
+  return { items: await getDomainResources({ _id: domain._id }) };
 };

@@ -15,6 +15,8 @@ import {
   getDomainByKeyResolver,
   updateDomainResolver,
   searchDomainsResolver,
+  getDomainConceptsResolver,
+  getDomainResourcesResolver,
 } from './resolvers/domains.resolvers';
 import {
   adminUpdateUserResolver,
@@ -33,6 +35,13 @@ import {
   addResourceToDomainResolver,
   attachResourceToDomainResolver,
 } from './resolvers/resources.resolvers';
+import {
+  addConceptToDomainResolver,
+  getConceptResolver,
+  updateConceptResolver,
+  deleteConceptResolver,
+  getConceptDomainResolver,
+} from './resolvers/concepts.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -50,6 +59,9 @@ const resolvers: APIResolvers<APIContext> = {
     createResource: createResourceResolver,
     addResourceToDomain: addResourceToDomainResolver,
     attachResourceToDomain: attachResourceToDomainResolver,
+    addConceptToDomain: addConceptToDomainResolver,
+    updateConcept: updateConceptResolver,
+    deleteConcept: deleteConceptResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -59,6 +71,7 @@ const resolvers: APIResolvers<APIContext> = {
     searchDomains: searchDomainsResolver,
     getDomainByKey: getDomainByKeyResolver,
     getResourceById: getResourceByIdResolver,
+    getConcept: getConceptResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -68,6 +81,13 @@ const resolvers: APIResolvers<APIContext> = {
   },
   CurrentUser: {
     articles: getCurrentUserCreatedArticlesResolver,
+  },
+  Domain: {
+    concepts: getDomainConceptsResolver,
+    resources: getDomainResourcesResolver,
+  },
+  Concept: {
+    domain: getConceptDomainResolver,
   },
 };
 

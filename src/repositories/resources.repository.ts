@@ -2,8 +2,8 @@ import { createRelatedNode, attachNodes, findOne } from './util/abstract_graph_r
 import * as shortid from 'shortid';
 import { Resource, ResourceType, ResourceMediaType, ResourceLabel } from '../entities/Resource';
 import { UserLabel } from '../entities/User';
-import { ResourceDomainTeachesLabel } from '../entities/relationships/ResourceDomainTeaches';
 import { DomainLabel } from '../entities/Domain';
+import { ResourceDomainBelongsToLabel } from '../entities/relationships/ResourceDomainBelongsTo';
 
 interface CreateResourceData {
   name: string;
@@ -23,7 +23,7 @@ export const createResource = (user: { _id: string }, data: CreateResourceData):
 export const attachResourceToDomain = (resourceId: string, domainId: string) =>
   attachNodes({
     originNode: { label: ResourceLabel, filter: { _id: resourceId } },
-    relationship: { label: ResourceDomainTeachesLabel, props: {} },
+    relationship: { label: ResourceDomainBelongsToLabel, props: {} },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   });
 

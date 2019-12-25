@@ -3,13 +3,30 @@ type Domain {
   name: String!
   key: String!
   description: String
+  concepts(options: DomainConceptsOptions!): DomainConceptsResults
+  resources(options: DomainResourcesOptions!): DomainResourcesResults
   # subDomains(options: ListSubDomainsOptions!): SubDomainRelationship
   # taughtByResources(options: ListResourcesOptions!): # Relationship ?
 }
 
-input ListSubDomainsOptions {
-  pagination: PaginationOptions
+input DomainConceptsOptions {
+  pagination: PaginationOptions!
 }
+
+type DomainConceptsResults {
+  items: [Concept!]!
+}
+
+input DomainResourcesOptions {
+  pagination: PaginationOptions!
+}
+
+type DomainResourcesResults {
+  items: [Resource!]!
+}
+# input ListSubDomainsOptions {
+#   pagination: PaginationOptions
+# }
 
 input SearchDomainsOptions {
   query: String
