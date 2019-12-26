@@ -41,6 +41,21 @@ export type APIConcept = {
   name: Scalars['String'],
   description?: Maybe<Scalars['String']>,
   domain?: Maybe<APIDomain>,
+  coveredByResources?: Maybe<APIConceptCoveredByResourcesResults>,
+};
+
+
+export type APIConceptCoveredByResourcesArgs = {
+  options: APIConceptCoveredByResourcesOptions
+};
+
+export type APIConceptCoveredByResourcesOptions = {
+  pagination?: Maybe<APIPaginationOptions>,
+};
+
+export type APIConceptCoveredByResourcesResults = {
+   __typename?: 'ConceptCoveredByResourcesResults',
+  items: Array<APIResource>,
 };
 
 export type APICreateArticlePayload = {
@@ -503,6 +518,8 @@ export type APIResolversTypes = ResolversObject<{
   PedagogicalApproach: PedagogicalApproach,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
+  ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
+  ConceptCoveredByResourcesResults: ResolverTypeWrapper<APIConceptCoveredByResourcesResults>,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
@@ -548,6 +565,8 @@ export type APIResolversParentTypes = ResolversObject<{
   PedagogicalApproach: PedagogicalApproach,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
+  ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
+  ConceptCoveredByResourcesResults: APIConceptCoveredByResourcesResults,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: APISearchDomainsResult,
   CurrentUser: APICurrentUser,
@@ -583,6 +602,11 @@ export type APIConceptResolvers<ContextType = APIContext, ParentType extends API
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domain?: Resolver<Maybe<APIResolversTypes['Domain']>, ParentType, ContextType>,
+  coveredByResources?: Resolver<Maybe<APIResolversTypes['ConceptCoveredByResourcesResults']>, ParentType, ContextType, RequireFields<APIConceptCoveredByResourcesArgs, 'options'>>,
+}>;
+
+export type APIConceptCoveredByResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptCoveredByResourcesResults'] = APIResolversParentTypes['ConceptCoveredByResourcesResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
 }>;
 
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
@@ -696,6 +720,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Article?: APIArticleResolvers<ContextType>,
   Concept?: APIConceptResolvers<ContextType>,
+  ConceptCoveredByResourcesResults?: APIConceptCoveredByResourcesResultsResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   DeleteArticleResponse?: APIDeleteArticleResponseResolvers<ContextType>,
   DeleteConceptResult?: APIDeleteConceptResultResolvers<ContextType>,

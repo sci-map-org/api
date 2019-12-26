@@ -1,16 +1,17 @@
 import { Concept } from '../../entities/Concept';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { UnauthorizedError } from '../errors/UnauthenticatedError';
-import { APIConcept, APIMutationResolvers, APIQueryResolvers, UserRole, APIConceptResolvers } from '../schema/types';
-import { nullToUndefined } from '../util/nullToUndefined';
 import {
-  findConcept,
-  createConcept,
-  updateConcept,
-  deleteConcept,
   attachConceptToDomain,
+  createConcept,
+  deleteConcept,
+  findConcept,
   getConceptDomain,
+  updateConcept,
+  getConceptCoveredByResources,
 } from '../../repositories/concepts.repository';
+import { UnauthorizedError } from '../errors/UnauthenticatedError';
+import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
+import { nullToUndefined } from '../util/nullToUndefined';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;
@@ -54,4 +55,11 @@ export const deleteConceptResolver: APIMutationResolvers['deleteConcept'] = asyn
 
 export const getConceptDomainResolver: APIConceptResolvers['domain'] = async concept => {
   return await getConceptDomain(concept._id);
+};
+
+export const getConceptCoveredByResourcesResolver: APIConceptResolvers['coveredByResources'] = async (
+  concept,
+  { options }
+) => {
+  return { items: await getConceptCoveredByResources(concept._id) };
 };

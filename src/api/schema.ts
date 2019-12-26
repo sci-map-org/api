@@ -10,41 +10,42 @@ import {
   updateArticleResolver,
 } from './resolvers/articles.resolvers';
 import {
+  addConceptToDomainResolver,
+  deleteConceptResolver,
+  getConceptCoveredByResourcesResolver,
+  getConceptDomainResolver,
+  getConceptResolver,
+  updateConceptResolver,
+} from './resolvers/concepts.resolvers';
+import {
   createDomainResolver,
   deleteDomainResolver,
   getDomainByKeyResolver,
-  updateDomainResolver,
-  searchDomainsResolver,
   getDomainConceptsResolver,
   getDomainResourcesResolver,
+  searchDomainsResolver,
+  updateDomainResolver,
 } from './resolvers/domains.resolvers';
+import {
+  addResourceToDomainResolver,
+  attachResourceCoversConceptsResolver,
+  attachResourceToDomainResolver,
+  createResourceResolver,
+  detachResourceCoversConceptsResolver,
+  getResourceByIdResolver,
+  getResourceCoveredConceptsResolver,
+} from './resolvers/resources.resolvers';
 import {
   adminUpdateUserResolver,
   currentUserResolver,
   getCurrentUserCreatedArticlesResolver,
-  getUserResolver,
   getUserCreatedArticlesResolver,
+  getUserResolver,
   loginResolver,
   registerResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
-import {
-  createResourceResolver,
-  getResourceByIdResolver,
-  addResourceToDomainResolver,
-  attachResourceToDomainResolver,
-  attachResourceCoversConceptsResolver,
-  detachResourceCoversConceptsResolver,
-  coveredConceptsResolver,
-} from './resolvers/resources.resolvers';
-import {
-  addConceptToDomainResolver,
-  getConceptResolver,
-  updateConceptResolver,
-  deleteConceptResolver,
-  getConceptDomainResolver,
-} from './resolvers/concepts.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -93,9 +94,10 @@ const resolvers: APIResolvers<APIContext> = {
   },
   Concept: {
     domain: getConceptDomainResolver,
+    coveredByResources: getConceptCoveredByResourcesResolver,
   },
   Resource: {
-    coveredConcepts: coveredConceptsResolver,
+    coveredConcepts: getResourceCoveredConceptsResolver,
   },
 };
 

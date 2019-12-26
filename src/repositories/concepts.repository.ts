@@ -8,9 +8,12 @@ import {
   updateOne,
   attachNodes,
   getRelatedNode,
+  getRelatedNodes,
 } from './util/abstract_graph_repo';
 import { DomainLabel, Domain } from '../entities/Domain';
 import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
+import { Resource, ResourceLabel } from '../entities/Resource';
+import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 
 interface CreateConceptData {
   name: string;
@@ -47,4 +50,20 @@ export const getConceptDomain = (conceptId: string) =>
     originNode: { label: ConceptLabel, filter: { _id: conceptId } },
     relationship: { label: ConceptBelongsToDomainLabel, filter: {} },
     destinationNode: { label: DomainLabel, filter: {} },
+  });
+
+export const getConceptCoveredByResources = (_id: string) =>
+  getRelatedNodes<Resource>({
+    originNode: {
+      label: ConceptLabel,
+      filter: { _id },
+    },
+    relationship: {
+      label: ResourceCoversConceptLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: {},
+    },
   });

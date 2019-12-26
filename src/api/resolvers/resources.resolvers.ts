@@ -77,7 +77,10 @@ export const detachResourceCoversConceptsResolver: APIMutationResolvers['detachR
   return toAPIResource(resource);
 };
 
-export const coveredConceptsResolver: APIResourceResolvers['coveredConcepts'] = async (resource, { options }) => {
+export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredConcepts'] = async (
+  resource,
+  { options }
+) => {
   return {
     items: await getResourceCoveredConcepts(resource._id),
   };

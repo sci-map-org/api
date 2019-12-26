@@ -8,6 +8,15 @@ type Concept {
   name: String!
   description: String
   domain: Domain
+  coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
+}
+
+input ConceptCoveredByResourcesOptions {
+  pagination: PaginationOptions
+}
+
+type ConceptCoveredByResourcesResults {
+  items: [Resource!]!
 }
 
 input CreateConceptPayload {
