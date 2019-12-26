@@ -36,6 +36,7 @@ import {
   attachResourceToDomainResolver,
   attachResourceCoversConceptsResolver,
   detachResourceCoversConceptsResolver,
+  coveredConceptsResolver,
 } from './resolvers/resources.resolvers';
 import {
   addConceptToDomainResolver,
@@ -92,6 +93,9 @@ const resolvers: APIResolvers<APIContext> = {
   },
   Concept: {
     domain: getConceptDomainResolver,
+  },
+  Resource: {
+    coveredConcepts: coveredConceptsResolver,
   },
 };
 

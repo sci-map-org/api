@@ -1,10 +1,10 @@
-import { createRelatedNode, attachNodes, findOne, getFilterString } from './util/abstract_graph_repo';
+import { createRelatedNode, attachNodes, findOne, getFilterString, getRelatedNodes } from './util/abstract_graph_repo';
 import * as shortid from 'shortid';
 import { Resource, ResourceType, ResourceMediaType, ResourceLabel } from '../entities/Resource';
 import { UserLabel } from '../entities/User';
 import { DomainLabel } from '../entities/Domain';
 import { ResourceBelongsToDomainLabel } from '../entities/relationships/ResourceBelongsToDomain';
-import { ConceptLabel } from '../entities/Concept';
+import { ConceptLabel, Concept } from '../entities/Concept';
 import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 import { neo4jDriver } from '../infra/neo4j';
 
@@ -105,3 +105,19 @@ export const detachResourceCoversConcepts = async (
 
   return record.get('originNode');
 };
+
+export const getResourceCoveredConcepts = (_id: string) =>
+  getRelatedNodes<Concept>({
+    originNode: {
+      label: ResourceLabel,
+      filter: { _id },
+    },
+    relationship: {
+      label: ResourceCoversConceptLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: ConceptLabel,
+      filter: {},
+    },
+  });

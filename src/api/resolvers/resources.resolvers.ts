@@ -1,4 +1,4 @@
-import { APIMutationResolvers, APIQueryResolvers, APIResource } from '../schema/types';
+import { APIMutationResolvers, APIQueryResolvers, APIResource, APIResourceResolvers } from '../schema/types';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import {
   createResource,
@@ -6,6 +6,7 @@ import {
   findResource,
   attachResourceCoversConcepts,
   detachResourceCoversConcepts,
+  getResourceCoveredConcepts,
 } from '../../repositories/resources.repository';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { Resource } from '../../entities/Resource';
@@ -74,4 +75,10 @@ export const detachResourceCoversConceptsResolver: APIMutationResolvers['detachR
   const resource = await detachResourceCoversConcepts(resourceId, conceptIds);
   if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
   return toAPIResource(resource);
+};
+
+export const coveredConceptsResolver: APIResourceResolvers['coveredConcepts'] = async (resource, { options }) => {
+  return {
+    items: await getResourceCoveredConcepts(resource._id),
+  };
 };
