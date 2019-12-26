@@ -40,7 +40,16 @@ type Resource {
   url: String!
   description: String
   approaches: [PedagogicalApproach!]
+  coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
   # durationMs: Int
+}
+
+input ResourceCoveredConceptsOptions {
+  pagination: PaginationOptions
+}
+
+type ResourceCoveredConceptsResults {
+  items: [Concept!]!
 }
 
 input CreateResourcePayload {
@@ -65,7 +74,6 @@ type Query {
 type Mutation {
   createResource(payload: CreateResourcePayload!): Resource!
   addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
-  # addResourceToConcept(conceptId: String!, payload: CreateResourcePayload!): Resource!
   attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
   attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!

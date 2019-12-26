@@ -17,3 +17,4 @@
 - Separate not found vs not authorized
 - Proper generics for abstract_graph_repo
 - Proper error handling
+- Abstract repo: have a more generic result: nb results, originNode/Destination, etc.

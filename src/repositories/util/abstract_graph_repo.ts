@@ -1,12 +1,13 @@
 import { neo4jDriver } from '../../infra/neo4j';
 
 export function getFilterString(filter: object, filterName: string = 'filter'): string {
-  if (Object.keys.length == 0) return '';
+  if (Object.keys(filter).length == 0) return '';
   const s = Object.keys(filter).reduce((acc, key, index) => {
+    const filterProp = `${acc} ${key}: {${filterName}}.${key}`;
     if (index === 0) {
-      return `${acc} ${key}: {${filterName}}.${key}`;
+      return filterProp;
     }
-    return `, ${acc} ${key}: {${filterName}}.${key}`;
+    return `, ${filterProp}`;
   }, '{ ');
   return s + ' }';
 }

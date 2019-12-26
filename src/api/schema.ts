@@ -34,6 +34,8 @@ import {
   getResourceByIdResolver,
   addResourceToDomainResolver,
   attachResourceToDomainResolver,
+  attachResourceCoversConceptsResolver,
+  detachResourceCoversConceptsResolver,
 } from './resolvers/resources.resolvers';
 import {
   addConceptToDomainResolver,
@@ -62,6 +64,8 @@ const resolvers: APIResolvers<APIContext> = {
     addConceptToDomain: addConceptToDomainResolver,
     updateConcept: updateConceptResolver,
     deleteConcept: deleteConceptResolver,
+    attachResourceCoversConcepts: attachResourceCoversConceptsResolver,
+    detachResourceCoversConcepts: detachResourceCoversConceptsResolver,
   },
   Query: {
     currentUser: currentUserResolver,

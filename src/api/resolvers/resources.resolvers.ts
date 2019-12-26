@@ -1,6 +1,12 @@
 import { APIMutationResolvers, APIQueryResolvers, APIResource } from '../schema/types';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import { createResource, attachResourceToDomain, findResource } from '../../repositories/resources.repository';
+import {
+  createResource,
+  attachResourceToDomain,
+  findResource,
+  attachResourceCoversConcepts,
+  detachResourceCoversConcepts,
+} from '../../repositories/resources.repository';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
@@ -33,8 +39,9 @@ export const addResourceToDomainResolver: APIMutationResolvers['addResourceToDom
 export const attachResourceToDomainResolver: APIMutationResolvers['attachResourceToDomain'] = async (
   _parent,
   { domainId, resourceId },
-  ctx
+  { user }
 ) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
   await attachResourceToDomain(domainId, resourceId);
   const resource = await findResource({ _id: resourceId });
   if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
@@ -44,5 +51,27 @@ export const attachResourceToDomainResolver: APIMutationResolvers['attachResourc
 export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { id }) => {
   const resource = await findResource({ _id: id });
   if (!resource) throw new NotFoundError('Resource', id, '_id');
+  return toAPIResource(resource);
+};
+
+export const attachResourceCoversConceptsResolver: APIMutationResolvers['attachResourceCoversConcepts'] = async (
+  _parent,
+  { resourceId, conceptIds },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
+  const resource = await attachResourceCoversConcepts(resourceId, conceptIds, { userId: user._id });
+  if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
+  return toAPIResource(resource);
+};
+
+export const detachResourceCoversConceptsResolver: APIMutationResolvers['detachResourceCoversConcepts'] = async (
+  _parent,
+  { resourceId, conceptIds },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
+  const resource = await detachResourceCoversConcepts(resourceId, conceptIds);
+  if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
   return toAPIResource(resource);
 };
