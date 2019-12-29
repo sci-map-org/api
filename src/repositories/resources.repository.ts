@@ -1,8 +1,15 @@
-import { createRelatedNode, attachNodes, findOne, getFilterString, getRelatedNodes } from './util/abstract_graph_repo';
+import {
+  createRelatedNode,
+  attachNodes,
+  findOne,
+  getFilterString,
+  getRelatedNodes,
+  updateOne,
+} from './util/abstract_graph_repo';
 import * as shortid from 'shortid';
 import { Resource, ResourceType, ResourceMediaType, ResourceLabel } from '../entities/Resource';
 import { UserLabel } from '../entities/User';
-import { DomainLabel } from '../entities/Domain';
+import { DomainLabel, Domain } from '../entities/Domain';
 import { ResourceBelongsToDomainLabel } from '../entities/relationships/ResourceBelongsToDomain';
 import { ConceptLabel, Concept } from '../entities/Concept';
 import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
@@ -16,12 +23,22 @@ interface CreateResourceData {
   description?: string;
 }
 
+interface UpdateResourceData {
+  name?: string;
+  type?: ResourceType;
+  mediaType?: ResourceMediaType;
+  url?: string;
+  description?: string;
+}
+
 export const createResource = (user: { _id: string }, data: CreateResourceData): Promise<Resource> =>
   createRelatedNode({
     originNode: { label: UserLabel, filter: user },
     relationship: { label: 'CREATED', props: { createdAt: Date.now() } },
     newNode: { label: ResourceLabel, props: { ...data, _id: shortid.generate() } },
   });
+
+export const updateResource = updateOne<Resource, { _id: string }, UpdateResourceData>({ label: ResourceLabel });
 
 export const attachResourceToDomain = (resourceId: string, domainId: string) =>
   attachNodes({
@@ -118,6 +135,22 @@ export const getResourceCoveredConcepts = (_id: string) =>
     },
     destinationNode: {
       label: ConceptLabel,
+      filter: {},
+    },
+  });
+
+export const getResourceDomains = (_id: string) =>
+  getRelatedNodes<Domain>({
+    originNode: {
+      label: ResourceLabel,
+      filter: { _id },
+    },
+    relationship: {
+      label: ResourceBelongsToDomainLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: DomainLabel,
       filter: {},
     },
   });

@@ -2,7 +2,6 @@ import { ArticleContentType } from '../../entities/Article';
 import { UserRole } from '../../entities/User';
 import { ResourceType } from '../../entities/Resource';
 import { ResourceMediaType } from '../../entities/Resource';
-import { PedagogicalApproach } from '../../entities/Resource';
 import { GraphQLResolveInfo } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -81,7 +80,6 @@ export type APICreateResourcePayload = {
   mediaType: ResourceMediaType,
   url: Scalars['String'],
   description?: Maybe<Scalars['String']>,
-  approaches?: Maybe<Array<PedagogicalApproach>>,
 };
 
 export type APICurrentUser = {
@@ -138,7 +136,7 @@ export type APIDomainResourcesArgs = {
 };
 
 export type APIDomainConceptsOptions = {
-  pagination: APIPaginationOptions,
+  pagination?: Maybe<APIPaginationOptions>,
 };
 
 export type APIDomainConceptsResults = {
@@ -187,6 +185,7 @@ export type APIMutation = {
   updateDomain: APIDomain,
   deleteDomain: APIDeleteDomainResponse,
   createResource: APIResource,
+  updateResource: APIResource,
   addResourceToDomain: APIResource,
   attachResourceToDomain: APIResource,
   attachResourceCoversConcepts: APIResource,
@@ -251,6 +250,12 @@ export type APIMutationCreateResourceArgs = {
 };
 
 
+export type APIMutationUpdateResourceArgs = {
+  _id: Scalars['String'],
+  payload: APIUpdateResourcePayload
+};
+
+
 export type APIMutationAddResourceToDomainArgs = {
   domainId: Scalars['String'],
   payload: APICreateResourcePayload
@@ -295,8 +300,6 @@ export type APIPaginationOptions = {
   limit?: Maybe<Scalars['Int']>,
   offset?: Maybe<Scalars['Int']>,
 };
-
-export { PedagogicalApproach };
 
 export type APIQuery = {
    __typename?: 'Query',
@@ -360,13 +363,18 @@ export type APIResource = {
   mediaType: ResourceMediaType,
   url: Scalars['String'],
   description?: Maybe<Scalars['String']>,
-  approaches?: Maybe<Array<PedagogicalApproach>>,
   coveredConcepts?: Maybe<APIResourceCoveredConceptsResults>,
+  domains?: Maybe<APIResourceDomainsResults>,
 };
 
 
 export type APIResourceCoveredConceptsArgs = {
   options: APIResourceCoveredConceptsOptions
+};
+
+
+export type APIResourceDomainsArgs = {
+  options: APIResourceDomainsOptions
 };
 
 export type APIResourceCoveredConceptsOptions = {
@@ -376,6 +384,15 @@ export type APIResourceCoveredConceptsOptions = {
 export type APIResourceCoveredConceptsResults = {
    __typename?: 'ResourceCoveredConceptsResults',
   items: Array<APIConcept>,
+};
+
+export type APIResourceDomainsOptions = {
+  pagination?: Maybe<APIPaginationOptions>,
+};
+
+export type APIResourceDomainsResults = {
+   __typename?: 'ResourceDomainsResults',
+  items: Array<APIDomain>,
 };
 
 export { ResourceMediaType };
@@ -405,6 +422,14 @@ export type APIUpdateConceptPayload = {
 export type APIUpdateDomainPayload = {
   name?: Maybe<Scalars['String']>,
   key?: Maybe<Scalars['String']>,
+  description?: Maybe<Scalars['String']>,
+};
+
+export type APIUpdateResourcePayload = {
+  name?: Maybe<Scalars['String']>,
+  type?: Maybe<ResourceType>,
+  mediaType?: Maybe<ResourceMediaType>,
+  url?: Maybe<Scalars['String']>,
   description?: Maybe<Scalars['String']>,
 };
 
@@ -515,9 +540,10 @@ export type APIResolversTypes = ResolversObject<{
   Resource: ResolverTypeWrapper<APIResource>,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
-  PedagogicalApproach: PedagogicalApproach,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
+  ResourceDomainsOptions: APIResourceDomainsOptions,
+  ResourceDomainsResults: ResolverTypeWrapper<APIResourceDomainsResults>,
   ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
   ConceptCoveredByResourcesResults: ResolverTypeWrapper<APIConceptCoveredByResourcesResults>,
   SearchDomainsOptions: APISearchDomainsOptions,
@@ -536,6 +562,7 @@ export type APIResolversTypes = ResolversObject<{
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
   CreateResourcePayload: APICreateResourcePayload,
+  UpdateResourcePayload: APIUpdateResourcePayload,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
@@ -562,9 +589,10 @@ export type APIResolversParentTypes = ResolversObject<{
   Resource: APIResource,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
-  PedagogicalApproach: PedagogicalApproach,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
+  ResourceDomainsOptions: APIResourceDomainsOptions,
+  ResourceDomainsResults: APIResourceDomainsResults,
   ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
   ConceptCoveredByResourcesResults: APIConceptCoveredByResourcesResults,
   SearchDomainsOptions: APISearchDomainsOptions,
@@ -583,6 +611,7 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: APIDeleteDomainResponse,
   CreateResourcePayload: APICreateResourcePayload,
+  UpdateResourcePayload: APIUpdateResourcePayload,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
@@ -670,6 +699,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationUpdateDomainArgs, 'id' | 'payload'>>,
   deleteDomain?: Resolver<APIResolversTypes['DeleteDomainResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteDomainArgs, 'id'>>,
   createResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationCreateResourceArgs, 'payload'>>,
+  updateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationUpdateResourceArgs, '_id' | 'payload'>>,
   addResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddResourceToDomainArgs, 'domainId' | 'payload'>>,
   attachResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceToDomainArgs, 'domainId' | 'resourceId'>>,
   attachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceCoversConceptsArgs, 'resourceId' | 'conceptIds'>>,
@@ -697,12 +727,16 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  approaches?: Resolver<Maybe<Array<APIResolversTypes['PedagogicalApproach']>>, ParentType, ContextType>,
   coveredConcepts?: Resolver<Maybe<APIResolversTypes['ResourceCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredConceptsArgs, 'options'>>,
+  domains?: Resolver<Maybe<APIResolversTypes['ResourceDomainsResults']>, ParentType, ContextType, RequireFields<APIResourceDomainsArgs, 'options'>>,
 }>;
 
 export type APIResourceCoveredConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceCoveredConceptsResults'] = APIResolversParentTypes['ResourceCoveredConceptsResults']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
+}>;
+
+export type APIResourceDomainsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceDomainsResults'] = APIResolversParentTypes['ResourceDomainsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
 }>;
 
 export type APISearchDomainsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchDomainsResult'] = APIResolversParentTypes['SearchDomainsResult']> = ResolversObject<{
@@ -734,6 +768,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Query?: APIQueryResolvers<ContextType>,
   Resource?: APIResourceResolvers<ContextType>,
   ResourceCoveredConceptsResults?: APIResourceCoveredConceptsResultsResolvers<ContextType>,
+  ResourceDomainsResults?: APIResourceDomainsResultsResolvers<ContextType>,
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
 }>;

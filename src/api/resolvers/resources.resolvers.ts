@@ -7,6 +7,8 @@ import {
   attachResourceCoversConcepts,
   detachResourceCoversConcepts,
   getResourceCoveredConcepts,
+  updateResource,
+  getResourceDomains,
 } from '../../repositories/resources.repository';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { Resource } from '../../entities/Resource';
@@ -24,6 +26,17 @@ export const createResourceResolver: APIMutationResolvers['createResource'] = as
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
   const createdResource = await createResource({ _id: user._id }, nullToUndefined(payload));
   return toAPIResource(createdResource);
+};
+
+export const updateResourceResolver: APIMutationResolvers['updateResource'] = async (
+  _parent,
+  { _id, payload },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
+  const updatedResource = await updateResource({ _id }, nullToUndefined(payload));
+  if (!updatedResource) throw new NotFoundError('Resource', _id, 'id');
+  return toAPIResource(updatedResource);
 };
 
 export const addResourceToDomainResolver: APIMutationResolvers['addResourceToDomain'] = async (
@@ -83,5 +96,11 @@ export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredCo
 ) => {
   return {
     items: await getResourceCoveredConcepts(resource._id),
+  };
+};
+
+export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async (resource, { options }) => {
+  return {
+    items: await getResourceDomains(resource._id),
   };
 };

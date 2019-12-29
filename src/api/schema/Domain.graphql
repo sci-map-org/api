@@ -10,7 +10,7 @@ type Domain {
 }
 
 input DomainConceptsOptions {
-  pagination: PaginationOptions!
+  pagination: PaginationOptions
 }
 
 type DomainConceptsResults {

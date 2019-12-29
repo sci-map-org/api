@@ -11,16 +11,16 @@ export enum ResourceType {
   introduction = 'introduction',
 }
 
-export enum PedagogicalApproach {
-  practical = 'practical',
-  theoretical = 'theoretical',
-  intuitive = 'intuitive',
-  gamified = 'gamified',
-  visual = 'visual',
-  interactive = 'interactive',
-  abstract = 'abstract',
-  detailed = 'detailed',
-}
+// export enum PedagogicalApproach {
+//   practical = 'practical',
+//   theoretical = 'theoretical',
+//   intuitive = 'intuitive',
+//   gamified = 'gamified',
+//   visual = 'visual',
+//   interactive = 'interactive',
+//   abstract = 'abstract',
+//   detailed = 'detailed',
+// }
 
 export interface Resource {
   _id: string;
