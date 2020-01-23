@@ -154,3 +154,7 @@ export const getResourceDomains = (_id: string) =>
       filter: {},
     },
   });
+
+// export const addTagToResource = (resourceId: string, tagName: string): Promise<Resource> => {
+//   return
+// }

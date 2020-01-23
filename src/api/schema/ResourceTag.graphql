@@ -1,0 +1,12 @@
+type ResourceTag {
+  name: String!
+}
+
+type Query {
+  searchResourceTags(query: String!): [ResourceTag!]!
+}
+
+type Mutation {
+  addTagsToResource(resourceId: String!, tags: [String!]!): Resource!
+  removeTagsFromResource(resourceId: String!, tags: [String!]!): Resource!
+}

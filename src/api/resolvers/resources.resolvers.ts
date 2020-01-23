@@ -13,6 +13,7 @@ import {
 import { nullToUndefined } from '../util/nullToUndefined';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
+import { getResourceResourceTags } from '../../repositories/resource_tag.repository';
 
 function toAPIResource(resource: Resource): APIResource {
   return resource;
@@ -103,4 +104,8 @@ export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async
   return {
     items: await getResourceDomains(resource._id),
   };
+};
+
+export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
+  return await getResourceResourceTags(resource._id);
 };

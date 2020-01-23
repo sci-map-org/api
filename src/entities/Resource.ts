@@ -3,12 +3,14 @@ export const ResourceLabel = 'Resource';
 export enum ResourceMediaType {
   video = 'video',
   text = 'text',
+  audio = 'audio',
 }
 
 export enum ResourceType {
   article = 'article',
   tutorial = 'tutorial',
   introduction = 'introduction',
+  course = 'course',
 }
 
 // export enum PedagogicalApproach {

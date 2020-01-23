@@ -35,6 +35,7 @@ import {
   getResourceByIdResolver,
   getResourceCoveredConceptsResolver,
   getResourceDomainsResolver,
+  getResourceTagsResolver,
 } from './resolvers/resources.resolvers';
 import {
   adminUpdateUserResolver,
@@ -100,6 +101,7 @@ const resolvers: APIResolvers<APIContext> = {
   Resource: {
     coveredConcepts: getResourceCoveredConceptsResolver,
     domains: getResourceDomainsResolver,
+    tags: getResourceTagsResolver,
   },
 };
 

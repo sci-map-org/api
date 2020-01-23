@@ -1,12 +1,14 @@
 enum ResourceMediaType {
   video
   text
+  audio
 }
 
 enum ResourceType {
   article
   tutorial
   introduction
+  course
 }
 
 # enum PedagogicalApproach {
@@ -22,26 +24,18 @@ enum ResourceType {
 # polymorphic ? By type or just internal / external ?
 # what info in the relationships ? approach taken ?
 # should just be a wrapper ?
-# type VideoResource implements ResourceInterface {
-#   _id: String!
-#   name: String!
-#   description: String
-#   mediaType: ResourceMediaType.video!
-#   external: Boolean!
-#   url: String!
-#   durationMs: Int!
-# }
 
 type Resource {
   _id: String!
   name: String!
   type: ResourceType!
   mediaType: ResourceMediaType!
+  tags: [ResourceTag!]!
   url: String!
   description: String
+  durationMn: Int
   coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
   domains(options: ResourceDomainsOptions!): ResourceDomainsResults
-  # durationMs: Int
 }
 
 input ResourceDomainsOptions {
@@ -66,6 +60,7 @@ input CreateResourcePayload {
   mediaType: ResourceMediaType!
   url: String!
   description: String
+  tags: [String!] # ?
 }
 
 input UpdateResourcePayload {
