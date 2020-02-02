@@ -13,9 +13,15 @@ import {
 import { nullToUndefined } from '../util/nullToUndefined';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { getResourceResourceTags } from '../../repositories/resource_tag.repository';
+import {
+  getResourceResourceTags,
+  findOrCreateResourceTag,
+  attachResourceTagsToResource,
+} from '../../repositories/resource_tag.repository';
+import { omit, uniqBy } from 'lodash';
+import { createAndSaveResource } from '../../services/auth/resources.service';
 
-function toAPIResource(resource: Resource): APIResource {
+export function toAPIResource(resource: Resource): APIResource {
   return resource;
 }
 
@@ -25,8 +31,7 @@ export const createResourceResolver: APIMutationResolvers['createResource'] = as
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  const createdResource = await createResource({ _id: user._id }, nullToUndefined(payload));
-  return toAPIResource(createdResource);
+  return toAPIResource(await createAndSaveResource(nullToUndefined(payload), user._id));
 };
 
 export const updateResourceResolver: APIMutationResolvers['updateResource'] = async (
@@ -46,7 +51,7 @@ export const addResourceToDomainResolver: APIMutationResolvers['addResourceToDom
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  const createdResource = await createResource({ _id: user._id }, nullToUndefined(payload));
+  const createdResource = await createAndSaveResource(nullToUndefined(payload), user._id);
   await attachResourceToDomain(createdResource._id, domainId);
   return toAPIResource(createdResource);
 };

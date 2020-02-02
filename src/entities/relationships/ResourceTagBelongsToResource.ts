@@ -1,3 +1,3 @@
-export const ResourceTagBelongsToResourceLabel = 'ResourceTagBelongsToResource';
+export const ResourceTagBelongsToResourceLabel = 'BELONGS_TO';
 
 export interface ResourceTagBelongsToResource {}

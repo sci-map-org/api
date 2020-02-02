@@ -1,4 +1,5 @@
 import { neo4jDriver } from '../../infra/neo4j';
+import { buildFilter } from './filter';
 
 export function getFilterString(filter: object, filterName: string = 'filter'): string {
   if (Object.keys(filter).length == 0) return '';
@@ -134,7 +135,7 @@ export const getRelatedNode = async <E>({
   return record.get('destinationNode');
 };
 
-export const createNode = <C, E>({ label }: { label: string }) => async (props: C): Promise<E> => {
+export const createNode = <E>({ label }: { label: string }) => async (props: E): Promise<E> => {
   const session = neo4jDriver.session();
 
   const { records } = await session.run(`CREATE (node:${label} $props) RETURN properties(node) as node`, {
@@ -270,9 +271,9 @@ export const attachNodes = async <OF extends object, RP extends object, DF exten
     )}) MATCH (destinationNode:${destinationNode.label} ${getFilterString(
       destinationNode.filter,
       'destinationNodeFilter'
-    )}) CREATE (originNode)-[relationship:${
+    )}) MERGE (originNode)-[relationship:${
       relationship.label
-    } $relationshipProps]->(destinationNode) RETURN properties(relationship) as relationship`,
+    }]->(destinationNode) ON CREATE SET relationship = $relationshipProps RETURN properties(relationship) as relationship`,
     {
       originNodeFilter: originNode.filter,
       destinationNodeFilter: destinationNode.filter,
@@ -287,4 +288,45 @@ export const attachNodes = async <OF extends object, RP extends object, DF exten
   if (!record) throw new Error();
 
   return record.get('relationship');
+};
+
+export const detachNodes = async <
+  OriginFilter extends object,
+  RelationFilter extends object,
+  DestinationFilter extends object
+>({
+  originNode,
+  relationship,
+  destinationNode,
+}: {
+  originNode: { label: string; filter: OriginFilter };
+  relationship: { label: string; filter: RelationFilter };
+  destinationNode: { label: string; filter: DestinationFilter };
+}) => {
+  const session = neo4jDriver.session();
+  const result = await session.run(
+    `MATCH (originNode:${originNode.label}) ${buildFilter(
+      originNode.filter,
+      'originNodeFilter',
+      'originNode'
+    )} MATCH (destinationNode:${destinationNode.label}) ${buildFilter(
+      destinationNode.filter,
+      'destinationNodeFilter',
+      'destinationNode'
+    )} OPTIONAL MATCH (originNode)-[relationship:${
+      relationship.label
+    }]-(destinationNode) DELETE relationship RETURN properties(originNode) as originNode`,
+    {
+      originNodeFilter: originNode.filter,
+      destinationNodeFilter: destinationNode.filter,
+    }
+  );
+
+  const { records } = result;
+  session.close();
+  const record = records.pop();
+
+  if (!record) throw new Error();
+
+  return record.get('originNode');
 };

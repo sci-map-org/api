@@ -2,8 +2,18 @@ type ResourceTag {
   name: String!
 }
 
+type ResourceTagSearchResult {
+  name: String!
+  usageCount: Int
+}
+
+input SearchResourceTagsOptions {
+  query: String!
+  pagination: PaginationOptions!
+}
+
 type Query {
-  searchResourceTags(query: String!): [ResourceTag!]!
+  searchResourceTags(options: SearchResourceTagsOptions!): [ResourceTagSearchResult!]!
 }
 
 type Mutation {

@@ -30,7 +30,7 @@ type Resource {
   name: String!
   type: ResourceType!
   mediaType: ResourceMediaType!
-  tags: [ResourceTag!]!
+  tags: [ResourceTag!]
   url: String!
   description: String
   durationMn: Int

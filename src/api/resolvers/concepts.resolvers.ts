@@ -12,6 +12,7 @@ import {
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
+import { toAPIResource } from './resources.resolvers';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;
@@ -61,5 +62,5 @@ export const getConceptCoveredByResourcesResolver: APIConceptResolvers['coveredB
   concept,
   { options }
 ) => {
-  return { items: await getConceptCoveredByResources(concept._id) };
+  return { items: (await getConceptCoveredByResources(concept._id)).map(toAPIResource) };
 };

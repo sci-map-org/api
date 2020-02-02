@@ -48,6 +48,11 @@ import {
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
+import {
+  searchResourceTagsResolver,
+  addTagsToResourceResolver,
+  removeTagsFromResourceResolver,
+} from './resolvers/resource_tags.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -70,6 +75,8 @@ const resolvers: APIResolvers<APIContext> = {
     deleteConcept: deleteConceptResolver,
     attachResourceCoversConcepts: attachResourceCoversConceptsResolver,
     detachResourceCoversConcepts: detachResourceCoversConceptsResolver,
+    addTagsToResource: addTagsToResourceResolver,
+    removeTagsFromResource: removeTagsFromResourceResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -80,6 +87,7 @@ const resolvers: APIResolvers<APIContext> = {
     getDomainByKey: getDomainByKeyResolver,
     getResourceById: getResourceByIdResolver,
     getConcept: getConceptResolver,
+    searchResourceTags: searchResourceTagsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

@@ -19,7 +19,9 @@ export function nullToUndefined<T extends object>(object: T): RecursiveNonNull<T
   for (const key of Object.keys(object) as (keyof T)[]) {
     const value = object[key];
     if (Array.isArray(value)) {
-      objectWithoutNullValues[key] = value.map(nullToUndefined);
+      objectWithoutNullValues[key] = value.map(element => {
+        return isObject(element) ? nullToUndefined(element) : element;
+      });
     } else if (isObject(value)) {
       const objectValue = value;
       objectWithoutNullValues[key] = nullToUndefined(objectValue);
