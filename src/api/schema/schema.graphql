@@ -2,5 +2,7 @@
 # import Query.*, Mutation.* from "User.graphql"
 # import Query.*, Mutation.* from "Article.graphql"
 # import Query.*, Mutation.* from "Domain.graphql"
+# import Query.*, Mutation.* from "ResourceTag.graphql"
 # import Query.*, Mutation.* from "Resource.graphql"
 # import Query.*, Mutation.* from "Concept.graphql"
+

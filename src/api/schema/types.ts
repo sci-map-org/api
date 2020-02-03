@@ -80,6 +80,7 @@ export type APICreateResourcePayload = {
   mediaType: ResourceMediaType,
   url: Scalars['String'],
   description?: Maybe<Scalars['String']>,
+  tags?: Maybe<Array<Scalars['String']>>,
 };
 
 export type APICurrentUser = {
@@ -190,6 +191,8 @@ export type APIMutation = {
   attachResourceToDomain: APIResource,
   attachResourceCoversConcepts: APIResource,
   detachResourceCoversConcepts: APIResource,
+  addTagsToResource: APIResource,
+  removeTagsFromResource: APIResource,
   login: APILoginResponse,
   register: APICurrentUser,
   adminUpdateUser: APIUser,
@@ -280,6 +283,18 @@ export type APIMutationDetachResourceCoversConceptsArgs = {
 };
 
 
+export type APIMutationAddTagsToResourceArgs = {
+  resourceId: Scalars['String'],
+  tags: Array<Scalars['String']>
+};
+
+
+export type APIMutationRemoveTagsFromResourceArgs = {
+  resourceId: Scalars['String'],
+  tags: Array<Scalars['String']>
+};
+
+
 export type APIMutationLoginArgs = {
   email: Scalars['String'],
   password: Scalars['String']
@@ -309,6 +324,7 @@ export type APIQuery = {
   searchDomains: APISearchDomainsResult,
   getDomainByKey: APIDomain,
   getResourceById: APIResource,
+  searchResourceTags: Array<APIResourceTagSearchResult>,
   currentUser: APICurrentUser,
   getUser: APIUser,
 };
@@ -344,6 +360,11 @@ export type APIQueryGetResourceByIdArgs = {
 };
 
 
+export type APIQuerySearchResourceTagsArgs = {
+  options: APISearchResourceTagsOptions
+};
+
+
 export type APIQueryGetUserArgs = {
   key: Scalars['String']
 };
@@ -361,8 +382,10 @@ export type APIResource = {
   name: Scalars['String'],
   type: ResourceType,
   mediaType: ResourceMediaType,
+  tags?: Maybe<Array<APIResourceTag>>,
   url: Scalars['String'],
   description?: Maybe<Scalars['String']>,
+  durationMn?: Maybe<Scalars['Int']>,
   coveredConcepts?: Maybe<APIResourceCoveredConceptsResults>,
   domains?: Maybe<APIResourceDomainsResults>,
 };
@@ -397,6 +420,17 @@ export type APIResourceDomainsResults = {
 
 export { ResourceMediaType };
 
+export type APIResourceTag = {
+   __typename?: 'ResourceTag',
+  name: Scalars['String'],
+};
+
+export type APIResourceTagSearchResult = {
+   __typename?: 'ResourceTagSearchResult',
+  name: Scalars['String'],
+  usageCount?: Maybe<Scalars['Int']>,
+};
+
 export { ResourceType };
 
 export type APISearchDomainsOptions = {
@@ -407,6 +441,11 @@ export type APISearchDomainsOptions = {
 export type APISearchDomainsResult = {
    __typename?: 'SearchDomainsResult',
   items: Array<APIDomain>,
+};
+
+export type APISearchResourceTagsOptions = {
+  query: Scalars['String'],
+  pagination: APIPaginationOptions,
 };
 
 export type APIUpdateArticlePayload = {
@@ -540,6 +579,7 @@ export type APIResolversTypes = ResolversObject<{
   Resource: ResolverTypeWrapper<APIResource>,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
+  ResourceTag: ResolverTypeWrapper<APIResourceTag>,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
   ResourceDomainsOptions: APIResourceDomainsOptions,
@@ -548,6 +588,8 @@ export type APIResolversTypes = ResolversObject<{
   ConceptCoveredByResourcesResults: ResolverTypeWrapper<APIConceptCoveredByResourcesResults>,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
+  SearchResourceTagsOptions: APISearchResourceTagsOptions,
+  ResourceTagSearchResult: ResolverTypeWrapper<APIResourceTagSearchResult>,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
   UserRole: UserRole,
   Mutation: ResolverTypeWrapper<{}>,
@@ -589,6 +631,7 @@ export type APIResolversParentTypes = ResolversObject<{
   Resource: APIResource,
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
+  ResourceTag: APIResourceTag,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
   ResourceDomainsOptions: APIResourceDomainsOptions,
@@ -597,6 +640,8 @@ export type APIResolversParentTypes = ResolversObject<{
   ConceptCoveredByResourcesResults: APIConceptCoveredByResourcesResults,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: APISearchDomainsResult,
+  SearchResourceTagsOptions: APISearchResourceTagsOptions,
+  ResourceTagSearchResult: APIResourceTagSearchResult,
   CurrentUser: APICurrentUser,
   UserRole: UserRole,
   Mutation: {},
@@ -704,6 +749,8 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   attachResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceToDomainArgs, 'domainId' | 'resourceId'>>,
   attachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceCoversConceptsArgs, 'resourceId' | 'conceptIds'>>,
   detachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceCoversConceptsArgs, 'resourceId' | 'conceptIds'>>,
+  addTagsToResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddTagsToResourceArgs, 'resourceId' | 'tags'>>,
+  removeTagsFromResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationRemoveTagsFromResourceArgs, 'resourceId' | 'tags'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
@@ -716,6 +763,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   searchDomains?: Resolver<APIResolversTypes['SearchDomainsResult'], ParentType, ContextType, RequireFields<APIQuerySearchDomainsArgs, 'options'>>,
   getDomainByKey?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIQueryGetDomainByKeyArgs, 'key'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
+  searchResourceTags?: Resolver<Array<APIResolversTypes['ResourceTagSearchResult']>, ParentType, ContextType, RequireFields<APIQuerySearchResourceTagsArgs, 'options'>>,
   currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
 }>;
@@ -725,8 +773,10 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   type?: Resolver<APIResolversTypes['ResourceType'], ParentType, ContextType>,
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
+  tags?: Resolver<Maybe<Array<APIResolversTypes['ResourceTag']>>, ParentType, ContextType>,
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  durationMn?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   coveredConcepts?: Resolver<Maybe<APIResolversTypes['ResourceCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredConceptsArgs, 'options'>>,
   domains?: Resolver<Maybe<APIResolversTypes['ResourceDomainsResults']>, ParentType, ContextType, RequireFields<APIResourceDomainsArgs, 'options'>>,
 }>;
@@ -737,6 +787,15 @@ export type APIResourceCoveredConceptsResultsResolvers<ContextType = APIContext,
 
 export type APIResourceDomainsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceDomainsResults'] = APIResolversParentTypes['ResourceDomainsResults']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
+}>;
+
+export type APIResourceTagResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceTag'] = APIResolversParentTypes['ResourceTag']> = ResolversObject<{
+  name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+}>;
+
+export type APIResourceTagSearchResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceTagSearchResult'] = APIResolversParentTypes['ResourceTagSearchResult']> = ResolversObject<{
+  name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  usageCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
 }>;
 
 export type APISearchDomainsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchDomainsResult'] = APIResolversParentTypes['SearchDomainsResult']> = ResolversObject<{
@@ -769,6 +828,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Resource?: APIResourceResolvers<ContextType>,
   ResourceCoveredConceptsResults?: APIResourceCoveredConceptsResultsResolvers<ContextType>,
   ResourceDomainsResults?: APIResourceDomainsResultsResolvers<ContextType>,
+  ResourceTag?: APIResourceTagResolvers<ContextType>,
+  ResourceTagSearchResult?: APIResourceTagSearchResultResolvers<ContextType>,
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
 }>;

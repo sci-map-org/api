@@ -12,6 +12,7 @@ import {
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIDomain, APIMutationResolvers, APIQueryResolvers, UserRole, APIDomainResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
+import { toAPIResource } from './resources.resolvers';
 
 function toAPIDomain(domain: Domain): APIDomain {
   return domain;
@@ -61,5 +62,5 @@ export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (
 };
 
 export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, {}, ctx) => {
-  return { items: await getDomainResources({ _id: domain._id }) };
+  return { items: (await getDomainResources({ _id: domain._id })).map(toAPIResource) };
 };

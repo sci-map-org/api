@@ -1,0 +1,22 @@
+type ResourceTag {
+  name: String!
+}
+
+type ResourceTagSearchResult {
+  name: String!
+  usageCount: Int
+}
+
+input SearchResourceTagsOptions {
+  query: String!
+  pagination: PaginationOptions!
+}
+
+type Query {
+  searchResourceTags(options: SearchResourceTagsOptions!): [ResourceTagSearchResult!]!
+}
+
+type Mutation {
+  addTagsToResource(resourceId: String!, tags: [String!]!): Resource!
+  removeTagsFromResource(resourceId: String!, tags: [String!]!): Resource!
+}
