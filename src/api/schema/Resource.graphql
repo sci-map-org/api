@@ -60,6 +60,7 @@ input CreateResourcePayload {
   mediaType: ResourceMediaType!
   url: String!
   description: String
+  durationMn: Int
   tags: [String!] # ?
 }
 
@@ -69,6 +70,7 @@ input UpdateResourcePayload {
   mediaType: ResourceMediaType
   url: String
   description: String
+  durationMn: Int
 }
 # External -> Url + abstract/description if possible ? E.g. youtube description
 # Internal ->

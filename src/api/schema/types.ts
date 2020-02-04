@@ -80,6 +80,7 @@ export type APICreateResourcePayload = {
   mediaType: ResourceMediaType,
   url: Scalars['String'],
   description?: Maybe<Scalars['String']>,
+  durationMn?: Maybe<Scalars['Int']>,
   tags?: Maybe<Array<Scalars['String']>>,
 };
 
@@ -470,6 +471,7 @@ export type APIUpdateResourcePayload = {
   mediaType?: Maybe<ResourceMediaType>,
   url?: Maybe<Scalars['String']>,
   description?: Maybe<Scalars['String']>,
+  durationMn?: Maybe<Scalars['Int']>,
 };
 
 export type APIUser = {
