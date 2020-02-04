@@ -36,6 +36,7 @@ import {
   getResourceCoveredConceptsResolver,
   getResourceDomainsResolver,
   getResourceTagsResolver,
+  updateResourceResolver,
 } from './resolvers/resources.resolvers';
 import {
   adminUpdateUserResolver,
@@ -69,6 +70,7 @@ const resolvers: APIResolvers<APIContext> = {
     deleteDomain: deleteDomainResolver,
     createResource: createResourceResolver,
     addResourceToDomain: addResourceToDomainResolver,
+    updateResource: updateResourceResolver,
     attachResourceToDomain: attachResourceToDomainResolver,
     addConceptToDomain: addConceptToDomainResolver,
     updateConcept: updateConceptResolver,
