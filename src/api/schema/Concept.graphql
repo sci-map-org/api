@@ -5,6 +5,7 @@
 
 type Concept {
   _id: String!
+  key: String!
   name: String!
   description: String
   domain: Domain
@@ -20,11 +21,13 @@ type ConceptCoveredByResourcesResults {
 }
 
 input CreateConceptPayload {
+  key: String
   name: String!
   description: String
 }
 
 input UpdateConceptPayload {
+  key: String
   name: String
   description: String
 }

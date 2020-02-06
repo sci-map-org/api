@@ -14,13 +14,16 @@ import { DomainLabel, Domain } from '../entities/Domain';
 import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
+import { generateUrlKey } from '../api/util/urlKey';
 
 interface CreateConceptData {
   name: string;
+  key?: string;
   description?: string;
 }
 
 interface UpdateConceptData {
+  key?: string;
   name?: string;
   description?: string;
 }
@@ -29,7 +32,14 @@ export const createConcept = (user: { _id: string } | { key: string }, data: Cre
   createRelatedNode({
     originNode: { label: 'User', filter: user },
     relationship: { label: 'CREATED', props: { createdAt: Date.now() } },
-    newNode: { label: ConceptLabel, props: { ...data, _id: shortid.generate() } },
+    newNode: {
+      label: ConceptLabel,
+      props: {
+        ...data,
+        key: generateUrlKey(data.key || data.name), // a bit ugly
+        _id: shortid.generate(),
+      },
+    },
   });
 
 export const findConcept = findOne<Concept, { _id: string }>({ label: ConceptLabel });

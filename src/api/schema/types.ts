@@ -37,6 +37,7 @@ export { ArticleContentType };
 export type APIConcept = {
    __typename?: 'Concept',
   _id: Scalars['String'],
+  key: Scalars['String'],
   name: Scalars['String'],
   description?: Maybe<Scalars['String']>,
   domain?: Maybe<APIDomain>,
@@ -64,6 +65,7 @@ export type APICreateArticlePayload = {
 };
 
 export type APICreateConceptPayload = {
+  key?: Maybe<Scalars['String']>,
   name: Scalars['String'],
   description?: Maybe<Scalars['String']>,
 };
@@ -455,6 +457,7 @@ export type APIUpdateArticlePayload = {
 };
 
 export type APIUpdateConceptPayload = {
+  key?: Maybe<Scalars['String']>,
   name?: Maybe<Scalars['String']>,
   description?: Maybe<Scalars['String']>,
 };
@@ -675,6 +678,7 @@ export type APIArticleResolvers<ContextType = APIContext, ParentType extends API
 
 export type APIConceptResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Concept'] = APIResolversParentTypes['Concept']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domain?: Resolver<Maybe<APIResolversTypes['Domain']>, ParentType, ContextType>,
