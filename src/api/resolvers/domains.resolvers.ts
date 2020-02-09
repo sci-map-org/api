@@ -28,7 +28,7 @@ export const searchDomainsResolver: APIQueryResolvers['searchDomains'] = async (
 
 export const createDomainResolver: APIMutationResolvers['createDomain'] = async (_parent, { payload }, ctx) => {
   if (!ctx.user || ctx.user.role !== UserRole.ADMIN)
-    throw new UnauthorizedError('Must be logged in and an admin to create an article');
+    throw new UnauthorizedError('Must be logged in and an admin to create a domain');
   const createdDomain = await createDomain({ _id: ctx.user._id }, nullToUndefined(payload));
   return toAPIDomain(createdDomain);
 };

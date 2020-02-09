@@ -24,6 +24,12 @@ export const getConceptResolver: APIQueryResolvers['getConcept'] = async (_paren
   return toAPIConcept(concept);
 };
 
+export const getConceptByKeyResolver: APIQueryResolvers['getConceptByKey'] = async (_parent, { key }) => {
+  const concept = await findConcept({ key });
+  if (!concept) throw new NotFoundError('Concept', key, 'key');
+  return toAPIConcept(concept);
+};
+
 export const addConceptToDomainResolver: APIMutationResolvers['addConceptToDomain'] = async (
   _parent,
   { payload, domainId },

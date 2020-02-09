@@ -42,7 +42,7 @@ export const createConcept = (user: { _id: string } | { key: string }, data: Cre
     },
   });
 
-export const findConcept = findOne<Concept, { _id: string }>({ label: ConceptLabel });
+export const findConcept = findOne<Concept, { _id: string } | { key: string }>({ label: ConceptLabel });
 
 export const updateConcept = updateOne<Concept, { _id: string }, UpdateConceptData>({ label: ConceptLabel });
 

@@ -324,6 +324,7 @@ export type APIQuery = {
   getArticleByKey: APIArticle,
   listArticles: APIListArticlesResult,
   getConcept: APIConcept,
+  getConceptByKey: APIConcept,
   searchDomains: APISearchDomainsResult,
   getDomainByKey: APIDomain,
   getResourceById: APIResource,
@@ -345,6 +346,11 @@ export type APIQueryListArticlesArgs = {
 
 export type APIQueryGetConceptArgs = {
   _id: Scalars['String']
+};
+
+
+export type APIQueryGetConceptByKeyArgs = {
+  key: Scalars['String']
 };
 
 
@@ -766,6 +772,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
   getConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptArgs, '_id'>>,
+  getConceptByKey?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptByKeyArgs, 'key'>>,
   searchDomains?: Resolver<APIResolversTypes['SearchDomainsResult'], ParentType, ContextType, RequireFields<APIQuerySearchDomainsArgs, 'options'>>,
   getDomainByKey?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIQueryGetDomainByKeyArgs, 'key'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,

@@ -16,6 +16,7 @@ import {
   getConceptDomainResolver,
   getConceptResolver,
   updateConceptResolver,
+  getConceptByKeyResolver,
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -89,6 +90,7 @@ const resolvers: APIResolvers<APIContext> = {
     getDomainByKey: getDomainByKeyResolver,
     getResourceById: getResourceByIdResolver,
     getConcept: getConceptResolver,
+    getConceptByKey: getConceptByKeyResolver,
     searchResourceTags: searchResourceTagsResolver,
   },
   Article: {
