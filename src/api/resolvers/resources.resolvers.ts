@@ -1,25 +1,19 @@
-import { APIMutationResolvers, APIQueryResolvers, APIResource, APIResourceResolvers } from '../schema/types';
-import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import {
-  createResource,
-  attachResourceToDomain,
-  findResource,
-  attachResourceCoversConcepts,
-  detachResourceCoversConcepts,
-  getResourceCoveredConcepts,
-  updateResource,
-  getResourceDomains,
-} from '../../repositories/resources.repository';
-import { nullToUndefined } from '../util/nullToUndefined';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
+import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
 import {
-  getResourceResourceTags,
-  findOrCreateResourceTag,
-  attachResourceTagsToResource,
-} from '../../repositories/resource_tag.repository';
-import { omit, uniqBy } from 'lodash';
+  attachResourceCoversConcepts,
+  attachResourceToDomain,
+  detachResourceCoversConcepts,
+  findResource,
+  getResourceCoveredConcepts,
+  getResourceDomains,
+  updateResource,
+} from '../../repositories/resources.repository';
 import { createAndSaveResource } from '../../services/auth/resources.service';
+import { UnauthenticatedError } from '../errors/UnauthenticatedError';
+import { APIMutationResolvers, APIQueryResolvers, APIResource, APIResourceResolvers } from '../schema/types';
+import { nullToUndefined } from '../util/nullToUndefined';
 
 export function toAPIResource(resource: Resource): APIResource {
   return resource;
@@ -40,7 +34,10 @@ export const updateResourceResolver: APIMutationResolvers['updateResource'] = as
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to update a resource');
-  const updatedResource = await updateResource({ _id }, nullToUndefined(payload));
+  const updatedResource = await updateResource(
+    { _id },
+    { ...nullToUndefined(payload), durationMn: payload.durationMn }
+  );
   if (!updatedResource) throw new NotFoundError('Resource', _id, 'id');
   return toAPIResource(updatedResource);
 };

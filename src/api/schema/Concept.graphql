@@ -10,6 +10,11 @@ type Concept {
   description: String
   domain: Domain
   coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
+  known: KnownConcept
+}
+
+type KnownConcept {
+  level: Float!
 }
 
 input ConceptCoveredByResourcesOptions {
@@ -32,6 +37,14 @@ input UpdateConceptPayload {
   description: String
 }
 
+input SetConceptKnownPayloadConceptsField {
+  conceptId: String!
+  level: Float
+}
+input SetConceptKnownPayload {
+  concepts: [SetConceptKnownPayloadConceptsField!]!
+}
+
 type DeleteConceptResult {
   success: Boolean!
   _id: String!
@@ -46,4 +59,6 @@ type Mutation {
   addConceptToDomain(domainId: String!, payload: CreateConceptPayload!): Concept!
   updateConcept(_id: String!, payload: UpdateConceptPayload!): Concept!
   deleteConcept(_id: String!): DeleteConceptResult!
+  setConceptsKnown(payload: SetConceptKnownPayload!): [Concept!]!
+  setConceptsUnknown(conceptIds: [String!]!): [Concept!]!
 }

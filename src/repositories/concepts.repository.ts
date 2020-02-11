@@ -9,12 +9,16 @@ import {
   attachNodes,
   getRelatedNode,
   getRelatedNodes,
+  getFilterString,
 } from './util/abstract_graph_repo';
 import { DomainLabel, Domain } from '../entities/Domain';
 import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 import { generateUrlKey } from '../api/util/urlKey';
+import { neo4jDriver } from '../infra/neo4j';
+import { UserLabel } from '../entities/User';
+import { UserKnowsConceptLabel, UserKnowsConcept } from '../entities/relationships/UserKnowsConcepts';
 
 interface CreateConceptData {
   name: string;
@@ -77,3 +81,30 @@ export const getConceptCoveredByResources = (_id: string) =>
       filter: {},
     },
   });
+
+export const getUserKnowsConcept = async (userId: string, conceptId: string): Promise<UserKnowsConcept | null> => {
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (originNode:${UserLabel} ${getFilterString(
+      { _id: userId },
+      'originNodeFilter'
+    )})-[relationship:${UserKnowsConceptLabel} ${getFilterString(
+      {},
+      'relationshipFilter'
+    )}]-(destinationNode:${ConceptLabel} ${getFilterString(
+      { _id: conceptId },
+      'destinationNodeFilter'
+    )}) RETURN properties(destinationNode) as destinationNode, properties(originNode) as originNode, properties(relationship) as relationship`,
+    {
+      originNodeFilter: { _id: userId },
+      relationshipFilter: {},
+      destinationNodeFilter: { _id: conceptId },
+    }
+  );
+
+  session.close();
+  const record = records.pop();
+  if (!record) return null;
+  const result = record.get('relationship');
+  return result;
+};

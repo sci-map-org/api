@@ -4,7 +4,7 @@ import {
   attachResourceTagsToResource,
   findOrCreateResourceTag,
   detachResourceTagsFromResource,
-} from '../../repositories/resource_tag.repository';
+} from '../../repositories/resource_tags.repository';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { findResource } from '../../repositories/resources.repository';
 import { NotFoundError } from '../../errors/NotFoundError';

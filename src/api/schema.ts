@@ -17,6 +17,9 @@ import {
   getConceptResolver,
   updateConceptResolver,
   getConceptByKeyResolver,
+  getConceptKnownResolver,
+  setConceptsKnownResolver,
+  setConceptsUnKnownResolver,
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -80,6 +83,8 @@ const resolvers: APIResolvers<APIContext> = {
     detachResourceCoversConcepts: detachResourceCoversConceptsResolver,
     addTagsToResource: addTagsToResourceResolver,
     removeTagsFromResource: removeTagsFromResourceResolver,
+    setConceptsKnown: setConceptsKnownResolver,
+    setConceptsUnknown: setConceptsUnKnownResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -109,6 +114,7 @@ const resolvers: APIResolvers<APIContext> = {
   Concept: {
     domain: getConceptDomainResolver,
     coveredByResources: getConceptCoveredByResourcesResolver,
+    known: getConceptKnownResolver,
   },
   Resource: {
     coveredConcepts: getResourceCoveredConceptsResolver,

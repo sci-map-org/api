@@ -8,11 +8,13 @@ import {
   getConceptDomain,
   updateConcept,
   getConceptCoveredByResources,
+  getUserKnowsConcept,
 } from '../../repositories/concepts.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
+import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;
@@ -69,4 +71,40 @@ export const getConceptCoveredByResourcesResolver: APIConceptResolvers['coveredB
   { options }
 ) => {
   return { items: (await getConceptCoveredByResources(concept._id)).map(toAPIResource) };
+};
+
+export const getConceptKnownResolver: APIConceptResolvers['known'] = async (parentConcept, _args, { user }) => {
+  if (!user) return null;
+
+  return await getUserKnowsConcept(user._id, parentConcept._id);
+};
+
+export const setConceptsKnownResolver: APIMutationResolvers['setConceptsKnown'] = async (_p, { payload }, { user }) => {
+  if (!user) throw new UnauthorizedError('Must be logged in to know a concept');
+  const concepts = await Promise.all(
+    payload.concepts.map(async c => {
+      const foundConcept = await findConcept({ _id: c.conceptId });
+      if (!foundConcept) throw new NotFoundError('Concept', c.conceptId);
+      return foundConcept;
+    })
+  );
+  await attachUserKnowsConcepts(user._id, payload.concepts);
+  return concepts.map(toAPIConcept);
+};
+
+export const setConceptsUnKnownResolver: APIMutationResolvers['setConceptsUnknown'] = async (
+  _p,
+  { conceptIds },
+  { user }
+) => {
+  if (!user) throw new UnauthorizedError('Must be logged in to know a concept');
+  const concepts = await Promise.all(
+    conceptIds.map(async conceptId => {
+      const foundConcept = await findConcept({ _id: conceptId });
+      if (!foundConcept) throw new NotFoundError('Concept', conceptId);
+      return foundConcept;
+    })
+  );
+  await detachUserKnowsConcepts(user._id, conceptIds);
+  return concepts.map(toAPIConcept);
 };

@@ -31,7 +31,11 @@ export const findOne = <E, F extends Partial<E>>({ label }: { label: string }) =
   return record.get('node');
 };
 
-export const updateOne = <E, F extends Partial<E>, D extends Partial<E>>({ label }: { label: string }) => async (
+type UpdateType<E> = {
+  [key in keyof E]?: undefined extends E[key] ? E[key] | null : E[key];
+};
+
+export const updateOne = <E, F extends Partial<E>, D extends UpdateType<E>>({ label }: { label: string }) => async (
   filter: F,
   data: D
 ): Promise<E | null> => {
@@ -263,7 +267,6 @@ export const attachNodes = async <OF extends object, RP extends object, DF exten
   destinationNode: { label: string; filter: DF };
 }): Promise<RP> => {
   const session = neo4jDriver.session();
-
   const { records } = await session.run(
     `MATCH (originNode:${originNode.label} ${getFilterString(
       originNode.filter,
@@ -285,7 +288,7 @@ export const attachNodes = async <OF extends object, RP extends object, DF exten
 
   const record = records.pop();
 
-  if (!record) throw new Error();
+  if (!record) throw new Error(`No record found ${originNode.label} ${destinationNode.label}`);
 
   return record.get('relationship');
 };

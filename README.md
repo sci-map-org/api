@@ -18,3 +18,11 @@
 - Proper generics for abstract_graph_repo
 - Proper error handling
 - Abstract repo: have a more generic result: nb results, originNode/Destination, etc.
+- when fetching related entities, group by relations: e.g.:
+  - resource -> coveredConcepts : group by concept domain ?
+  - user -> knownConcepts: group by domain ?
+
+
+# Notes
+
+- Set a property to null in Neo4j removes the property -> Later consumed as undefined. To unset a property through the API, send null
