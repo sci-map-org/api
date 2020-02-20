@@ -1,5 +1,6 @@
 import { makeExecutableSchema } from 'apollo-server-koa';
 import { importSchema } from 'graphql-import';
+import { GraphQLDateTime } from 'graphql-iso-date';
 
 import {
   createArticleResolver,
@@ -12,14 +13,14 @@ import {
 import {
   addConceptToDomainResolver,
   deleteConceptResolver,
+  getConceptByKeyResolver,
   getConceptCoveredByResourcesResolver,
   getConceptDomainResolver,
-  getConceptResolver,
-  updateConceptResolver,
-  getConceptByKeyResolver,
   getConceptKnownResolver,
+  getConceptResolver,
   setConceptsKnownResolver,
   setConceptsUnKnownResolver,
+  updateConceptResolver,
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -31,15 +32,22 @@ import {
   updateDomainResolver,
 } from './resolvers/domains.resolvers';
 import {
+  addTagsToResourceResolver,
+  removeTagsFromResourceResolver,
+  searchResourceTagsResolver,
+} from './resolvers/resource_tags.resolvers';
+import {
   addResourceToDomainResolver,
   attachResourceCoversConceptsResolver,
   attachResourceToDomainResolver,
   createResourceResolver,
   detachResourceCoversConceptsResolver,
   getResourceByIdResolver,
+  getResourceConsumedResolver,
   getResourceCoveredConceptsResolver,
   getResourceDomainsResolver,
   getResourceTagsResolver,
+  setResourcesConsumedResolver,
   updateResourceResolver,
 } from './resolvers/resources.resolvers';
 import {
@@ -53,11 +61,6 @@ import {
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
-import {
-  searchResourceTagsResolver,
-  addTagsToResourceResolver,
-  removeTagsFromResourceResolver,
-} from './resolvers/resource_tags.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -85,6 +88,7 @@ const resolvers: APIResolvers<APIContext> = {
     removeTagsFromResource: removeTagsFromResourceResolver,
     setConceptsKnown: setConceptsKnownResolver,
     setConceptsUnknown: setConceptsUnKnownResolver,
+    setResourcesConsumed: setResourcesConsumedResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -120,7 +124,9 @@ const resolvers: APIResolvers<APIContext> = {
     coveredConcepts: getResourceCoveredConceptsResolver,
     domains: getResourceDomainsResolver,
     tags: getResourceTagsResolver,
+    consumed: getResourceConsumedResolver,
   },
+  Date: GraphQLDateTime,
 };
 
 export const schema = makeExecutableSchema({

@@ -8,8 +8,10 @@ import {
   findResource,
   getResourceCoveredConcepts,
   getResourceDomains,
+  getUserConsumedResource,
   updateResource,
 } from '../../repositories/resources.repository';
+import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/auth/resources.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APIMutationResolvers, APIQueryResolvers, APIResource, APIResourceResolvers } from '../schema/types';
@@ -110,4 +112,40 @@ export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
   return await getResourceResourceTags(resource._id);
+};
+
+export const setResourcesConsumedResolver: APIMutationResolvers['setResourcesConsumed'] = async (
+  _parent,
+  { payload },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to consume a resource');
+  const resources = await Promise.all(
+    payload.resources.map(async ({ resourceId }) => {
+      const foundResource = await findResource({ _id: resourceId });
+      if (!foundResource) throw new NotFoundError('Resource', resourceId);
+      return foundResource;
+    })
+  );
+  await attachUserConsumedResources(
+    user._id,
+    payload.resources.map(r => {
+      return {
+        resourceId: r.resourceId,
+        ...(r.opened !== undefined && { openedAt: r.opened ? Date.now() : null }),
+        ...(r.consumed !== undefined && { consumedAt: r.consumed ? Date.now() : null }),
+      };
+    })
+  );
+  return resources;
+};
+
+export const getResourceConsumedResolver: APIResourceResolvers['consumed'] = async (resource, _args, { user }) => {
+  if (!user) return null;
+  const consumed = await getUserConsumedResource(user._id, resource._id);
+  if (!consumed) return null;
+  return {
+    openedAt: consumed.openedAt ? new Date(consumed.openedAt) : null,
+    consumedAt: consumed.consumedAt ? new Date(consumed.consumedAt) : null,
+  };
 };

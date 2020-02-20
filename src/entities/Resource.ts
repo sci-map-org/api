@@ -11,6 +11,7 @@ export enum ResourceType {
   tutorial = 'tutorial',
   introduction = 'introduction',
   course = 'course',
+  article_series = 'article_series',
 }
 
 // export enum PedagogicalApproach {

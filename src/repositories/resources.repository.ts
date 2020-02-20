@@ -14,6 +14,7 @@ import { ResourceBelongsToDomainLabel } from '../entities/relationships/Resource
 import { ConceptLabel, Concept } from '../entities/Concept';
 import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 import { neo4jDriver } from '../infra/neo4j';
+import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 
 interface CreateResourceData {
   name: string;
@@ -156,6 +157,32 @@ export const getResourceDomains = (_id: string) =>
     },
   });
 
-// export const addTagToResource = (resourceId: string, tagName: string): Promise<Resource> => {
-//   return
-// }
+export const getUserConsumedResource = async (
+  userId: string,
+  resourceId: string
+): Promise<UserConsumedResource | null> => {
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (originNode:${UserLabel} ${getFilterString(
+      { _id: userId },
+      'originNodeFilter'
+    )})-[relationship:${UserConsumedResourceLabel} ${getFilterString(
+      {},
+      'relationshipFilter'
+    )}]-(destinationNode:${ResourceLabel} ${getFilterString(
+      { _id: resourceId },
+      'destinationNodeFilter'
+    )}) RETURN properties(destinationNode) as destinationNode, properties(originNode) as originNode, properties(relationship) as relationship`,
+    {
+      originNodeFilter: { _id: userId },
+      relationshipFilter: {},
+      destinationNodeFilter: { _id: resourceId },
+    }
+  );
+
+  session.close();
+  const record = records.pop();
+  if (!record) return null;
+  const result = record.get('relationship');
+  return result;
+};

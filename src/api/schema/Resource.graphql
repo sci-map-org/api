@@ -9,6 +9,7 @@ enum ResourceType {
   tutorial
   introduction
   course
+  article_series
 }
 
 # enum PedagogicalApproach {
@@ -25,6 +26,11 @@ enum ResourceType {
 # what info in the relationships ? approach taken ?
 # should just be a wrapper ?
 
+type ConsumedResource {
+  openedAt: Date
+  consumedAt: Date
+}
+
 type Resource {
   _id: String!
   name: String!
@@ -34,6 +40,7 @@ type Resource {
   url: String!
   description: String
   durationMn: Int
+  consumed: ConsumedResource
   coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
   domains(options: ResourceDomainsOptions!): ResourceDomainsResults
 }
@@ -72,6 +79,16 @@ input UpdateResourcePayload {
   description: String
   durationMn: Int
 }
+
+input SetResourcesConsumedPayloadResourcesField {
+  resourceId: String!
+  consumed: Boolean
+  opened: Boolean # or action: String! ?
+}
+input SetResourcesConsumedPayload {
+  resources: [SetResourcesConsumedPayloadResourcesField!]!
+}
+
 # External -> Url + abstract/description if possible ? E.g. youtube description
 # Internal ->
 # Polymorphic relationship ?
@@ -90,4 +107,5 @@ type Mutation {
   attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
   attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
+  setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
 }

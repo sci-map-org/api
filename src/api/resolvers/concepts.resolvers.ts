@@ -5,16 +5,16 @@ import {
   createConcept,
   deleteConcept,
   findConcept,
-  getConceptDomain,
-  updateConcept,
   getConceptCoveredByResources,
+  getConceptDomain,
   getUserKnowsConcept,
+  updateConcept,
 } from '../../repositories/concepts.repository';
+import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
-import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;

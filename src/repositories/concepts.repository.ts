@@ -1,24 +1,24 @@
 import * as shortid from 'shortid';
 
+import { generateUrlKey } from '../api/util/urlKey';
 import { Concept, ConceptLabel } from '../entities/Concept';
+import { Domain, DomainLabel } from '../entities/Domain';
+import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
+import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
+import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
+import { Resource, ResourceLabel } from '../entities/Resource';
+import { UserLabel } from '../entities/User';
+import { neo4jDriver } from '../infra/neo4j';
 import {
+  attachNodes,
   createRelatedNode,
   deleteOne,
   findOne,
-  updateOne,
-  attachNodes,
+  getFilterString,
   getRelatedNode,
   getRelatedNodes,
-  getFilterString,
+  updateOne,
 } from './util/abstract_graph_repo';
-import { DomainLabel, Domain } from '../entities/Domain';
-import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import { Resource, ResourceLabel } from '../entities/Resource';
-import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
-import { generateUrlKey } from '../api/util/urlKey';
-import { neo4jDriver } from '../infra/neo4j';
-import { UserLabel } from '../entities/User';
-import { UserKnowsConceptLabel, UserKnowsConcept } from '../entities/relationships/UserKnowsConcepts';
 
 interface CreateConceptData {
   name: string;

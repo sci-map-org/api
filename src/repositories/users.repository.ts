@@ -1,12 +1,14 @@
 import { omit } from 'lodash';
 import shortid = require('shortid');
 
-import { User, UserRole, UserLabel } from '../entities/User';
+import { ConceptLabel } from '../entities/Concept';
+import { UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
+import { UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
+import { ResourceLabel } from '../entities/Resource';
+import { User, UserLabel, UserRole } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import { encryptPassword } from '../services/auth/password_hashing';
-import { findOne, updateOne, attachNodes, detachNodes } from './util/abstract_graph_repo';
-import { UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcepts';
-import { ConceptLabel } from '../entities/Concept';
+import { attachNodes, detachNodes, findOne, updateOne } from './util/abstract_graph_repo';
 
 interface CreateUserData {
   displayName: string;
@@ -101,3 +103,28 @@ export const detachUserKnowsConcepts = (userId: string, conceptIds: string[]) =>
       filter: { _id: { $in: conceptIds } },
     },
   });
+
+export const attachUserConsumedResources = (
+  userId: string,
+  resourcesToConsume: Array<{ resourceId: string; consumedAt?: number | null; openedAt?: number | null }>
+) =>
+  Promise.all(
+    resourcesToConsume.map(resourceToConsume =>
+      attachNodes({
+        originNode: {
+          label: UserLabel,
+          filter: { _id: userId },
+        },
+        relationship: {
+          label: UserConsumedResourceLabel,
+          props: {
+            ...omit(resourceToConsume, 'resourceId'),
+          },
+        },
+        destinationNode: {
+          label: ResourceLabel,
+          filter: { _id: resourceToConsume.resourceId },
+        },
+      })
+    )
+  );

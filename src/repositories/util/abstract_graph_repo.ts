@@ -276,7 +276,7 @@ export const attachNodes = async <OF extends object, RP extends object, DF exten
       'destinationNodeFilter'
     )}) MERGE (originNode)-[relationship:${
       relationship.label
-    }]->(destinationNode) ON CREATE SET relationship = $relationshipProps RETURN properties(relationship) as relationship`,
+    }]->(destinationNode) ON CREATE SET relationship = $relationshipProps ON MATCH SET relationship += $relationshipProps RETURN properties(relationship) as relationship`,
     {
       originNodeFilter: originNode.filter,
       destinationNodeFilter: destinationNode.filter,

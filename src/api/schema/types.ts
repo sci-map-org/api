@@ -2,7 +2,7 @@ import { ArticleContentType } from '../../entities/Article';
 import { UserRole } from '../../entities/User';
 import { ResourceType } from '../../entities/Resource';
 import { ResourceMediaType } from '../../entities/Resource';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
@@ -13,6 +13,7 @@ export type Scalars = {
   Boolean: boolean,
   Int: number,
   Float: number,
+  Date: Date,
 };
 
 export type APIAdminUpdateUserPayload = {
@@ -59,6 +60,12 @@ export type APIConceptCoveredByResourcesResults = {
   items: Array<APIResource>,
 };
 
+export type APIConsumedResource = {
+   __typename?: 'ConsumedResource',
+  openedAt?: Maybe<Scalars['Date']>,
+  consumedAt?: Maybe<Scalars['Date']>,
+};
+
 export type APICreateArticlePayload = {
   contentType: ArticleContentType,
   title: Scalars['String'],
@@ -101,6 +108,7 @@ export type APICurrentUser = {
 export type APICurrentUserArticlesArgs = {
   options: APIListArticlesOptions
 };
+
 
 export type APIDeleteArticleResponse = {
    __typename?: 'DeleteArticleResponse',
@@ -202,6 +210,7 @@ export type APIMutation = {
   attachResourceToDomain: APIResource,
   attachResourceCoversConcepts: APIResource,
   detachResourceCoversConcepts: APIResource,
+  setResourcesConsumed: Array<APIResource>,
   addTagsToResource: APIResource,
   removeTagsFromResource: APIResource,
   login: APILoginResponse,
@@ -301,6 +310,11 @@ export type APIMutationAttachResourceCoversConceptsArgs = {
 export type APIMutationDetachResourceCoversConceptsArgs = {
   resourceId: Scalars['String'],
   conceptIds: Array<Scalars['String']>
+};
+
+
+export type APIMutationSetResourcesConsumedArgs = {
+  payload: APISetResourcesConsumedPayload
 };
 
 
@@ -413,6 +427,7 @@ export type APIResource = {
   url: Scalars['String'],
   description?: Maybe<Scalars['String']>,
   durationMn?: Maybe<Scalars['Int']>,
+  consumed?: Maybe<APIConsumedResource>,
   coveredConcepts?: Maybe<APIResourceCoveredConceptsResults>,
   domains?: Maybe<APIResourceDomainsResults>,
 };
@@ -482,6 +497,16 @@ export type APISetConceptKnownPayload = {
 export type APISetConceptKnownPayloadConceptsField = {
   conceptId: Scalars['String'],
   level?: Maybe<Scalars['Float']>,
+};
+
+export type APISetResourcesConsumedPayload = {
+  resources: Array<APISetResourcesConsumedPayloadResourcesField>,
+};
+
+export type APISetResourcesConsumedPayloadResourcesField = {
+  resourceId: Scalars['String'],
+  consumed?: Maybe<Scalars['Boolean']>,
+  opened?: Maybe<Scalars['Boolean']>,
 };
 
 export type APIUpdateArticlePayload = {
@@ -618,6 +643,8 @@ export type APIResolversTypes = ResolversObject<{
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: ResolverTypeWrapper<APIResourceTag>,
+  ConsumedResource: ResolverTypeWrapper<APIConsumedResource>,
+  Date: ResolverTypeWrapper<Scalars['Date']>,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
   ResourceDomainsOptions: APIResourceDomainsOptions,
@@ -647,6 +674,8 @@ export type APIResolversTypes = ResolversObject<{
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
   CreateResourcePayload: APICreateResourcePayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
+  SetResourcesConsumedPayload: APISetResourcesConsumedPayload,
+  SetResourcesConsumedPayloadResourcesField: APISetResourcesConsumedPayloadResourcesField,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
@@ -674,6 +703,8 @@ export type APIResolversParentTypes = ResolversObject<{
   ResourceType: ResourceType,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: APIResourceTag,
+  ConsumedResource: APIConsumedResource,
+  Date: Scalars['Date'],
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
   ResourceDomainsOptions: APIResourceDomainsOptions,
@@ -703,6 +734,8 @@ export type APIResolversParentTypes = ResolversObject<{
   DeleteDomainResponse: APIDeleteDomainResponse,
   CreateResourcePayload: APICreateResourcePayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
+  SetResourcesConsumedPayload: APISetResourcesConsumedPayload,
+  SetResourcesConsumedPayloadResourcesField: APISetResourcesConsumedPayloadResourcesField,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
@@ -731,6 +764,11 @@ export type APIConceptCoveredByResourcesResultsResolvers<ContextType = APIContex
   items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
 }>;
 
+export type APIConsumedResourceResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConsumedResource'] = APIResolversParentTypes['ConsumedResource']> = ResolversObject<{
+  openedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
+  consumedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
+}>;
+
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -739,6 +777,10 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
 }>;
+
+export interface APIDateScalarConfig extends GraphQLScalarTypeConfig<APIResolversTypes['Date'], any> {
+  name: 'Date'
+}
 
 export type APIDeleteArticleResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteArticleResponse'] = APIResolversParentTypes['DeleteArticleResponse']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -803,6 +845,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   attachResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceToDomainArgs, 'domainId' | 'resourceId'>>,
   attachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceCoversConceptsArgs, 'resourceId' | 'conceptIds'>>,
   detachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceCoversConceptsArgs, 'resourceId' | 'conceptIds'>>,
+  setResourcesConsumed?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType, RequireFields<APIMutationSetResourcesConsumedArgs, 'payload'>>,
   addTagsToResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddTagsToResourceArgs, 'resourceId' | 'tags'>>,
   removeTagsFromResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationRemoveTagsFromResourceArgs, 'resourceId' | 'tags'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
@@ -832,6 +875,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   durationMn?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
+  consumed?: Resolver<Maybe<APIResolversTypes['ConsumedResource']>, ParentType, ContextType>,
   coveredConcepts?: Resolver<Maybe<APIResolversTypes['ResourceCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredConceptsArgs, 'options'>>,
   domains?: Resolver<Maybe<APIResolversTypes['ResourceDomainsResults']>, ParentType, ContextType, RequireFields<APIResourceDomainsArgs, 'options'>>,
 }>;
@@ -869,7 +913,9 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Article?: APIArticleResolvers<ContextType>,
   Concept?: APIConceptResolvers<ContextType>,
   ConceptCoveredByResourcesResults?: APIConceptCoveredByResourcesResultsResolvers<ContextType>,
+  ConsumedResource?: APIConsumedResourceResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
+  Date?: GraphQLScalarType,
   DeleteArticleResponse?: APIDeleteArticleResponseResolvers<ContextType>,
   DeleteConceptResult?: APIDeleteConceptResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,

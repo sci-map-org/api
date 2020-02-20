@@ -6,3 +6,4 @@
 # import Query.*, Mutation.* from "Resource.graphql"
 # import Query.*, Mutation.* from "Concept.graphql"
 
+scalar Date
