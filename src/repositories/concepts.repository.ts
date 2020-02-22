@@ -1,24 +1,34 @@
+import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
 
 import { generateUrlKey } from '../api/util/urlKey';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
-import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
+import { ConceptBelongsToDomainLabel, ConceptBelongsToDomain } from '../entities/relationships/ConceptBelongsToDomain';
+import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import { Resource, ResourceLabel } from '../entities/Resource';
-import { UserLabel } from '../entities/User';
-import { neo4jDriver } from '../infra/neo4j';
+import { User, UserLabel } from '../entities/User';
 import {
   attachNodes,
   createRelatedNode,
   deleteOne,
   findOne,
-  getFilterString,
   getRelatedNode,
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
+
+// Rename abstract_grap repo to query builder or something like that ? query builder + abstraction layer for graph db
+// in repo, provide the bare minimum for crud operation.
+// in services, implements business cases: user consumed a resource for instance
+// for read for instance, it might configuring getRelatedNodes for each relations(types + labels for instance),
+// that would then be called with filters, pagination, sorting
+// find many and include some of their relations is quite the same a find one and list a relation
+// layered services ? a resolver or something connecting to the outside should
+// idea: sub folders/files shared by many parents ? Basically a DAG. Should be shown in a different way. Would be
+// amazing in order to see the dependencies
+// below: file explorer: show parents, file, then children
 
 interface CreateConceptData {
   name: string;
@@ -52,11 +62,56 @@ export const updateConcept = updateOne<Concept, { _id: string }, UpdateConceptDa
 
 export const deleteConcept = deleteOne<Concept, { _id: string }>({ label: ConceptLabel });
 
-export const attachConceptToDomain = (conceptId: string, domainId: string) =>
-  attachNodes({
+export const attachConceptToDomain = (
+  conceptId: string,
+  domainId: string,
+  { index }: { index: number }
+): Promise<{
+  concept: Concept;
+  relationship: ConceptBelongsToDomain;
+  domain: Domain;
+}> =>
+  attachNodes<Concept, ConceptBelongsToDomain, Domain>({
     originNode: { label: ConceptLabel, filter: { _id: conceptId } },
-    relationship: { label: ConceptBelongsToDomainLabel, props: {} },
+    relationship: { label: ConceptBelongsToDomainLabel, onCreateProps: { index } },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
+  }).then(([first, ...rest]) => {
+    if (!first) throw new Error(`${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId} not found`);
+    if (rest.length > 1)
+      throw new Error(`More than 1 pair ${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId}`);
+    const { originNode, relationship, destinationNode } = first;
+    return {
+      concept: originNode,
+      relationship,
+      domain: destinationNode,
+    };
+  });
+
+export const updateConceptBelongsToDomain = (
+  conceptId: string,
+  domainId: string,
+  data: { index?: number }
+): Promise<{
+  concept: Concept;
+  relationship: ConceptBelongsToDomain;
+  domain: Domain;
+}> =>
+  attachNodes<Concept, ConceptBelongsToDomain, Domain>({
+    originNode: { label: ConceptLabel, filter: { _id: conceptId } },
+    relationship: { label: ConceptBelongsToDomainLabel, onMergeProps: data },
+    destinationNode: { label: DomainLabel, filter: { _id: domainId } },
+  }).then(([first, ...rest]) => {
+    console.log(data);
+    console.log(first);
+    if (!first) throw new Error(`${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId} not found`);
+    if (rest.length > 1)
+      throw new Error(`More than 1 pair ${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId}`);
+    const { originNode, relationship, destinationNode } = first;
+    return {
+      concept: originNode,
+      relationship,
+      domain: destinationNode,
+    };
   });
 
 export const getConceptDomain = (conceptId: string) =>
@@ -66,45 +121,39 @@ export const getConceptDomain = (conceptId: string) =>
     destinationNode: { label: DomainLabel, filter: {} },
   });
 
-export const getConceptCoveredByResources = (_id: string) =>
-  getRelatedNodes<Resource>({
+export const getConceptCoveredByResources = (_id: string): Promise<Resource[]> =>
+  getRelatedNodes<Concept, ResourceCoversConcept, Resource>({
     originNode: {
       label: ConceptLabel,
       filter: { _id },
     },
     relationship: {
       label: ResourceCoversConceptLabel,
-      filter: {},
     },
     destinationNode: {
       label: ResourceLabel,
-      filter: {},
     },
-  });
+  })
+    .then(prop('items'))
+    .then(map(prop('destinationNode')));
 
 export const getUserKnowsConcept = async (userId: string, conceptId: string): Promise<UserKnowsConcept | null> => {
-  const session = neo4jDriver.session();
-  const { records } = await session.run(
-    `MATCH (originNode:${UserLabel} ${getFilterString(
-      { _id: userId },
-      'originNodeFilter'
-    )})-[relationship:${UserKnowsConceptLabel} ${getFilterString(
-      {},
-      'relationshipFilter'
-    )}]-(destinationNode:${ConceptLabel} ${getFilterString(
-      { _id: conceptId },
-      'destinationNodeFilter'
-    )}) RETURN properties(destinationNode) as destinationNode, properties(originNode) as originNode, properties(relationship) as relationship`,
-    {
-      originNodeFilter: { _id: userId },
-      relationshipFilter: {},
-      destinationNodeFilter: { _id: conceptId },
-    }
-  );
-
-  session.close();
-  const record = records.pop();
-  if (!record) return null;
-  const result = record.get('relationship');
-  return result;
+  const { items } = await getRelatedNodes<User, UserKnowsConcept, Concept>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserKnowsConceptLabel,
+    },
+    destinationNode: {
+      label: ConceptLabel,
+      filter: {
+        _id: conceptId,
+      },
+    },
+  });
+  const [result] = items;
+  if (!result) return null;
+  return result.relationship;
 };

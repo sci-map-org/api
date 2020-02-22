@@ -9,12 +9,33 @@ type Domain {
   # taughtByResources(options: ListResourcesOptions!): # Relationship ?
 }
 
-input DomainConceptsOptions {
-  pagination: PaginationOptions
+enum DomainConceptSortingEntities {
+  concept
+  relationship
 }
 
+enum DomainConceptSortingFields {
+  _id
+  index
+}
+
+input DomainConceptSortingOptions {
+  entity: DomainConceptSortingEntities!
+  field: DomainConceptSortingFields!
+  direction: SortingDirection!
+}
+
+input DomainConceptsOptions {
+  pagination: PaginationOptions
+  sorting: DomainConceptSortingOptions
+}
+
+type DomainConceptsItem {
+  concept: Concept!
+  relationship: ConceptBelongsToDomain!
+}
 type DomainConceptsResults {
-  items: [Concept!]!
+  items: [DomainConceptsItem!]!
 }
 
 input DomainResourcesOptions {

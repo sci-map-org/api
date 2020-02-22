@@ -2,6 +2,7 @@ import { ArticleContentType } from '../../entities/Article';
 import { UserRole } from '../../entities/User';
 import { ResourceType } from '../../entities/Resource';
 import { ResourceMediaType } from '../../entities/Resource';
+import { SortingDirection } from '../../repositories/util/sorting';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -14,6 +15,13 @@ export type Scalars = {
   Int: number,
   Float: number,
   Date: Date,
+};
+
+export type APIAddConceptToDomainPayload = {
+  key?: Maybe<Scalars['String']>,
+  name: Scalars['String'],
+  description?: Maybe<Scalars['String']>,
+  index?: Maybe<Scalars['Float']>,
 };
 
 export type APIAdminUpdateUserPayload = {
@@ -51,6 +59,11 @@ export type APIConceptCoveredByResourcesArgs = {
   options: APIConceptCoveredByResourcesOptions
 };
 
+export type APIConceptBelongsToDomain = {
+   __typename?: 'ConceptBelongsToDomain',
+  index: Scalars['Float'],
+};
+
 export type APIConceptCoveredByResourcesOptions = {
   pagination?: Maybe<APIPaginationOptions>,
 };
@@ -70,12 +83,6 @@ export type APICreateArticlePayload = {
   contentType: ArticleContentType,
   title: Scalars['String'],
   content: Scalars['String'],
-};
-
-export type APICreateConceptPayload = {
-  key?: Maybe<Scalars['String']>,
-  name: Scalars['String'],
-  description?: Maybe<Scalars['String']>,
 };
 
 export type APICreateDomainPayload = {
@@ -148,13 +155,36 @@ export type APIDomainResourcesArgs = {
   options: APIDomainResourcesOptions
 };
 
+export type APIDomainConceptsItem = {
+   __typename?: 'DomainConceptsItem',
+  concept: APIConcept,
+  relationship: APIConceptBelongsToDomain,
+};
+
 export type APIDomainConceptsOptions = {
   pagination?: Maybe<APIPaginationOptions>,
+  sorting?: Maybe<APIDomainConceptSortingOptions>,
+};
+
+export enum APIDomainConceptSortingEntities {
+  Concept = 'concept',
+  Relationship = 'relationship'
+}
+
+export enum APIDomainConceptSortingFields {
+  Id = '_id',
+  Index = 'index'
+}
+
+export type APIDomainConceptSortingOptions = {
+  entity: APIDomainConceptSortingEntities,
+  field: APIDomainConceptSortingFields,
+  direction: SortingDirection,
 };
 
 export type APIDomainConceptsResults = {
    __typename?: 'DomainConceptsResults',
-  items: Array<APIConcept>,
+  items: Array<APIDomainConceptsItem>,
 };
 
 export type APIDomainResourcesOptions = {
@@ -216,6 +246,7 @@ export type APIMutation = {
   login: APILoginResponse,
   register: APICurrentUser,
   adminUpdateUser: APIUser,
+  updateConceptBelongsToDomain: APIConceptBelongsToDomain,
 };
 
 
@@ -237,7 +268,7 @@ export type APIMutationDeleteArticleArgs = {
 
 export type APIMutationAddConceptToDomainArgs = {
   domainId: Scalars['String'],
-  payload: APICreateConceptPayload
+  payload: APIAddConceptToDomainPayload
 };
 
 
@@ -344,6 +375,13 @@ export type APIMutationRegisterArgs = {
 export type APIMutationAdminUpdateUserArgs = {
   id: Scalars['String'],
   payload: APIAdminUpdateUserPayload
+};
+
+
+export type APIMutationUpdateConceptBelongsToDomainArgs = {
+  conceptId: Scalars['String'],
+  domainId: Scalars['String'],
+  payload: APIUpdateConceptBelongsToDomainPayload
 };
 
 export type APIPaginationOptions = {
@@ -509,9 +547,15 @@ export type APISetResourcesConsumedPayloadResourcesField = {
   opened?: Maybe<Scalars['Boolean']>,
 };
 
+export { SortingDirection };
+
 export type APIUpdateArticlePayload = {
   title?: Maybe<Scalars['String']>,
   content?: Maybe<Scalars['String']>,
+};
+
+export type APIUpdateConceptBelongsToDomainPayload = {
+  index?: Maybe<Scalars['Float']>,
 };
 
 export type APIUpdateConceptPayload = {
@@ -636,7 +680,14 @@ export type APIResolversTypes = ResolversObject<{
   Concept: ResolverTypeWrapper<APIConcept>,
   Domain: ResolverTypeWrapper<APIDomain>,
   DomainConceptsOptions: APIDomainConceptsOptions,
+  DomainConceptSortingOptions: APIDomainConceptSortingOptions,
+  DomainConceptSortingEntities: APIDomainConceptSortingEntities,
+  DomainConceptSortingFields: APIDomainConceptSortingFields,
+  SortingDirection: SortingDirection,
   DomainConceptsResults: ResolverTypeWrapper<APIDomainConceptsResults>,
+  DomainConceptsItem: ResolverTypeWrapper<APIDomainConceptsItem>,
+  ConceptBelongsToDomain: ResolverTypeWrapper<APIConceptBelongsToDomain>,
+  Float: ResolverTypeWrapper<Scalars['Float']>,
   DomainResourcesOptions: APIDomainResourcesOptions,
   DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
   Resource: ResolverTypeWrapper<APIResource>,
@@ -652,7 +703,6 @@ export type APIResolversTypes = ResolversObject<{
   ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
   ConceptCoveredByResourcesResults: ResolverTypeWrapper<APIConceptCoveredByResourcesResults>,
   KnownConcept: ResolverTypeWrapper<APIKnownConcept>,
-  Float: ResolverTypeWrapper<Scalars['Float']>,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
@@ -664,7 +714,7 @@ export type APIResolversTypes = ResolversObject<{
   UpdateArticlePayload: APIUpdateArticlePayload,
   DeleteArticleResponse: ResolverTypeWrapper<APIDeleteArticleResponse>,
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
-  CreateConceptPayload: APICreateConceptPayload,
+  AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   UpdateConceptPayload: APIUpdateConceptPayload,
   DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
   SetConceptKnownPayload: APISetConceptKnownPayload,
@@ -679,6 +729,7 @@ export type APIResolversTypes = ResolversObject<{
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
+  UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -696,7 +747,14 @@ export type APIResolversParentTypes = ResolversObject<{
   Concept: APIConcept,
   Domain: APIDomain,
   DomainConceptsOptions: APIDomainConceptsOptions,
+  DomainConceptSortingOptions: APIDomainConceptSortingOptions,
+  DomainConceptSortingEntities: APIDomainConceptSortingEntities,
+  DomainConceptSortingFields: APIDomainConceptSortingFields,
+  SortingDirection: SortingDirection,
   DomainConceptsResults: APIDomainConceptsResults,
+  DomainConceptsItem: APIDomainConceptsItem,
+  ConceptBelongsToDomain: APIConceptBelongsToDomain,
+  Float: Scalars['Float'],
   DomainResourcesOptions: APIDomainResourcesOptions,
   DomainResourcesResults: APIDomainResourcesResults,
   Resource: APIResource,
@@ -712,7 +770,6 @@ export type APIResolversParentTypes = ResolversObject<{
   ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
   ConceptCoveredByResourcesResults: APIConceptCoveredByResourcesResults,
   KnownConcept: APIKnownConcept,
-  Float: Scalars['Float'],
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: APISearchDomainsResult,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
@@ -724,7 +781,7 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateArticlePayload: APIUpdateArticlePayload,
   DeleteArticleResponse: APIDeleteArticleResponse,
   Boolean: Scalars['Boolean'],
-  CreateConceptPayload: APICreateConceptPayload,
+  AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   UpdateConceptPayload: APIUpdateConceptPayload,
   DeleteConceptResult: APIDeleteConceptResult,
   SetConceptKnownPayload: APISetConceptKnownPayload,
@@ -739,6 +796,7 @@ export type APIResolversParentTypes = ResolversObject<{
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
+  UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
 }>;
 
 export type APIArticleResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Article'] = APIResolversParentTypes['Article']> = ResolversObject<{
@@ -758,6 +816,10 @@ export type APIConceptResolvers<ContextType = APIContext, ParentType extends API
   domain?: Resolver<Maybe<APIResolversTypes['Domain']>, ParentType, ContextType>,
   coveredByResources?: Resolver<Maybe<APIResolversTypes['ConceptCoveredByResourcesResults']>, ParentType, ContextType, RequireFields<APIConceptCoveredByResourcesArgs, 'options'>>,
   known?: Resolver<Maybe<APIResolversTypes['KnownConcept']>, ParentType, ContextType>,
+}>;
+
+export type APIConceptBelongsToDomainResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptBelongsToDomain'] = APIResolversParentTypes['ConceptBelongsToDomain']> = ResolversObject<{
+  index?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
 }>;
 
 export type APIConceptCoveredByResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptCoveredByResourcesResults'] = APIResolversParentTypes['ConceptCoveredByResourcesResults']> = ResolversObject<{
@@ -806,8 +868,13 @@ export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIR
   resources?: Resolver<Maybe<APIResolversTypes['DomainResourcesResults']>, ParentType, ContextType, RequireFields<APIDomainResourcesArgs, 'options'>>,
 }>;
 
+export type APIDomainConceptsItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainConceptsItem'] = APIResolversParentTypes['DomainConceptsItem']> = ResolversObject<{
+  concept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType>,
+  relationship?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType>,
+}>;
+
 export type APIDomainConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainConceptsResults'] = APIResolversParentTypes['DomainConceptsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
+  items?: Resolver<Array<APIResolversTypes['DomainConceptsItem']>, ParentType, ContextType>,
 }>;
 
 export type APIDomainResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainResourcesResults'] = APIResolversParentTypes['DomainResourcesResults']> = ResolversObject<{
@@ -851,6 +918,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
+  updateConceptBelongsToDomain?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptBelongsToDomainArgs, 'conceptId' | 'domainId' | 'payload'>>,
 }>;
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
@@ -912,6 +980,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Article?: APIArticleResolvers<ContextType>,
   Concept?: APIConceptResolvers<ContextType>,
+  ConceptBelongsToDomain?: APIConceptBelongsToDomainResolvers<ContextType>,
   ConceptCoveredByResourcesResults?: APIConceptCoveredByResourcesResultsResolvers<ContextType>,
   ConsumedResource?: APIConsumedResourceResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
@@ -920,6 +989,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DeleteConceptResult?: APIDeleteConceptResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   Domain?: APIDomainResolvers<ContextType>,
+  DomainConceptsItem?: APIDomainConceptsItemResolvers<ContextType>,
   DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,
   DomainResourcesResults?: APIDomainResourcesResultsResolvers<ContextType>,
   KnownConcept?: APIKnownConceptResolvers<ContextType>,

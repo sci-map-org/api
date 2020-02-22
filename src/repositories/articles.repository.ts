@@ -1,7 +1,7 @@
+import { pipe, prop, map } from 'ramda';
 import { generate } from 'shortid';
-
 import { Article, ArticleContentType, ArticleLabel } from '../entities/Article';
-import { UserCreatedArticleLabel } from '../entities/relationships/UserCreatedArticle';
+import { UserCreatedArticle, UserCreatedArticleLabel } from '../entities/relationships/UserCreatedArticle';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import {
@@ -63,16 +63,18 @@ export const findArticles = async (
   return records.map(r => r.get('node'));
 };
 
-export const findArticlesCreatedBy = (
+export const findArticlesCreatedBy = async (
   authorFilter: { _id: string } | { key: string },
   pagination?: { offset?: number; limit?: number }
-) =>
-  getRelatedNodes({
+): Promise<Article[]> =>
+  getRelatedNodes<User, UserCreatedArticle, Article>({
     originNode: { label: UserLabel, filter: authorFilter },
     relationship: { label: UserCreatedArticleLabel, filter: {} },
     destinationNode: { label: ArticleLabel, filter: {} },
     pagination,
-  });
+  })
+    .then(pipe(prop('items')))
+    .then(map(prop('destinationNode')));
 
 export const findArticle = findOne<Article, { key: string } | { _id: string }>({ label: 'Article' });
 

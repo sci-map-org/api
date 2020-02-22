@@ -1,14 +1,15 @@
 import { omit } from 'lodash';
 import shortid = require('shortid');
 
-import { ConceptLabel } from '../entities/Concept';
-import { UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
-import { UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
-import { ResourceLabel } from '../entities/Resource';
+import { ConceptLabel, Concept } from '../entities/Concept';
+import { UserConsumedResourceLabel, UserConsumedResource } from '../entities/relationships/UserConsumedResource';
+import { UserKnowsConceptLabel, UserKnowsConcept } from '../entities/relationships/UserKnowsConcept';
+import { ResourceLabel, Resource } from '../entities/Resource';
 import { User, UserLabel, UserRole } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import { encryptPassword } from '../services/auth/password_hashing';
 import { attachNodes, detachNodes, findOne, updateOne } from './util/abstract_graph_repo';
+import { nullToUndefined } from '../api/util/nullToUndefined';
 
 interface CreateUserData {
   displayName: string;
@@ -69,20 +70,20 @@ export const attachUserKnowsConcepts = (
 ) =>
   Promise.all(
     conceptsToKnow.map(conceptToKnow =>
-      attachNodes({
+      attachNodes<User, UserKnowsConcept, Concept>({
         originNode: {
           label: UserLabel,
           filter: { _id: userId },
         },
         relationship: {
           label: UserKnowsConceptLabel,
-          props: {
+          onCreateProps: {
             level: conceptToKnow.level || 100,
           },
         },
         destinationNode: {
           label: ConceptLabel,
-          filter: { _id: conceptToKnow.conceptId },
+          filter: { _id: conceptToKnow.conceptId }, // can't user $in cause different values based on the conceptId
         },
       })
     )
@@ -110,14 +111,17 @@ export const attachUserConsumedResources = (
 ) =>
   Promise.all(
     resourcesToConsume.map(resourceToConsume =>
-      attachNodes({
+      attachNodes<User, UserConsumedResource, Resource>({
         originNode: {
           label: UserLabel,
           filter: { _id: userId },
         },
         relationship: {
           label: UserConsumedResourceLabel,
-          props: {
+          onCreateProps: {
+            ...omit(nullToUndefined(resourceToConsume), 'resourceId'),
+          },
+          onMergeProps: {
             ...omit(resourceToConsume, 'resourceId'),
           },
         },

@@ -21,7 +21,7 @@
 - when fetching related entities, group by relations: e.g.:
   - resource -> coveredConcepts : group by concept domain ?
   - user -> knownConcepts: group by domain ?
-
+- Should have stricter type for sorting: entity <-> fields mapping, now it's possible to make mistakes
 
 # Notes
 

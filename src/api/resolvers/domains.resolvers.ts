@@ -57,8 +57,9 @@ export const deleteDomainResolver: APIMutationResolvers['deleteDomain'] = async 
   return { _id: id, success: true };
 };
 
-export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (domain, {}, ctx) => {
-  return { items: await getDomainConcepts({ _id: domain._id }) };
+export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (domain, { options }, ctx) => {
+  const { sorting } = options;
+  return { items: await getDomainConcepts({ _id: domain._id }, sorting || undefined) };
 };
 
 export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, {}, ctx) => {

@@ -9,12 +9,14 @@ import {
   getConceptDomain,
   getUserKnowsConcept,
   updateConcept,
+  updateConceptBelongsToDomain,
 } from '../../repositories/concepts.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
+import { omit } from 'lodash';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;
@@ -39,8 +41,9 @@ export const addConceptToDomainResolver: APIMutationResolvers['addConceptToDomai
 ) => {
   if (!ctx.user || ctx.user.role !== UserRole.ADMIN)
     throw new UnauthorizedError('Must be logged in and an admin to create a concept');
-  const createdConcept = await createConcept({ _id: ctx.user._id }, nullToUndefined(payload));
-  await attachConceptToDomain(createdConcept._id, domainId);
+  const index = payload.index || 10000000;
+  const createdConcept = await createConcept({ _id: ctx.user._id }, nullToUndefined(omit(payload, 'index')));
+  await attachConceptToDomain(createdConcept._id, domainId, { index });
   return toAPIConcept(createdConcept);
 };
 
@@ -107,4 +110,15 @@ export const setConceptsUnKnownResolver: APIMutationResolvers['setConceptsUnknow
   );
   await detachUserKnowsConcepts(user._id, conceptIds);
   return concepts.map(toAPIConcept);
+};
+
+export const updateConceptBelongsToDomainResolver: APIMutationResolvers['updateConceptBelongsToDomain'] = async (
+  _parent,
+  { conceptId, domainId, payload },
+  { user }
+) => {
+  if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
+
+  const { relationship } = await updateConceptBelongsToDomain(conceptId, domainId, nullToUndefined(payload));
+  return relationship;
 };

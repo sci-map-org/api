@@ -1,11 +1,16 @@
-import { ResourceTagBelongsToResourceLabel } from '../entities/relationships/ResourceTagBelongsToResource';
-import { ResourceLabel } from '../entities/Resource';
+import { map, prop } from 'ramda';
+
+import {
+  ResourceTagBelongsToResource,
+  ResourceTagBelongsToResourceLabel,
+} from '../entities/relationships/ResourceTagBelongsToResource';
+import { Resource, ResourceLabel } from '../entities/Resource';
 import { ResourceTag, ResourceTagLabel } from '../entities/ResourceTag';
-import { attachNodes, createNode, findOne, getRelatedNodes, detachNodes } from './util/abstract_graph_repo';
 import { neo4jDriver } from '../infra/neo4j';
+import { attachNodes, createNode, detachNodes, findOne, getRelatedNodes } from './util/abstract_graph_repo';
 
 export const getResourceResourceTags = (resourceId: string): Promise<ResourceTag[]> =>
-  getRelatedNodes<ResourceTag>({
+  getRelatedNodes<Resource, ResourceTagBelongsToResource, ResourceTag>({
     originNode: {
       label: ResourceLabel,
       filter: {
@@ -14,13 +19,13 @@ export const getResourceResourceTags = (resourceId: string): Promise<ResourceTag
     },
     relationship: {
       label: ResourceTagBelongsToResourceLabel,
-      filter: {},
     },
     destinationNode: {
       label: ResourceTagLabel,
-      filter: {},
     },
-  });
+  })
+    .then(prop('items'))
+    .then(map(prop('destinationNode')));
 
 export const findOrCreateResourceTag = async (name: string): Promise<ResourceTag> => {
   const existingResourceTag = await findOne<ResourceTag, { name: string }>({ label: ResourceTagLabel })({
@@ -35,14 +40,13 @@ export const findOrCreateResourceTag = async (name: string): Promise<ResourceTag
 export const attachResourceTagsToResource = (resourceId: string, tags: string[]) =>
   Promise.all(
     tags.map(tag =>
-      attachNodes({
+      attachNodes<Resource, ResourceTagBelongsToResource, ResourceTag>({
         originNode: {
           label: ResourceLabel,
           filter: { _id: resourceId },
         },
         relationship: {
           label: ResourceTagBelongsToResourceLabel,
-          props: {},
         },
         destinationNode: {
           label: ResourceTagLabel,

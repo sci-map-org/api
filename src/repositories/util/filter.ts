@@ -25,7 +25,7 @@ export const buildFilter = <Entity>(
   if (Object.keys(filterObject).length == 0) return '';
 
   const whereFilterString =
-    'WHERE (' +
+    '(' +
     Object.keys(filterObject)
       .map(key => toFilterClause(filterObject[key], key, filterName, nodeVariableName))
       .join(' AND ') +

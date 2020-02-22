@@ -2,11 +2,16 @@ import * as shortid from 'shortid';
 
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
-import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import { ResourceBelongsToDomainLabel } from '../entities/relationships/ResourceBelongsToDomain';
+import { ConceptBelongsToDomainLabel, ConceptBelongsToDomain } from '../entities/relationships/ConceptBelongsToDomain';
+import {
+  ResourceBelongsToDomainLabel,
+  ResourceBelongsToDomain,
+} from '../entities/relationships/ResourceBelongsToDomain';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { neo4jDriver } from '../infra/neo4j';
 import { createRelatedNode, deleteOne, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
+import { prop, map } from 'ramda';
+import { SortingDirection } from './util/sorting';
 
 interface CreateDomainData {
   key: string;
@@ -54,34 +59,49 @@ export const updateDomain = updateOne<Domain, { _id: string } | { key: string },
 
 export const deleteDomain = deleteOne<Domain, { _id: string } | { key: string }>({ label: DomainLabel });
 
-export const getDomainConcepts = (domainFilter: { key: string } | { _id: string }) =>
-  getRelatedNodes<Concept>({
+export const getDomainConcepts = (
+  domainFilter: { key: string } | { _id: string },
+  sorting?: { direction: SortingDirection; entity: 'relationship' | 'concept'; field: 'index' | '_id' }
+): Promise<{ concept: Concept; relationship: ConceptBelongsToDomain }[]> =>
+  getRelatedNodes<Domain, ConceptBelongsToDomain, Concept>({
     originNode: {
       label: DomainLabel,
       filter: domainFilter,
     },
     relationship: {
       label: ConceptBelongsToDomainLabel,
-      filter: {},
     },
     destinationNode: {
       label: ConceptLabel,
-      filter: {},
     },
-  });
+    ...(sorting && {
+      sorting: {
+        entity: sorting.entity === 'concept' ? 'destinationNode' : sorting.entity,
+        direction: sorting.direction,
+        field: sorting.field,
+      },
+    }),
+  })
+    .then(prop('items'))
+    .then(
+      map(item => ({
+        relationship: item.relationship,
+        concept: item.destinationNode,
+      }))
+    );
 
-export const getDomainResources = (domainFilter: { key: string } | { _id: string }) =>
-  getRelatedNodes<Resource>({
+export const getDomainResources = (domainFilter: { key: string } | { _id: string }): Promise<Resource[]> =>
+  getRelatedNodes<Domain, ResourceBelongsToDomain, Resource>({
     originNode: {
       label: DomainLabel,
       filter: domainFilter,
     },
     relationship: {
       label: ResourceBelongsToDomainLabel,
-      filter: {},
     },
     destinationNode: {
       label: ResourceLabel,
-      filter: {},
     },
-  });
+  })
+    .then(prop('items'))
+    .then(map(prop('destinationNode')));

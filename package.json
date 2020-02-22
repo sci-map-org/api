@@ -31,6 +31,7 @@
     "lodash": "^4.17.15",
     "monk": "^7.1.1",
     "neo4j-driver": "^1.7.6",
+    "ramda": "^0.27.0",
     "shortid": "^2.2.15",
     "typescript": "^3.6.4"
   },
@@ -42,6 +43,7 @@
     "@types/graphql-iso-date": "^3.3.3",
     "@types/koa": "^2.0.51",
     "@types/node": "^12.11.7",
+    "@types/ramda": "^0.26.41",
     "@types/shortid": "^0.0.29",
     "graphql": "^14.5.8",
     "tsc-watch": "^4.0.0"

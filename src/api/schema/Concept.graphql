@@ -25,10 +25,11 @@ type ConceptCoveredByResourcesResults {
   items: [Resource!]!
 }
 
-input CreateConceptPayload {
+input AddConceptToDomainPayload {
   key: String
   name: String!
   description: String
+  index: Float
 }
 
 input UpdateConceptPayload {
@@ -56,7 +57,7 @@ type Query {
 }
 
 type Mutation {
-  addConceptToDomain(domainId: String!, payload: CreateConceptPayload!): Concept!
+  addConceptToDomain(domainId: String!, payload: AddConceptToDomainPayload!): Concept!
   updateConcept(_id: String!, payload: UpdateConceptPayload!): Concept!
   deleteConcept(_id: String!): DeleteConceptResult!
   setConceptsKnown(payload: SetConceptKnownPayload!): [Concept!]!

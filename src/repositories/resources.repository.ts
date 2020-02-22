@@ -8,13 +8,17 @@ import {
 } from './util/abstract_graph_repo';
 import * as shortid from 'shortid';
 import { Resource, ResourceType, ResourceMediaType, ResourceLabel } from '../entities/Resource';
-import { UserLabel } from '../entities/User';
+import { UserLabel, User } from '../entities/User';
 import { DomainLabel, Domain } from '../entities/Domain';
-import { ResourceBelongsToDomainLabel } from '../entities/relationships/ResourceBelongsToDomain';
+import {
+  ResourceBelongsToDomainLabel,
+  ResourceBelongsToDomain,
+} from '../entities/relationships/ResourceBelongsToDomain';
 import { ConceptLabel, Concept } from '../entities/Concept';
-import { ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
+import { ResourceCoversConceptLabel, ResourceCoversConcept } from '../entities/relationships/ResourceCoversConcept';
 import { neo4jDriver } from '../infra/neo4j';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
+import { prop, map } from 'ramda';
 
 interface CreateResourceData {
   name: string;
@@ -45,7 +49,7 @@ export const updateResource = updateOne<Resource, { _id: string }, UpdateResourc
 export const attachResourceToDomain = (resourceId: string, domainId: string) =>
   attachNodes({
     originNode: { label: ResourceLabel, filter: { _id: resourceId } },
-    relationship: { label: ResourceBelongsToDomainLabel, props: {} },
+    relationship: { label: ResourceBelongsToDomainLabel },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   });
 
@@ -125,64 +129,56 @@ export const detachResourceCoversConcepts = async (
   return record.get('originNode');
 };
 
-export const getResourceCoveredConcepts = (_id: string) =>
-  getRelatedNodes<Concept>({
+export const getResourceCoveredConcepts = (_id: string): Promise<Concept[]> =>
+  getRelatedNodes<Resource, ResourceCoversConcept, Concept>({
     originNode: {
       label: ResourceLabel,
       filter: { _id },
     },
     relationship: {
       label: ResourceCoversConceptLabel,
-      filter: {},
     },
     destinationNode: {
       label: ConceptLabel,
-      filter: {},
     },
-  });
+  })
+    .then(prop('items'))
+    .then(map(prop('destinationNode')));
 
 export const getResourceDomains = (_id: string) =>
-  getRelatedNodes<Domain>({
+  getRelatedNodes<Resource, ResourceBelongsToDomain, Domain>({
     originNode: {
       label: ResourceLabel,
       filter: { _id },
     },
     relationship: {
       label: ResourceBelongsToDomainLabel,
-      filter: {},
     },
     destinationNode: {
       label: DomainLabel,
-      filter: {},
     },
-  });
+  })
+    .then(prop('items'))
+    .then(map(prop('destinationNode')));
 
 export const getUserConsumedResource = async (
   userId: string,
   resourceId: string
 ): Promise<UserConsumedResource | null> => {
-  const session = neo4jDriver.session();
-  const { records } = await session.run(
-    `MATCH (originNode:${UserLabel} ${getFilterString(
-      { _id: userId },
-      'originNodeFilter'
-    )})-[relationship:${UserConsumedResourceLabel} ${getFilterString(
-      {},
-      'relationshipFilter'
-    )}]-(destinationNode:${ResourceLabel} ${getFilterString(
-      { _id: resourceId },
-      'destinationNodeFilter'
-    )}) RETURN properties(destinationNode) as destinationNode, properties(originNode) as originNode, properties(relationship) as relationship`,
-    {
-      originNodeFilter: { _id: userId },
-      relationshipFilter: {},
-      destinationNodeFilter: { _id: resourceId },
-    }
-  );
-
-  session.close();
-  const record = records.pop();
-  if (!record) return null;
-  const result = record.get('relationship');
-  return result;
+  const { items } = await getRelatedNodes<User, UserConsumedResource, Resource>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserConsumedResourceLabel,
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: { _id: resourceId },
+    },
+  });
+  const [result] = items;
+  if (!result) return null;
+  return result.relationship;
 };

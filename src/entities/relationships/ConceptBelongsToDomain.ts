@@ -1,3 +1,5 @@
 export const ConceptBelongsToDomainLabel = 'BELONGS_TO';
 
-export interface ConceptBelongsToDomain {}
+export interface ConceptBelongsToDomain {
+  index: number;
+}
