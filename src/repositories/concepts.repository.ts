@@ -101,8 +101,6 @@ export const updateConceptBelongsToDomain = (
     relationship: { label: ConceptBelongsToDomainLabel, onMergeProps: data },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   }).then(([first, ...rest]) => {
-    console.log(data);
-    console.log(first);
     if (!first) throw new Error(`${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId} not found`);
     if (rest.length > 1)
       throw new Error(`More than 1 pair ${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId}`);

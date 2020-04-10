@@ -10,11 +10,19 @@ import {
   getResourceDomains,
   getUserConsumedResource,
   updateResource,
+  getResourceUpvoteCount,
+  voteResource,
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/auth/resources.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import { APIMutationResolvers, APIQueryResolvers, APIResource, APIResourceResolvers } from '../schema/types';
+import {
+  APIMutationResolvers,
+  APIQueryResolvers,
+  APIResource,
+  APIResourceResolvers,
+  APIResourceVoteValue,
+} from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 
 export function toAPIResource(resource: Resource): APIResource {
@@ -148,4 +156,18 @@ export const getResourceConsumedResolver: APIResourceResolvers['consumed'] = asy
     openedAt: consumed.openedAt ? new Date(consumed.openedAt) : null,
     consumedAt: consumed.consumedAt ? new Date(consumed.consumedAt) : null,
   };
+};
+
+export const voteResourceResolver: APIMutationResolvers['voteResource'] = async (
+  _parent,
+  { resourceId, value },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to vote on a resource');
+  const resource = await voteResource(user._id, resourceId, value === APIResourceVoteValue.Up ? 1 : -1);
+  return toAPIResource(resource);
+};
+
+export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
+  return getResourceUpvoteCount(resource._id);
 };

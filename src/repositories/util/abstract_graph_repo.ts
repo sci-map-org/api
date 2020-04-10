@@ -4,7 +4,7 @@ import { buildFilter, FilterObject } from './filter';
 export function getFilterString(filter: object, filterName: string = 'filter'): string {
   if (Object.keys(filter).length == 0) return '';
   const s = Object.keys(filter).reduce((acc, key, index) => {
-    const filterProp = `${acc} ${key}: {${filterName}}.${key}`;
+    const filterProp = `${acc} ${key}: $${filterName}.${key}`;
     if (index === 0) {
       return filterProp;
     }

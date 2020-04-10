@@ -19,6 +19,8 @@ import { ResourceCoversConceptLabel, ResourceCoversConcept } from '../entities/r
 import { neo4jDriver } from '../infra/neo4j';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import { prop, map } from 'ramda';
+import { UserVotedResourceLabel, UserVotedResource } from '../entities/relationships/UserVotedResource';
+import { NotFoundError } from '../errors/NotFoundError';
 
 interface CreateResourceData {
   name: string;
@@ -47,7 +49,7 @@ export const createResource = (user: { _id: string }, data: CreateResourceData):
 export const updateResource = updateOne<Resource, { _id: string }, UpdateResourceData>({ label: ResourceLabel });
 
 export const attachResourceToDomain = (resourceId: string, domainId: string) =>
-  attachNodes({
+  attachNodes<Resource, ResourceBelongsToDomain, Domain>({
     originNode: { label: ResourceLabel, filter: { _id: resourceId } },
     relationship: { label: ResourceBelongsToDomainLabel },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
@@ -181,4 +183,53 @@ export const getUserConsumedResource = async (
   const [result] = items;
   if (!result) return null;
   return result.relationship;
+};
+
+export const voteResource = async (userId: string, resourceId: string, value: number): Promise<Resource> =>
+  attachNodes<User, UserVotedResource, Resource>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserVotedResourceLabel,
+      onCreateProps: {
+        value,
+      },
+      onMergeProps: {
+        value,
+      },
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: {
+        _id: resourceId,
+      },
+    },
+  }).then(([first, ...rest]) => {
+    if (!first) throw new Error(`${ResourceLabel} with id ${resourceId} or ${UserLabel} with id ${userId} not found`);
+    if (rest.length > 1)
+      throw new Error(`More than 1 pair ${ResourceLabel} with id ${resourceId} or ${UserLabel} with id ${userId}`);
+    const { destinationNode } = first;
+    return destinationNode;
+  });
+
+export const getResourceUpvoteCount = async (resourceId: string): Promise<number> => {
+  const session = neo4jDriver.session();
+
+  const { records } = await session.run(
+    `MATCH (resource:${ResourceLabel})<-[v:${UserVotedResourceLabel}]-(:User) WHERE resource._id = $resourceId 
+    WITH sum(v.value) AS upvoteCount RETURN upvoteCount`,
+    {
+      resourceId,
+    }
+  );
+
+  session.close();
+
+  const record = records.pop();
+
+  if (!record) throw new Error();
+
+  return record.get('upvoteCount');
 };

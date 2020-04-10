@@ -38,6 +38,7 @@ type Resource {
   mediaType: ResourceMediaType!
   tags: [ResourceTag!]
   url: String!
+  upvotes: Int
   description: String
   durationMn: Int
   consumed: ConsumedResource
@@ -89,6 +90,11 @@ input SetResourcesConsumedPayload {
   resources: [SetResourcesConsumedPayloadResourcesField!]!
 }
 
+enum ResourceVoteValue {
+  up
+  down
+}
+
 # External -> Url + abstract/description if possible ? E.g. youtube description
 # Internal ->
 # Polymorphic relationship ?
@@ -108,4 +114,5 @@ type Mutation {
   attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
+  voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
 }

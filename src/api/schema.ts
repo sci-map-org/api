@@ -50,6 +50,8 @@ import {
   getResourceTagsResolver,
   setResourcesConsumedResolver,
   updateResourceResolver,
+  getResourceUpvotesResolver,
+  voteResourceResolver,
 } from './resolvers/resources.resolvers';
 import {
   adminUpdateUserResolver,
@@ -91,6 +93,7 @@ const resolvers: APIResolvers<APIContext> = {
     setConceptsKnown: setConceptsKnownResolver,
     setConceptsUnknown: setConceptsUnKnownResolver,
     setResourcesConsumed: setResourcesConsumedResolver,
+    voteResource: voteResourceResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -126,6 +129,7 @@ const resolvers: APIResolvers<APIContext> = {
     coveredConcepts: getResourceCoveredConceptsResolver,
     domains: getResourceDomainsResolver,
     tags: getResourceTagsResolver,
+    upvotes: getResourceUpvotesResolver,
     consumed: getResourceConsumedResolver,
   },
   Date: GraphQLDateTime,
