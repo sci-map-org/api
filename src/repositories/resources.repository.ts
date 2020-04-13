@@ -230,6 +230,5 @@ export const getResourceUpvoteCount = async (resourceId: string): Promise<number
   const record = records.pop();
 
   if (!record) throw new Error();
-
-  return record.get('upvoteCount');
+  return Number(record.get('upvoteCount').toString());
 };
