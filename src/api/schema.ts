@@ -1,7 +1,6 @@
 import { makeExecutableSchema } from 'apollo-server-koa';
 import { importSchema } from 'graphql-import';
 import { GraphQLDateTime } from 'graphql-iso-date';
-
 import {
   createArticleResolver,
   deleteArticleResolver,
@@ -20,8 +19,8 @@ import {
   getConceptResolver,
   setConceptsKnownResolver,
   setConceptsUnKnownResolver,
-  updateConceptResolver,
   updateConceptBelongsToDomainResolver,
+  updateConceptResolver,
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -33,11 +32,6 @@ import {
   updateDomainResolver,
 } from './resolvers/domains.resolvers';
 import {
-  addTagsToResourceResolver,
-  removeTagsFromResourceResolver,
-  searchResourceTagsResolver,
-} from './resolvers/resource_tags.resolvers';
-import {
   addResourceToDomainResolver,
   attachResourceCoversConceptsResolver,
   attachResourceToDomainResolver,
@@ -48,18 +42,25 @@ import {
   getResourceCoveredConceptsResolver,
   getResourceDomainsResolver,
   getResourceTagsResolver,
+  getResourceUpvotesResolver,
   setResourcesConsumedResolver,
   updateResourceResolver,
-  getResourceUpvotesResolver,
   voteResourceResolver,
 } from './resolvers/resources.resolvers';
+import {
+  addTagsToResourceResolver,
+  removeTagsFromResourceResolver,
+  searchResourceTagsResolver,
+} from './resolvers/resource_tags.resolvers';
 import {
   adminUpdateUserResolver,
   currentUserResolver,
   getCurrentUserCreatedArticlesResolver,
   getUserCreatedArticlesResolver,
   getUserResolver,
+  loginGoogleResolver,
   loginResolver,
+  registerGoogleResolver,
   registerResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
@@ -70,7 +71,9 @@ export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 const resolvers: APIResolvers<APIContext> = {
   Mutation: {
     login: loginResolver,
+    loginGoogle: loginGoogleResolver,
     register: registerResolver,
+    registerGoogle: registerGoogleResolver,
     adminUpdateUser: adminUpdateUserResolver,
     updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,

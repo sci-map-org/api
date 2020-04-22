@@ -15,7 +15,7 @@ interface CreateUserData {
   displayName: string;
   key: string;
   email: string;
-  password: string;
+  password_hash?: string;
 }
 
 interface UpdateUserData {
@@ -31,21 +31,17 @@ class NonUniqueUserEmail extends Error {
   }
 }
 
-export const createUser = async (data: CreateUserData): Promise<User> => {
+export const createUser = async (data: Omit<User, '_id'>): Promise<User> => {
   const existingUser = await findUser({ email: data.email });
 
   if (!!existingUser) {
     throw new NonUniqueUserEmail(data.email);
   }
-
-  const session = neo4jDriver.session();
-
   const userToCreate: User = {
-    ...omit(data, 'password'),
+    ...data,
     _id: shortid.generate(),
-    password_hash: await encryptPassword(data.password),
-    role: UserRole.USER,
   };
+  const session = neo4jDriver.session();
 
   const { records } = await session.run(`CREATE (user:User $props) RETURN properties(user) as user`, {
     props: userToCreate,
@@ -55,7 +51,7 @@ export const createUser = async (data: CreateUserData): Promise<User> => {
 
   const record = records.pop();
 
-  if (!record) throw new Error();
+  if (!record) throw new Error('Unable to create user ' + JSON.stringify(userToCreate));
 
   return record.get('user');
 };

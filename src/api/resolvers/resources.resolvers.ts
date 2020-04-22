@@ -14,7 +14,7 @@ import {
   voteResource,
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
-import { createAndSaveResource } from '../../services/auth/resources.service';
+import { createAndSaveResource } from '../../services/resources.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import {
   APIMutationResolvers,

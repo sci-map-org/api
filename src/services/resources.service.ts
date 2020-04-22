@@ -1,8 +1,8 @@
-import { ResourceType, ResourceMediaType } from '../../api/schema/types';
-import { createResource } from '../../repositories/resources.repository';
-import { Resource } from '../../entities/Resource';
 import { omit } from 'lodash';
-import { attachResourceTagsToResource, findOrCreateResourceTag } from '../../repositories/resource_tags.repository';
+import { ResourceMediaType, ResourceType } from '../api/schema/types';
+import { Resource } from '../entities/Resource';
+import { createResource } from '../repositories/resources.repository';
+import { attachResourceTagsToResource, findOrCreateResourceTag } from '../repositories/resource_tags.repository';
 
 interface CreateAndSaveResourceData {
   name: string;

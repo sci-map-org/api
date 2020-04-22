@@ -10,6 +10,7 @@ export interface User {
   email: string;
   displayName: string;
   key: string;
-  password_hash: string;
+  password_hash?: string; // Either password_hash or googleUserId is required
+  googleUserId?: string;
   role: UserRole;
 }

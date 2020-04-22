@@ -32,10 +32,16 @@ type Query {
 }
 
 input RegisterPayload {
+  key: String!
   displayName: String!
-  key: String! # For profile url, @...
   email: String!
   password: String!
+}
+
+input RegisterGooglePayload {
+  key: String!
+  displayName: String!
+  idToken: String!
 }
 
 input AdminUpdateUserPayload {
@@ -47,6 +53,8 @@ input AdminUpdateUserPayload {
 
 type Mutation {
   login(email: String!, password: String!): LoginResponse!
+  loginGoogle(idToken: String!): LoginResponse!
   register(payload: RegisterPayload!): CurrentUser!
+  registerGoogle(payload: RegisterGooglePayload!): CurrentUser!
   adminUpdateUser(id: String!, payload: AdminUpdateUserPayload!): User!
 }

@@ -10,12 +10,20 @@ const NEO4J = typedEnv.envGroup(
   'NEO4J'
 );
 
+const AUTH = typedEnv.envGroup(
+  {
+    GOOGLE_CLIENT_ID: typedEnv.types.NonEmptyString,
+  },
+  'AUTH'
+);
+
 const api = typedEnv.envGroup({
   GRAPHQL_MOCK_ENABLED: typedEnv.types.Boolean,
 });
 
 const envSchema = typedEnv.envSchema({
   NEO4J,
+  AUTH,
   api,
 });
 

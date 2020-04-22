@@ -16,10 +16,12 @@ import {
 } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIArticle } from './articles.resolvers';
+import { registerUser, registerUserGoogleAuth } from '../../services/users.service';
+import { identifyGoogleIdToken } from '../../services/auth/google_sign_in';
 
 class InvalidCredentialsError extends Error {
-  constructor() {
-    super('Invalid credentials');
+  constructor(m?: string) {
+    super('Invalid credentials' + m);
   }
 }
 
@@ -41,8 +43,10 @@ export const loginResolver: APIMutationResolvers['login'] = async (_parent, { em
   try {
     const user = await findUser({ email });
     if (!user) throw new UserNotFoundError(email, 'email');
-
     // throw unauthorized if pwd doesn't match
+    if (!user.password_hash) {
+      throw new InvalidCredentialsError('Try an alternative authorization method');
+    }
     if (!(await passwordsMatch(user.password_hash, password))) {
       throw new Error();
     }
@@ -55,8 +59,26 @@ export const loginResolver: APIMutationResolvers['login'] = async (_parent, { em
   }
 };
 
-export const registerResolver: APIMutationResolvers['register'] = async (_parent, { payload }, ctx) => {
-  return toAPICurrentUser(await createUser(payload));
+export const loginGoogleResolver: APIMutationResolvers['loginGoogle'] = async (_parent, { idToken }, ctx) => {
+  try {
+    const { email } = await identifyGoogleIdToken(idToken);
+    const user = await findUser({ email });
+    if (!user) throw new UserNotFoundError(email, 'email');
+    return {
+      currentUser: toAPICurrentUser(user),
+      jwt: await getJWT(user),
+    };
+  } catch (err) {
+    throw new InvalidCredentialsError();
+  }
+};
+
+export const registerResolver: APIMutationResolvers['register'] = async (_parent, { payload }) => {
+  return toAPICurrentUser(await registerUser(payload));
+};
+
+export const registerGoogleResolver: APIMutationResolvers['registerGoogle'] = async (_parent, { payload }) => {
+  return toAPICurrentUser(await registerUserGoogleAuth(payload));
 };
 
 export const currentUserResolver: APIQueryResolvers['currentUser'] = async (_parent, _payload, { user }) => {
