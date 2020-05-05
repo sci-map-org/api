@@ -421,7 +421,7 @@ export type APIPaginationOptions = {
 
 export type APIQuery = {
    __typename?: 'Query';
-  currentUser: APICurrentUser;
+  currentUser?: Maybe<APICurrentUser>;
   getArticleByKey: APIArticle;
   getConcept: APIConcept;
   getConceptByKey: APIConcept;
@@ -989,7 +989,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
 }>;
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
-  currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
+  currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>,
   getConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptArgs, '_id'>>,
   getConceptByKey?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptByKeyArgs, 'key'>>,

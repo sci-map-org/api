@@ -30,6 +30,18 @@ const server = new ApolloServer({
     }
     return {};
   },
+  plugins: [
+    {
+      requestDidStart: c => {
+        const requestStartedAt = Date.now();
+        return {
+          willSendResponse(a) {
+            console.info(`Operation ${a.operationName} took ${Date.now() - requestStartedAt}ms`);
+          },
+        };
+      },
+    },
+  ],
 });
 
 const app = new Koa();

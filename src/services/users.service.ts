@@ -33,7 +33,6 @@ export const registerUserGoogleAuth = async ({
   idToken: string;
 }): Promise<User> => {
   const { googleUserId, email } = await identifyGoogleIdToken(idToken);
-  console.log(googleUserId, email);
   return createUser({
     key,
     displayName,

@@ -96,7 +96,6 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
   count?: number;
 }> => {
   const session = neo4jDriver.session();
-  console.log(sorting);
   const sortingClause = sorting ? `ORDER BY ${sorting.entity}.${sorting.field} ${sorting.direction}` : '';
   const whereClause = `WHERE ${buildFilter(originNode.filter, 'originNodeFilter', 'originNode')}
   ${
@@ -117,7 +116,6 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
   ${sortingClause}
   ${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}
   ${pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''}`;
-  console.log(query);
   const { records } = await session.run(query, {
     originNodeFilter: originNode.filter,
     relationshipFilter: relationship.filter,

@@ -27,7 +27,7 @@ type LoginResponse {
 }
 
 type Query {
-  currentUser: CurrentUser!
+  currentUser: CurrentUser
   getUser(key: String!): User!
 }
 

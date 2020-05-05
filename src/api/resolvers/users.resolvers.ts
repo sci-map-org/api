@@ -4,7 +4,7 @@ import { findArticlesCreatedBy } from '../../repositories/articles.repository';
 import { createUser, findUser, updateUser } from '../../repositories/users.repository';
 import { getJWT } from '../../services/auth/jwt';
 import { passwordsMatch } from '../../services/auth/password_hashing';
-import { UnauthorizedError } from '../errors/UnauthenticatedError';
+import { UnauthorizedError, UnauthenticatedError } from '../errors/UnauthenticatedError';
 import {
   APICurrentUser,
   APICurrentUserArticlesArgs,
@@ -82,7 +82,7 @@ export const registerGoogleResolver: APIMutationResolvers['registerGoogle'] = as
 };
 
 export const currentUserResolver: APIQueryResolvers['currentUser'] = async (_parent, _payload, { user }) => {
-  if (!user) throw new Error();
+  if (!user) return null;
   const foundUser = await findUser({ email: user.email });
   if (!foundUser) throw new Error('User logged in but no user found. This should never happen');
   return toAPICurrentUser(foundUser);
