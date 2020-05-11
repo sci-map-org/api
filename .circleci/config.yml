@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  node: circleci/node@1.1.6
+  node: circleci/node@2.1.0
 jobs:
   build-and-test:
     executor:
@@ -9,9 +9,79 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - run: npm install
-            - run: npm test
+            - run: yarn
+            # - run: yarn test
+  deploy:
+    # working_directory: ~/app
+    # docker:
+    #   - image: circleci/ruby:2.4.3
+    steps:
+      - checkout
+      - run:
+          name: Installing deployment dependencies
+          working_directory: /
+          command: |
+            sudo apt-get -y -qq update
+            sudo apt-get install python-pip python-dev build-essential
+            sudo pip install --upgrade setuptools
+            sudo pip install awsebcli --upgrade
+      - run:
+          name: Deploying
+          command: eb deploy $CIRCLE_BRANCH-my-application
 workflows:
-    build-and-test:
-      jobs:
-        - build-and-test
+  build:
+    jobs:
+      - build-and-test
+      - deploy:
+          filters:
+            branches:
+              only:
+                # - staging
+                - master
+# jobs:
+#   build-and-test:
+#     executor:
+#       name: node/default
+#     steps:
+#       - checkout
+#       - node/with-cache:
+#         steps:
+#           - run: npm install
+#           - run: npm test
+#           - run:
+#             name: Installing deployment dependencies command:
+#             | sudo apt-get -y -qq update sudo apt-get install python-pip python-dev build-essential sudo pip install --upgrade setuptools sudo pip install awsebcli --upgrade
+#             - run:
+#             name: Deploying command: eb deploy <Your AWS Environment Name>
+# workflows: build-and-test: jobs: - build-and-test: context: aws filters: branches: only: - master
+# jobs:
+#   deploy:
+#     # working_directory: ~/app
+#     docker:
+#       - image: circleci/ruby:2.4.3
+#     steps:
+#       - checkout
+
+#       - run:
+#           name: Installing deployment dependencies
+#           working_directory: /
+#           command: |
+#             sudo apt-get -y -qq update
+#             sudo apt-get install python-pip python-dev build-essential
+#             sudo pip install --upgrade setuptools
+#             sudo pip install awsebcli --upgrade
+
+#       - run:
+#           name: Deploying
+#           command: eb deploy $CIRCLE_BRANCH-my-application
+
+# workflows:
+#   # version: 2
+#   build:
+#     jobs:
+#       - deploy:
+#           filters:
+#             branches:
+#               only:
+#                 # - staging
+#                 - master

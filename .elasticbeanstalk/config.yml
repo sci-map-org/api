@@ -1,0 +1,9 @@
+branch-defaults:
+  master:
+    environment: $CIRCLE_BRANCH-sci-map-api
+global:
+  application_name: sci-map-api
+  default_ec2_keyname: XXXXXX
+  default_platform: Node.js 12 running on 64bit Amazon Linux 2
+  default_region: eu-central-1
+  sc: git
