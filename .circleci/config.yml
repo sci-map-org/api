@@ -8,7 +8,11 @@ jobs:
     steps:
       - checkout
       - run:
-          command: yarn
+          command: yarn install --freeze-lockfile
+      - save_cache:
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules
       # - run:
       #     command: yarn test
   deploy:
@@ -24,6 +28,8 @@ jobs:
             sudo apt-get -y -qq update
             sudo apt-get install python-pip python-dev build-essential
             sudo pip install --upgrade setuptools
+            echo ${AWS_ACCESS_KEY_ID}
+            pwd
             sudo pip install awsebcli --upgrade
       - run:
           name: Deploying
