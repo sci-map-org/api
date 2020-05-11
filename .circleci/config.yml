@@ -9,8 +9,8 @@ jobs:
       - checkout
       - run:
           command: yarn
-      - run:
-          command: yarn test
+      # - run:
+      #     command: yarn test
   deploy:
     # working_directory: ~/app
     executor:
