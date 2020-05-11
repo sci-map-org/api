@@ -29,7 +29,7 @@ jobs:
           name: Deploying
           command: eb deploy $CIRCLE_BRANCH-my-application
 workflows:
-  build:
+  build-and-test:
     jobs:
       - build-and-test
       - deploy:
