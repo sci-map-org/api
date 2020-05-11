@@ -1,6 +1,6 @@
 branch-defaults:
   master:
-    environment: $CIRCLE_BRANCH-sci-map-api
+    environment: SciMapApi-env
 global:
   application_name: sci-map-api
   default_ec2_keyname: XXXXXX
