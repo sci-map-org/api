@@ -13,8 +13,8 @@ jobs:
             # - run: yarn test
   deploy:
     # working_directory: ~/app
-    # docker:
-    #   - image: circleci/ruby:2.4.3
+    executor:
+      name: node/default
     steps:
       - checkout
       - run:
