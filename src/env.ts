@@ -18,6 +18,7 @@ const AUTH = typedEnv.envGroup(
 );
 
 const api = typedEnv.envGroup({
+  PORT: typedEnv.types.PortNumber,
   GRAPHQL_MOCK_ENABLED: typedEnv.types.Boolean,
 });
 

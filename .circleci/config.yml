@@ -11,6 +11,8 @@ jobs:
           steps:
             - run: yarn install
             # - run: npm test
+            - run: yarn build
+            - run: yarn dist
             - run:
                 name: Installing deployment dependencies
                 command: |
@@ -20,7 +22,7 @@ jobs:
                   sudo pip install awsebcli --upgrade
             - run:
                 name: Deploying
-                command: eb deploy SciMapApi-env
+                command: eb deploy SciMapApi-production
 
 workflows:
   build-and-test:
