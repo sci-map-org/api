@@ -1,0 +1,9 @@
+node_modules
+dist
+.circle_ci
+
+.env
+.gitignore
+.elasticbeanstalk
+.vscode
+sci-map-api.zip

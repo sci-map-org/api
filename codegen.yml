@@ -1,20 +1,19 @@
 overwrite: true
 generates:
-    src/api/schema/types.ts:
-        schema: './src/api/schema/*.graphql'
-        plugins:
-            - 'typescript'
-            # - 'typescript-server'
-            - 'typescript-resolvers'
-        config:
-            scalars:
-                Date: Date
-            typesPrefix: 'API'
-            useIndexSignature: true
-            contextType: ../server#APIContext
-            enumValues:
-                ArticleContentType: ../../entities/Article#ArticleContentType
-                UserRole: ../../entities/User#UserRole
-                ResourceType: ../../entities/Resource#ResourceType
-                ResourceMediaType: ../../entities/Resource#ResourceMediaType
-                SortingDirection: ../../repositories/util/sorting#SortingDirection
+  src/api/schema/types.ts:
+    schema: './src/api/schema/*.graphql'
+    plugins:
+      - 'typescript'
+      - 'typescript-resolvers'
+    config:
+      scalars:
+        Date: Date
+      typesPrefix: 'API'
+      useIndexSignature: true
+      contextType: ../server#APIContext
+      enumValues:
+        ArticleContentType: ../../entities/Article#ArticleContentType
+        UserRole: ../../entities/User#UserRole
+        ResourceType: ../../entities/Resource#ResourceType
+        ResourceMediaType: ../../entities/Resource#ResourceMediaType
+        SortingDirection: ../../repositories/util/sorting#SortingDirection
