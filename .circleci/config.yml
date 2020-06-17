@@ -9,10 +9,15 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - setup_remote_docker
+            - setup_remote_docker:
+                docker_layer_caching: true
             - run: yarn docker:build
             # - run: npm test
-            - run: yarn docker:push
+            - run:
+              name: Publish Docker Image to Docker Hub
+              command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker push layvier/sci-map-api:latest
             - run: yarn dist
             - run:
                 name: Installing deployment dependencies
@@ -29,7 +34,7 @@ workflows:
   build-and-test:
     jobs:
       - build-and-deploy:
-          context: aws
+          context: global
           filters:
             branches:
               only:

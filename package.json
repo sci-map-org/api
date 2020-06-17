@@ -10,7 +10,7 @@
     "start": "node ./dist/index.js",
     "dev": "tsc-watch --onSuccess \"node ./dist/index.js\" --onFailure \"echo Beep! Compilation Failed\" --compiler typescript/bin/tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docker:build": "docker build -t layvier/sci-map-api .",
+    "docker:build": "docker build -t layvier/sci-map-api:latest .",
     "docker:run": "docker run -it -p 8000:8000 --env-file .env layvier/sci-map-api:latest",
     "docker:push": "docker push layvier/sci-map-api:latest",
     "deploy": "yarn docker:build && yarn docker:push && yarn dist && echo 'Just upload the zip file now'"
