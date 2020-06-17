@@ -6,10 +6,14 @@ enum ResourceMediaType {
 
 enum ResourceType {
   article
+  article_series
   tutorial
   introduction
   course
-  article_series
+  guide
+  podcast
+  podcast_series
+  other
 }
 
 # enum PedagogicalApproach {

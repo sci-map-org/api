@@ -8,10 +8,14 @@ export enum ResourceMediaType {
 
 export enum ResourceType {
   article = 'article',
+  article_series = 'article_series',
   tutorial = 'tutorial',
   introduction = 'introduction',
   course = 'course',
-  article_series = 'article_series',
+  guide = 'guide',
+  podcast = 'podcast',
+  podcast_series = 'podcast_series',
+  other = 'other',
 }
 
 // export enum PedagogicalApproach {
