@@ -1,3 +1,7 @@
+# import Domain from "Domain.graphql"
+# import Resource from "Resource.graphql"
+# import PaginationOptions from "common/PaginationOptions.graphql"
+
 # Has dependencies + is depended upon with/by other concepts
 # Represents an atomic knowledge, something that can be understood
 # learning content cover one or several concepts

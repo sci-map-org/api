@@ -1,3 +1,6 @@
+# import Resource from "Resource.graphql"
+# import PaginationOptions from "common/PaginationOptions.graphql"
+
 type ResourceTag {
   name: String!
 }

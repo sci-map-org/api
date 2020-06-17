@@ -1,3 +1,8 @@
+# import SortingDirection from "common/SortingDirection.graphql"
+# import PaginationOptions from "common/PaginationOptions.graphql"
+# import Concept from "Concept.graphql"
+# import Resource from "Resource.graphql"
+
 type Domain {
   _id: String!
   name: String!

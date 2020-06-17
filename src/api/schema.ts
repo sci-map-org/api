@@ -1,5 +1,6 @@
-import { makeExecutableSchema } from 'apollo-server-koa';
-import { importSchema } from 'graphql-import';
+import { addResolversToSchema } from '@graphql-tools/schema';
+import { loadSchemaSync } from '@graphql-tools/load';
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { GraphQLDateTime } from 'graphql-iso-date';
 import {
   createArticleResolver,
@@ -66,7 +67,9 @@ import {
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
 
-export const typeDefs = importSchema('./src/api/schema/schema.graphql');
+const schemaWithoutResolvers = loadSchemaSync('./src/api/schema/schema.graphql', {
+  loaders: [new GraphQLFileLoader()],
+});
 
 const resolvers: APIResolvers<APIContext> = {
   Mutation: {
@@ -138,7 +141,7 @@ const resolvers: APIResolvers<APIContext> = {
   Date: GraphQLDateTime,
 };
 
-export const schema = makeExecutableSchema({
-  typeDefs,
+export const schema = addResolversToSchema({
+  schema: schemaWithoutResolvers,
   resolvers,
 });

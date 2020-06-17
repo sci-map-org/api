@@ -1,3 +1,7 @@
+# import PaginationOptions from "common/PaginationOptions.graphql"
+# import Concept from "Concept.graphql"
+# import Domain from "Domain.graphql"
+
 enum ResourceMediaType {
   video
   text
@@ -15,20 +19,6 @@ enum ResourceType {
   podcast_series
   other
 }
-
-# enum PedagogicalApproach {
-#   practical
-#   theoretical
-#   intuitive
-#   gamified
-#   visual
-#   interactive
-#   abstract
-#   detailed
-# }
-# polymorphic ? By type or just internal / external ?
-# what info in the relationships ? approach taken ?
-# should just be a wrapper ?
 
 type ConsumedResource {
   openedAt: Date
