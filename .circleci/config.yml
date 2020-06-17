@@ -9,8 +9,7 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - setup_remote_docker:
-                docker_layer_caching: true
+            - setup_remote_docker
             - run: yarn docker:build
             - run:
                 name: Publish Docker Image to Docker Hub
