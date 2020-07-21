@@ -1,22 +1,14 @@
 import { omit } from 'lodash';
-import shortid = require('shortid');
-
-import { ConceptLabel, Concept } from '../entities/Concept';
-import { UserConsumedResourceLabel, UserConsumedResource } from '../entities/relationships/UserConsumedResource';
-import { UserKnowsConceptLabel, UserKnowsConcept } from '../entities/relationships/UserKnowsConcept';
-import { ResourceLabel, Resource } from '../entities/Resource';
+import { nullToUndefined } from '../api/util/nullToUndefined';
+import { Concept, ConceptLabel } from '../entities/Concept';
+import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
+import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
+import { Resource, ResourceLabel } from '../entities/Resource';
 import { User, UserLabel, UserRole } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
-import { encryptPassword } from '../services/auth/password_hashing';
 import { attachNodes, detachNodes, findOne, updateOne } from './util/abstract_graph_repo';
-import { nullToUndefined } from '../api/util/nullToUndefined';
 
-interface CreateUserData {
-  displayName: string;
-  key: string;
-  email: string;
-  password_hash?: string;
-}
+import shortid = require('shortid');
 
 interface UpdateUserData {
   displayName?: string;
@@ -86,7 +78,7 @@ export const attachUserKnowsConcepts = (
   );
 
 export const detachUserKnowsConcepts = (userId: string, conceptIds: string[]) =>
-  detachNodes({
+  detachNodes<User, UserKnowsConcept, Concept>({
     originNode: {
       label: UserLabel,
       filter: { _id: userId },

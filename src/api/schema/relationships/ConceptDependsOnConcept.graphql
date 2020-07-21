@@ -1,0 +1,3 @@
+type ConceptDependsOnConcept {
+  strength: Float!
+}

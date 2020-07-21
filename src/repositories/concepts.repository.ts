@@ -1,34 +1,28 @@
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
-
 import { generateUrlKey } from '../api/util/urlKey';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
-import { ConceptBelongsToDomainLabel, ConceptBelongsToDomain } from '../entities/relationships/ConceptBelongsToDomain';
+import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
+import {
+  ConceptDependsOnConcept,
+  ConceptDependsOnConceptLabel,
+  STRENGTH_DEFAULT_VALUE,
+} from '../entities/relationships/ConceptDependsOnConcept';
 import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
 import {
-  attachNodes,
+  attachUniqueNodes,
   createRelatedNode,
   deleteOne,
+  detachUniqueNodes,
   findOne,
   getRelatedNode,
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
-
-// Rename abstract_grap repo to query builder or something like that ? query builder + abstraction layer for graph db
-// in repo, provide the bare minimum for crud operation.
-// in services, implements business cases: user consumed a resource for instance
-// for read for instance, it might configuring getRelatedNodes for each relations(types + labels for instance),
-// that would then be called with filters, pagination, sorting
-// find many and include some of their relations is quite the same a find one and list a relation
-// layered services ? a resolver or something connecting to the outside should
-// idea: sub folders/files shared by many parents ? Basically a DAG. Should be shown in a different way. Would be
-// amazing in order to see the dependencies
-// below: file explorer: show parents, file, then children
 
 interface CreateConceptData {
   name: string;
@@ -71,15 +65,11 @@ export const attachConceptToDomain = (
   relationship: ConceptBelongsToDomain;
   domain: Domain;
 }> =>
-  attachNodes<Concept, ConceptBelongsToDomain, Domain>({
+  attachUniqueNodes<Concept, ConceptBelongsToDomain, Domain>({
     originNode: { label: ConceptLabel, filter: { _id: conceptId } },
     relationship: { label: ConceptBelongsToDomainLabel, onCreateProps: { index } },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
-  }).then(([first, ...rest]) => {
-    if (!first) throw new Error(`${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId} not found`);
-    if (rest.length > 1)
-      throw new Error(`More than 1 pair ${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId}`);
-    const { originNode, relationship, destinationNode } = first;
+  }).then(({ originNode, relationship, destinationNode }) => {
     return {
       concept: originNode,
       relationship,
@@ -96,15 +86,11 @@ export const updateConceptBelongsToDomain = (
   relationship: ConceptBelongsToDomain;
   domain: Domain;
 }> =>
-  attachNodes<Concept, ConceptBelongsToDomain, Domain>({
+  attachUniqueNodes<Concept, ConceptBelongsToDomain, Domain>({
     originNode: { label: ConceptLabel, filter: { _id: conceptId } },
     relationship: { label: ConceptBelongsToDomainLabel, onMergeProps: data },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
-  }).then(([first, ...rest]) => {
-    if (!first) throw new Error(`${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId} not found`);
-    if (rest.length > 1)
-      throw new Error(`More than 1 pair ${ConceptLabel} with id ${conceptId} or ${DomainLabel} with id ${domainId}`);
-    const { originNode, relationship, destinationNode } = first;
+  }).then(({ originNode, relationship, destinationNode }) => {
     return {
       concept: originNode,
       relationship,
@@ -155,3 +141,48 @@ export const getUserKnowsConcept = async (userId: string, conceptId: string): Pr
   if (!result) return null;
   return result.relationship;
 };
+
+export const attachConceptDependencyToConcept = (
+  dependedUponConceptId: string,
+  dependingConceptId: string,
+  strength?: number
+): Promise<{ dependedUponConcept: Concept; relationship: ConceptDependsOnConcept; dependingConcept: Concept }> =>
+  attachUniqueNodes<Concept, ConceptDependsOnConcept, Concept>({
+    originNode: { label: ConceptLabel, filter: { _id: dependingConceptId } },
+    relationship: {
+      label: ConceptDependsOnConceptLabel,
+      onCreateProps: { strength: strength || STRENGTH_DEFAULT_VALUE },
+      onMergeProps: { strength },
+    },
+    destinationNode: { label: ConceptLabel, filter: { _id: dependedUponConceptId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      dependedUponConcept: originNode,
+      relationship,
+      dependingConcept: destinationNode,
+    };
+  });
+
+export const detachConceptDependencyToConcept = (
+  dependedUponConceptId: string,
+  dependingConceptId: string
+): Promise<{ dependedUponConcept: Concept; dependingConcept: Concept }> =>
+  detachUniqueNodes<Concept, ConceptDependsOnConcept, Concept>({
+    originNode: {
+      label: ConceptLabel,
+      filter: { _id: dependingConceptId },
+    },
+    relationship: {
+      label: ConceptDependsOnConceptLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: ConceptLabel,
+      filter: { _id: dependedUponConceptId },
+    },
+  }).then(({ originNode, destinationNode }) => {
+    return {
+      dependingConcept: originNode,
+      dependedUponConcept: destinationNode,
+    };
+  });

@@ -10,6 +10,8 @@ import {
   getUserKnowsConcept,
   updateConcept,
   updateConceptBelongsToDomain,
+  attachConceptDependencyToConcept,
+  detachConceptDependencyToConcept,
 } from '../../repositories/concepts.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
@@ -121,4 +123,24 @@ export const updateConceptBelongsToDomainResolver: APIMutationResolvers['updateC
 
   const { relationship } = await updateConceptBelongsToDomain(conceptId, domainId, nullToUndefined(payload));
   return relationship;
+};
+
+export const addConceptDependencyResolver: APIMutationResolvers['addConceptDependency'] = async (
+  _parent,
+  { conceptId, parentConceptId },
+  { user }
+) => {
+  if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
+  const { dependingConcept } = await attachConceptDependencyToConcept(parentConceptId, conceptId);
+  return dependingConcept;
+};
+
+export const removeConceptDependencyResolver: APIMutationResolvers['removeConceptDependency'] = async (
+  _parent,
+  { conceptId, parentConceptId },
+  { user }
+) => {
+  if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
+  const { dependingConcept } = await detachConceptDependencyToConcept(parentConceptId, conceptId);
+  return dependingConcept;
 };

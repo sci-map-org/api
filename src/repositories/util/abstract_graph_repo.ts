@@ -1,5 +1,6 @@
 import { neo4jDriver } from '../../infra/neo4j';
 import { buildFilter, FilterObject } from './filter';
+import { or } from 'ramda';
 
 export function getFilterString(filter: object, filterName: string = 'filter'): string {
   if (Object.keys(filter).length == 0) return '';
@@ -339,19 +340,57 @@ export const attachNodes = async <OriginNodeEntity, RelationshipEntity, Destinat
   });
 };
 
-export const detachNodes = async <
-  OriginFilter extends object,
-  RelationFilter extends object,
-  DestinationFilter extends object
->({
+export const attachUniqueNodes = <OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
   originNode,
   relationship,
   destinationNode,
 }: {
-  originNode: { label: string; filter: OriginFilter };
-  relationship: { label: string; filter: RelationFilter };
-  destinationNode: { label: string; filter: DestinationFilter };
-}) => {
+  originNode: { label: string; filter: FilterObject<OriginNodeEntity> };
+  relationship: {
+    label: string;
+    onCreateProps?: RelationshipEntity;
+    onMergeProps?: UpdateType<RelationshipEntity>;
+  };
+  destinationNode: { label: string; filter: FilterObject<DestinationNodeEntity> };
+}): Promise<{
+  originNode: OriginNodeEntity;
+  relationship: RelationshipEntity;
+  destinationNode: DestinationNodeEntity;
+}> =>
+  attachNodes<OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
+    originNode,
+    relationship,
+    destinationNode,
+  }).then(([first, ...rest]) => {
+    if (!first)
+      throw new Error(
+        `${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
+        } with filter ${JSON.stringify(destinationNode.filter)} not found`
+      );
+    if (rest.length > 1)
+      // Throwing an error is not the best in this case: the operation is already made. log.warn/err :/ ?
+      console.error(
+        `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
+        } with filter ${JSON.stringify(destinationNode.filter)}: data inconsistency as they are expected to be unique`
+      );
+
+    return first;
+  });
+
+export const detachNodes = async <OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
+  originNode,
+  relationship,
+  destinationNode,
+}: {
+  originNode: { label: string; filter: FilterObject<OriginNodeEntity> };
+  relationship: { label: string; filter: FilterObject<RelationshipEntity> };
+  destinationNode: { label: string; filter: FilterObject<DestinationNodeEntity> };
+}): Promise<{
+  originNode: OriginNodeEntity;
+  destinationNode: DestinationNodeEntity;
+}[]> => {
   const session = neo4jDriver.session();
   const result = await session.run(
     `MATCH (originNode:${originNode.label}) WHERE ${buildFilter(
@@ -364,7 +403,7 @@ export const detachNodes = async <
       'destinationNode'
     )} OPTIONAL MATCH (originNode)-[relationship:${
       relationship.label
-    }]-(destinationNode) DELETE relationship RETURN properties(originNode) as originNode`,
+    }]-(destinationNode) DELETE relationship RETURN properties(originNode) as originNode, properties(destinationNode) as destinationNode`,
     {
       originNodeFilter: originNode.filter,
       destinationNodeFilter: destinationNode.filter,
@@ -373,9 +412,43 @@ export const detachNodes = async <
 
   const { records } = result;
   session.close();
-  const record = records.pop();
-
-  if (!record) throw new Error();
-
-  return record.get('originNode');
+  return records.map(record => {
+    return {
+      originNode: record.get('originNode') as OriginNodeEntity,
+      destinationNode: record.get('destinationNode') as DestinationNodeEntity,
+    };
+  });
 };
+
+export const detachUniqueNodes = <OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
+  originNode,
+  relationship,
+  destinationNode,
+}: {
+  originNode: { label: string; filter: FilterObject<OriginNodeEntity> };
+  relationship: { label: string; filter: FilterObject<RelationshipEntity> };
+  destinationNode: { label: string; filter: FilterObject<DestinationNodeEntity> };
+}): Promise<{
+  originNode: OriginNodeEntity;
+  destinationNode: DestinationNodeEntity;
+}> =>
+  detachNodes<OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
+    originNode,
+    relationship,
+    destinationNode,
+  }).then(([first, ...rest]) => {
+    if (!first)
+      throw new Error(
+        `${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
+        } with filter ${JSON.stringify(destinationNode.filter)} not found`
+      );
+    if (rest.length > 1)
+      // not great as the operation as already been made... Logging the data inconsistency is better than nothing I guess
+      console.error(
+        `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
+        } with filter ${JSON.stringify(destinationNode.filter)}: data inconsistency as they are expected to be unique`
+      );
+    return first;
+  });

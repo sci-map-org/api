@@ -5,6 +5,7 @@ import {
   getFilterString,
   getRelatedNodes,
   updateOne,
+  attachUniqueNodes,
 } from './util/abstract_graph_repo';
 import * as shortid from 'shortid';
 import { Resource, ResourceType, ResourceMediaType, ResourceLabel } from '../entities/Resource';
@@ -20,7 +21,6 @@ import { neo4jDriver } from '../infra/neo4j';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import { prop, map } from 'ramda';
 import { UserVotedResourceLabel, UserVotedResource } from '../entities/relationships/UserVotedResource';
-import { NotFoundError } from '../errors/NotFoundError';
 
 interface CreateResourceData {
   name: string;
@@ -186,7 +186,7 @@ export const getUserConsumedResource = async (
 };
 
 export const voteResource = async (userId: string, resourceId: string, value: number): Promise<Resource> =>
-  attachNodes<User, UserVotedResource, Resource>({
+  attachUniqueNodes<User, UserVotedResource, Resource>({
     originNode: {
       label: UserLabel,
       filter: { _id: userId },
@@ -206,11 +206,7 @@ export const voteResource = async (userId: string, resourceId: string, value: nu
         _id: resourceId,
       },
     },
-  }).then(([first, ...rest]) => {
-    if (!first) throw new Error(`${ResourceLabel} with id ${resourceId} or ${UserLabel} with id ${userId} not found`);
-    if (rest.length > 1)
-      throw new Error(`More than 1 pair ${ResourceLabel} with id ${resourceId} or ${UserLabel} with id ${userId}`);
-    const { destinationNode } = first;
+  }).then(({ destinationNode }) => {
     return destinationNode;
   });
 

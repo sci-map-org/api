@@ -21,6 +21,8 @@ import {
   setConceptsUnKnownResolver,
   updateConceptBelongsToDomainResolver,
   updateConceptResolver,
+  addConceptDependencyResolver,
+  removeConceptDependencyResolver,
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -97,6 +99,8 @@ const resolvers: APIResolvers<APIContext> = {
     setConceptsUnknown: setConceptsUnKnownResolver,
     setResourcesConsumed: setResourcesConsumedResolver,
     voteResource: voteResourceResolver,
+    addConceptDependency: addConceptDependencyResolver,
+    removeConceptDependency: removeConceptDependencyResolver,
   },
   Query: {
     currentUser: currentUserResolver,
