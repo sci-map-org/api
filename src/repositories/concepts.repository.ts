@@ -186,3 +186,26 @@ export const detachConceptDependencyToConcept = (
       dependedUponConcept: destinationNode,
     };
   });
+
+const m: { [key in 'PARENTS' | 'CHILDREN']: 'IN' | 'OUT' } = {
+  PARENTS: 'OUT',
+  CHILDREN: 'IN',
+};
+
+export const getConceptDependencies = (
+  filter: { _id?: string } | { key?: string },
+  direction: 'PARENTS' | 'CHILDREN'
+) =>
+  getRelatedNodes<Concept, ConceptDependsOnConcept, Concept>({
+    originNode: {
+      label: ConceptLabel,
+      filter,
+    },
+    relationship: {
+      label: ConceptDependsOnConceptLabel,
+      direction: m[direction],
+    },
+    destinationNode: {
+      label: ConceptLabel,
+    },
+  }).then(({ items }) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));

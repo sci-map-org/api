@@ -109,8 +109,10 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
       ? ' AND ' + buildFilter(destinationNode.filter, 'destinationNodeFilter', 'destinationNode')
       : ''
   }`;
-  const query = `MATCH (originNode:${originNode.label})-[relationship:${relationship.label}]
-  -(destinationNode:${destinationNode.label}) ${whereClause} RETURN 
+  const query = `MATCH (originNode:${originNode.label})${relationship.direction === 'IN' ? '<' : ''}-[relationship:${
+    relationship.label
+  }]
+  -${relationship.direction === 'OUT' ? '>' : ''}(destinationNode:${destinationNode.label}) ${whereClause} RETURN 
   properties(originNode) as originNode, 
   properties(destinationNode) as destinationNode, 
   properties(relationship) as relationship

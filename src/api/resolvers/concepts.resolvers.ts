@@ -12,6 +12,7 @@ import {
   updateConceptBelongsToDomain,
   attachConceptDependencyToConcept,
   detachConceptDependencyToConcept,
+  getConceptDependencies,
 } from '../../repositories/concepts.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
@@ -143,4 +144,12 @@ export const removeConceptDependencyResolver: APIMutationResolvers['removeConcep
   if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
   const { dependingConcept } = await detachConceptDependencyToConcept(parentConceptId, conceptId);
   return dependingConcept;
+};
+
+export const getConceptDependingOnConceptsResolver: APIConceptResolvers['dependingOnConcepts'] = async concept => {
+  return getConceptDependencies({ _id: concept._id }, 'PARENTS');
+};
+
+export const getConceptDependedOnByConceptsResolver: APIConceptResolvers['dependingOnConcepts'] = async concept => {
+  return getConceptDependencies({ _id: concept._id }, 'CHILDREN');
 };

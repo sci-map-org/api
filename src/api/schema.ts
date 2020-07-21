@@ -23,6 +23,8 @@ import {
   updateConceptResolver,
   addConceptDependencyResolver,
   removeConceptDependencyResolver,
+  getConceptDependingOnConceptsResolver,
+  getConceptDependedOnByConceptsResolver,
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -131,6 +133,8 @@ const resolvers: APIResolvers<APIContext> = {
     domain: getConceptDomainResolver,
     coveredByResources: getConceptCoveredByResourcesResolver,
     known: getConceptKnownResolver,
+    dependingOnConcepts: getConceptDependingOnConceptsResolver,
+    dependedOnByConcepts: getConceptDependedOnByConceptsResolver,
   },
   Resource: {
     coveredConcepts: getResourceCoveredConceptsResolver,
