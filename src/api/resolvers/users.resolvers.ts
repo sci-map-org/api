@@ -18,6 +18,11 @@ import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIArticle } from './articles.resolvers';
 import { registerUser, registerUserGoogleAuth } from '../../services/users.service';
 import { identifyGoogleIdToken } from '../../services/auth/google_sign_in';
+import {
+  validateDiscourseSSO,
+  DiscourseSSOInputPayload,
+  generateDiscourseSSORedirectUrl,
+} from '../../services/auth/discourse_sso';
 
 class InvalidCredentialsError extends Error {
   constructor(m?: string) {
@@ -39,8 +44,12 @@ function toAPICurrentUser(user: User): APICurrentUser {
   };
 }
 
-export const loginResolver: APIMutationResolvers['login'] = async (_parent, { email, password }, ctx) => {
+export const loginResolver: APIMutationResolvers['login'] = async (_parent, { email, password, discourseSSO }) => {
   try {
+    let ssoPayload: DiscourseSSOInputPayload | void;
+    if (discourseSSO) {
+      ssoPayload = validateDiscourseSSO(discourseSSO);
+    }
     const user = await findUser({ email });
     if (!user) throw new UserNotFoundError(email, 'email');
     // throw unauthorized if pwd doesn't match
@@ -53,23 +62,29 @@ export const loginResolver: APIMutationResolvers['login'] = async (_parent, { em
     return {
       currentUser: toAPICurrentUser(user),
       jwt: await getJWT(user),
+      ...(!!ssoPayload && { redirectUrl: generateDiscourseSSORedirectUrl(user, ssoPayload) }),
     };
   } catch (err) {
-    throw new InvalidCredentialsError();
+    throw new InvalidCredentialsError(err);
   }
 };
 
-export const loginGoogleResolver: APIMutationResolvers['loginGoogle'] = async (_parent, { idToken }, ctx) => {
+export const loginGoogleResolver: APIMutationResolvers['loginGoogle'] = async (_parent, { idToken, discourseSSO }) => {
   try {
+    let ssoPayload: DiscourseSSOInputPayload | void;
+    if (discourseSSO) {
+      ssoPayload = validateDiscourseSSO(discourseSSO);
+    }
     const { email } = await identifyGoogleIdToken(idToken);
     const user = await findUser({ email });
     if (!user) throw new UserNotFoundError(email, 'email');
     return {
       currentUser: toAPICurrentUser(user),
       jwt: await getJWT(user),
+      ...(!!ssoPayload && { redirectUrl: generateDiscourseSSORedirectUrl(user, ssoPayload) }),
     };
   } catch (err) {
-    throw new InvalidCredentialsError();
+    throw new InvalidCredentialsError(err);
   }
 };
 

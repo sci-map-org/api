@@ -24,6 +24,7 @@ type CurrentUser {
 type LoginResponse {
   currentUser: CurrentUser!
   jwt: String!
+  redirectUrl: String
 }
 
 type Query {
@@ -51,9 +52,14 @@ input AdminUpdateUserPayload {
   role: UserRole
 }
 
+input DiscourseSSO {
+  sig: String!
+  sso: String!
+}
+
 type Mutation {
-  login(email: String!, password: String!): LoginResponse!
-  loginGoogle(idToken: String!): LoginResponse!
+  login(email: String!, password: String!, discourseSSO: DiscourseSSO): LoginResponse!
+  loginGoogle(idToken: String!, discourseSSO: DiscourseSSO): LoginResponse!
   register(payload: RegisterPayload!): CurrentUser!
   registerGoogle(payload: RegisterGooglePayload!): CurrentUser!
   adminUpdateUser(id: String!, payload: AdminUpdateUserPayload!): User!
