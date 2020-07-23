@@ -146,6 +146,11 @@ export type APIDeleteDomainResponse = {
   success: Scalars['Boolean'];
 };
 
+export type APIDiscourseSso = {
+  sig: Scalars['String'];
+  sso: Scalars['String'];
+};
+
 export type APIDomain = {
    __typename?: 'Domain';
   _id: Scalars['String'];
@@ -230,6 +235,7 @@ export type APILoginResponse = {
    __typename?: 'LoginResponse';
   currentUser: APICurrentUser;
   jwt: Scalars['String'];
+  redirectUrl?: Maybe<Scalars['String']>;
 };
 
 export type APIMutation = {
@@ -337,12 +343,14 @@ export type APIMutationDetachResourceCoversConceptsArgs = {
 
 
 export type APIMutationLoginArgs = {
+  discourseSSO?: Maybe<APIDiscourseSso>;
   email: Scalars['String'];
   password: Scalars['String'];
 };
 
 
 export type APIMutationLoginGoogleArgs = {
+  discourseSSO?: Maybe<APIDiscourseSso>;
   idToken: Scalars['String'];
 };
 
@@ -763,6 +771,7 @@ export type APIResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
+  DiscourseSSO: APIDiscourseSso,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   RegisterGooglePayload: APIRegisterGooglePayload,
@@ -832,6 +841,7 @@ export type APIResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'],
   DeleteConceptResult: APIDeleteConceptResult,
   DeleteDomainResponse: APIDeleteDomainResponse,
+  DiscourseSSO: APIDiscourseSso,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   RegisterGooglePayload: APIRegisterGooglePayload,
@@ -955,6 +965,7 @@ export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType 
 export type APILoginResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LoginResponse'] = APIResolversParentTypes['LoginResponse']> = ResolversObject<{
   currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
   jwt?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  redirectUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 

@@ -12,7 +12,7 @@ export interface APIContext {
 const server = new ApolloServer({
   schema,
   introspection: true,
-  mocks: env.api.GRAPHQL_MOCK_ENABLED === 'true' && {
+  mocks: env.API.GRAPHQL_MOCK_ENABLED === 'true' && {
     Date: () => new Date(),
   },
   formatError: err => {

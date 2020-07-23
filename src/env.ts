@@ -13,11 +13,12 @@ const NEO4J = typedEnv.envGroup(
 const AUTH = typedEnv.envGroup(
   {
     GOOGLE_CLIENT_ID: typedEnv.types.NonEmptyString,
+    DISCOURSE_SSO_SECRET: typedEnv.types.NonEmptyString,
   },
   'AUTH'
 );
 
-const api = typedEnv.envGroup({
+const API = typedEnv.envGroup({
   PORT: typedEnv.types.PortNumber,
   GRAPHQL_MOCK_ENABLED: typedEnv.types.Boolean,
 });
@@ -25,7 +26,7 @@ const api = typedEnv.envGroup({
 const envSchema = typedEnv.envSchema({
   NEO4J,
   AUTH,
-  api,
+  API,
 });
 
 dotenv.config();
