@@ -33,7 +33,7 @@ export const validateDiscourseSSO = ({ sso, sig }: APIDiscourseSso): DiscourseSS
   // decode payload
   const buff = Buffer.from(sso, 'base64');
   const text = buff.toString('ascii');
-  console.log(text);
+
   const decodedPayload = text.split('&').reduce((obj, keyValuePair) => {
     const [key, value] = keyValuePair.split('=');
     obj[key] = value;
