@@ -59,6 +59,7 @@ export const loginResolver: APIMutationResolvers['login'] = async (_parent, { em
     if (!(await passwordsMatch(user.password_hash, password))) {
       throw new Error();
     }
+
     return {
       currentUser: toAPICurrentUser(user),
       jwt: await getJWT(user),
