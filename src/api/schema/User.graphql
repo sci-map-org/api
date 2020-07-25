@@ -50,6 +50,7 @@ input AdminUpdateUserPayload {
   key: String
   email: String
   role: UserRole
+  active: Boolean
 }
 
 input DiscourseSSO {
@@ -62,5 +63,6 @@ type Mutation {
   loginGoogle(idToken: String!, discourseSSO: DiscourseSSO): LoginResponse!
   register(payload: RegisterPayload!): CurrentUser!
   registerGoogle(payload: RegisterGooglePayload!): CurrentUser!
+  verifyEmailAddress(token: String!): LoginResponse!
   adminUpdateUser(id: String!, payload: AdminUpdateUserPayload!): User!
 }

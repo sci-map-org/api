@@ -56,3 +56,16 @@ export const createEmailVerificationToken = async (user: User, timestamp: number
     });
   });
 };
+
+export const verifyAndDecodeEmailVerificationToken = async (
+  jwtEncoded: string
+): Promise<EmailVerificationJWTPayload> => {
+  return new Promise((resolve, reject) => {
+    verify(jwtEncoded, env.AUTH.EMAIL_JWT_SECRET, undefined, (err, decoded: EmailVerificationJWTPayload) => {
+      if (!!err) {
+        reject(err);
+      }
+      return resolve(decoded);
+    });
+  });
+};

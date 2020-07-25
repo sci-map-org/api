@@ -36,6 +36,7 @@ export type APIAddConceptToDomainPayload = {
 };
 
 export type APIAdminUpdateUserPayload = {
+  active?: Maybe<Scalars['Boolean']>;
   displayName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
@@ -266,6 +267,7 @@ export type APIMutation = {
   updateConceptBelongsToDomain: APIConceptBelongsToDomain;
   updateDomain: APIDomain;
   updateResource: APIResource;
+  verifyEmailAddress: APILoginResponse;
   voteResource: APIResource;
 };
 
@@ -414,6 +416,11 @@ export type APIMutationUpdateDomainArgs = {
 export type APIMutationUpdateResourceArgs = {
   _id: Scalars['String'];
   payload: APIUpdateResourcePayload;
+};
+
+
+export type APIMutationVerifyEmailAddressArgs = {
+  token: Scalars['String'];
 };
 
 
@@ -765,10 +772,10 @@ export type APIResolversTypes = ResolversObject<{
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
   DeleteArticleResponse: ResolverTypeWrapper<APIDeleteArticleResponse>,
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
   DiscourseSSO: APIDiscourseSso,
@@ -835,10 +842,10 @@ export type APIResolversParentTypes = ResolversObject<{
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
+  Boolean: Scalars['Boolean'],
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
   DeleteArticleResponse: APIDeleteArticleResponse,
-  Boolean: Scalars['Boolean'],
   DeleteConceptResult: APIDeleteConceptResult,
   DeleteDomainResponse: APIDeleteDomainResponse,
   DiscourseSSO: APIDiscourseSso,
@@ -996,6 +1003,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateConceptBelongsToDomain?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptBelongsToDomainArgs, 'conceptId' | 'domainId' | 'payload'>>,
   updateDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationUpdateDomainArgs, 'id' | 'payload'>>,
   updateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationUpdateResourceArgs, '_id' | 'payload'>>,
+  verifyEmailAddress?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>,
   voteResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationVoteResourceArgs, 'resourceId' | 'value'>>,
 }>;
 

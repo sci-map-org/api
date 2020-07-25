@@ -1,17 +1,18 @@
 import { User, UserRole } from '../entities/User';
+import { env } from '../env';
 import { createUser } from '../repositories/users.repository';
 import { identifyGoogleIdToken } from './auth/google_sign_in';
-import { encryptPassword } from './auth/password_hashing';
 import { createEmailVerificationToken } from './auth/jwt';
+import { encryptPassword } from './auth/password_hashing';
 import { sendEmail } from './email/email.client';
 
 async function sendEmailVerificationEmail(user: User, timestamp: number): Promise<void> {
   const token: string = await createEmailVerificationToken(user, timestamp);
   await sendEmail({
-    from: 'emailverification@sci-mao.org',
+    from: 'Sci-map.org <email_verification@sci-map.org>',
     to: user.email,
     subject: 'Verify your email address',
-    html: `<p>Click here to verify your email address: http://sci-map.org/verify_email?token=${token}</p>`,
+    html: `<p>Click here to verify your email address: ${env.OTHER.FRONTEND_BASE_URL}/verify_email?token=${token}</p>`,
   });
 }
 

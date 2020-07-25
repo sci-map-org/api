@@ -35,11 +35,16 @@ const API = typedEnv.envGroup({
   GRAPHQL_MOCK_ENABLED: typedEnv.types.Boolean,
 });
 
+const OTHER = typedEnv.envGroup({
+  FRONTEND_BASE_URL: typedEnv.types.NonEmptyString,
+});
+
 const envSchema = typedEnv.envSchema({
   NEO4J,
   AUTH,
   EMAIL,
   API,
+  OTHER,
 });
 
 dotenv.config();
