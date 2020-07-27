@@ -41,6 +41,7 @@
     "lodash": "^4.17.15",
     "monk": "^7.1.1",
     "neo4j-driver": "4.0.2",
+    "nodemailer": "^6.4.10",
     "ramda": "^0.27.0",
     "shortid": "^2.2.15",
     "typescript": "^3.6.4"
@@ -54,6 +55,7 @@
     "@types/graphql-iso-date": "^3.3.3",
     "@types/koa": "^2.0.51",
     "@types/node": "^13.9.3",
+    "@types/nodemailer": "^6.4.0",
     "@types/ramda": "^0.27.0",
     "@types/shortid": "^0.0.29",
     "graphql": "^14.5.8",

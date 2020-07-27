@@ -62,6 +62,7 @@ import {
   loginResolver,
   registerGoogleResolver,
   registerResolver,
+  verifyEmailAddressResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
@@ -74,6 +75,7 @@ const resolvers: APIResolvers<APIContext> = {
     loginGoogle: loginGoogleResolver,
     register: registerResolver,
     registerGoogle: registerGoogleResolver,
+    verifyEmailAddress: verifyEmailAddressResolver,
     adminUpdateUser: adminUpdateUserResolver,
     updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,

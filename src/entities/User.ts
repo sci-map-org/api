@@ -13,4 +13,5 @@ export interface User {
   password_hash?: string; // Either password_hash or googleUserId is required
   googleUserId?: string;
   role: UserRole;
+  active: boolean; //email verified
 }
