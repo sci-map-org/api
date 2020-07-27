@@ -267,7 +267,7 @@ export type APIMutation = {
   updateConceptBelongsToDomain: APIConceptBelongsToDomain;
   updateDomain: APIDomain;
   updateResource: APIResource;
-  verifyEmailAddress: APILoginResponse;
+  verifyEmailAddress: APIVerifyEmailResponse;
   voteResource: APIResource;
 };
 
@@ -652,6 +652,11 @@ export type APIUserArticlesArgs = {
 
 export { UserRole };
 
+export type APIVerifyEmailResponse = {
+   __typename?: 'VerifyEmailResponse';
+  email: Scalars['String'];
+};
+
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 
@@ -791,6 +796,7 @@ export type APIResolversTypes = ResolversObject<{
   UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
+  VerifyEmailResponse: ResolverTypeWrapper<APIVerifyEmailResponse>,
   ResourceVoteValue: APIResourceVoteValue,
 }>;
 
@@ -861,6 +867,7 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
+  VerifyEmailResponse: APIVerifyEmailResponse,
   ResourceVoteValue: APIResourceVoteValue,
 }>;
 
@@ -1003,7 +1010,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateConceptBelongsToDomain?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptBelongsToDomainArgs, 'conceptId' | 'domainId' | 'payload'>>,
   updateDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationUpdateDomainArgs, 'id' | 'payload'>>,
   updateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationUpdateResourceArgs, '_id' | 'payload'>>,
-  verifyEmailAddress?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>,
+  verifyEmailAddress?: Resolver<APIResolversTypes['VerifyEmailResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>,
   voteResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationVoteResourceArgs, 'resourceId' | 'value'>>,
 }>;
 
@@ -1071,6 +1078,11 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APIVerifyEmailResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['VerifyEmailResponse'] = APIResolversParentTypes['VerifyEmailResponse']> = ResolversObject<{
+  email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Article?: APIArticleResolvers<ContextType>,
   Concept?: APIConceptResolvers<ContextType>,
@@ -1098,6 +1110,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   ResourceTagSearchResult?: APIResourceTagSearchResultResolvers<ContextType>,
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
+  VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,
 }>;
 
 

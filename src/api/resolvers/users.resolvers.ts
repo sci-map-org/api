@@ -52,7 +52,7 @@ export const loginResolver: APIMutationResolvers['login'] = async (_parent, { em
     }
     const user = await findUser({ email });
     if (!user) throw new UserNotFoundError(email, 'email');
-    // throw unauthorized if pwd doesn't match
+    if (!user.active) throw new InvalidCredentialsError('Please validate your email address (check your emails)');
     if (!user.password_hash) {
       throw new InvalidCredentialsError('Try an alternative authorization method');
     }
@@ -109,8 +109,7 @@ export const verifyEmailAddressResolver: APIMutationResolvers['verifyEmailAddres
   if (!user) throw new Error('This should never happen, no users found with email in token');
 
   return {
-    currentUser: toAPICurrentUser(user),
-    jwt: await getJWT(user),
+    email,
   };
 };
 

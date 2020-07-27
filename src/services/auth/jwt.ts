@@ -63,7 +63,7 @@ export const verifyAndDecodeEmailVerificationToken = async (
   return new Promise((resolve, reject) => {
     verify(jwtEncoded, env.AUTH.EMAIL_JWT_SECRET, undefined, (err, decoded: EmailVerificationJWTPayload) => {
       if (!!err) {
-        reject(err);
+        reject(new Error('Invalid token'));
       }
       return resolve(decoded);
     });
