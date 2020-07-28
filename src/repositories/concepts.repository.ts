@@ -5,10 +5,10 @@ import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
-  ConceptDependsOnConcept,
-  ConceptDependsOnConceptLabel,
+  ConceptReferencesConcept,
+  ConceptReferencesConceptLabel,
   STRENGTH_DEFAULT_VALUE,
-} from '../entities/relationships/ConceptDependsOnConcept';
+} from '../entities/relationships/ConceptReferencesConcept';
 import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import { Resource, ResourceLabel } from '../entities/Resource';
@@ -142,48 +142,48 @@ export const getUserKnowsConcept = async (userId: string, conceptId: string): Pr
   return result.relationship;
 };
 
-export const attachConceptDependencyToConcept = (
-  dependedUponConceptId: string,
-  dependingConceptId: string,
+export const attachConceptReferencesConcept = (
+  referencedConceptId: string,
+  referencingConceptId: string,
   strength?: number
-): Promise<{ dependedUponConcept: Concept; relationship: ConceptDependsOnConcept; dependingConcept: Concept }> =>
-  attachUniqueNodes<Concept, ConceptDependsOnConcept, Concept>({
-    originNode: { label: ConceptLabel, filter: { _id: dependingConceptId } },
+): Promise<{ referencedConcept: Concept; relationship: ConceptReferencesConcept; referencingConcept: Concept }> =>
+  attachUniqueNodes<Concept, ConceptReferencesConcept, Concept>({
+    originNode: { label: ConceptLabel, filter: { _id: referencingConceptId } },
     relationship: {
-      label: ConceptDependsOnConceptLabel,
+      label: ConceptReferencesConceptLabel,
       onCreateProps: { strength: strength || STRENGTH_DEFAULT_VALUE },
       onMergeProps: { strength },
     },
-    destinationNode: { label: ConceptLabel, filter: { _id: dependedUponConceptId } },
+    destinationNode: { label: ConceptLabel, filter: { _id: referencedConceptId } },
   }).then(({ originNode, relationship, destinationNode }) => {
     return {
-      dependedUponConcept: originNode,
+      referencedConcept: originNode,
       relationship,
-      dependingConcept: destinationNode,
+      referencingConcept: destinationNode,
     };
   });
 
-export const detachConceptDependencyToConcept = (
-  dependedUponConceptId: string,
-  dependingConceptId: string
-): Promise<{ dependedUponConcept: Concept; dependingConcept: Concept }> =>
-  detachUniqueNodes<Concept, ConceptDependsOnConcept, Concept>({
+export const detachConceptReferencesConcept = (
+  referencedConceptId: string,
+  referencingConceptId: string
+): Promise<{ referencedConcept: Concept; referencingConcept: Concept }> =>
+  detachUniqueNodes<Concept, ConceptReferencesConcept, Concept>({
     originNode: {
       label: ConceptLabel,
-      filter: { _id: dependingConceptId },
+      filter: { _id: referencingConceptId },
     },
     relationship: {
-      label: ConceptDependsOnConceptLabel,
+      label: ConceptReferencesConceptLabel,
       filter: {},
     },
     destinationNode: {
       label: ConceptLabel,
-      filter: { _id: dependedUponConceptId },
+      filter: { _id: referencedConceptId },
     },
   }).then(({ originNode, destinationNode }) => {
     return {
-      dependingConcept: originNode,
-      dependedUponConcept: destinationNode,
+      referencingConcept: originNode,
+      referencedConcept: destinationNode,
     };
   });
 
@@ -192,20 +192,23 @@ const m: { [key in 'PARENTS' | 'CHILDREN']: 'IN' | 'OUT' } = {
   CHILDREN: 'IN',
 };
 
-export const getConceptDependencies = (
-  filter: { _id?: string } | { key?: string },
-  direction: 'PARENTS' | 'CHILDREN'
-) =>
-  getRelatedNodes<Concept, ConceptDependsOnConcept, Concept>({
+const getConceptReferences = (filter: { _id: string } | { key: string }, direction: 'PARENTS' | 'CHILDREN') =>
+  getRelatedNodes<Concept, ConceptReferencesConcept, Concept>({
     originNode: {
       label: ConceptLabel,
       filter,
     },
     relationship: {
-      label: ConceptDependsOnConceptLabel,
+      label: ConceptReferencesConceptLabel,
       direction: m[direction],
     },
     destinationNode: {
       label: ConceptLabel,
     },
   }).then(({ items }) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
+
+export const getConceptsReferencedByConcept = (filter: { _id: string } | { key: string }) =>
+  getConceptReferences(filter, 'CHILDREN');
+
+export const getConceptsReferencingConcept = (filter: { _id: string } | { key: string }) =>
+  getConceptReferences(filter, 'PARENTS');

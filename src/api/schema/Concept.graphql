@@ -11,17 +11,17 @@ type Concept {
   domain: Domain
   coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
   known: KnownConcept
-  dependingOnConcepts: [ConceptDependingOnConceptItem!]
-  dependedOnByConcepts: [ConceptDependingOnConceptItem!]
+  referencingConcepts: [ConceptReferencesConceptItem!]
+  referencedByConcepts: [ConceptReferencesConceptItem!]
 }
 
 type KnownConcept {
   level: Float!
 }
 
-type ConceptDependingOnConceptItem {
+type ConceptReferencesConceptItem {
   concept: Concept!
-  relationship: ConceptDependsOnConcept!
+  relationship: ConceptReferencesConcept!
 }
 
 input ConceptCoveredByResourcesOptions {
@@ -69,6 +69,6 @@ type Mutation {
   deleteConcept(_id: String!): DeleteConceptResult!
   setConceptsKnown(payload: SetConceptKnownPayload!): [Concept!]!
   setConceptsUnknown(conceptIds: [String!]!): [Concept!]!
-  addConceptDependency(conceptId: String!, parentConceptId: String!): Concept!
-  removeConceptDependency(conceptId: String!, parentConceptId: String!): Concept!
+  addConceptReferencesConcept(conceptId: String!, referencedConceptId: String!): Concept!
+  removeConceptReferencesConcept(conceptId: String!, referencedConceptId: String!): Concept!
 }

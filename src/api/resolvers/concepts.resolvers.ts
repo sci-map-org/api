@@ -1,25 +1,26 @@
+import { omit } from 'lodash';
 import { Concept } from '../../entities/Concept';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  attachConceptReferencesConcept,
   attachConceptToDomain,
   createConcept,
   deleteConcept,
+  detachConceptReferencesConcept,
   findConcept,
   getConceptCoveredByResources,
   getConceptDomain,
+  getConceptsReferencedByConcept,
+  getConceptsReferencingConcept,
   getUserKnowsConcept,
   updateConcept,
   updateConceptBelongsToDomain,
-  attachConceptDependencyToConcept,
-  detachConceptDependencyToConcept,
-  getConceptDependencies,
 } from '../../repositories/concepts.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
-import { omit } from 'lodash';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;
@@ -126,30 +127,31 @@ export const updateConceptBelongsToDomainResolver: APIMutationResolvers['updateC
   return relationship;
 };
 
-export const addConceptDependencyResolver: APIMutationResolvers['addConceptDependency'] = async (
+export const addConceptReferencesConceptResolver: APIMutationResolvers['addConceptReferencesConcept'] = async (
   _parent,
-  { conceptId, parentConceptId },
+  { conceptId, referencedConceptId },
   { user }
 ) => {
   if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
-  const { dependingConcept } = await attachConceptDependencyToConcept(parentConceptId, conceptId);
-  return dependingConcept;
+  const { referencingConcept } = await attachConceptReferencesConcept(referencedConceptId, conceptId);
+  return referencingConcept;
 };
 
-export const removeConceptDependencyResolver: APIMutationResolvers['removeConceptDependency'] = async (
+export const removeConceptReferencesConceptResolver: APIMutationResolvers['removeConceptReferencesConcept'] = async (
   _parent,
-  { conceptId, parentConceptId },
+  { conceptId, referencedConceptId },
   { user }
 ) => {
   if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
-  const { dependingConcept } = await detachConceptDependencyToConcept(parentConceptId, conceptId);
-  return dependingConcept;
+  const { referencingConcept } = await detachConceptReferencesConcept(referencedConceptId, conceptId);
+  return referencingConcept;
 };
 
-export const getConceptDependingOnConceptsResolver: APIConceptResolvers['dependingOnConcepts'] = async concept => {
-  return getConceptDependencies({ _id: concept._id }, 'PARENTS');
+// ok naming is weird I know, cause we change the subject
+export const getConceptReferencingConceptsResolver: APIConceptResolvers['referencingConcepts'] = async concept => {
+  return getConceptsReferencedByConcept({ _id: concept._id });
 };
 
-export const getConceptDependedOnByConceptsResolver: APIConceptResolvers['dependingOnConcepts'] = async concept => {
-  return getConceptDependencies({ _id: concept._id }, 'CHILDREN');
+export const getConceptReferencedByConceptsResolver: APIConceptResolvers['referencedByConcepts'] = async concept => {
+  return getConceptsReferencingConcept({ _id: concept._id });
 };

@@ -21,10 +21,10 @@ import {
   setConceptsUnKnownResolver,
   updateConceptBelongsToDomainResolver,
   updateConceptResolver,
-  addConceptDependencyResolver,
-  removeConceptDependencyResolver,
-  getConceptDependingOnConceptsResolver,
-  getConceptDependedOnByConceptsResolver,
+  addConceptReferencesConceptResolver,
+  removeConceptReferencesConceptResolver,
+  getConceptReferencingConceptsResolver,
+  getConceptReferencedByConceptsResolver,
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -101,8 +101,8 @@ const resolvers: APIResolvers<APIContext> = {
     setConceptsUnknown: setConceptsUnKnownResolver,
     setResourcesConsumed: setResourcesConsumedResolver,
     voteResource: voteResourceResolver,
-    addConceptDependency: addConceptDependencyResolver,
-    removeConceptDependency: removeConceptDependencyResolver,
+    addConceptReferencesConcept: addConceptReferencesConceptResolver,
+    removeConceptReferencesConcept: removeConceptReferencesConceptResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -133,8 +133,8 @@ const resolvers: APIResolvers<APIContext> = {
     domain: getConceptDomainResolver,
     coveredByResources: getConceptCoveredByResourcesResolver,
     known: getConceptKnownResolver,
-    dependingOnConcepts: getConceptDependingOnConceptsResolver,
-    dependedOnByConcepts: getConceptDependedOnByConceptsResolver,
+    referencingConcepts: getConceptReferencingConceptsResolver,
+    referencedByConcepts: getConceptReferencedByConceptsResolver,
   },
   Resource: {
     coveredConcepts: getResourceCoveredConceptsResolver,
