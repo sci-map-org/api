@@ -15,6 +15,7 @@ interface UpdateUserData {
   key?: string;
   email?: string;
   role?: UserRole;
+  active?: boolean;
 }
 
 class NonUniqueUserEmail extends Error {
@@ -50,7 +51,7 @@ export const createUser = async (data: Omit<User, '_id'>): Promise<User> => {
 
 export const findUser = findOne<User, { key: string } | { email: string }>({ label: 'User' });
 
-export const updateUser = updateOne<User, { _id: string }, UpdateUserData>({ label: 'User' });
+export const updateUser = updateOne<User, { _id: string } | { email: string }, UpdateUserData>({ label: 'User' });
 
 export const attachUserKnowsConcepts = (
   userId: string,

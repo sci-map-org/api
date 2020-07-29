@@ -37,6 +37,7 @@ export type APIAddConceptToDomainPayload = {
 };
 
 export type APIAdminUpdateUserPayload = {
+  active?: Maybe<Scalars['Boolean']>;
   displayName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
@@ -160,6 +161,11 @@ export type APIDeleteDomainResponse = {
   success: Scalars['Boolean'];
 };
 
+export type APIDiscourseSso = {
+  sig: Scalars['String'];
+  sso: Scalars['String'];
+};
+
 export type APIDomain = {
    __typename?: 'Domain';
   _id: Scalars['String'];
@@ -244,6 +250,7 @@ export type APILoginResponse = {
    __typename?: 'LoginResponse';
   currentUser: APICurrentUser;
   jwt: Scalars['String'];
+  redirectUrl?: Maybe<Scalars['String']>;
 };
 
 export type APIMutation = {
@@ -276,6 +283,7 @@ export type APIMutation = {
   updateConceptBelongsToDomain: APIConceptBelongsToDomain;
   updateDomain: APIDomain;
   updateResource: APIResource;
+  verifyEmailAddress: APIVerifyEmailResponse;
   voteResource: APIResource;
 };
 
@@ -359,12 +367,14 @@ export type APIMutationDetachResourceCoversConceptsArgs = {
 
 
 export type APIMutationLoginArgs = {
+  discourseSSO?: Maybe<APIDiscourseSso>;
   email: Scalars['String'];
   password: Scalars['String'];
 };
 
 
 export type APIMutationLoginGoogleArgs = {
+  discourseSSO?: Maybe<APIDiscourseSso>;
   idToken: Scalars['String'];
 };
 
@@ -434,6 +444,11 @@ export type APIMutationUpdateDomainArgs = {
 export type APIMutationUpdateResourceArgs = {
   _id: Scalars['String'];
   payload: APIUpdateResourcePayload;
+};
+
+
+export type APIMutationVerifyEmailAddressArgs = {
+  token: Scalars['String'];
 };
 
 
@@ -665,6 +680,11 @@ export type APIUserArticlesArgs = {
 
 export { UserRole };
 
+export type APIVerifyEmailResponse = {
+   __typename?: 'VerifyEmailResponse';
+  email: Scalars['String'];
+};
+
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 
@@ -787,12 +807,13 @@ export type APIResolversTypes = ResolversObject<{
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
   DeleteArticleResponse: ResolverTypeWrapper<APIDeleteArticleResponse>,
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
+  DiscourseSSO: APIDiscourseSso,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   RegisterGooglePayload: APIRegisterGooglePayload,
@@ -805,6 +826,7 @@ export type APIResolversTypes = ResolversObject<{
   UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
+  VerifyEmailResponse: ResolverTypeWrapper<APIVerifyEmailResponse>,
   ResourceVoteValue: APIResourceVoteValue,
 }>;
 
@@ -858,12 +880,13 @@ export type APIResolversParentTypes = ResolversObject<{
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
+  Boolean: Scalars['Boolean'],
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
   DeleteArticleResponse: APIDeleteArticleResponse,
-  Boolean: Scalars['Boolean'],
   DeleteConceptResult: APIDeleteConceptResult,
   DeleteDomainResponse: APIDeleteDomainResponse,
+  DiscourseSSO: APIDiscourseSso,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   RegisterGooglePayload: APIRegisterGooglePayload,
@@ -876,6 +899,7 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
+  VerifyEmailResponse: APIVerifyEmailResponse,
   ResourceVoteValue: APIResourceVoteValue,
 }>;
 
@@ -1000,6 +1024,7 @@ export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType 
 export type APILoginResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LoginResponse'] = APIResolversParentTypes['LoginResponse']> = ResolversObject<{
   currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
   jwt?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  redirectUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1032,6 +1057,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateConceptBelongsToDomain?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptBelongsToDomainArgs, 'conceptId' | 'domainId' | 'payload'>>,
   updateDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationUpdateDomainArgs, 'id' | 'payload'>>,
   updateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationUpdateResourceArgs, '_id' | 'payload'>>,
+  verifyEmailAddress?: Resolver<APIResolversTypes['VerifyEmailResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>,
   voteResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationVoteResourceArgs, 'resourceId' | 'value'>>,
 }>;
 
@@ -1099,6 +1125,11 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APIVerifyEmailResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['VerifyEmailResponse'] = APIResolversParentTypes['VerifyEmailResponse']> = ResolversObject<{
+  email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Article?: APIArticleResolvers<ContextType>,
   Concept?: APIConceptResolvers<ContextType>,
@@ -1128,6 +1159,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   ResourceTagSearchResult?: APIResourceTagSearchResultResolvers<ContextType>,
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
+  VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,
 }>;
 
 

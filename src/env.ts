@@ -12,20 +12,39 @@ const NEO4J = typedEnv.envGroup(
 
 const AUTH = typedEnv.envGroup(
   {
+    JWT_SECRET: typedEnv.types.NonEmptyString,
     GOOGLE_CLIENT_ID: typedEnv.types.NonEmptyString,
+    DISCOURSE_SSO_SECRET: typedEnv.types.NonEmptyString,
+    EMAIL_JWT_SECRET: typedEnv.types.NonEmptyString,
   },
   'AUTH'
 );
 
-const api = typedEnv.envGroup({
+const EMAIL = typedEnv.envGroup(
+  {
+    SMTP_SERVER_NAME: typedEnv.types.NonEmptyString,
+    SMTP_PORT: typedEnv.types.PortNumber,
+    SMTP_USERNAME: typedEnv.types.NonEmptyString,
+    SMPT_PASSWORD: typedEnv.types.NonEmptyString,
+  },
+  'EMAIL'
+);
+
+const API = typedEnv.envGroup({
   PORT: typedEnv.types.PortNumber,
   GRAPHQL_MOCK_ENABLED: typedEnv.types.Boolean,
+});
+
+const OTHER = typedEnv.envGroup({
+  FRONTEND_BASE_URL: typedEnv.types.NonEmptyString,
 });
 
 const envSchema = typedEnv.envSchema({
   NEO4J,
   AUTH,
-  api,
+  EMAIL,
+  API,
+  OTHER,
 });
 
 dotenv.config();

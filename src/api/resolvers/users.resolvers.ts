@@ -1,10 +1,17 @@
 import { User, UserRole } from '../../entities/User';
 import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
-import { createUser, findUser, updateUser } from '../../repositories/users.repository';
-import { getJWT } from '../../services/auth/jwt';
+import { findUser, updateUser } from '../../repositories/users.repository';
+import {
+  DiscourseSSOInputPayload,
+  generateDiscourseSSORedirectUrl,
+  validateDiscourseSSO,
+} from '../../services/auth/discourse_sso';
+import { identifyGoogleIdToken } from '../../services/auth/google_sign_in';
+import { getJWT, verifyAndDecodeEmailVerificationToken } from '../../services/auth/jwt';
 import { passwordsMatch } from '../../services/auth/password_hashing';
-import { UnauthorizedError, UnauthenticatedError } from '../errors/UnauthenticatedError';
+import { registerUser, registerUserGoogleAuth } from '../../services/users.service';
+import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import {
   APICurrentUser,
   APICurrentUserArticlesArgs,
@@ -16,8 +23,6 @@ import {
 } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIArticle } from './articles.resolvers';
-import { registerUser, registerUserGoogleAuth } from '../../services/users.service';
-import { identifyGoogleIdToken } from '../../services/auth/google_sign_in';
 
 class InvalidCredentialsError extends Error {
   constructor(m?: string) {
@@ -39,37 +44,48 @@ function toAPICurrentUser(user: User): APICurrentUser {
   };
 }
 
-export const loginResolver: APIMutationResolvers['login'] = async (_parent, { email, password }, ctx) => {
+export const loginResolver: APIMutationResolvers['login'] = async (_parent, { email, password, discourseSSO }) => {
   try {
+    let ssoPayload: DiscourseSSOInputPayload | void;
+    if (discourseSSO) {
+      ssoPayload = validateDiscourseSSO(discourseSSO);
+    }
     const user = await findUser({ email });
     if (!user) throw new UserNotFoundError(email, 'email');
-    // throw unauthorized if pwd doesn't match
+    if (!user.active) throw new InvalidCredentialsError('Please validate your email address (check your emails)');
     if (!user.password_hash) {
       throw new InvalidCredentialsError('Try an alternative authorization method');
     }
     if (!(await passwordsMatch(user.password_hash, password))) {
       throw new Error();
     }
+
     return {
       currentUser: toAPICurrentUser(user),
       jwt: await getJWT(user),
+      ...(!!ssoPayload && { redirectUrl: generateDiscourseSSORedirectUrl(user, ssoPayload) }),
     };
   } catch (err) {
-    throw new InvalidCredentialsError();
+    throw new InvalidCredentialsError(err);
   }
 };
 
-export const loginGoogleResolver: APIMutationResolvers['loginGoogle'] = async (_parent, { idToken }, ctx) => {
+export const loginGoogleResolver: APIMutationResolvers['loginGoogle'] = async (_parent, { idToken, discourseSSO }) => {
   try {
+    let ssoPayload: DiscourseSSOInputPayload | void;
+    if (discourseSSO) {
+      ssoPayload = validateDiscourseSSO(discourseSSO);
+    }
     const { email } = await identifyGoogleIdToken(idToken);
     const user = await findUser({ email });
     if (!user) throw new UserNotFoundError(email, 'email');
     return {
       currentUser: toAPICurrentUser(user),
       jwt: await getJWT(user),
+      ...(!!ssoPayload && { redirectUrl: generateDiscourseSSORedirectUrl(user, ssoPayload) }),
     };
   } catch (err) {
-    throw new InvalidCredentialsError();
+    throw new InvalidCredentialsError(err);
   }
 };
 
@@ -79,6 +95,22 @@ export const registerResolver: APIMutationResolvers['register'] = async (_parent
 
 export const registerGoogleResolver: APIMutationResolvers['registerGoogle'] = async (_parent, { payload }) => {
   return toAPICurrentUser(await registerUserGoogleAuth(payload));
+};
+
+export const verifyEmailAddressResolver: APIMutationResolvers['verifyEmailAddress'] = async (_parent, { token }) => {
+  const { email, timestamp } = await verifyAndDecodeEmailVerificationToken(token);
+
+  if (timestamp + 1000 * 60 * 60 * 48 < Date.now()) {
+    throw new Error('Token not valid anymore ¯_(ツ)_/¯');
+  }
+
+  const user = await updateUser({ email: email }, { active: true });
+
+  if (!user) throw new Error('This should never happen, no users found with email in token');
+
+  return {
+    email,
+  };
 };
 
 export const currentUserResolver: APIQueryResolvers['currentUser'] = async (_parent, _payload, { user }) => {

@@ -1,7 +1,20 @@
 import { User, UserRole } from '../entities/User';
+import { env } from '../env';
 import { createUser } from '../repositories/users.repository';
 import { identifyGoogleIdToken } from './auth/google_sign_in';
+import { createEmailVerificationToken } from './auth/jwt';
 import { encryptPassword } from './auth/password_hashing';
+import { sendEmail } from './email/email.client';
+
+async function sendEmailVerificationEmail(user: User, timestamp: number): Promise<void> {
+  const token: string = await createEmailVerificationToken(user, timestamp);
+  await sendEmail({
+    from: 'Sci-map.org <email_verification@sci-map.org>',
+    to: user.email,
+    subject: 'Verify your email address',
+    html: `<p>Click here to verify your email address: ${env.OTHER.FRONTEND_BASE_URL}/verify_email?token=${token}</p>`,
+  });
+}
 
 export const registerUser = async ({
   key,
@@ -14,13 +27,16 @@ export const registerUser = async ({
   email: string;
   password: string;
 }): Promise<User> => {
-  return createUser({
+  const user = await createUser({
     key,
+    active: false,
     displayName,
     email,
     password_hash: await encryptPassword(password),
     role: UserRole.USER,
   });
+  await sendEmailVerificationEmail(user, Date.now());
+  return user;
 };
 
 export const registerUserGoogleAuth = async ({
@@ -35,6 +51,7 @@ export const registerUserGoogleAuth = async ({
   const { googleUserId, email } = await identifyGoogleIdToken(idToken);
   return createUser({
     key,
+    active: true,
     displayName,
     email,
     googleUserId,
