@@ -187,12 +187,7 @@ export const detachConceptReferencesConcept = (
     };
   });
 
-const m: { [key in 'PARENTS' | 'CHILDREN']: 'IN' | 'OUT' } = {
-  PARENTS: 'OUT',
-  CHILDREN: 'IN',
-};
-
-const getConceptReferences = (filter: { _id: string } | { key: string }, direction: 'PARENTS' | 'CHILDREN') =>
+const getConceptReferences = (filter: { _id: string } | { key: string }, direction: 'OUT' | 'IN') =>
   getRelatedNodes<Concept, ConceptReferencesConcept, Concept>({
     originNode: {
       label: ConceptLabel,
@@ -200,7 +195,7 @@ const getConceptReferences = (filter: { _id: string } | { key: string }, directi
     },
     relationship: {
       label: ConceptReferencesConceptLabel,
-      direction: m[direction],
+      direction,
     },
     destinationNode: {
       label: ConceptLabel,
@@ -208,7 +203,7 @@ const getConceptReferences = (filter: { _id: string } | { key: string }, directi
   }).then(({ items }) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
 
 export const getConceptsReferencedByConcept = (filter: { _id: string } | { key: string }) =>
-  getConceptReferences(filter, 'CHILDREN');
+  getConceptReferences(filter, 'OUT');
 
 export const getConceptsReferencingConcept = (filter: { _id: string } | { key: string }) =>
-  getConceptReferences(filter, 'PARENTS');
+  getConceptReferences(filter, 'IN');
