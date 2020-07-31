@@ -56,8 +56,8 @@ export const attachResourceTagsToResource = (resourceId: string, tags: string[])
     )
   );
 
-export const detachResourceTagsFromResource = (resourceId: string, tags: string[]) =>
-  detachNodes({
+export const detachResourceTagsFromResource = (resourceId: string, tags: string[]): Promise<Resource> =>
+  detachNodes<Resource, ResourceTagBelongsToResource, ResourceTag>({
     originNode: {
       label: ResourceLabel,
       filter: { _id: resourceId },
@@ -70,7 +70,7 @@ export const detachResourceTagsFromResource = (resourceId: string, tags: string[
       label: ResourceTagLabel,
       filter: { name: { $in: tags.map(tag => tag.toLowerCase()) } },
     },
-  });
+  }).then(([{ originNode }]) => originNode);
 
 export const findResourceTags = async (query: string, pagination: { offset?: number; limit?: number }) => {
   const session = neo4jDriver.session();

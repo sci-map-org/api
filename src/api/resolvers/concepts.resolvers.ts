@@ -1,12 +1,17 @@
+import { omit } from 'lodash';
 import { Concept } from '../../entities/Concept';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  attachConceptReferencesConcept,
   attachConceptToDomain,
   createConcept,
   deleteConcept,
+  detachConceptReferencesConcept,
   findConcept,
   getConceptCoveredByResources,
   getConceptDomain,
+  getConceptsReferencedByConcept,
+  getConceptsReferencingConcept,
   getUserKnowsConcept,
   updateConcept,
   updateConceptBelongsToDomain,
@@ -16,7 +21,6 @@ import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
-import { omit } from 'lodash';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;
@@ -121,4 +125,33 @@ export const updateConceptBelongsToDomainResolver: APIMutationResolvers['updateC
 
   const { relationship } = await updateConceptBelongsToDomain(conceptId, domainId, nullToUndefined(payload));
   return relationship;
+};
+
+export const addConceptReferencesConceptResolver: APIMutationResolvers['addConceptReferencesConcept'] = async (
+  _parent,
+  { conceptId, referencedConceptId },
+  { user }
+) => {
+  if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
+  const { referencingConcept } = await attachConceptReferencesConcept(referencedConceptId, conceptId);
+  return referencingConcept;
+};
+
+export const removeConceptReferencesConceptResolver: APIMutationResolvers['removeConceptReferencesConcept'] = async (
+  _parent,
+  { conceptId, referencedConceptId },
+  { user }
+) => {
+  if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
+  const { referencingConcept } = await detachConceptReferencesConcept(referencedConceptId, conceptId);
+  return referencingConcept;
+};
+
+// ok naming is weird I know, cause we change the subject
+export const getConceptReferencingConceptsResolver: APIConceptResolvers['referencingConcepts'] = async concept => {
+  return getConceptsReferencedByConcept({ _id: concept._id });
+};
+
+export const getConceptReferencedByConceptsResolver: APIConceptResolvers['referencedByConcepts'] = async concept => {
+  return getConceptsReferencingConcept({ _id: concept._id });
 };

@@ -24,6 +24,7 @@ export type Scalars = {
    * import Query.*, Mutation.* from "Resource.graphql"
    * import Query.*, Mutation.* from "Concept.graphql"
    * import Mutation.* from "./relationships/ConceptBelongsToDomain.graphql"
+   * import * from "./relationships/ConceptReferencesConcept.graphql"
    */
   Date: Date;
 };
@@ -64,6 +65,8 @@ export type APIConcept = {
   key: Scalars['String'];
   known?: Maybe<APIKnownConcept>;
   name: Scalars['String'];
+  referencedByConcepts?: Maybe<Array<APIConceptReferencesConceptItem>>;
+  referencingConcepts?: Maybe<Array<APIConceptReferencesConceptItem>>;
 };
 
 
@@ -83,6 +86,17 @@ export type APIConceptCoveredByResourcesOptions = {
 export type APIConceptCoveredByResourcesResults = {
    __typename?: 'ConceptCoveredByResourcesResults';
   items: Array<APIResource>;
+};
+
+export type APIConceptReferencesConcept = {
+   __typename?: 'ConceptReferencesConcept';
+  strength: Scalars['Float'];
+};
+
+export type APIConceptReferencesConceptItem = {
+   __typename?: 'ConceptReferencesConceptItem';
+  concept: APIConcept;
+  relationship: APIConceptReferencesConcept;
 };
 
 export type APIConsumedResource = {
@@ -241,6 +255,7 @@ export type APILoginResponse = {
 
 export type APIMutation = {
    __typename?: 'Mutation';
+  addConceptReferencesConcept: APIConcept;
   addConceptToDomain: APIConcept;
   addResourceToDomain: APIResource;
   addTagsToResource: APIResource;
@@ -258,6 +273,7 @@ export type APIMutation = {
   loginGoogle: APILoginResponse;
   register: APICurrentUser;
   registerGoogle: APICurrentUser;
+  removeConceptReferencesConcept: APIConcept;
   removeTagsFromResource: APIResource;
   setConceptsKnown: Array<APIConcept>;
   setConceptsUnknown: Array<APIConcept>;
@@ -269,6 +285,12 @@ export type APIMutation = {
   updateResource: APIResource;
   verifyEmailAddress: APIVerifyEmailResponse;
   voteResource: APIResource;
+};
+
+
+export type APIMutationAddConceptReferencesConceptArgs = {
+  conceptId: Scalars['String'];
+  referencedConceptId: Scalars['String'];
 };
 
 
@@ -364,6 +386,12 @@ export type APIMutationRegisterArgs = {
 
 export type APIMutationRegisterGoogleArgs = {
   payload: APIRegisterGooglePayload;
+};
+
+
+export type APIMutationRemoveConceptReferencesConceptArgs = {
+  conceptId: Scalars['String'];
+  referencedConceptId: Scalars['String'];
 };
 
 
@@ -769,6 +797,8 @@ export type APIResolversTypes = ResolversObject<{
   ResourceTag: ResolverTypeWrapper<APIResourceTag>,
   ResourceType: ResourceType,
   KnownConcept: ResolverTypeWrapper<APIKnownConcept>,
+  ConceptReferencesConceptItem: ResolverTypeWrapper<APIConceptReferencesConceptItem>,
+  ConceptReferencesConcept: ResolverTypeWrapper<APIConceptReferencesConcept>,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
@@ -840,6 +870,8 @@ export type APIResolversParentTypes = ResolversObject<{
   ResourceTag: APIResourceTag,
   ResourceType: ResourceType,
   KnownConcept: APIKnownConcept,
+  ConceptReferencesConceptItem: APIConceptReferencesConceptItem,
+  ConceptReferencesConcept: APIConceptReferencesConcept,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: APISearchDomainsResult,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
@@ -889,6 +921,8 @@ export type APIConceptResolvers<ContextType = APIContext, ParentType extends API
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   known?: Resolver<Maybe<APIResolversTypes['KnownConcept']>, ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  referencedByConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptReferencesConceptItem']>>, ParentType, ContextType>,
+  referencingConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptReferencesConceptItem']>>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -899,6 +933,17 @@ export type APIConceptBelongsToDomainResolvers<ContextType = APIContext, ParentT
 
 export type APIConceptCoveredByResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptCoveredByResourcesResults'] = APIResolversParentTypes['ConceptCoveredByResourcesResults']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIConceptReferencesConceptResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptReferencesConcept'] = APIResolversParentTypes['ConceptReferencesConcept']> = ResolversObject<{
+  strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIConceptReferencesConceptItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptReferencesConceptItem'] = APIResolversParentTypes['ConceptReferencesConceptItem']> = ResolversObject<{
+  concept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType>,
+  relationship?: Resolver<APIResolversTypes['ConceptReferencesConcept'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -984,6 +1029,7 @@ export type APILoginResponseResolvers<ContextType = APIContext, ParentType exten
 }>;
 
 export type APIMutationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Mutation'] = APIResolversParentTypes['Mutation']> = ResolversObject<{
+  addConceptReferencesConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
   addConceptToDomain?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptToDomainArgs, 'domainId' | 'payload'>>,
   addResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddResourceToDomainArgs, 'domainId' | 'payload'>>,
   addTagsToResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddTagsToResourceArgs, 'resourceId' | 'tags'>>,
@@ -1001,6 +1047,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>,
+  removeConceptReferencesConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationRemoveConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
   removeTagsFromResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationRemoveTagsFromResourceArgs, 'resourceId' | 'tags'>>,
   setConceptsKnown?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType, RequireFields<APIMutationSetConceptsKnownArgs, 'payload'>>,
   setConceptsUnknown?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType, RequireFields<APIMutationSetConceptsUnknownArgs, 'conceptIds'>>,
@@ -1088,6 +1135,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Concept?: APIConceptResolvers<ContextType>,
   ConceptBelongsToDomain?: APIConceptBelongsToDomainResolvers<ContextType>,
   ConceptCoveredByResourcesResults?: APIConceptCoveredByResourcesResultsResolvers<ContextType>,
+  ConceptReferencesConcept?: APIConceptReferencesConceptResolvers<ContextType>,
+  ConceptReferencesConceptItem?: APIConceptReferencesConceptItemResolvers<ContextType>,
   ConsumedResource?: APIConsumedResourceResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   Date?: GraphQLScalarType,
