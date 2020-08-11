@@ -197,6 +197,7 @@ export type APIDomainConceptsOptions = {
   sorting?: Maybe<APIDomainConceptSortingOptions>;
 };
 
+/** Domain concepts */
 export enum APIDomainConceptSortingEntities {
   Concept = 'concept',
   Relationship = 'relationship'
@@ -220,12 +221,24 @@ export type APIDomainConceptsResults = {
 
 export type APIDomainResourcesOptions = {
   pagination: APIPaginationOptions;
+  sorting?: Maybe<APIDomainResourcesSortingOptions>;
 };
 
 export type APIDomainResourcesResults = {
    __typename?: 'DomainResourcesResults';
   items: Array<APIResource>;
 };
+
+export type APIDomainResourcesSortingOptions = {
+  direction: SortingDirection;
+  type: APIDomainResourcesSortingType;
+};
+
+/** Domain resources */
+export enum APIDomainResourcesSortingType {
+  CreationDate = 'creation_date',
+  Relevance = 'relevance'
+}
 
 export type APIKnownConcept = {
    __typename?: 'KnownConcept';
@@ -598,6 +611,7 @@ export enum APIResourceVoteValue {
   Up = 'up'
 }
 
+/** Domain */
 export type APISearchDomainsOptions = {
   pagination: APIPaginationOptions;
   query?: Maybe<Scalars['String']>;
@@ -792,6 +806,8 @@ export type APIResolversTypes = ResolversObject<{
   ConceptBelongsToDomain: ResolverTypeWrapper<APIConceptBelongsToDomain>,
   Float: ResolverTypeWrapper<Scalars['Float']>,
   DomainResourcesOptions: APIDomainResourcesOptions,
+  DomainResourcesSortingOptions: APIDomainResourcesSortingOptions,
+  DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: ResolverTypeWrapper<APIResourceTag>,
@@ -865,6 +881,8 @@ export type APIResolversParentTypes = ResolversObject<{
   ConceptBelongsToDomain: APIConceptBelongsToDomain,
   Float: Scalars['Float'],
   DomainResourcesOptions: APIDomainResourcesOptions,
+  DomainResourcesSortingOptions: APIDomainResourcesSortingOptions,
+  DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: APIDomainResourcesResults,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: APIResourceTag,

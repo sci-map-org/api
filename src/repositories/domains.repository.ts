@@ -1,16 +1,16 @@
+import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
-
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
-import { ConceptBelongsToDomainLabel, ConceptBelongsToDomain } from '../entities/relationships/ConceptBelongsToDomain';
+import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
-  ResourceBelongsToDomainLabel,
   ResourceBelongsToDomain,
+  ResourceBelongsToDomainLabel,
 } from '../entities/relationships/ResourceBelongsToDomain';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { neo4jDriver } from '../infra/neo4j';
 import { createRelatedNode, deleteOne, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
-import { prop, map } from 'ramda';
+import { PaginationOptions } from './util/pagination';
 import { SortingDirection } from './util/sorting';
 
 interface CreateDomainData {
@@ -90,7 +90,11 @@ export const getDomainConcepts = (
       }))
     );
 
-export const getDomainResources = (domainFilter: { key: string } | { _id: string }): Promise<Resource[]> =>
+// TODO rename, find convention
+export const listDomainResources = (
+  domainFilter: { key: string } | { _id: string },
+  pagination?: PaginationOptions
+): Promise<Resource[]> =>
   getRelatedNodes<Domain, ResourceBelongsToDomain, Resource>({
     originNode: {
       label: DomainLabel,
@@ -102,6 +106,34 @@ export const getDomainResources = (domainFilter: { key: string } | { _id: string
     destinationNode: {
       label: ResourceLabel,
     },
+    pagination: { offset: 0, limit: 100, ...pagination },
   })
     .then(prop('items'))
     .then(map(prop('destinationNode')));
+
+// match (r:Resource)-[:COVERS]->(cc:Concept) optional match (cc)-[dpc:DEPENDS_ON*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc) AND NOT (:User)-[:KNOWS]->(mpc) optional match (cc)<-[rkc:KNOWS]-(u:User) WITH DISTINCT r, 1 - toFloat(count(rkc))/count(cc) as usefulness, count(distinct mpc) as cmpc return r, usefulness, cmpc, usefulness/(0.1+cmpc) as score ORDER BY score DESC
+
+export const getDomainRelevantResources = async (
+  domainId: string,
+  userId: string | undefined,
+  pagination?: PaginationOptions
+): Promise<Resource[]> => {
+  const session = neo4jDriver.session();
+
+  const query = `match (u:User {key: 'oli'}) match (d:Domain {_id: "AvgsEAdEM"})<-[:BELONGS_TO]-(r:Resource)-[:COVERS]->(cc:Concept) 
+  optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc) AND NOT (u)-[:KNOWS]->(mpc) 
+  optional match (cc)<-[rkc:KNOWS]-(u) 
+  WITH DISTINCT r, 1 - toFloat(count(rkc))/count(cc) as usefulness, count(distinct mpc) as cmpc return r, properties(r) as resource, usefulness, cmpc, usefulness/(0.1+cmpc) as score ORDER BY score DESC`;
+
+  const { records } = await session.run(query, {
+    domainId,
+    userId,
+  });
+
+  session.close();
+  console.log(records);
+  return records.map(r => {
+    console.log(r.get('resource'));
+    return r.get('resource');
+  });
+};

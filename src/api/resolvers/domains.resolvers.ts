@@ -7,8 +7,8 @@ import {
   updateDomain,
   searchDomains,
   getDomainConcepts,
-  getDomainResources,
 } from '../../repositories/domains.repository';
+import { getDomainResources } from '../../services/resources.service';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APIDomain, APIMutationResolvers, APIQueryResolvers, UserRole, APIDomainResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
@@ -62,6 +62,8 @@ export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (
   return { items: await getDomainConcepts({ _id: domain._id }, sorting || undefined) };
 };
 
-export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, {}, ctx) => {
-  return { items: (await getDomainResources({ _id: domain._id })).map(toAPIResource) };
+export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, { options }, { user }) => {
+  return {
+    items: (await getDomainResources(domain._id, user?._id, nullToUndefined(options))).map(toAPIResource),
+  };
 };

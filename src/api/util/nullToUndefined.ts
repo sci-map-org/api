@@ -6,7 +6,7 @@ export function isObject(value: any): value is object {
 
 type Diff<T, U> = T extends U ? never : T;
 
-type RecursiveNonNull<T> = T extends object ? { [P in keyof T]: RecursiveNonNull<T[P]> } : Diff<T, null>;
+export type NullToUndefined<T> = T extends object ? { [P in keyof T]: NullToUndefined<T[P]> } : Diff<T, null>;
 
 /**
  * Remove null values and put them as undefined instead.
@@ -14,7 +14,7 @@ type RecursiveNonNull<T> = T extends object ? { [P in keyof T]: RecursiveNonNull
  * E.g.: an update payload type, where almost all fields are optional on the API but none actually nullable.
  * @param object object with nullable fields
  */
-export function nullToUndefined<T extends object>(object: T): RecursiveNonNull<T> {
+export function nullToUndefined<T extends object>(object: T): NullToUndefined<T> {
   let objectWithoutNullValues: any = {};
   for (const key of Object.keys(object) as (keyof T)[]) {
     const value = object[key];
