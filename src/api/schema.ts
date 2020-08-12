@@ -50,6 +50,8 @@ import {
   setResourcesConsumedResolver,
   updateResourceResolver,
   voteResourceResolver,
+  deleteResourceResolver,
+  getResourceCreatorResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -90,6 +92,7 @@ const resolvers: APIResolvers<APIContext> = {
     createResource: createResourceResolver,
     addResourceToDomain: addResourceToDomainResolver,
     updateResource: updateResourceResolver,
+    deleteResource: deleteResourceResolver,
     attachResourceToDomain: attachResourceToDomainResolver,
     addConceptToDomain: addConceptToDomainResolver,
     updateConceptBelongsToDomain: updateConceptBelongsToDomainResolver,
@@ -144,6 +147,7 @@ const resolvers: APIResolvers<APIContext> = {
     tags: getResourceTagsResolver,
     upvotes: getResourceUpvotesResolver,
     consumed: getResourceConsumedResolver,
+    creator: getResourceCreatorResolver,
   },
   Date: GraphQLDateTime,
 };
