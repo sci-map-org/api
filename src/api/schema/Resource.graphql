@@ -46,6 +46,7 @@ type Resource {
   description: String
   durationMn: Int
   consumed: ConsumedResource
+  creator: User
   coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
   domains(options: ResourceDomainsOptions!): ResourceDomainsResults
 }
@@ -99,6 +100,11 @@ enum ResourceVoteValue {
   down
 }
 
+type DeleteResourceResponse {
+  _id: String!
+  success: Boolean!
+}
+
 # External -> Url + abstract/description if possible ? E.g. youtube description
 # Internal ->
 # Polymorphic relationship ?
@@ -113,6 +119,7 @@ type Query {
 type Mutation {
   createResource(payload: CreateResourcePayload!): Resource!
   updateResource(_id: String!, payload: UpdateResourcePayload!): Resource!
+  deleteResource(_id: String!): DeleteResourceResponse!
   addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
   attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
   attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!

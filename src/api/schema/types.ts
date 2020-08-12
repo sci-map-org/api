@@ -161,6 +161,12 @@ export type APIDeleteDomainResponse = {
   success: Scalars['Boolean'];
 };
 
+export type APIDeleteResourceResponse = {
+   __typename?: 'DeleteResourceResponse';
+  _id: Scalars['String'];
+  success: Scalars['Boolean'];
+};
+
 export type APIDiscourseSso = {
   sig: Scalars['String'];
   sso: Scalars['String'];
@@ -268,6 +274,7 @@ export type APIMutation = {
   deleteArticle: APIDeleteArticleResponse;
   deleteConcept: APIDeleteConceptResult;
   deleteDomain: APIDeleteDomainResponse;
+  deleteResource: APIDeleteResourceResponse;
   detachResourceCoversConcepts: APIResource;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
@@ -357,6 +364,11 @@ export type APIMutationDeleteConceptArgs = {
 
 export type APIMutationDeleteDomainArgs = {
   id: Scalars['String'];
+};
+
+
+export type APIMutationDeleteResourceArgs = {
+  _id: Scalars['String'];
 };
 
 
@@ -539,6 +551,7 @@ export type APIResource = {
   _id: Scalars['String'];
   consumed?: Maybe<APIConsumedResource>;
   coveredConcepts?: Maybe<APIResourceCoveredConceptsResults>;
+  creator?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   domains?: Maybe<APIResourceDomainsResults>;
   durationMn?: Maybe<Scalars['Int']>;
@@ -813,6 +826,7 @@ export type APIResolversTypes = ResolversObject<{
   DeleteArticleResponse: ResolverTypeWrapper<APIDeleteArticleResponse>,
   DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
+  DeleteResourceResponse: ResolverTypeWrapper<APIDeleteResourceResponse>,
   DiscourseSSO: APIDiscourseSso,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
@@ -886,6 +900,7 @@ export type APIResolversParentTypes = ResolversObject<{
   DeleteArticleResponse: APIDeleteArticleResponse,
   DeleteConceptResult: APIDeleteConceptResult,
   DeleteDomainResponse: APIDeleteDomainResponse,
+  DeleteResourceResponse: APIDeleteResourceResponse,
   DiscourseSSO: APIDiscourseSso,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
@@ -985,6 +1000,12 @@ export type APIDeleteDomainResponseResolvers<ContextType = APIContext, ParentTyp
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APIDeleteResourceResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteResourceResponse'] = APIResolversParentTypes['DeleteResourceResponse']> = ResolversObject<{
+  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Domain'] = APIResolversParentTypes['Domain']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   concepts?: Resolver<Maybe<APIResolversTypes['DomainConceptsResults']>, ParentType, ContextType, RequireFields<APIDomainConceptsArgs, 'options'>>,
@@ -1042,6 +1063,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   deleteArticle?: Resolver<APIResolversTypes['DeleteArticleResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteArticleArgs, 'id'>>,
   deleteConcept?: Resolver<APIResolversTypes['DeleteConceptResult'], ParentType, ContextType, RequireFields<APIMutationDeleteConceptArgs, '_id'>>,
   deleteDomain?: Resolver<APIResolversTypes['DeleteDomainResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteDomainArgs, 'id'>>,
+  deleteResource?: Resolver<APIResolversTypes['DeleteResourceResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteResourceArgs, '_id'>>,
   detachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceCoversConceptsArgs, 'conceptIds' | 'resourceId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
@@ -1078,6 +1100,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   consumed?: Resolver<Maybe<APIResolversTypes['ConsumedResource']>, ParentType, ContextType>,
   coveredConcepts?: Resolver<Maybe<APIResolversTypes['ResourceCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredConceptsArgs, 'options'>>,
+  creator?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domains?: Resolver<Maybe<APIResolversTypes['ResourceDomainsResults']>, ParentType, ContextType, RequireFields<APIResourceDomainsArgs, 'options'>>,
   durationMn?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
@@ -1143,6 +1166,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DeleteArticleResponse?: APIDeleteArticleResponseResolvers<ContextType>,
   DeleteConceptResult?: APIDeleteConceptResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
+  DeleteResourceResponse?: APIDeleteResourceResponseResolvers<ContextType>,
   Domain?: APIDomainResolvers<ContextType>,
   DomainConceptsItem?: APIDomainConceptsItemResolvers<ContextType>,
   DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,

@@ -119,7 +119,7 @@ export const deleteArticleCreatedBy = async (
   authorFilter: { _id: string } | { key: string },
   articleFilter: { key: string } | { _id: string }
 ): Promise<{ deletedCount: number }> =>
-  deleteRelatedNode({
+  deleteRelatedNode<User, UserCreatedArticle, Article>({
     originNode: {
       label: UserLabel,
       filter: authorFilter,
