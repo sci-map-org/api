@@ -56,7 +56,7 @@ export const updateOne = <E, F extends Partial<E>, D extends UpdateType<E>>({ la
   return record.get('node');
 };
 
-export const deleteOne = <E, F extends Partial<E>>({ label }: { label: string }) => async (
+export const deleteOne = <Entity, F extends FilterObject<Entity>>({ label }: { label: string }) => async (
   filter: F
 ): Promise<{ deletedCount: number }> => {
   const session = neo4jDriver.session();
@@ -259,14 +259,14 @@ export const updateRelatedNode = async <OF extends object, RP extends object, NP
   return record.get('destinationNode');
 };
 
-export const deleteRelatedNode = async <OF extends object, RF extends object, DF extends object>({
+export const deleteRelatedNode = async <OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
   originNode,
   relationship,
   destinationNode,
 }: {
-  originNode: { label: string; filter: OF };
-  relationship: { label: string; filter: RF };
-  destinationNode: { label: string; filter: DF };
+  originNode: { label: string; filter: FilterObject<OriginNodeEntity> };
+  relationship: { label: string; filter: FilterObject<RelationshipEntity> };
+  destinationNode: { label: string; filter: FilterObject<DestinationNodeEntity> };
 }): Promise<{ deletedCount: number }> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(

@@ -12,6 +12,9 @@ import {
   updateResource,
   getResourceUpvoteCount,
   voteResource,
+  deleteResource,
+  deleteResourceCreatedBy,
+  getResourceCreator,
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
@@ -22,8 +25,10 @@ import {
   APIResource,
   APIResourceResolvers,
   APIResourceVoteValue,
+  UserRole,
 } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
+import { toAPIUser } from './users.resolvers';
 
 export function toAPIResource(resource: Resource): APIResource {
   return resource;
@@ -50,6 +55,20 @@ export const updateResourceResolver: APIMutationResolvers['updateResource'] = as
   );
   if (!updatedResource) throw new NotFoundError('Resource', _id, 'id');
   return toAPIResource(updatedResource);
+};
+
+export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (_parent, { _id }, ctx) => {
+  if (!ctx.user) throw new UnauthenticatedError('Must be logged in to delete a resource');
+
+  const { deletedCount } =
+    ctx.user.role === UserRole.ADMIN
+      ? await deleteResource({ _id })
+      : await deleteResourceCreatedBy({ _id: ctx.user._id }, _id);
+  if (!deletedCount) throw new NotFoundError('Resource', _id, '_id');
+  return {
+    success: true,
+    _id,
+  };
 };
 
 export const addResourceToDomainResolver: APIMutationResolvers['addResourceToDomain'] = async (
@@ -170,4 +189,10 @@ export const voteResourceResolver: APIMutationResolvers['voteResource'] = async 
 
 export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
   return getResourceUpvoteCount(resource._id);
+};
+
+export const getResourceCreatorResolver: APIResourceResolvers['creator'] = async resource => {
+  const creator = await getResourceCreator({ _id: resource._id });
+
+  return toAPIUser(creator);
 };

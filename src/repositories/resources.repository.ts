@@ -6,6 +6,9 @@ import {
   getRelatedNodes,
   updateOne,
   attachUniqueNodes,
+  deleteRelatedNode,
+  deleteOne,
+  getRelatedNode,
 } from './util/abstract_graph_repo';
 import * as shortid from 'shortid';
 import { Resource, ResourceType, ResourceMediaType, ResourceLabel } from '../entities/Resource';
@@ -21,6 +24,7 @@ import { neo4jDriver } from '../infra/neo4j';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import { prop, map } from 'ramda';
 import { UserVotedResourceLabel, UserVotedResource } from '../entities/relationships/UserVotedResource';
+import { UserCreatedResourceLabel, UserCreatedResource } from '../entities/relationships/UserCreatedResource';
 
 interface CreateResourceData {
   name: string;
@@ -47,6 +51,27 @@ export const createResource = (user: { _id: string }, data: CreateResourceData):
   });
 
 export const updateResource = updateOne<Resource, { _id: string }, UpdateResourceData>({ label: ResourceLabel });
+
+export const deleteResource = deleteOne<Resource, { _id: string }>({ label: ResourceLabel });
+
+export const deleteResourceCreatedBy = (
+  creatorFilter: { _id: string } | { key: string },
+  resourceId: string
+): Promise<{ deletedCount: number }> =>
+  deleteRelatedNode<User, UserCreatedResource, Resource>({
+    originNode: {
+      label: UserLabel,
+      filter: creatorFilter,
+    },
+    relationship: {
+      label: UserCreatedResourceLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: { _id: resourceId },
+    },
+  });
 
 export const attachResourceToDomain = (resourceId: string, domainId: string) =>
   attachNodes<Resource, ResourceBelongsToDomain, Domain>({
@@ -229,3 +254,19 @@ export const getResourceUpvoteCount = async (resourceId: string): Promise<number
   if (!record) throw new Error();
   return Number(record.get('upvoteCount').toString());
 };
+
+export const getResourceCreator = (resourceFilter: { _id: string }) =>
+  getRelatedNode<User>({
+    originNode: {
+      label: ResourceLabel,
+      filter: resourceFilter,
+    },
+    relationship: {
+      label: UserCreatedResourceLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: UserLabel,
+      filter: {},
+    },
+  });
