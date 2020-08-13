@@ -111,8 +111,6 @@ export const listDomainResources = (
     .then(prop('items'))
     .then(map(prop('destinationNode')));
 
-// match (r:Resource)-[:COVERS]->(cc:Concept) optional match (cc)-[dpc:DEPENDS_ON*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc) AND NOT (:User)-[:KNOWS]->(mpc) optional match (cc)<-[rkc:KNOWS]-(u:User) WITH DISTINCT r, 1 - toFloat(count(rkc))/count(cc) as usefulness, count(distinct mpc) as cmpc return r, usefulness, cmpc, usefulness/(0.1+cmpc) as score ORDER BY score DESC
-
 export const getDomainRelevantResources = async (
   domainId: string,
   userId: string | undefined,
@@ -120,7 +118,7 @@ export const getDomainRelevantResources = async (
 ): Promise<Resource[]> => {
   const session = neo4jDriver.session();
 
-  const query = `match (u:User {key: 'oli'}) match (d:Domain {_id: "AvgsEAdEM"})<-[:BELONGS_TO]-(r:Resource)-[:COVERS]->(cc:Concept) 
+  const query = `match (u:User {_id: $userId}) match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource)-[:COVERS]->(cc:Concept) 
   optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc) AND NOT (u)-[:KNOWS]->(mpc) 
   optional match (cc)<-[rkc:KNOWS]-(u) 
   WITH DISTINCT r, 1 - toFloat(count(rkc))/count(cc) as usefulness, count(distinct mpc) as cmpc return r, properties(r) as resource, usefulness, cmpc, usefulness/(0.1+cmpc) as score ORDER BY score DESC`;
@@ -131,9 +129,7 @@ export const getDomainRelevantResources = async (
   });
 
   session.close();
-  console.log(records);
   return records.map(r => {
-    console.log(r.get('resource'));
     return r.get('resource');
   });
 };

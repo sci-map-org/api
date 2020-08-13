@@ -38,6 +38,9 @@ interface GetDomainResourcesOptions {
   sorting?: { direction: SortingDirection; type: APIDomainResourcesSortingType };
   pagination?: PaginationOptions;
 }
+/**
+ * Default: sort by Relevance
+ */
 export const getDomainResources = async (
   domainId: string,
   userId: string | undefined,
