@@ -5,10 +5,9 @@ type Domain {
   description: String
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
   resources(options: DomainResourcesOptions!): DomainResourcesResults
-  # subDomains(options: ListSubDomainsOptions!): SubDomainRelationship
-  # taughtByResources(options: ListResourcesOptions!): # Relationship ?
 }
 
+# Domain concepts
 enum DomainConceptSortingEntities {
   concept
   relationship
@@ -34,21 +33,32 @@ type DomainConceptsItem {
   concept: Concept!
   relationship: ConceptBelongsToDomain!
 }
+
 type DomainConceptsResults {
   items: [DomainConceptsItem!]!
 }
 
+# Domain resources
+enum DomainResourcesSortingType {
+  relevance
+  creation_date
+}
+
+input DomainResourcesSortingOptions {
+  type: DomainResourcesSortingType!
+  direction: SortingDirection!
+}
+
 input DomainResourcesOptions {
+  sorting: DomainResourcesSortingOptions
   pagination: PaginationOptions!
 }
 
 type DomainResourcesResults {
   items: [Resource!]!
 }
-# input ListSubDomainsOptions {
-#   pagination: PaginationOptions
-# }
 
+# Domain
 input SearchDomainsOptions {
   query: String
   pagination: PaginationOptions!

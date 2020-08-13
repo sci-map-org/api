@@ -82,6 +82,7 @@ export const attachResourceToDomain = (resourceId: string, domainId: string) =>
 
 export const findResource = findOne<Resource, { _id: string }>({ label: ResourceLabel });
 
+// TODO use attachUniqueNodes
 export const attachResourceCoversConcepts = async (
   resourceId: string,
   conceptIds: string[],
