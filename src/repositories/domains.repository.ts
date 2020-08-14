@@ -118,10 +118,17 @@ export const getDomainRelevantResources = async (
 ): Promise<Resource[]> => {
   const session = neo4jDriver.session();
 
-  const query = `match (u:User {_id: $userId}) match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource)-[:COVERS]->(cc:Concept) 
+  let query: string;
+  if (!userId) {
+    query = `match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource)-[:COVERS]->(cc:Concept) 
+  optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc)
+  WITH DISTINCT r, count(distinct mpc) as cmpc return r, properties(r) as resource, cmpc, 1/(0.1+cmpc) as score ORDER BY score DESC`;
+  } else {
+    query = `match (u:User {_id: $userId}) match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource)-[:COVERS]->(cc:Concept) 
   optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc) AND NOT (u)-[:KNOWS]->(mpc) 
   optional match (cc)<-[rkc:KNOWS]-(u) 
   WITH DISTINCT r, 1 - toFloat(count(rkc))/count(cc) as usefulness, count(distinct mpc) as cmpc return r, properties(r) as resource, usefulness, cmpc, usefulness/(0.1+cmpc) as score ORDER BY score DESC`;
+  }
 
   const { records } = await session.run(query, {
     domainId,
