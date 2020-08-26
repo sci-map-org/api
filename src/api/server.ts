@@ -4,6 +4,7 @@ import * as Koa from 'koa';
 import { schema } from '../api/schema';
 import { validateAndDecodeJWT, JWTPayload } from '../services/auth/jwt';
 import { env } from '../env';
+import { logger } from '../infra/logger';
 
 export interface APIContext {
   user?: JWTPayload;
@@ -16,10 +17,10 @@ const server = new ApolloServer({
     Date: () => new Date(),
   },
   formatError: err => {
-    console.log(err);
+    logger.error(err);
     err.extensions &&
       err.extensions.exception.stacktrace &&
-      err.extensions.exception.stacktrace.map(s => console.log(s));
+      err.extensions.exception.stacktrace.map(s => logger.error(s));
     return err;
   },
   mockEntireSchema: true,
@@ -36,7 +37,7 @@ const server = new ApolloServer({
         const requestStartedAt = Date.now();
         return {
           willSendResponse(a) {
-            console.info(`Operation ${a.operationName} took ${Date.now() - requestStartedAt}ms`);
+            logger.info(`Operation ${a.operationName} took ${Date.now() - requestStartedAt}ms`);
           },
         };
       },

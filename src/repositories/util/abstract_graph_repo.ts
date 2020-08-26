@@ -1,6 +1,6 @@
+import { logger } from '../../infra/logger';
 import { neo4jDriver } from '../../infra/neo4j';
 import { buildFilter, FilterObject } from './filter';
-import { or } from 'ramda';
 
 export function getFilterString(filter: object, filterName: string = 'filter'): string {
   if (Object.keys(filter).length == 0) return '';
@@ -372,7 +372,7 @@ export const attachUniqueNodes = <OriginNodeEntity, RelationshipEntity, Destinat
       );
     if (rest.length > 1)
       // Throwing an error is not the best in this case: the operation is already made. log.warn/err :/ ?
-      console.error(
+      logger.error(
         `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
           destinationNode.label
         } with filter ${JSON.stringify(destinationNode.filter)}: data inconsistency as they are expected to be unique`
@@ -447,7 +447,7 @@ export const detachUniqueNodes = <OriginNodeEntity, RelationshipEntity, Destinat
       );
     if (rest.length > 1)
       // not great as the operation as already been made... Logging the data inconsistency is better than nothing I guess
-      console.error(
+      loggers.error(
         `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
           destinationNode.label
         } with filter ${JSON.stringify(destinationNode.filter)}: data inconsistency as they are expected to be unique`

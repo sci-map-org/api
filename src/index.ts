@@ -1,16 +1,17 @@
 import { app } from './api/server';
 import { env } from './env';
+import { logger } from './infra/logger';
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.log('unhandledRejection');
-  console.error(reason);
+  logger.error('unhandledRejection');
+  logger.error(reason);
 });
 
 process.on('uncaughtException', reason => {
-  console.log('uncaughtException');
-  console.error(reason);
+  logger.error('uncaughtException');
+  logger.error(reason);
 });
 const port = Number(env.API.PORT) || 8080;
 app.listen(port);
 
-console.log(`Server running on http://localhost:${port}`);
+logger.info(`Server running on http://localhost:${port}`);
