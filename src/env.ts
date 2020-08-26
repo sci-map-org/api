@@ -10,6 +10,15 @@ const NEO4J = typedEnv.envGroup(
   'NEO4J'
 );
 
+const AWS = typedEnv.envGroup(
+  {
+    ACCESS_KEY_ID: typedEnv.types.NonEmptyString,
+    SECRET_KEY: typedEnv.types.NonEmptyString,
+    REGION: typedEnv.types.NonEmptyString,
+  },
+  'AWS'
+);
+
 const AUTH = typedEnv.envGroup(
   {
     JWT_SECRET: typedEnv.types.NonEmptyString,
@@ -41,6 +50,7 @@ const OTHER = typedEnv.envGroup({
 
 const envSchema = typedEnv.envSchema({
   NEO4J,
+  AWS,
   AUTH,
   EMAIL,
   API,

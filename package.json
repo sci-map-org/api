@@ -44,7 +44,9 @@
     "nodemailer": "^6.4.10",
     "ramda": "^0.27.0",
     "shortid": "^2.2.15",
-    "typescript": "^3.6.4"
+    "typescript": "^3.6.4",
+    "winston": "^3.3.3",
+    "winston-cloudwatch": "^2.3.2"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.8.2",
