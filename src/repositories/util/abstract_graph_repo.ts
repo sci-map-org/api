@@ -447,7 +447,7 @@ export const detachUniqueNodes = <OriginNodeEntity, RelationshipEntity, Destinat
       );
     if (rest.length > 1)
       // not great as the operation as already been made... Logging the data inconsistency is better than nothing I guess
-      loggers.error(
+      logger.error(
         `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
           destinationNode.label
         } with filter ${JSON.stringify(destinationNode.filter)}: data inconsistency as they are expected to be unique`
