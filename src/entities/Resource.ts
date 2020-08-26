@@ -36,5 +36,5 @@ export interface Resource {
   mediaType: ResourceMediaType;
   url: string; // optional in the future ?
   description?: string;
-  durationMn?: number;
+  durationMs?: number;
 }

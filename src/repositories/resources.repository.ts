@@ -40,7 +40,7 @@ interface UpdateResourceData {
   mediaType?: ResourceMediaType;
   url?: string;
   description?: string;
-  durationMn?: number | null;
+  durationMs?: number | null;
 }
 
 export const createResource = (user: { _id: string }, data: CreateResourceData): Promise<Resource> =>

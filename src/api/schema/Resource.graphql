@@ -44,7 +44,7 @@ type Resource {
   url: String!
   upvotes: Int
   description: String
-  durationMn: Int
+  durationMs: Int
   consumed: ConsumedResource
   creator: User
   coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
@@ -73,7 +73,7 @@ input CreateResourcePayload {
   mediaType: ResourceMediaType!
   url: String!
   description: String
-  durationMn: Int
+  durationMs: Int
   tags: [String!] # ?
 }
 
@@ -83,7 +83,7 @@ input UpdateResourcePayload {
   mediaType: ResourceMediaType
   url: String
   description: String
-  durationMn: Int
+  durationMs: Int
 }
 
 input SetResourcesConsumedPayloadResourcesField {

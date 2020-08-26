@@ -119,7 +119,7 @@ export type APICreateDomainPayload = {
 
 export type APICreateResourcePayload = {
   description?: Maybe<Scalars['String']>;
-  durationMn?: Maybe<Scalars['Int']>;
+  durationMs?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
   tags?: Maybe<Array<Scalars['String']>>;
@@ -567,7 +567,7 @@ export type APIResource = {
   creator?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   domains?: Maybe<APIResourceDomainsResults>;
-  durationMn?: Maybe<Scalars['Int']>;
+  durationMs?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
   tags?: Maybe<Array<APIResourceTag>>;
@@ -684,7 +684,7 @@ export type APIUpdateDomainPayload = {
 
 export type APIUpdateResourcePayload = {
   description?: Maybe<Scalars['String']>;
-  durationMn?: Maybe<Scalars['Int']>;
+  durationMs?: Maybe<Scalars['Int']>;
   mediaType?: Maybe<ResourceMediaType>;
   name?: Maybe<Scalars['String']>;
   type?: Maybe<ResourceType>;
@@ -1121,7 +1121,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   creator?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domains?: Resolver<Maybe<APIResolversTypes['ResourceDomainsResults']>, ParentType, ContextType, RequireFields<APIResourceDomainsArgs, 'options'>>,
-  durationMn?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
+  durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['ResourceTag']>>, ParentType, ContextType>,
