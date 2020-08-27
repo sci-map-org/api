@@ -1,30 +1,31 @@
+import { map, prop } from 'ramda';
+import * as shortid from 'shortid';
+import { Concept, ConceptLabel } from '../entities/Concept';
+import { Domain, DomainLabel } from '../entities/Domain';
 import {
-  createRelatedNode,
+  ResourceBelongsToDomain,
+  ResourceBelongsToDomainLabel,
+} from '../entities/relationships/ResourceBelongsToDomain';
+import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
+import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
+import { UserCreatedResource, UserCreatedResourceLabel } from '../entities/relationships/UserCreatedResource';
+import { UserRatedResource, UserRatedResourceLabel } from '../entities/relationships/UserRatedResource';
+import { UserVotedResource, UserVotedResourceLabel } from '../entities/relationships/UserVotedResource';
+import { Resource, ResourceLabel, ResourceMediaType, ResourceType } from '../entities/Resource';
+import { User, UserLabel } from '../entities/User';
+import { neo4jDriver } from '../infra/neo4j';
+import {
   attachNodes,
+  attachUniqueNodes,
+  createRelatedNode,
+  deleteOne,
+  deleteRelatedNode,
   findOne,
   getFilterString,
+  getRelatedNode,
   getRelatedNodes,
   updateOne,
-  attachUniqueNodes,
-  deleteRelatedNode,
-  deleteOne,
-  getRelatedNode,
 } from './util/abstract_graph_repo';
-import * as shortid from 'shortid';
-import { Resource, ResourceType, ResourceMediaType, ResourceLabel } from '../entities/Resource';
-import { UserLabel, User } from '../entities/User';
-import { DomainLabel, Domain } from '../entities/Domain';
-import {
-  ResourceBelongsToDomainLabel,
-  ResourceBelongsToDomain,
-} from '../entities/relationships/ResourceBelongsToDomain';
-import { ConceptLabel, Concept } from '../entities/Concept';
-import { ResourceCoversConceptLabel, ResourceCoversConcept } from '../entities/relationships/ResourceCoversConcept';
-import { neo4jDriver } from '../infra/neo4j';
-import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
-import { prop, map } from 'ramda';
-import { UserVotedResourceLabel, UserVotedResource } from '../entities/relationships/UserVotedResource';
-import { UserCreatedResourceLabel, UserCreatedResource } from '../entities/relationships/UserCreatedResource';
 
 interface CreateResourceData {
   name: string;
@@ -253,6 +254,50 @@ export const getResourceUpvoteCount = async (resourceId: string): Promise<number
 
   if (!record) throw new Error();
   return Number(record.get('upvoteCount').toString());
+};
+
+export const rateResource = async (userId: string, resourceId: string, value: number): Promise<Resource> =>
+  attachUniqueNodes<User, UserRatedResource, Resource>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserRatedResourceLabel,
+      onCreateProps: {
+        value,
+      },
+      onMergeProps: {
+        value,
+      },
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: {
+        _id: resourceId,
+      },
+    },
+  }).then(({ destinationNode }) => {
+    return destinationNode;
+  });
+
+export const getResourceRating = async (resourceId: string): Promise<number> => {
+  const session = neo4jDriver.session();
+
+  const { records } = await session.run(
+    `MATCH (resource:${ResourceLabel})<-[v:${UserRatedResourceLabel}]-(:User) WHERE resource._id = $resourceId 
+    WITH avg(v.value) AS rating RETURN rating`,
+    {
+      resourceId,
+    }
+  );
+
+  session.close();
+
+  const record = records.pop();
+
+  if (!record) throw new Error();
+  return Number(record.get('rating').toString());
 };
 
 export const getResourceCreator = (resourceFilter: { _id: string }) =>

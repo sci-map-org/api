@@ -291,6 +291,7 @@ export type APIMutation = {
   detachResourceCoversConcepts: APIResource;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
+  rateResource: APIResource;
   register: APICurrentUser;
   registerGoogle: APICurrentUser;
   removeConceptReferencesConcept: APIConcept;
@@ -401,6 +402,12 @@ export type APIMutationLoginArgs = {
 export type APIMutationLoginGoogleArgs = {
   discourseSSO?: Maybe<APIDiscourseSso>;
   idToken: Scalars['String'];
+};
+
+
+export type APIMutationRateResourceArgs = {
+  resourceId: Scalars['String'];
+  value: Scalars['Float'];
 };
 
 
@@ -570,6 +577,7 @@ export type APIResource = {
   durationMs?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
+  rating?: Maybe<Scalars['Float']>;
   tags?: Maybe<Array<APIResourceTag>>;
   type: ResourceType;
   upvotes?: Maybe<Scalars['Int']>;
@@ -1085,6 +1093,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   detachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceCoversConceptsArgs, 'conceptIds' | 'resourceId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
+  rateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationRateResourceArgs, 'resourceId' | 'value'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>,
   removeConceptReferencesConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationRemoveConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
@@ -1124,6 +1133,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['ResourceTag']>>, ParentType, ContextType>,
   type?: Resolver<APIResolversTypes['ResourceType'], ParentType, ContextType>,
   upvotes?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,

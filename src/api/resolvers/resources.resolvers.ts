@@ -15,6 +15,8 @@ import {
   deleteResource,
   deleteResourceCreatedBy,
   getResourceCreator,
+  rateResource,
+  getResourceRating,
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
@@ -29,6 +31,7 @@ import {
 } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
+import { UserInputError } from 'apollo-server-koa';
 
 export function toAPIResource(resource: Resource): APIResource {
   return resource;
@@ -187,8 +190,24 @@ export const voteResourceResolver: APIMutationResolvers['voteResource'] = async 
   return toAPIResource(resource);
 };
 
+export const rateResourceResolver: APIMutationResolvers['rateResource'] = async (
+  _parent,
+  { resourceId, value },
+  { user }
+) => {
+  if (!user || user.role !== UserRole.ADMIN)
+    throw new UnauthenticatedError('Must be logged in and an admin to rate a resource');
+  if (value < 0 || value > 10) throw new UserInputError('Ratings must be >=0 and <=10');
+  const resource = await rateResource(user._id, resourceId, value);
+  return toAPIResource(resource);
+};
+
 export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
   return getResourceUpvoteCount(resource._id);
+};
+
+export const getResourceRatingResolver: APIResourceResolvers['rating'] = async resource => {
+  return getResourceRating(resource._id);
 };
 
 export const getResourceCreatorResolver: APIResourceResolvers['creator'] = async resource => {

@@ -43,6 +43,7 @@ type Resource {
   tags: [ResourceTag!]
   url: String!
   upvotes: Int
+  rating: Float
   description: String
   durationMs: Int
   consumed: ConsumedResource
@@ -126,4 +127,5 @@ type Mutation {
   detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
   voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
+  rateResource(resourceId: String!, value: Float!): Resource!
 }
