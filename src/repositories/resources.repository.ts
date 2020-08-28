@@ -281,7 +281,7 @@ export const rateResource = async (userId: string, resourceId: string, value: nu
     return destinationNode;
   });
 
-export const getResourceRating = async (resourceId: string): Promise<number> => {
+export const getResourceRating = async (resourceId: string): Promise<number | null> => {
   const session = neo4jDriver.session();
 
   const { records } = await session.run(
@@ -297,7 +297,7 @@ export const getResourceRating = async (resourceId: string): Promise<number> => 
   const record = records.pop();
 
   if (!record) throw new Error();
-  return Number(record.get('rating').toString());
+  return record.get('rating') ? Number(record.get('rating').toString()) : null;
 };
 
 export const getResourceCreator = (resourceFilter: { _id: string }) =>
