@@ -25,6 +25,10 @@ import {
   setConceptsUnKnownResolver,
   updateConceptBelongsToDomainResolver,
   updateConceptResolver,
+  getConceptSubConceptsResolver,
+  getConceptParentConceptsResolver,
+  removeConceptBelongsToConceptResolver,
+  addConceptBelongsToConceptResolver,
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -111,6 +115,8 @@ const resolvers: APIResolvers<APIContext> = {
     rateResource: rateResourceResolver,
     addConceptReferencesConcept: addConceptReferencesConceptResolver,
     removeConceptReferencesConcept: removeConceptReferencesConceptResolver,
+    addConceptBelongsToConcept: addConceptBelongsToConceptResolver,
+    removeConceptBelongsToConcept: removeConceptBelongsToConceptResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -143,6 +149,8 @@ const resolvers: APIResolvers<APIContext> = {
     known: getConceptKnownResolver,
     referencingConcepts: getConceptReferencingConceptsResolver,
     referencedByConcepts: getConceptReferencedByConceptsResolver,
+    subConcepts: getConceptSubConceptsResolver,
+    parentConcepts: getConceptParentConceptsResolver,
   },
   Resource: {
     coveredConcepts: getResourceCoveredConceptsResolver,

@@ -15,6 +15,10 @@ import {
   getUserKnowsConcept,
   updateConcept,
   updateConceptBelongsToDomain,
+  attachConceptBelongsToConcept,
+  detachConceptBelongsToConcept,
+  getConceptSubConcepts,
+  getConceptParentConcepts,
 } from '../../repositories/concepts.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
@@ -154,4 +158,32 @@ export const getConceptReferencingConceptsResolver: APIConceptResolvers['referen
 
 export const getConceptReferencedByConceptsResolver: APIConceptResolvers['referencedByConcepts'] = async concept => {
   return getConceptsReferencingConcept({ _id: concept._id });
+};
+
+export const addConceptBelongsToConceptResolver: APIMutationResolvers['addConceptBelongsToConcept'] = async (
+  _p,
+  { parentConceptId, subConceptId },
+  { user }
+) => {
+  if (!user || user.role !== UserRole.ADMIN)
+    throw new UnauthorizedError('Must be and adming to modify concept grouping relationships');
+  const { parentConcept } = await attachConceptBelongsToConcept(parentConceptId, subConceptId);
+  return parentConcept;
+};
+export const removeConceptBelongsToConceptResolver: APIMutationResolvers['removeConceptBelongsToConcept'] = async (
+  _p,
+  { parentConceptId, subConceptId },
+  { user }
+) => {
+  if (!user || user.role !== UserRole.ADMIN)
+    throw new UnauthorizedError('Must be and adming to modify concept grouping relationships');
+  const { parentConcept } = await detachConceptBelongsToConcept(parentConceptId, subConceptId);
+  return parentConcept;
+};
+
+export const getConceptSubConceptsResolver: APIConceptResolvers['subConcepts'] = async concept => {
+  return getConceptSubConcepts({ _id: concept._id });
+};
+export const getConceptParentConceptsResolver: APIConceptResolvers['parentConcepts'] = async concept => {
+  return getConceptParentConcepts({ _id: concept._id });
 };

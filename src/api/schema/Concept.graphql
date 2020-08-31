@@ -13,6 +13,8 @@ type Concept {
   known: KnownConcept
   referencingConcepts: [ConceptReferencesConceptItem!]
   referencedByConcepts: [ConceptReferencesConceptItem!]
+  subConcepts: [ConceptBelongsToConceptItem!]
+  parentConcepts: [ConceptBelongsToConceptItem!]
 }
 
 type KnownConcept {
@@ -22,6 +24,11 @@ type KnownConcept {
 type ConceptReferencesConceptItem {
   concept: Concept!
   relationship: ConceptReferencesConcept!
+}
+
+type ConceptBelongsToConceptItem {
+  concept: Concept!
+  relationship: ConceptBelongsToConcept!
 }
 
 input ConceptCoveredByResourcesOptions {

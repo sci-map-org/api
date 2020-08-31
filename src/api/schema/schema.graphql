@@ -7,5 +7,6 @@
 # import Query.*, Mutation.* from "Resource.graphql"
 # import Query.*, Mutation.* from "Concept.graphql"
 # import Mutation.* from "./relationships/ConceptBelongsToDomain.graphql"
+# import Mutation.* from "./relationships/ConceptBelongsToConcept.graphql"
 # import * from "./relationships/ConceptReferencesConcept.graphql"
 scalar Date
