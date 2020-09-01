@@ -162,9 +162,9 @@ export const attachConceptReferencesConcept = (
     destinationNode: { label: ConceptLabel, filter: { _id: referencedConceptId } },
   }).then(({ originNode, relationship, destinationNode }) => {
     return {
-      referencedConcept: originNode,
+      referencingConcept: originNode,
       relationship,
-      referencingConcept: destinationNode,
+      referencedConcept: destinationNode,
     };
   });
 
