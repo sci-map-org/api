@@ -746,6 +746,7 @@ export type APIUser = {
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
+  role: UserRole;
 };
 
 
@@ -1235,6 +1236,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
