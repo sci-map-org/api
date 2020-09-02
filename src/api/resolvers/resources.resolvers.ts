@@ -1,25 +1,27 @@
+import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
 import {
   attachResourceCoversConcepts,
   attachResourceToDomain,
+  deleteResource,
+  deleteResourceCreatedBy,
   detachResourceCoversConcepts,
   findResource,
   getResourceCoveredConcepts,
-  getResourceDomains,
-  getUserConsumedResource,
-  updateResource,
-  getResourceUpvoteCount,
-  voteResource,
-  deleteResource,
-  deleteResourceCreatedBy,
   getResourceCreator,
-  rateResource,
+  getResourceDomains,
   getResourceRating,
+  getResourceUpvoteCount,
+  getUserConsumedResource,
+  rateResource,
+  updateResource,
+  voteResource,
 } from '../../repositories/resources.repository';
+import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
+import { hasAccess } from '../../services/users.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import {
   APIMutationResolvers,
@@ -27,11 +29,10 @@ import {
   APIResource,
   APIResourceResolvers,
   APIResourceVoteValue,
-  UserRole,
 } from '../schema/types';
+import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
-import { UserInputError } from 'apollo-server-koa';
 
 export function toAPIResource(resource: Resource): APIResource {
   return resource;
@@ -60,13 +61,12 @@ export const updateResourceResolver: APIMutationResolvers['updateResource'] = as
   return toAPIResource(updatedResource);
 };
 
-export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (_parent, { _id }, ctx) => {
-  if (!ctx.user) throw new UnauthenticatedError('Must be logged in to delete a resource');
+export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (_parent, { _id }, { user }) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to delete a resource');
 
-  const { deletedCount } =
-    ctx.user.role === UserRole.ADMIN
-      ? await deleteResource({ _id })
-      : await deleteResourceCreatedBy({ _id: ctx.user._id }, _id);
+  const { deletedCount } = hasAccess('contributorOrAdmin', user)
+    ? await deleteResource({ _id })
+    : await deleteResourceCreatedBy({ _id: user._id }, _id);
   if (!deletedCount) throw new NotFoundError('Resource', _id, '_id');
   return {
     success: true,
@@ -108,7 +108,7 @@ export const attachResourceCoversConceptsResolver: APIMutationResolvers['attachR
   { resourceId, conceptIds },
   { user }
 ) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
+  if (!user) throw new UnauthenticatedError('Must be logged in to add covered concepts to a resource');
   const resource = await attachResourceCoversConcepts(resourceId, conceptIds, { userId: user._id });
   if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
   return toAPIResource(resource);
@@ -119,16 +119,13 @@ export const detachResourceCoversConceptsResolver: APIMutationResolvers['detachR
   { resourceId, conceptIds },
   { user }
 ) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
+  if (!user) throw new UnauthenticatedError('Must be logged in to remove covered concepts to a resource');
   const resource = await detachResourceCoversConcepts(resourceId, conceptIds);
   if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
   return toAPIResource(resource);
 };
 
-export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredConcepts'] = async (
-  resource,
-  { options }
-) => {
+export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredConcepts'] = async resource => {
   return {
     items: await getResourceCoveredConcepts(resource._id),
   };
@@ -195,10 +192,9 @@ export const rateResourceResolver: APIMutationResolvers['rateResource'] = async 
   { resourceId, value },
   { user }
 ) => {
-  if (!user || user.role !== UserRole.ADMIN)
-    throw new UnauthenticatedError('Must be logged in and an admin to rate a resource');
+  restrictAccess('contributorOrAdmin', user, 'Must be logged in and an admin or a contributor to rate a resource');
   if (value < 0 || value > 10) throw new UserInputError('Ratings must be >=0 and <=10');
-  const resource = await rateResource(user._id, resourceId, value);
+  const resource = await rateResource(user!._id, resourceId, value);
   return toAPIResource(resource);
 };
 

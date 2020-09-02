@@ -58,3 +58,19 @@ export const registerUserGoogleAuth = async ({
     role: UserRole.USER,
   });
 };
+
+export type RoleAccessAllowedRule = 'all' | 'loggedInUser' | 'admin' | 'notLoggedInUser' | 'contributorOrAdmin';
+
+const accessRuleMapping: {
+  [key in RoleAccessAllowedRule]: (user?: Pick<User, 'role'>) => boolean;
+} = {
+  all: () => true,
+  loggedInUser: user => !!user,
+  notLoggedInUser: user => !user,
+  admin: user => !!user && user.role === UserRole.ADMIN,
+  contributorOrAdmin: user => !!user && (user.role === UserRole.CONTRIBUTOR || user.role === UserRole.ADMIN),
+};
+
+export const hasAccess = (accessRule: RoleAccessAllowedRule, user?: Pick<User, 'role'>): boolean => {
+  return accessRuleMapping[accessRule](user);
+};
