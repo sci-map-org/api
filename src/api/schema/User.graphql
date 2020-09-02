@@ -1,5 +1,6 @@
 enum UserRole {
   ADMIN
+  CONTRIBUTOR
   USER
 }
 
