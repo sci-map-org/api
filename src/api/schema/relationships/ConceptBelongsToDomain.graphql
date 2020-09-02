@@ -1,4 +1,8 @@
-type ConceptBelongsToDomain {
+directive @relation(name: String) on OBJECT
+
+type ConceptBelongsToDomain @relation(name: "BELONGS_TO") {
+  from: Concept
+  to: Domain
   index: Float!
 }
 

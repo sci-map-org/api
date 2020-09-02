@@ -1,6 +1,7 @@
 import { makeExecutableSchema } from 'apollo-server-koa';
 import { importSchema } from 'graphql-import';
 import { GraphQLDateTime } from 'graphql-iso-date';
+import { augmentSchema } from 'neo4j-graphql-js';
 import {
   createArticleResolver,
   deleteArticleResolver,
@@ -78,8 +79,16 @@ import {
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
+import { loadSchemaSync } from '@graphql-tools/load';
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
+import { addResolversToSchema } from '@graphql-tools/schema';
 
-export const typeDefs = importSchema('./src/api/schema/schema.graphql');
+// export const typeDefs = importSchema('./src/api/schema/schema.graphql');
+const schemaWithoutResolvers = loadSchemaSync('./src/api/schema/newSchema.graphql', {
+  //join(__dirname, 'schema/schema.graphql'), {
+  loaders: [new GraphQLFileLoader()],
+  assumeValidSDL: true,
+});
 
 const resolvers: APIResolvers<APIContext> = {
   Mutation: {
@@ -164,7 +173,11 @@ const resolvers: APIResolvers<APIContext> = {
   Date: GraphQLDateTime,
 };
 
-export const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers,
-});
+export const schema = augmentSchema(
+  schemaWithoutResolvers
+  // addResolversToSchema({
+  //   schema: ,
+  //   resolvers,
+  // })
+);
+// export const schema = makeAugmentedSchema({ typeDefs });

@@ -1,0 +1,46 @@
+type Domain {
+  _id: ID! @id
+  name: String!
+  key: String!
+  description: String
+  concepts: [ConceptBelongsToDomain]
+}
+
+# directive @relation(name: String) on OBJECT
+
+type ConceptBelongsToDomain @relation(name: "BELONGS_TO") {
+  from: Concept
+  to: Domain
+  index: Float!
+}
+
+type ConceptBelongsToConcept @relation(name: "BELONGS_TO") {
+  from: Concept
+  to: Concept
+  index: Float!
+}
+type ConceptReferencesConcept @relation(name: "REFERENCES") {
+  from: Concept
+  to: Concept
+  strength: Float!
+}
+
+type KnownConcept {
+  level: Float!
+}
+
+type Concept {
+  _id: String!
+  key: String!
+  name: String!
+  description: String
+  domain: Domain
+  #   coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
+  known: Boolean
+  #   @cypher(statement: "MATCH (this)<-[r:KNOWS]-(u:User {_id: $cypherParams.currentUserId }) return r")
+  @cypher(statement: "RETURN EXISTS ( (this)<-[:KNOWS]-(:User {_id: $cypherParams.currentUserId }) )")
+  referencingConcepts: [ConceptReferencesConcept!]
+  referencedByConcepts: [ConceptReferencesConcept!]
+  subConcepts: [ConceptBelongsToConcept!]
+  parentConcepts: [ConceptBelongsToConcept!]
+}

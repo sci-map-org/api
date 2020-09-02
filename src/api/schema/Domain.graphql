@@ -1,10 +1,11 @@
 type Domain {
-  _id: String!
+  _id: ID!
   name: String!
   key: String!
   description: String
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
   resources(options: DomainResourcesOptions!): DomainResourcesResults
+  conceptList: [ConceptBelongsToDomain]
 }
 
 # Domain concepts
@@ -88,6 +89,7 @@ type DeleteDomainResponse {
 type Query {
   searchDomains(options: SearchDomainsOptions!): SearchDomainsResult!
   getDomainByKey(key: String!): Domain!
+  Domains: [Domain!]
 }
 
 type Mutation {
