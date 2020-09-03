@@ -2,33 +2,25 @@ enum ResourceMediaType {
   video
   text
   audio
+  interactive_content
 }
 
 enum ResourceType {
   article
   article_series
-  tutorial
-  introduction
   course
-  guide
   podcast
   podcast_series
+  youtube_video
+  book
+  talk
+  documentary
+  website
+  video_game
+  infographic
+  tweet
   other
 }
-
-# enum PedagogicalApproach {
-#   practical
-#   theoretical
-#   intuitive
-#   gamified
-#   visual
-#   interactive
-#   abstract
-#   detailed
-# }
-# polymorphic ? By type or just internal / external ?
-# what info in the relationships ? approach taken ?
-# should just be a wrapper ?
 
 type ConsumedResource {
   openedAt: Date
@@ -90,7 +82,7 @@ input UpdateResourcePayload {
 input SetResourcesConsumedPayloadResourcesField {
   resourceId: String!
   consumed: Boolean
-  opened: Boolean # or action: String! ?
+  opened: Boolean
 }
 input SetResourcesConsumedPayload {
   resources: [SetResourcesConsumedPayloadResourcesField!]!
@@ -105,13 +97,6 @@ type DeleteResourceResponse {
   _id: String!
   success: Boolean!
 }
-
-# External -> Url + abstract/description if possible ? E.g. youtube description
-# Internal ->
-# Polymorphic relationship ?
-# approach taken
-# mapping to concepts
-# duration estimation
 
 type Query {
   getResourceById(id: String!): Resource!
