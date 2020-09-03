@@ -1,5 +1,6 @@
 enum UserRole {
   ADMIN
+  CONTRIBUTOR
   USER
 }
 
@@ -7,6 +8,7 @@ type User {
   _id: String!
   email: String!
   displayName: String!
+  role: UserRole!
   key: String!
   articles(options: ListArticlesOptions!): ListArticlesResult
 }

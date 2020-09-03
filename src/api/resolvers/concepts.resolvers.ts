@@ -2,27 +2,27 @@ import { omit } from 'lodash';
 import { Concept } from '../../entities/Concept';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  attachConceptBelongsToConcept,
   attachConceptReferencesConcept,
   attachConceptToDomain,
   createConcept,
   deleteConcept,
+  detachConceptBelongsToConcept,
   detachConceptReferencesConcept,
   findConcept,
   getConceptCoveredByResources,
   getConceptDomain,
+  getConceptParentConcepts,
   getConceptsReferencedByConcept,
   getConceptsReferencingConcept,
+  getConceptSubConcepts,
   getUserKnowsConcept,
   updateConcept,
   updateConceptBelongsToDomain,
-  attachConceptBelongsToConcept,
-  detachConceptBelongsToConcept,
-  getConceptSubConcepts,
-  getConceptParentConcepts,
 } from '../../repositories/concepts.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
-import { UnauthorizedError } from '../errors/UnauthenticatedError';
-import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
+import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
+import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
 
@@ -47,17 +47,15 @@ export const addConceptToDomainResolver: APIMutationResolvers['addConceptToDomai
   { payload, domainId },
   ctx
 ) => {
-  if (!ctx.user || ctx.user.role !== UserRole.ADMIN)
-    throw new UnauthorizedError('Must be logged in and an admin to create a concept');
+  restrictAccess('contributorOrAdmin', ctx.user, 'Must be logged in and a contributor or an admin to create a concept');
   const index = payload.index || 10000000;
-  const createdConcept = await createConcept({ _id: ctx.user._id }, nullToUndefined(omit(payload, 'index')));
+  const createdConcept = await createConcept({ _id: ctx.user!._id }, nullToUndefined(omit(payload, 'index')));
   await attachConceptToDomain(createdConcept._id, domainId, { index });
   return toAPIConcept(createdConcept);
 };
 
 export const updateConceptResolver: APIMutationResolvers['updateConcept'] = async (_parent, { _id, payload }, ctx) => {
-  if (!ctx.user || ctx.user.role !== UserRole.ADMIN)
-    throw new UnauthorizedError('Must be logged in and an admin to update a concept');
+  restrictAccess('contributorOrAdmin', ctx.user, 'Must be logged in and a contributor or an admin to update a concept');
 
   const updatedConcept = await updateConcept({ _id }, nullToUndefined(payload));
   if (!updatedConcept) throw new NotFoundError('Concept', _id, 'id');
@@ -65,8 +63,7 @@ export const updateConceptResolver: APIMutationResolvers['updateConcept'] = asyn
 };
 
 export const deleteConceptResolver: APIMutationResolvers['deleteConcept'] = async (_parent, { _id }, ctx) => {
-  if (!ctx.user || ctx.user.role !== UserRole.ADMIN)
-    throw new UnauthorizedError('Must be logged in and an admin to delete a concept');
+  restrictAccess('contributorOrAdmin', ctx.user, 'Must be logged in and a contributor or an admin to update a concept');
 
   const { deletedCount } = await deleteConcept({ _id });
   if (!deletedCount) throw new NotFoundError('Concept', _id, '_id');
@@ -77,10 +74,7 @@ export const getConceptDomainResolver: APIConceptResolvers['domain'] = async con
   return await getConceptDomain(concept._id);
 };
 
-export const getConceptCoveredByResourcesResolver: APIConceptResolvers['coveredByResources'] = async (
-  concept,
-  { options }
-) => {
+export const getConceptCoveredByResourcesResolver: APIConceptResolvers['coveredByResources'] = async concept => {
   return { items: (await getConceptCoveredByResources(concept._id)).map(toAPIResource) };
 };
 
@@ -91,7 +85,7 @@ export const getConceptKnownResolver: APIConceptResolvers['known'] = async (pare
 };
 
 export const setConceptsKnownResolver: APIMutationResolvers['setConceptsKnown'] = async (_p, { payload }, { user }) => {
-  if (!user) throw new UnauthorizedError('Must be logged in to know a concept');
+  restrictAccess('loggedInUser', user, 'Must be logged in to know a concept');
   const concepts = await Promise.all(
     payload.concepts.map(async c => {
       const foundConcept = await findConcept({ _id: c.conceptId });
@@ -99,7 +93,7 @@ export const setConceptsKnownResolver: APIMutationResolvers['setConceptsKnown'] 
       return foundConcept;
     })
   );
-  await attachUserKnowsConcepts(user._id, payload.concepts);
+  await attachUserKnowsConcepts(user!._id, payload.concepts);
   return concepts.map(toAPIConcept);
 };
 
@@ -108,7 +102,7 @@ export const setConceptsUnKnownResolver: APIMutationResolvers['setConceptsUnknow
   { conceptIds },
   { user }
 ) => {
-  if (!user) throw new UnauthorizedError('Must be logged in to know a concept');
+  restrictAccess('loggedInUser', user, 'Must be logged in to unknow a concept');
   const concepts = await Promise.all(
     conceptIds.map(async conceptId => {
       const foundConcept = await findConcept({ _id: conceptId });
@@ -116,7 +110,7 @@ export const setConceptsUnKnownResolver: APIMutationResolvers['setConceptsUnknow
       return foundConcept;
     })
   );
-  await detachUserKnowsConcepts(user._id, conceptIds);
+  await detachUserKnowsConcepts(user!._id, conceptIds);
   return concepts.map(toAPIConcept);
 };
 
@@ -125,7 +119,11 @@ export const updateConceptBelongsToDomainResolver: APIMutationResolvers['updateC
   { conceptId, domainId, payload },
   { user }
 ) => {
-  if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
+  restrictAccess(
+    'contributorOrAdmin',
+    user,
+    'Must be logged in and an admin or contributor to modify domain <- concept relationship'
+  );
 
   const { relationship } = await updateConceptBelongsToDomain(conceptId, domainId, nullToUndefined(payload));
   return relationship;
@@ -136,7 +134,11 @@ export const addConceptReferencesConceptResolver: APIMutationResolvers['addConce
   { conceptId, referencedConceptId },
   { user }
 ) => {
-  if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
+  restrictAccess(
+    'contributorOrAdmin',
+    user,
+    'Must be logged in and an admin or contributor to modify concept references relationships'
+  );
   const { referencingConcept } = await attachConceptReferencesConcept(referencedConceptId, conceptId);
   return referencingConcept;
 };
@@ -146,7 +148,11 @@ export const removeConceptReferencesConceptResolver: APIMutationResolvers['remov
   { conceptId, referencedConceptId },
   { user }
 ) => {
-  if (!user || user.role !== UserRole.ADMIN) throw new UnauthorizedError();
+  restrictAccess(
+    'contributorOrAdmin',
+    user,
+    'Must be logged in and an admin or contributor to modify concept references relationships'
+  );
   const { referencingConcept } = await detachConceptReferencesConcept(referencedConceptId, conceptId);
   return referencingConcept;
 };
@@ -165,8 +171,12 @@ export const addConceptBelongsToConceptResolver: APIMutationResolvers['addConcep
   { parentConceptId, subConceptId },
   { user }
 ) => {
-  if (!user || user.role !== UserRole.ADMIN)
-    throw new UnauthorizedError('Must be and adming to modify concept grouping relationships');
+  restrictAccess(
+    'contributorOrAdmin',
+    user,
+    'Must be logged in and an admin or contributor to modify concept grouping relationships'
+  );
+
   const { parentConcept } = await attachConceptBelongsToConcept(parentConceptId, subConceptId);
   return parentConcept;
 };
@@ -175,8 +185,11 @@ export const removeConceptBelongsToConceptResolver: APIMutationResolvers['remove
   { parentConceptId, subConceptId },
   { user }
 ) => {
-  if (!user || user.role !== UserRole.ADMIN)
-    throw new UnauthorizedError('Must be and adming to modify concept grouping relationships');
+  restrictAccess(
+    'contributorOrAdmin',
+    user,
+    'Must be logged in and an admin or contributor to modify concept grouping relationships'
+  );
   const { parentConcept } = await detachConceptBelongsToConcept(parentConceptId, subConceptId);
   return parentConcept;
 };
