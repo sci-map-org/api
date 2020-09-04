@@ -4,12 +4,25 @@ import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
+  DEFAULT_INDEX_VALUE,
+  DomainBelongsToDomain,
+  DomainBelongsToDomainLabel,
+} from '../entities/relationships/DomainBelongsToDomain';
+import {
   ResourceBelongsToDomain,
   ResourceBelongsToDomainLabel,
 } from '../entities/relationships/ResourceBelongsToDomain';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { neo4jDriver } from '../infra/neo4j';
-import { createRelatedNode, deleteOne, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
+import {
+  attachUniqueNodes,
+  createRelatedNode,
+  deleteOne,
+  detachUniqueNodes,
+  findOne,
+  getRelatedNodes,
+  updateOne,
+} from './util/abstract_graph_repo';
 import { PaginationOptions } from './util/pagination';
 import { SortingDirection } from './util/sorting';
 
@@ -140,3 +153,69 @@ export const getDomainRelevantResources = async (
     return r.get('resource');
   });
 };
+
+export const attachDomainBelongsToDomain = (
+  parentDomainId: string,
+  subDomainId: string,
+  index?: number
+): Promise<{ subDomain: Domain; relationship: DomainBelongsToDomain; parentDomain: Domain }> =>
+  attachUniqueNodes<Concept, DomainBelongsToDomain, Domain>({
+    originNode: { label: DomainLabel, filter: { _id: subDomainId } },
+    relationship: {
+      label: DomainBelongsToDomainLabel,
+      onCreateProps: { index: index || DEFAULT_INDEX_VALUE },
+      onMergeProps: { index },
+    },
+    destinationNode: { label: DomainLabel, filter: { _id: parentDomainId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      subDomain: originNode,
+      relationship,
+      parentDomain: destinationNode,
+    };
+  });
+
+export const detachDomainBelongsToDomain = (
+  parentDomainId: string,
+  subDomainId: string
+): Promise<{ subDomain: Domain; parentDomain: Domain }> =>
+  detachUniqueNodes<Domain, DomainBelongsToDomain, Domain>({
+    originNode: {
+      label: DomainLabel,
+      filter: { _id: subDomainId },
+    },
+    relationship: {
+      label: DomainBelongsToDomainLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: DomainLabel,
+      filter: { _id: parentDomainId },
+    },
+  }).then(({ originNode, destinationNode }) => {
+    return {
+      subDomain: originNode,
+      parentDomain: destinationNode,
+    };
+  });
+
+const getDomainBelongsToDomains = (filter: { _id: string } | { key: string }, direction: 'IN' | 'OUT') =>
+  getRelatedNodes<Domain, DomainBelongsToDomain, Domain>({
+    originNode: {
+      label: DomainLabel,
+      filter,
+    },
+    relationship: {
+      label: DomainBelongsToDomainLabel,
+      direction,
+    },
+    destinationNode: {
+      label: DomainLabel,
+    },
+  }).then(({ items }) => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
+
+export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =>
+  getDomainBelongsToDomains(filter, 'IN');
+
+export const getDomainParentDomains = (filter: { _id: string } | { key: string }) =>
+  getDomainBelongsToDomains(filter, 'OUT');

@@ -38,6 +38,10 @@ import {
   getDomainResourcesResolver,
   searchDomainsResolver,
   updateDomainResolver,
+  addDomainBelongsToDomainResolver,
+  removeDomainBelongsToDomainResolver,
+  getDomainSubDomainsResolver,
+  getDomainParentDomainsResolver,
 } from './resolvers/domains.resolvers';
 import {
   addResourceToDomainResolver,
@@ -117,6 +121,8 @@ const resolvers: APIResolvers<APIContext> = {
     removeConceptReferencesConcept: removeConceptReferencesConceptResolver,
     addConceptBelongsToConcept: addConceptBelongsToConceptResolver,
     removeConceptBelongsToConcept: removeConceptBelongsToConceptResolver,
+    addDomainBelongsToDomain: addDomainBelongsToDomainResolver,
+    removeDomainBelongsToDomain: removeDomainBelongsToDomainResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -142,6 +148,8 @@ const resolvers: APIResolvers<APIContext> = {
   Domain: {
     concepts: getDomainConceptsResolver,
     resources: getDomainResourcesResolver,
+    subDomains: getDomainSubDomainsResolver,
+    parentDomains: getDomainParentDomainsResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,

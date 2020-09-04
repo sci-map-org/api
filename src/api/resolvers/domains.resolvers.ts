@@ -7,6 +7,10 @@ import {
   getDomainConcepts,
   searchDomains,
   updateDomain,
+  attachDomainBelongsToDomain,
+  detachDomainBelongsToDomain,
+  getDomainParentDomains,
+  getDomainSubDomains,
 } from '../../repositories/domains.repository';
 import { getDomainResources } from '../../services/resources.service';
 import { APIDomain, APIDomainResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
@@ -65,4 +69,39 @@ export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async
   return {
     items: (await getDomainResources(domain._id, user?._id, nullToUndefined(options))).map(toAPIResource),
   };
+};
+
+export const addDomainBelongsToDomainResolver: APIMutationResolvers['addDomainBelongsToDomain'] = async (
+  _p,
+  { parentDomainId, subDomainId },
+  { user }
+) => {
+  restrictAccess(
+    'contributorOrAdmin',
+    user,
+    'Must be logged in and an admin or contributor to modify Domain grouping relationships'
+  );
+
+  const { parentDomain } = await attachDomainBelongsToDomain(parentDomainId, subDomainId);
+  return parentDomain;
+};
+export const removeDomainBelongsToDomainResolver: APIMutationResolvers['removeDomainBelongsToDomain'] = async (
+  _p,
+  { parentDomainId, subDomainId },
+  { user }
+) => {
+  restrictAccess(
+    'contributorOrAdmin',
+    user,
+    'Must be logged in and an admin or contributor to modify Domain grouping relationships'
+  );
+  const { parentDomain } = await detachDomainBelongsToDomain(parentDomainId, subDomainId);
+  return parentDomain;
+};
+
+export const getDomainSubDomainsResolver: APIDomainResolvers['subDomains'] = async domain => {
+  return getDomainSubDomains({ _id: domain._id });
+};
+export const getDomainParentDomainsResolver: APIDomainResolvers['parentDomains'] = async domain => {
+  return getDomainParentDomains({ _id: domain._id });
 };

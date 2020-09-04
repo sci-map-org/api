@@ -5,6 +5,8 @@ type Domain {
   description: String
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
   resources(options: DomainResourcesOptions!): DomainResourcesResults
+  subDomains: [DomainBelongsToDomainItem!]
+  parentDomains: [DomainBelongsToDomainItem!]
 }
 
 # Domain concepts
@@ -36,6 +38,11 @@ type DomainConceptsItem {
 
 type DomainConceptsResults {
   items: [DomainConceptsItem!]!
+}
+
+type DomainBelongsToDomainItem {
+  domain: Domain!
+  relationship: DomainBelongsToDomain!
 }
 
 # Domain resources

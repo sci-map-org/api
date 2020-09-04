@@ -25,6 +25,7 @@ export type Scalars = {
    * import Query.*, Mutation.* from "Concept.graphql"
    * import Mutation.* from "./relationships/ConceptBelongsToDomain.graphql"
    * import Mutation.* from "./relationships/ConceptBelongsToConcept.graphql"
+   * import Mutation.* from "./relationships/DomainBelongsToDomain.graphql"
    * import * from "./relationships/ConceptReferencesConcept.graphql"
    */
   Date: Date;
@@ -193,7 +194,9 @@ export type APIDomain = {
   description?: Maybe<Scalars['String']>;
   key: Scalars['String'];
   name: Scalars['String'];
+  parentDomains?: Maybe<Array<APIDomainBelongsToDomainItem>>;
   resources?: Maybe<APIDomainResourcesResults>;
+  subDomains?: Maybe<Array<APIDomainBelongsToDomainItem>>;
 };
 
 
@@ -204,6 +207,17 @@ export type APIDomainConceptsArgs = {
 
 export type APIDomainResourcesArgs = {
   options: APIDomainResourcesOptions;
+};
+
+export type APIDomainBelongsToDomain = {
+   __typename?: 'DomainBelongsToDomain';
+  index: Scalars['Float'];
+};
+
+export type APIDomainBelongsToDomainItem = {
+   __typename?: 'DomainBelongsToDomainItem';
+  domain: APIDomain;
+  relationship: APIDomainBelongsToDomain;
 };
 
 export type APIDomainConceptsItem = {
@@ -291,6 +305,7 @@ export type APIMutation = {
   addConceptBelongsToConcept: APIConcept;
   addConceptReferencesConcept: APIConcept;
   addConceptToDomain: APIConcept;
+  addDomainBelongsToDomain: APIDomain;
   addResourceToDomain: APIResource;
   addTagsToResource: APIResource;
   adminUpdateUser: APIUser;
@@ -311,6 +326,7 @@ export type APIMutation = {
   registerGoogle: APICurrentUser;
   removeConceptBelongsToConcept: APIConcept;
   removeConceptReferencesConcept: APIConcept;
+  removeDomainBelongsToDomain: APIDomain;
   removeTagsFromResource: APIResource;
   setConceptsKnown: Array<APIConcept>;
   setConceptsUnknown: Array<APIConcept>;
@@ -341,6 +357,12 @@ export type APIMutationAddConceptReferencesConceptArgs = {
 export type APIMutationAddConceptToDomainArgs = {
   domainId: Scalars['String'];
   payload: APIAddConceptToDomainPayload;
+};
+
+
+export type APIMutationAddDomainBelongsToDomainArgs = {
+  parentDomainId: Scalars['String'];
+  subDomainId: Scalars['String'];
 };
 
 
@@ -453,6 +475,12 @@ export type APIMutationRemoveConceptBelongsToConceptArgs = {
 export type APIMutationRemoveConceptReferencesConceptArgs = {
   conceptId: Scalars['String'];
   referencedConceptId: Scalars['String'];
+};
+
+
+export type APIMutationRemoveDomainBelongsToDomainArgs = {
+  parentDomainId: Scalars['String'];
+  subDomainId: Scalars['String'];
 };
 
 
@@ -867,6 +895,8 @@ export type APIResolversTypes = ResolversObject<{
   DomainConceptsItem: ResolverTypeWrapper<APIDomainConceptsItem>,
   ConceptBelongsToDomain: ResolverTypeWrapper<APIConceptBelongsToDomain>,
   Float: ResolverTypeWrapper<Scalars['Float']>,
+  DomainBelongsToDomainItem: ResolverTypeWrapper<APIDomainBelongsToDomainItem>,
+  DomainBelongsToDomain: ResolverTypeWrapper<APIDomainBelongsToDomain>,
   DomainResourcesOptions: APIDomainResourcesOptions,
   DomainResourcesSortingOptions: APIDomainResourcesSortingOptions,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
@@ -946,6 +976,8 @@ export type APIResolversParentTypes = ResolversObject<{
   DomainConceptsItem: APIDomainConceptsItem,
   ConceptBelongsToDomain: APIConceptBelongsToDomain,
   Float: Scalars['Float'],
+  DomainBelongsToDomainItem: APIDomainBelongsToDomainItem,
+  DomainBelongsToDomain: APIDomainBelongsToDomain,
   DomainResourcesOptions: APIDomainResourcesOptions,
   DomainResourcesSortingOptions: APIDomainResourcesSortingOptions,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
@@ -1098,7 +1130,20 @@ export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIR
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  parentDomains?: Resolver<Maybe<Array<APIResolversTypes['DomainBelongsToDomainItem']>>, ParentType, ContextType>,
   resources?: Resolver<Maybe<APIResolversTypes['DomainResourcesResults']>, ParentType, ContextType, RequireFields<APIDomainResourcesArgs, 'options'>>,
+  subDomains?: Resolver<Maybe<Array<APIResolversTypes['DomainBelongsToDomainItem']>>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIDomainBelongsToDomainResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainBelongsToDomain'] = APIResolversParentTypes['DomainBelongsToDomain']> = ResolversObject<{
+  index?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIDomainBelongsToDomainItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainBelongsToDomainItem'] = APIResolversParentTypes['DomainBelongsToDomainItem']> = ResolversObject<{
+  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
+  relationship?: Resolver<APIResolversTypes['DomainBelongsToDomain'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1139,6 +1184,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   addConceptBelongsToConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptBelongsToConceptArgs, 'parentConceptId' | 'subConceptId'>>,
   addConceptReferencesConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
   addConceptToDomain?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptToDomainArgs, 'domainId' | 'payload'>>,
+  addDomainBelongsToDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationAddDomainBelongsToDomainArgs, 'parentDomainId' | 'subDomainId'>>,
   addResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddResourceToDomainArgs, 'domainId' | 'payload'>>,
   addTagsToResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddTagsToResourceArgs, 'resourceId' | 'tags'>>,
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
@@ -1159,6 +1205,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>,
   removeConceptBelongsToConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationRemoveConceptBelongsToConceptArgs, 'parentConceptId' | 'subConceptId'>>,
   removeConceptReferencesConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationRemoveConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
+  removeDomainBelongsToDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationRemoveDomainBelongsToDomainArgs, 'parentDomainId' | 'subDomainId'>>,
   removeTagsFromResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationRemoveTagsFromResourceArgs, 'resourceId' | 'tags'>>,
   setConceptsKnown?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType, RequireFields<APIMutationSetConceptsKnownArgs, 'payload'>>,
   setConceptsUnknown?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType, RequireFields<APIMutationSetConceptsUnknownArgs, 'conceptIds'>>,
@@ -1262,6 +1309,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   DeleteResourceResponse?: APIDeleteResourceResponseResolvers<ContextType>,
   Domain?: APIDomainResolvers<ContextType>,
+  DomainBelongsToDomain?: APIDomainBelongsToDomainResolvers<ContextType>,
+  DomainBelongsToDomainItem?: APIDomainBelongsToDomainItemResolvers<ContextType>,
   DomainConceptsItem?: APIDomainConceptsItemResolvers<ContextType>,
   DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,
   DomainResourcesResults?: APIDomainResourcesResultsResolvers<ContextType>,
