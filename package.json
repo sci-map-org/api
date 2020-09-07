@@ -16,7 +16,7 @@
     "deploy": "yarn docker:build && yarn docker:push && yarn dist && echo 'Just upload the zip file now'"
   },
   "engines": {
-    "node": ">=12.16.1"
+    "node": ">=14.9.0"
   },
   "author": "",
   "license": "GPL-3.0-or-later",
