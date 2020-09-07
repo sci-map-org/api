@@ -1,28 +1,16 @@
-# Apollo API
+# Sci-Map.org api
 
-## TODO
+Backend (GraphQl API) for [Sci-map.org](https://sci-map.org).
 
-- Markdown Posts API
+### Tech stack and design
 
-## Improvements to do
+Node.js + Typescript, Neo4j, Apollo Server.
+We are considering a switch towards neo4j-graphql-js as it would highly improve the queries performance, however it currently lacks some features.
 
-- Abstract auth check in resolvers (don't check for user in context every time)
-- Abstract entities schema: ListResult, ListOptions, etc.
-- key vs \_id ?
-- setup tests
-- unique config in repos (don't repeat label, etc.)
-- Entities outside of repos
-- Automated check for circular dependencies
-- Entities soft deletion
-- Separate not found vs not authorized
-- Proper generics for abstract_graph_repo
-- Proper error handling
-- Abstract repo: have a more generic result: nb results, originNode/Destination, etc.
-- when fetching related entities, group by relations: e.g.:
-  - resource -> coveredConcepts : group by concept domain ?
-  - user -> knownConcepts: group by domain ?
-- Should have stricter type for sorting: entity <-> fields mapping, now it's possible to make mistakes
+## Contributing
 
-# Notes
+Please check out our [Contribution guide](https://sci-map.org/about/contributing).
 
-- Set a property to null in Neo4j removes the property -> Later consumed as undefined. To unset a property through the API, send null
+## License
+
+Licensed under [GNU GPL v3.0](https://choosealicense.com/licenses/gpl-3.0/): You may copy, distribute and modify the software as long as you track changes/dates in source files. Any modifications to or software including (via compiler) GPL-licensed code must also be made available under the GPL along with build & install instructions.
