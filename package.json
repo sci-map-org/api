@@ -49,9 +49,9 @@
     "winston-cloudwatch": "^2.3.2"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^1.8.2",
-    "@graphql-codegen/typescript": "^1.8.2",
-    "@graphql-codegen/typescript-resolvers": "^1.8.2",
+    "@graphql-codegen/cli": "1.13.1",
+    "@graphql-codegen/typescript": "1.13.1",
+    "@graphql-codegen/typescript-resolvers": "1.13.1",
     "@types/bcryptjs": "^2.4.2",
     "@types/crypto-js": "^3.1.47",
     "@types/graphql-iso-date": "^3.3.3",
