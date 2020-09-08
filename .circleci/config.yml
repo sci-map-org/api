@@ -8,6 +8,7 @@ jobs:
     steps:
       - checkout
       - node/with-cache:
+          cache-version: v2
           steps:
             - setup_remote_docker
             - run: yarn docker:build
