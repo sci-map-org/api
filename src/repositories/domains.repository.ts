@@ -133,14 +133,14 @@ export const getDomainRelevantResources = async (
 
   let query: string;
   if (!userId) {
-    query = `match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource)-[:COVERS]->(cc:Concept) 
+    query = `match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource) optional match (r)-[:COVERS]->(cc:Concept) 
   optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc)
-  WITH DISTINCT r, count(distinct mpc) as cmpc return r, properties(r) as resource, cmpc, 1/(0.1+cmpc) as score ORDER BY score DESC`;
+  WITH DISTINCT r, count(distinct mpc) as cmpc, count(cc) as ccc return r, properties(r) as resource, cmpc, sign(ccc)/(0.1+cmpc) as score ORDER BY score DESC`;
   } else {
-    query = `match (u:User {_id: $userId}) match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource)-[:COVERS]->(cc:Concept) 
+    query = `match (u:User {_id: $userId}) match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource) optional match (r)-[:COVERS]->(cc:Concept) 
   optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc) AND NOT (u)-[:KNOWS]->(mpc) 
   optional match (cc)<-[rkc:KNOWS]-(u) 
-  WITH DISTINCT r, 1 - toFloat(count(rkc))/count(cc) as usefulness, count(distinct mpc) as cmpc return r, properties(r) as resource, usefulness, cmpc, usefulness/(0.1+cmpc) as score ORDER BY score DESC`;
+  WITH DISTINCT r, count(cc) as ccc, 1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness, count(distinct mpc) as cmpc return r, properties(r) as resource, usefulness, cmpc, sign(ccc)*usefulness/(0.1+cmpc) as score ORDER BY score DESC`;
   }
 
   const { records } = await session.run(query, {
