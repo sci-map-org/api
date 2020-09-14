@@ -2,10 +2,40 @@
 
 Backend (GraphQl API) for [Sci-map.org](https://sci-map.org).
 
-### Tech stack and design
+## Tech stack and design
 
 Node.js + Typescript, Neo4j, Apollo Server.
 We are considering a switch towards neo4j-graphql-js as it would highly improve the queries performance, however it currently lacks some features.
+
+## Setup
+
+- Install (Neo4j Desktop)[https://neo4j.com/download/] and create a database with 3.5.17 Neo4j version.
+
+- Create a `.env` file from `.env.example`, with the proper database secrets.
+
+Finally, run:
+
+```
+    yarn
+```
+
+### Development
+
+```
+yarn dev
+```
+
+After modifying the graphql schema, run:
+
+```
+yarn codegn
+```
+
+### Build
+
+```
+yarn build && yarn start
+```
 
 ## Contributing
 
