@@ -49,16 +49,25 @@ type DomainBelongsToDomainItem {
 enum DomainResourcesSortingType {
   relevance
   creation_date
+  newest
 }
 
-input DomainResourcesSortingOptions {
-  type: DomainResourcesSortingType!
-  direction: SortingDirection!
+# input DomainResourcesSortingOptions {
+#   type: DomainResourcesSortingType!
+#   direction: SortingDirection! # to remove
+# }
+
+input DomainResourcesFilterOptions {
+  resourceTypeIn: [ResourceType!]
+  consumedByUser: Boolean
 }
 
 input DomainResourcesOptions {
-  sorting: DomainResourcesSortingOptions
-  pagination: PaginationOptions!
+  # sorting: DomainResourcesSortingOptions # to remove
+  sortingType: DomainResourcesSortingType!
+  # pagination: PaginationOptions! # not required yet
+  query: String
+  filter: DomainResourcesFilterOptions
 }
 
 type DomainResourcesResults {

@@ -1,16 +1,15 @@
 import { omit } from 'lodash';
 import {
+  APIDomainResourcesOptions,
+  APIDomainResourcesSortingType,
   ResourceMediaType,
   ResourceType,
-  APIDomainResourcesOptions,
-  SortingDirection,
-  APIDomainResourcesSortingType,
 } from '../api/schema/types';
+import { NullToUndefined } from '../api/util/nullToUndefined';
 import { Resource } from '../entities/Resource';
+import { getDomainRelevantResources, listDomainResources } from '../repositories/domains.repository';
 import { createResource } from '../repositories/resources.repository';
 import { attachResourceTagsToResource, findOrCreateResourceTag } from '../repositories/resource_tags.repository';
-import { listDomainResources, getDomainRelevantResources } from '../repositories/domains.repository';
-import { PaginationOptions } from '../repositories/util/pagination';
 
 interface CreateAndSaveResourceData {
   name: string;
@@ -34,24 +33,24 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
   return createdResource;
 };
 
-interface GetDomainResourcesOptions {
-  sorting?: { direction: SortingDirection; type: APIDomainResourcesSortingType };
-  pagination?: PaginationOptions;
-}
+// interface GetDomainResourcesOptions {
+//   sorting?: { direction: SortingDirection; type: APIDomainResourcesSortingType };
+//   pagination?: PaginationOptions;
+// }
 /**
  * Default: sort by Relevance
  */
 export const getDomainResources = async (
   domainId: string,
   userId: string | undefined,
-  options: GetDomainResourcesOptions
+  { sortingType, filter, query }: NullToUndefined<APIDomainResourcesOptions>
 ): Promise<Resource[]> => {
-  const sorting = options.sorting || {
-    direction: SortingDirection.DESC,
-    type: APIDomainResourcesSortingType.Relevance,
-  };
-  if (sorting.type === APIDomainResourcesSortingType.Relevance) {
-    return getDomainRelevantResources(domainId, userId, options.pagination);
+  // const sorting = options.sorting || {
+  //   direction: SortingDirection.DESC,
+  //   type: APIDomainResourcesSortingType.Relevance,
+  // };
+  if (sortingType === APIDomainResourcesSortingType.Relevance) {
+    return getDomainRelevantResources(domainId, userId, { query, filter });
   }
-  return listDomainResources({ _id: domainId });
+  return listDomainResources({ _id: domainId }, { query, filter, sortingType });
 };
