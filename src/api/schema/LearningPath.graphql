@@ -1,0 +1,58 @@
+type LearningPath {
+  _id: String!
+  name: String!
+  description: String
+  resources(options: LearningPathResourcesOptions): LearningPathResourcesResults
+}
+
+input LearningPathResourcesOptions {
+  pagination: PaginationOptions
+}
+
+type LearningPathResourcesResults {
+  items: [LearningPathResourceItem!]!
+}
+
+type LearningPathResourceItem {
+  resource: Resource!
+  learningPathId: String!
+  tags: [String!]
+}
+
+input CreateLearningPathPayload {
+  name: String!
+  description: String
+  resources: [CreateLearningPathResourceItem!]!
+}
+
+input CreateLearningPathResourceItem {
+  resourceId: String!
+  tags: [String!]
+}
+
+type DeleteLearningPathResult {
+  success: Boolean!
+  _id: String!
+}
+
+input PutLearningPathPayload {
+  name: String!
+  description: String
+  resources: [PutLearningPathResourceItem]
+}
+
+input PutLearningPathResourceItem {
+  resourceId: String!
+  tags: [String!]
+}
+
+type Mutation {
+  createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
+  deleteLearningPath(_id: String!): DeleteLearningPathResult!
+  putLearningPath(_id: String!, payload: PutLearningPathPayload!): LearningPath!
+}
+
+type Query {
+  getLearningPath(_id: String!): LearningPath!
+}
+

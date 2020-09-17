@@ -23,6 +23,7 @@ export type Scalars = {
    * import Query.*, Mutation.* from "ResourceTag.graphql"
    * import Query.*, Mutation.* from "Resource.graphql"
    * import Query.*, Mutation.* from "Concept.graphql"
+   * import Query.*, Mutation.* from "LearningPath.graphql"
    * import Mutation.* from "./relationships/ConceptBelongsToDomain.graphql"
    * import Mutation.* from "./relationships/ConceptBelongsToConcept.graphql"
    * import Mutation.* from "./relationships/DomainBelongsToDomain.graphql"
@@ -132,6 +133,17 @@ export type APICreateDomainPayload = {
   name: Scalars['String'];
 };
 
+export type APICreateLearningPathPayload = {
+  description?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  resources: Array<APICreateLearningPathResourceItem>;
+};
+
+export type APICreateLearningPathResourceItem = {
+  resourceId: Scalars['String'];
+  tags?: Maybe<Array<Scalars['String']>>;
+};
+
 export type APICreateResourcePayload = {
   description?: Maybe<Scalars['String']>;
   durationMs?: Maybe<Scalars['Int']>;
@@ -172,6 +184,12 @@ export type APIDeleteConceptResult = {
 
 export type APIDeleteDomainResponse = {
    __typename?: 'DeleteDomainResponse';
+  _id: Scalars['String'];
+  success: Scalars['Boolean'];
+};
+
+export type APIDeleteLearningPathResult = {
+   __typename?: 'DeleteLearningPathResult';
   _id: Scalars['String'];
   success: Scalars['Boolean'];
 };
@@ -279,6 +297,35 @@ export type APIKnownConcept = {
   level: Scalars['Float'];
 };
 
+export type APILearningPath = {
+   __typename?: 'LearningPath';
+  _id: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  resources?: Maybe<APILearningPathResourcesResults>;
+};
+
+
+export type APILearningPathResourcesArgs = {
+  options?: Maybe<APILearningPathResourcesOptions>;
+};
+
+export type APILearningPathResourceItem = {
+   __typename?: 'LearningPathResourceItem';
+  learningPathId: Scalars['String'];
+  resource: APIResource;
+  tags?: Maybe<Array<Scalars['String']>>;
+};
+
+export type APILearningPathResourcesOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
+};
+
+export type APILearningPathResourcesResults = {
+   __typename?: 'LearningPathResourcesResults';
+  items: Array<APILearningPathResourceItem>;
+};
+
 export type APIListArticlesFilter = {
   contentType?: Maybe<ArticleContentType>;
 };
@@ -313,14 +360,17 @@ export type APIMutation = {
   attachResourceToDomain: APIResource;
   createArticle: APIArticle;
   createDomain: APIDomain;
+  createLearningPath: APILearningPath;
   createResource: APIResource;
   deleteArticle: APIDeleteArticleResponse;
   deleteConcept: APIDeleteConceptResult;
   deleteDomain: APIDeleteDomainResponse;
+  deleteLearningPath: APIDeleteLearningPathResult;
   deleteResource: APIDeleteResourceResponse;
   detachResourceCoversConcepts: APIResource;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
+  putLearningPath: APILearningPath;
   rateResource: APIResource;
   register: APICurrentUser;
   registerGoogle: APICurrentUser;
@@ -406,6 +456,11 @@ export type APIMutationCreateDomainArgs = {
 };
 
 
+export type APIMutationCreateLearningPathArgs = {
+  payload: APICreateLearningPathPayload;
+};
+
+
 export type APIMutationCreateResourceArgs = {
   payload: APICreateResourcePayload;
 };
@@ -423,6 +478,11 @@ export type APIMutationDeleteConceptArgs = {
 
 export type APIMutationDeleteDomainArgs = {
   id: Scalars['String'];
+};
+
+
+export type APIMutationDeleteLearningPathArgs = {
+  _id: Scalars['String'];
 };
 
 
@@ -447,6 +507,12 @@ export type APIMutationLoginArgs = {
 export type APIMutationLoginGoogleArgs = {
   discourseSSO?: Maybe<APIDiscourseSso>;
   idToken: Scalars['String'];
+};
+
+
+export type APIMutationPutLearningPathArgs = {
+  _id: Scalars['String'];
+  payload: APIPutLearningPathPayload;
 };
 
 
@@ -558,6 +624,17 @@ export type APIPaginationOptions = {
   offset?: Maybe<Scalars['Int']>;
 };
 
+export type APIPutLearningPathPayload = {
+  description?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  resources?: Maybe<Array<Maybe<APIPutLearningPathResourceItem>>>;
+};
+
+export type APIPutLearningPathResourceItem = {
+  resourceId: Scalars['String'];
+  tags?: Maybe<Array<Scalars['String']>>;
+};
+
 export type APIQuery = {
    __typename?: 'Query';
   currentUser?: Maybe<APICurrentUser>;
@@ -565,6 +642,7 @@ export type APIQuery = {
   getConcept: APIConcept;
   getConceptByKey: APIConcept;
   getDomainByKey: APIDomain;
+  getLearningPath: APILearningPath;
   getResourceById: APIResource;
   getUser: APIUser;
   listArticles: APIListArticlesResult;
@@ -590,6 +668,11 @@ export type APIQueryGetConceptByKeyArgs = {
 
 export type APIQueryGetDomainByKeyArgs = {
   key: Scalars['String'];
+};
+
+
+export type APIQueryGetLearningPathArgs = {
+  _id: Scalars['String'];
 };
 
 
@@ -771,6 +854,7 @@ export type APIUser = {
    __typename?: 'User';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
+  createdLearningPaths?: Maybe<Array<APILearningPath>>;
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
@@ -780,6 +864,15 @@ export type APIUser = {
 
 export type APIUserArticlesArgs = {
   options: APIListArticlesOptions;
+};
+
+
+export type APIUserCreatedLearningPathsArgs = {
+  options: APIUserLearningPathsOptions;
+};
+
+export type APIUserLearningPathsOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
 };
 
 export { UserRole };
@@ -874,17 +967,19 @@ export type APIResolversTypes = ResolversObject<{
   ListArticlesResult: ResolverTypeWrapper<APIListArticlesResult>,
   Article: ResolverTypeWrapper<APIArticle>,
   User: ResolverTypeWrapper<APIUser>,
-  UserRole: UserRole,
-  Concept: ResolverTypeWrapper<APIConcept>,
-  ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
-  ConceptCoveredByResourcesResults: ResolverTypeWrapper<APIConceptCoveredByResourcesResults>,
+  UserLearningPathsOptions: APIUserLearningPathsOptions,
+  LearningPath: ResolverTypeWrapper<APILearningPath>,
+  LearningPathResourcesOptions: APILearningPathResourcesOptions,
+  LearningPathResourcesResults: ResolverTypeWrapper<APILearningPathResourcesResults>,
+  LearningPathResourceItem: ResolverTypeWrapper<APILearningPathResourceItem>,
   Resource: ResolverTypeWrapper<APIResource>,
   ConsumedResource: ResolverTypeWrapper<APIConsumedResource>,
   Date: ResolverTypeWrapper<Scalars['Date']>,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
-  ResourceDomainsOptions: APIResourceDomainsOptions,
-  ResourceDomainsResults: ResolverTypeWrapper<APIResourceDomainsResults>,
+  Concept: ResolverTypeWrapper<APIConcept>,
+  ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
+  ConceptCoveredByResourcesResults: ResolverTypeWrapper<APIConceptCoveredByResourcesResults>,
   Domain: ResolverTypeWrapper<APIDomain>,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -901,14 +996,17 @@ export type APIResolversTypes = ResolversObject<{
   DomainResourcesSortingOptions: APIDomainResourcesSortingOptions,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
-  ResourceMediaType: ResourceMediaType,
-  ResourceTag: ResolverTypeWrapper<APIResourceTag>,
-  ResourceType: ResourceType,
   KnownConcept: ResolverTypeWrapper<APIKnownConcept>,
   ConceptBelongsToConceptItem: ResolverTypeWrapper<APIConceptBelongsToConceptItem>,
   ConceptBelongsToConcept: ResolverTypeWrapper<APIConceptBelongsToConcept>,
   ConceptReferencesConceptItem: ResolverTypeWrapper<APIConceptReferencesConceptItem>,
   ConceptReferencesConcept: ResolverTypeWrapper<APIConceptReferencesConcept>,
+  ResourceDomainsOptions: APIResourceDomainsOptions,
+  ResourceDomainsResults: ResolverTypeWrapper<APIResourceDomainsResults>,
+  ResourceMediaType: ResourceMediaType,
+  ResourceTag: ResolverTypeWrapper<APIResourceTag>,
+  ResourceType: ResourceType,
+  UserRole: UserRole,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
@@ -920,12 +1018,17 @@ export type APIResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
+  CreateLearningPathPayload: APICreateLearningPathPayload,
+  CreateLearningPathResourceItem: APICreateLearningPathResourceItem,
   DeleteArticleResponse: ResolverTypeWrapper<APIDeleteArticleResponse>,
   DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
+  DeleteLearningPathResult: ResolverTypeWrapper<APIDeleteLearningPathResult>,
   DeleteResourceResponse: ResolverTypeWrapper<APIDeleteResourceResponse>,
   DiscourseSSO: APIDiscourseSso,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
+  PutLearningPathPayload: APIPutLearningPathPayload,
+  PutLearningPathResourceItem: APIPutLearningPathResourceItem,
   RegisterPayload: APIRegisterPayload,
   RegisterGooglePayload: APIRegisterGooglePayload,
   SetConceptKnownPayload: APISetConceptKnownPayload,
@@ -955,17 +1058,19 @@ export type APIResolversParentTypes = ResolversObject<{
   ListArticlesResult: APIListArticlesResult,
   Article: APIArticle,
   User: APIUser,
-  UserRole: UserRole,
-  Concept: APIConcept,
-  ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
-  ConceptCoveredByResourcesResults: APIConceptCoveredByResourcesResults,
+  UserLearningPathsOptions: APIUserLearningPathsOptions,
+  LearningPath: APILearningPath,
+  LearningPathResourcesOptions: APILearningPathResourcesOptions,
+  LearningPathResourcesResults: APILearningPathResourcesResults,
+  LearningPathResourceItem: APILearningPathResourceItem,
   Resource: APIResource,
   ConsumedResource: APIConsumedResource,
   Date: Scalars['Date'],
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
-  ResourceDomainsOptions: APIResourceDomainsOptions,
-  ResourceDomainsResults: APIResourceDomainsResults,
+  Concept: APIConcept,
+  ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
+  ConceptCoveredByResourcesResults: APIConceptCoveredByResourcesResults,
   Domain: APIDomain,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -982,14 +1087,17 @@ export type APIResolversParentTypes = ResolversObject<{
   DomainResourcesSortingOptions: APIDomainResourcesSortingOptions,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: APIDomainResourcesResults,
-  ResourceMediaType: ResourceMediaType,
-  ResourceTag: APIResourceTag,
-  ResourceType: ResourceType,
   KnownConcept: APIKnownConcept,
   ConceptBelongsToConceptItem: APIConceptBelongsToConceptItem,
   ConceptBelongsToConcept: APIConceptBelongsToConcept,
   ConceptReferencesConceptItem: APIConceptReferencesConceptItem,
   ConceptReferencesConcept: APIConceptReferencesConcept,
+  ResourceDomainsOptions: APIResourceDomainsOptions,
+  ResourceDomainsResults: APIResourceDomainsResults,
+  ResourceMediaType: ResourceMediaType,
+  ResourceTag: APIResourceTag,
+  ResourceType: ResourceType,
+  UserRole: UserRole,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: APISearchDomainsResult,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
@@ -1001,12 +1109,17 @@ export type APIResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'],
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
+  CreateLearningPathPayload: APICreateLearningPathPayload,
+  CreateLearningPathResourceItem: APICreateLearningPathResourceItem,
   DeleteArticleResponse: APIDeleteArticleResponse,
   DeleteConceptResult: APIDeleteConceptResult,
   DeleteDomainResponse: APIDeleteDomainResponse,
+  DeleteLearningPathResult: APIDeleteLearningPathResult,
   DeleteResourceResponse: APIDeleteResourceResponse,
   DiscourseSSO: APIDiscourseSso,
   LoginResponse: APILoginResponse,
+  PutLearningPathPayload: APIPutLearningPathPayload,
+  PutLearningPathResourceItem: APIPutLearningPathResourceItem,
   RegisterPayload: APIRegisterPayload,
   RegisterGooglePayload: APIRegisterGooglePayload,
   SetConceptKnownPayload: APISetConceptKnownPayload,
@@ -1118,6 +1231,12 @@ export type APIDeleteDomainResponseResolvers<ContextType = APIContext, ParentTyp
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APIDeleteLearningPathResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteLearningPathResult'] = APIResolversParentTypes['DeleteLearningPathResult']> = ResolversObject<{
+  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIDeleteResourceResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteResourceResponse'] = APIResolversParentTypes['DeleteResourceResponse']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
@@ -1168,6 +1287,26 @@ export type APIKnownConceptResolvers<ContextType = APIContext, ParentType extend
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APILearningPathResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPath'] = APIResolversParentTypes['LearningPath']> = ResolversObject<{
+  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  resources?: Resolver<Maybe<APIResolversTypes['LearningPathResourcesResults']>, ParentType, ContextType, RequireFields<APILearningPathResourcesArgs, never>>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningPathResourceItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathResourceItem'] = APIResolversParentTypes['LearningPathResourceItem']> = ResolversObject<{
+  learningPathId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  resource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
+  tags?: Resolver<Maybe<Array<APIResolversTypes['String']>>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningPathResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathResourcesResults'] = APIResolversParentTypes['LearningPathResourcesResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['LearningPathResourceItem']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ListArticlesResult'] = APIResolversParentTypes['ListArticlesResult']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Article']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
@@ -1192,14 +1331,17 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   attachResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceToDomainArgs, 'domainId' | 'resourceId'>>,
   createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
   createDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationCreateDomainArgs, 'payload'>>,
+  createLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationCreateLearningPathArgs, 'payload'>>,
   createResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationCreateResourceArgs, 'payload'>>,
   deleteArticle?: Resolver<APIResolversTypes['DeleteArticleResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteArticleArgs, 'id'>>,
   deleteConcept?: Resolver<APIResolversTypes['DeleteConceptResult'], ParentType, ContextType, RequireFields<APIMutationDeleteConceptArgs, '_id'>>,
   deleteDomain?: Resolver<APIResolversTypes['DeleteDomainResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteDomainArgs, 'id'>>,
+  deleteLearningPath?: Resolver<APIResolversTypes['DeleteLearningPathResult'], ParentType, ContextType, RequireFields<APIMutationDeleteLearningPathArgs, '_id'>>,
   deleteResource?: Resolver<APIResolversTypes['DeleteResourceResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteResourceArgs, '_id'>>,
   detachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceCoversConceptsArgs, 'conceptIds' | 'resourceId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
+  putLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationPutLearningPathArgs, '_id' | 'payload'>>,
   rateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationRateResourceArgs, 'resourceId' | 'value'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>,
@@ -1226,6 +1368,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptArgs, '_id'>>,
   getConceptByKey?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptByKeyArgs, 'key'>>,
   getDomainByKey?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIQueryGetDomainByKeyArgs, 'key'>>,
+  getLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathArgs, '_id'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
@@ -1280,6 +1423,7 @@ export type APISearchDomainsResultResolvers<ContextType = APIContext, ParentType
 export type APIUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['User'] = APIResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APIUserArticlesArgs, 'options'>>,
+  createdLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APIUserCreatedLearningPathsArgs, 'options'>>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -1307,6 +1451,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DeleteArticleResponse?: APIDeleteArticleResponseResolvers<ContextType>,
   DeleteConceptResult?: APIDeleteConceptResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
+  DeleteLearningPathResult?: APIDeleteLearningPathResultResolvers<ContextType>,
   DeleteResourceResponse?: APIDeleteResourceResponseResolvers<ContextType>,
   Domain?: APIDomainResolvers<ContextType>,
   DomainBelongsToDomain?: APIDomainBelongsToDomainResolvers<ContextType>,
@@ -1315,6 +1460,9 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,
   DomainResourcesResults?: APIDomainResourcesResultsResolvers<ContextType>,
   KnownConcept?: APIKnownConceptResolvers<ContextType>,
+  LearningPath?: APILearningPathResolvers<ContextType>,
+  LearningPathResourceItem?: APILearningPathResourceItemResolvers<ContextType>,
+  LearningPathResourcesResults?: APILearningPathResourcesResultsResolvers<ContextType>,
   ListArticlesResult?: APIListArticlesResultResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   Mutation?: APIMutationResolvers<ContextType>,

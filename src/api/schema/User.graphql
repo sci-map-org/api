@@ -11,6 +11,11 @@ type User {
   role: UserRole!
   key: String!
   articles(options: ListArticlesOptions!): ListArticlesResult
+  createdLearningPaths(options: UserLearningPathsOptions!): [LearningPath!]
+}
+
+input UserLearningPathsOptions {
+  pagination: PaginationOptions
 }
 
 type CurrentUser {
