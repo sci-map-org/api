@@ -13,6 +13,7 @@ export enum ResourceType {
   article_series = 'article_series',
   course = 'course',
   youtube_video = 'youtube_video',
+  youtube_video_series = 'youtube_video_series',
   book = 'book',
   podcast = 'podcast',
   podcast_series = 'podcast_series',

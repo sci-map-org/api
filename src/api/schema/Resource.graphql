@@ -12,6 +12,7 @@ enum ResourceType {
   podcast
   podcast_series
   youtube_video
+  youtube_video_series
   book
   talk
   documentary

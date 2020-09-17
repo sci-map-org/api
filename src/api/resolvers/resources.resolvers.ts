@@ -193,7 +193,7 @@ export const rateResourceResolver: APIMutationResolvers['rateResource'] = async 
   { user }
 ) => {
   restrictAccess('contributorOrAdmin', user, 'Must be logged in and an admin or a contributor to rate a resource');
-  if (value < 0 || value > 10) throw new UserInputError('Ratings must be >=0 and <=10');
+  if (value < 0 || value > 5) throw new UserInputError('Ratings must be >=0 and <=5');
   const resource = await rateResource(user!._id, resourceId, value);
   return toAPIResource(resource);
 };
