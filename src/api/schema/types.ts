@@ -262,7 +262,6 @@ export type APIDomainResourcesOptions = {
   filter?: Maybe<APIDomainResourcesFilterOptions>;
   /** pagination: PaginationOptions! # not required yet */
   query?: Maybe<Scalars['String']>;
-  /** sorting: DomainResourcesSortingOptions # to remove */
   sortingType: APIDomainResourcesSortingType;
 };
 
@@ -273,9 +272,8 @@ export type APIDomainResourcesResults = {
 
 /** Domain resources */
 export enum APIDomainResourcesSortingType {
-  CreationDate = 'creation_date',
   Newest = 'newest',
-  Relevance = 'relevance'
+  Recommended = 'recommended'
 }
 
 export type APIKnownConcept = {
@@ -700,7 +698,6 @@ export enum APIResourceVoteValue {
   Up = 'up'
 }
 
-/** Domain */
 export type APISearchDomainsOptions = {
   pagination: APIPaginationOptions;
   query?: Maybe<Scalars['String']>;

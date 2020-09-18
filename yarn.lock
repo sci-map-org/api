@@ -1170,7 +1170,7 @@
   dependencies:
     "@types/koa" "*"
 
-"@types/lodash@^4.14.149":
+"@types/lodash@^4.14.136", "@types/lodash@^4.14.149":
   version "4.14.161"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.161.tgz#a21ca0777dabc6e4f44f3d07f37b765f54188b18"
   integrity sha512-EP6O3Jkr7bXvZZSZYlsgt5DIjiGr0dXP1/jVEwVLTFgg0d+3lWVQkRavYVQszV7dYUwvg0B8R0MBDpcmXg7XIA==
@@ -1217,6 +1217,11 @@
   version "10.17.29"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.29.tgz#263b7013f9f4afa53585b199f9a4255d9613b178"
   integrity sha512-zLo9rjUeQ5+QVhOufDwrb3XKyso31fJBJnk9wUUQIBDExF/O4LryvpOfozfUaxgqifTnlt7FyqsAPXUq5yFZSA==
+
+"@types/node@^12.6.1":
+  version "12.12.62"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.62.tgz#733923d73669188d35950253dd18a21570085d2b"
+  integrity sha512-qAfo81CsD7yQIM9mVyh6B/U47li5g7cfpVQEDMfQeF8pSZVwzbhwU3crc0qG4DmpsebpJPR49AKOExQyJ05Cpg==
 
 "@types/node@^13.9.3":
   version "13.13.16"
@@ -2398,6 +2403,19 @@ cssfilter@0.0.10:
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/cssfilter/-/cssfilter-0.0.10.tgz#c6d2672632a2e5c83e013e6864a42ce8defd20ae"
   integrity sha1-xtJnJjKi5cg+AT5oZKQs6N79IK4=
+
+cypher-query-builder@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/cypher-query-builder/-/cypher-query-builder-6.0.0.tgz#0d4c7bdc64b561d15f3bd2279ae07cc2c633b662"
+  integrity sha512-lXCO6v+XZJrNNtmyrA5ssrQfCttOA2oyjQctiRT6XT66UxytfS0i3XvN7ikUBkQi+vaeSoN6ZX/SJ91wbq0o7Q==
+  dependencies:
+    "@types/lodash" "^4.14.136"
+    "@types/node" "^12.6.1"
+    lodash "^4.17.15"
+    neo4j-driver "^4.0.1"
+    node-cleanup "^2.1.2"
+    rxjs "^6.5.2"
+    tslib "^1.10.0"
 
 dashdash@^1.12.0:
   version "1.14.1"
@@ -4569,6 +4587,16 @@ neo4j-driver@4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/neo4j-driver/-/neo4j-driver-4.0.2.tgz#78de3b91e91572bcbd9d2e02554322fe1ab399ea"
   integrity sha512-xQN4BZZsweaNNac7FDYAV6f/JybghwY3lk4fwblS8V5KQ+DBMPe4Pthh672mp+wEYZGyzPalq5CfpcBrWaZ4Gw==
+  dependencies:
+    "@babel/runtime" "^7.5.5"
+    rxjs "^6.5.2"
+    text-encoding-utf-8 "^1.0.2"
+    uri-js "^4.2.2"
+
+neo4j-driver@^4.0.1:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/neo4j-driver/-/neo4j-driver-4.1.2.tgz#b7dc520a8b64b7dccd143058cf6cdf6fd6cb9ccd"
+  integrity sha512-hD13lwOuWi53IorgxL0/7HdBrR74VsQTMzZbp45a5e+vhciGtkqsfPH4oy33g+UOeORmxQ1y/lLnKpYe0Ll6xg==
   dependencies:
     "@babel/runtime" "^7.5.5"
     rxjs "^6.5.2"

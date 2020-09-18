@@ -1,3 +1,4 @@
+import { inArray, node, Query, relation } from 'cypher-query-builder';
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
 import { APIDomainResourcesSortingType } from '../api/schema/types';
@@ -9,12 +10,8 @@ import {
   DomainBelongsToDomain,
   DomainBelongsToDomainLabel,
 } from '../entities/relationships/DomainBelongsToDomain';
-import {
-  ResourceBelongsToDomain,
-  ResourceBelongsToDomainLabel,
-} from '../entities/relationships/ResourceBelongsToDomain';
-import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
-import { neo4jDriver } from '../infra/neo4j';
+import { Resource, ResourceType } from '../entities/Resource';
+import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachUniqueNodes,
   createRelatedNode,
@@ -24,7 +21,6 @@ import {
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
-import { PaginationOptions } from './util/pagination';
 import { SortingDirection } from './util/sorting';
 
 interface CreateDomainData {
@@ -108,62 +104,69 @@ interface DomainResourcesFilter {
   resourceTypeIn?: ResourceType[];
   consumedByUser?: Boolean;
 }
-// TODO rename, find convention
-export const listDomainResources = (
-  domainFilter: { key: string } | { _id: string },
+
+export const getDomainResources = async (
+  domainId: string,
+  userId: string | undefined,
   {
     query,
     filter,
     sortingType,
   }: { query?: string; filter?: DomainResourcesFilter; sortingType: APIDomainResourcesSortingType }
-): Promise<Resource[]> =>
-  getRelatedNodes<Domain, ResourceBelongsToDomain, Resource>({
-    originNode: {
-      label: DomainLabel,
-      filter: domainFilter,
-    },
-    relationship: {
-      label: ResourceBelongsToDomainLabel,
-    },
-    destinationNode: {
-      label: ResourceLabel,
-      filter: {
-        ...(filter?.resourceTypeIn && { type: { $in: filter.resourceTypeIn } }),
-      },
-    },
-    pagination: { offset: 0, limit: 100 },
-  })
-    .then(prop('items'))
-    .then(map(prop('destinationNode')));
-
-export const getDomainRelevantResources = async (
-  domainId: string,
-  userId: string | undefined,
-  { query, filter }: { query?: string; filter?: DomainResourcesFilter }
 ): Promise<Resource[]> => {
-  const session = neo4jDriver.session();
+  const q = new Query(neo4jQb);
+  if (userId) q.matchNode('u', 'User', { _id: userId });
 
-  let cypherQuery: string;
-  if (!userId) {
-    cypherQuery = `match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource) optional match (r)-[:COVERS]->(cc:Concept) 
-  optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc)
-  WITH DISTINCT r, count(distinct mpc) as cmpc, count(cc) as ccc return r, properties(r) as resource, cmpc, sign(ccc)/(0.1+cmpc) as score ORDER BY score DESC`;
+  q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('r', 'Resource')]);
+
+  const hasWhereClause = !!filter && !!filter.resourceTypeIn;
+  if (hasWhereClause)
+    q.where({
+      r: {
+        ...(!!filter?.resourceTypeIn && { type: inArray(filter.resourceTypeIn) }),
+      },
+    });
+  if (query)
+    q.raw(
+      `${
+        hasWhereClause ? ' AND ' : 'WHERE '
+      } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query))`, // OR toLower(r.type) CONTAINS toLower($query) OR  ?
+      { query }
+    );
+  if (userId && filter?.consumedByUser === true)
+    q.raw(`${hasWhereClause || query ? ' AND ' : 'WHERE '}(u)-[:CONSUMED]->(r)`);
+  if (userId && filter?.consumedByUser === false)
+    q.raw(`${hasWhereClause || query ? ' AND ' : 'WHERE NOT '}(u)-[:CONSUMED]->(r)`);
+
+  if (sortingType === APIDomainResourcesSortingType.Recommended) {
+    q.optionalMatch([node('r'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
+    q.optionalMatch([node('cc'), relation('out', 'dpc', 'REFERENCES', [0, 5]), node('mpc', 'Concept')]);
+    // q.where(not([node('r'), relation('out', '', 'COVERS'), node('mpc')]));
+    q.raw('WHERE NOT (r)-[:COVERS]->(mpc)');
+    if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
+    if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
+    if (userId)
+      q.with([
+        'DISTINCT r',
+        'count(cc) as ccc',
+        'count(distinct mpc) as cmpc',
+        '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
+      ]);
+    else q.with(['DISTINCT r', 'count(cc) as ccc', 'count(distinct mpc) as cmpc']);
+
+    if (userId)
+      q.return(['r', 'properties(r) as resource', 'cmpc', ' usefulness', 'sign(ccc)*usefulness/(0.1+cmpc) as score']);
+    else q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) as score']);
+    q.orderBy('score', 'DESC');
   } else {
-    cypherQuery = `match (u:User {_id: $userId}) match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource) optional match (r)-[:COVERS]->(cc:Concept) 
-  optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc) AND NOT (u)-[:KNOWS]->(mpc) 
-  optional match (cc)<-[rkc:KNOWS]-(u) 
-  WITH DISTINCT r, count(cc) as ccc, 1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness, count(distinct mpc) as cmpc return r, properties(r) as resource, usefulness, cmpc, sign(ccc)*usefulness/(0.1+cmpc) as score ORDER BY score DESC`;
+    q.match([node('r'), relation('in', 'createdResource', 'CREATED'), node('', 'User')]);
+    q.return(['r']);
+    q.orderBy('createdResource.createdAt', 'DESC');
   }
 
-  const { records } = await session.run(cypherQuery, {
-    domainId,
-    userId,
-  });
-
-  session.close();
-  return records.map(r => {
-    return r.get('resource');
-  });
+  const r = await q.run();
+  const resources = r.map(i => i.r.properties);
+  return resources;
 };
 
 export const attachDomainBelongsToDomain = (

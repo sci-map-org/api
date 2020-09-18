@@ -47,15 +47,9 @@ type DomainBelongsToDomainItem {
 
 # Domain resources
 enum DomainResourcesSortingType {
-  relevance
-  creation_date
+  recommended
   newest
 }
-
-# input DomainResourcesSortingOptions {
-#   type: DomainResourcesSortingType!
-#   direction: SortingDirection! # to remove
-# }
 
 input DomainResourcesFilterOptions {
   resourceTypeIn: [ResourceType!]
@@ -63,7 +57,6 @@ input DomainResourcesFilterOptions {
 }
 
 input DomainResourcesOptions {
-  # sorting: DomainResourcesSortingOptions # to remove
   sortingType: DomainResourcesSortingType!
   # pagination: PaginationOptions! # not required yet
   query: String
@@ -74,7 +67,6 @@ type DomainResourcesResults {
   items: [Resource!]!
 }
 
-# Domain
 input SearchDomainsOptions {
   query: String
   pagination: PaginationOptions!
