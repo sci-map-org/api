@@ -133,10 +133,14 @@ export const getDomainResources = async (
       } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query))`, // OR toLower(r.type) CONTAINS toLower($query) OR  ?
       { query }
     );
-  if (userId && filter?.consumedByUser === true)
-    q.raw(`${hasWhereClause || query ? ' AND ' : 'WHERE '}(u)-[:CONSUMED]->(r)`);
-  if (userId && filter?.consumedByUser === false)
-    q.raw(`${hasWhereClause || query ? ' AND ' : 'WHERE NOT '}(u)-[:CONSUMED]->(r)`);
+
+  if (userId && (filter?.consumedByUser === true || filter?.consumedByUser === false)) {
+    q.match([node('u'), relation('out', 'consumed_r', 'CONSUMED'), node('r')]);
+
+    if (filter?.consumedByUser === true) q.raw(` WHERE exists(consumed_r.consumedAt)`);
+
+    if (filter?.consumedByUser === false) q.raw(` WHERE NOT exists(consumed_r.consumedAt)`);
+  }
 
   if (sortingType === APIDomainResourcesSortingType.Recommended) {
     q.optionalMatch([node('r'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
