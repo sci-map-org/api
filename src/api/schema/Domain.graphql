@@ -47,25 +47,26 @@ type DomainBelongsToDomainItem {
 
 # Domain resources
 enum DomainResourcesSortingType {
-  relevance
-  creation_date
+  recommended
+  newest
 }
 
-input DomainResourcesSortingOptions {
-  type: DomainResourcesSortingType!
-  direction: SortingDirection!
+input DomainResourcesFilterOptions {
+  resourceTypeIn: [ResourceType!]
+  consumedByUser: Boolean
 }
 
 input DomainResourcesOptions {
-  sorting: DomainResourcesSortingOptions
-  pagination: PaginationOptions!
+  sortingType: DomainResourcesSortingType!
+  # pagination: PaginationOptions! # not required yet
+  query: String
+  filter: DomainResourcesFilterOptions
 }
 
 type DomainResourcesResults {
   items: [Resource!]!
 }
 
-# Domain
 input SearchDomainsOptions {
   query: String
   pagination: PaginationOptions!

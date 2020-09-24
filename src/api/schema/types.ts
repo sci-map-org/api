@@ -253,9 +253,16 @@ export type APIDomainConceptsResults = {
   items: Array<APIDomainConceptsItem>;
 };
 
+export type APIDomainResourcesFilterOptions = {
+  consumedByUser?: Maybe<Scalars['Boolean']>;
+  resourceTypeIn?: Maybe<Array<ResourceType>>;
+};
+
 export type APIDomainResourcesOptions = {
-  pagination: APIPaginationOptions;
-  sorting?: Maybe<APIDomainResourcesSortingOptions>;
+  filter?: Maybe<APIDomainResourcesFilterOptions>;
+  /** pagination: PaginationOptions! # not required yet */
+  query?: Maybe<Scalars['String']>;
+  sortingType: APIDomainResourcesSortingType;
 };
 
 export type APIDomainResourcesResults = {
@@ -263,15 +270,10 @@ export type APIDomainResourcesResults = {
   items: Array<APIResource>;
 };
 
-export type APIDomainResourcesSortingOptions = {
-  direction: SortingDirection;
-  type: APIDomainResourcesSortingType;
-};
-
 /** Domain resources */
 export enum APIDomainResourcesSortingType {
-  CreationDate = 'creation_date',
-  Relevance = 'relevance'
+  Newest = 'newest',
+  Recommended = 'recommended'
 }
 
 export type APIKnownConcept = {
@@ -696,7 +698,6 @@ export enum APIResourceVoteValue {
   Up = 'up'
 }
 
-/** Domain */
 export type APISearchDomainsOptions = {
   pagination: APIPaginationOptions;
   query?: Maybe<Scalars['String']>;
@@ -898,12 +899,13 @@ export type APIResolversTypes = ResolversObject<{
   DomainBelongsToDomainItem: ResolverTypeWrapper<APIDomainBelongsToDomainItem>,
   DomainBelongsToDomain: ResolverTypeWrapper<APIDomainBelongsToDomain>,
   DomainResourcesOptions: APIDomainResourcesOptions,
-  DomainResourcesSortingOptions: APIDomainResourcesSortingOptions,
+  DomainResourcesFilterOptions: APIDomainResourcesFilterOptions,
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
+  ResourceType: ResourceType,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: ResolverTypeWrapper<APIResourceTag>,
-  ResourceType: ResourceType,
   KnownConcept: ResolverTypeWrapper<APIKnownConcept>,
   ConceptBelongsToConceptItem: ResolverTypeWrapper<APIConceptBelongsToConceptItem>,
   ConceptBelongsToConcept: ResolverTypeWrapper<APIConceptBelongsToConcept>,
@@ -917,7 +919,6 @@ export type APIResolversTypes = ResolversObject<{
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
   DeleteArticleResponse: ResolverTypeWrapper<APIDeleteArticleResponse>,
@@ -979,12 +980,13 @@ export type APIResolversParentTypes = ResolversObject<{
   DomainBelongsToDomainItem: APIDomainBelongsToDomainItem,
   DomainBelongsToDomain: APIDomainBelongsToDomain,
   DomainResourcesOptions: APIDomainResourcesOptions,
-  DomainResourcesSortingOptions: APIDomainResourcesSortingOptions,
+  DomainResourcesFilterOptions: APIDomainResourcesFilterOptions,
+  Boolean: Scalars['Boolean'],
+  ResourceType: ResourceType,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: APIDomainResourcesResults,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: APIResourceTag,
-  ResourceType: ResourceType,
   KnownConcept: APIKnownConcept,
   ConceptBelongsToConceptItem: APIConceptBelongsToConceptItem,
   ConceptBelongsToConcept: APIConceptBelongsToConcept,
@@ -998,7 +1000,6 @@ export type APIResolversParentTypes = ResolversObject<{
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
-  Boolean: Scalars['Boolean'],
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
   DeleteArticleResponse: APIDeleteArticleResponse,

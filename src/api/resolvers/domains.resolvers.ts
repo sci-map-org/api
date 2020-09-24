@@ -12,7 +12,7 @@ import {
   getDomainParentDomains,
   getDomainSubDomains,
 } from '../../repositories/domains.repository';
-import { getDomainResources } from '../../services/resources.service';
+import { getDomainResources } from '../../repositories/domains.repository';
 import { APIDomain, APIDomainResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
