@@ -4,6 +4,7 @@ import { createUser } from '../repositories/users.repository';
 import { identifyGoogleIdToken } from './auth/google_sign_in';
 import { createEmailVerificationToken } from './auth/jwt';
 import { encryptPassword } from './auth/password_hashing';
+import { sendDiscordNotification } from './discord/discord_webhooks.service';
 import { sendEmail } from './email/email.client';
 
 async function sendEmailVerificationEmail(user: User, timestamp: number): Promise<void> {
@@ -36,6 +37,7 @@ export const registerUser = async ({
     role: UserRole.USER,
   });
   await sendEmailVerificationEmail(user, Date.now());
+  sendNewUserDiscordNotification(user);
   return user;
 };
 
@@ -49,7 +51,7 @@ export const registerUserGoogleAuth = async ({
   idToken: string;
 }): Promise<User> => {
   const { googleUserId, email } = await identifyGoogleIdToken(idToken);
-  return createUser({
+  const user = await createUser({
     key,
     active: true,
     displayName,
@@ -57,6 +59,8 @@ export const registerUserGoogleAuth = async ({
     googleUserId,
     role: UserRole.USER,
   });
+  sendNewUserDiscordNotification(user);
+  return user;
 };
 
 export type RoleAccessAllowedRule = 'all' | 'loggedInUser' | 'admin' | 'notLoggedInUser' | 'contributorOrAdmin';
@@ -74,3 +78,9 @@ const accessRuleMapping: {
 export const hasAccess = (accessRule: RoleAccessAllowedRule, user?: Pick<User, 'role'>): boolean => {
   return accessRuleMapping[accessRule](user);
 };
+
+function sendNewUserDiscordNotification(user: User) {
+  sendDiscordNotification(
+    `OMGGGG !!! Like, we have a new user: ${user.displayName} (${user.email}, @${user.key}). I literally can't even !`
+  );
+}

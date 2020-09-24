@@ -3,6 +3,7 @@ import { ResourceMediaType, ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import { createResource } from '../repositories/resources.repository';
 import { attachResourceTagsToResource, findOrCreateResourceTag } from '../repositories/resource_tags.repository';
+import { sendDiscordNotification } from './discord/discord_webhooks.service';
 
 interface CreateAndSaveResourceData {
   name: string;
@@ -23,5 +24,8 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
       resourceTags.map(r => r.name)
     );
   }
+  sendDiscordNotification(
+    `Yay, new resource created: ${createdResource.name}, id: ${createdResource._id} (by user with id ${userId})`
+  );
   return createdResource;
 };
