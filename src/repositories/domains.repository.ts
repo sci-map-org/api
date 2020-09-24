@@ -130,7 +130,7 @@ export const getDomainResources = async (
     q.raw(
       `${
         hasWhereClause ? ' AND ' : 'WHERE '
-      } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query))`, // OR toLower(r.type) CONTAINS toLower($query) OR  ?
+      } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query))`,
       { query }
     );
 
@@ -153,7 +153,6 @@ export const getDomainResources = async (
   if (sortingType === APIDomainResourcesSortingType.Recommended) {
     q.optionalMatch([node('r'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
     q.optionalMatch([node('cc'), relation('out', 'dpc', 'REFERENCES', [0, 5]), node('mpc', 'Concept')]);
-    // q.where(not([node('r'), relation('out', '', 'COVERS'), node('mpc')]));
     q.raw('WHERE NOT (r)-[:COVERS]->(mpc)');
     if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
     if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
