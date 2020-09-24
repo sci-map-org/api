@@ -130,7 +130,7 @@ export const getDomainResources = async (
     q.raw(
       `${
         hasWhereClause ? ' AND ' : 'WHERE '
-      } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query))`,
+      } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
       { query }
     );
 
