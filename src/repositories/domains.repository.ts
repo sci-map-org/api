@@ -134,12 +134,20 @@ export const getDomainResources = async (
       { query }
     );
 
-  if (userId && (filter?.consumedByUser === true || filter?.consumedByUser === false)) {
-    q.match([node('u'), relation('out', 'consumed_r', 'CONSUMED'), node('r')]);
+  if (userId && filter?.consumedByUser === true) {
+    q.raw(
+      `${
+        hasWhereClause || query ? ' AND ' : 'WHERE '
+      } EXISTS { (u)-[consumed_r:CONSUMED]->(r) WHERE exists(consumed_r.consumedAt) }`
+    );
+  }
 
-    if (filter?.consumedByUser === true) q.raw(` WHERE exists(consumed_r.consumedAt)`);
-
-    if (filter?.consumedByUser === false) q.raw(` WHERE NOT exists(consumed_r.consumedAt)`);
+  if (userId && filter?.consumedByUser === false) {
+    q.raw(
+      `${
+        hasWhereClause || query ? ' AND ' : ' WHERE '
+      } (NOT (u)-[:CONSUMED]->(r) OR EXISTS { (u)-[consumed_r:CONSUMED]->(r)  where consumed_r.consumedAt IS NULL })`
+    );
   }
 
   if (sortingType === APIDomainResourcesSortingType.Recommended) {

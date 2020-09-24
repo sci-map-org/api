@@ -41,7 +41,7 @@
     "koa": "^2.10.0",
     "lodash": "^4.17.15",
     "monk": "^7.1.1",
-    "neo4j-driver": "4.0.2",
+    "neo4j-driver": "4.1.2",
     "nodemailer": "^6.4.10",
     "ramda": "^0.27.0",
     "shortid": "^2.2.15",
