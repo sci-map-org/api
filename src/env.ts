@@ -43,6 +43,7 @@ const DISCORD = typedEnv.envGroup(
   {
     BOTS_WEBHOOK_ID: typedEnv.types.OptionalString,
     BOTS_WEBHOOK_TOKEN: typedEnv.types.OptionalString,
+    ERRORS_WEBHOOK_URL: typedEnv.types.OptionalString,
   },
   'DISCORD'
 );

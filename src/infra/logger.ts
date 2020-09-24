@@ -1,6 +1,7 @@
 import * as winston from 'winston';
 import * as WinstonCloudWatch from 'winston-cloudwatch';
 import { env } from '../env';
+import DiscordTransport from 'winston-discord-transport';
 
 const transports: winston.transport[] = [];
 
@@ -31,6 +32,14 @@ if (process.env.NODE_ENV !== 'production') {
       logStreamName: 'errors',
     })
   );
+  env.DISCORD.ERRORS_WEBHOOK_URL &&
+    transports.push(
+      new DiscordTransport({
+        webhook: env.DISCORD.ERRORS_WEBHOOK_URL,
+        defaultMeta: { service: 'api' },
+        level: 'warn',
+      })
+    );
 }
 
 export const logger = winston.createLogger({
