@@ -6,6 +6,10 @@ import {
   ResourceBelongsToDomain,
   ResourceBelongsToDomainLabel,
 } from '../entities/relationships/ResourceBelongsToDomain';
+import {
+  ResourceBelongsToResource,
+  ResourceBelongsToResourceLabel,
+} from '../entities/relationships/ResourceBelongsToResource';
 import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import { UserCreatedResource, UserCreatedResourceLabel } from '../entities/relationships/UserCreatedResource';
@@ -75,11 +79,11 @@ export const deleteResourceCreatedBy = (
   });
 
 export const attachResourceToDomain = (resourceId: string, domainId: string) =>
-  attachNodes<Resource, ResourceBelongsToDomain, Domain>({
+  attachUniqueNodes<Resource, ResourceBelongsToDomain, Domain>({
     originNode: { label: ResourceLabel, filter: { _id: resourceId } },
     relationship: { label: ResourceBelongsToDomainLabel },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
-  });
+  }).then(({ originNode, destinationNode }) => ({ domain: destinationNode, resource: originNode }));
 
 export const findResource = findOne<Resource, { _id: string }>({ label: ResourceLabel });
 
@@ -315,3 +319,51 @@ export const getResourceCreator = (resourceFilter: { _id: string }) =>
       filter: {},
     },
   });
+
+export const getResourceSubResources = (parentResourceId: string) =>
+  getRelatedNodes<Resource, ResourceBelongsToResource, Resource>({
+    originNode: {
+      label: ResourceLabel,
+      filter: { _id: parentResourceId },
+    },
+    relationship: {
+      label: ResourceBelongsToResourceLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: ResourceLabel,
+    },
+  })
+    .then(prop('items'))
+    .then(map(prop('destinationNode')));
+
+export const getResourceParentResource = (subResourceId: string) =>
+  getRelatedNode<Resource>({
+    originNode: {
+      label: ResourceLabel,
+      filter: { _id: subResourceId },
+    },
+    relationship: {
+      label: ResourceBelongsToResourceLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: {},
+    },
+  });
+
+export const attachSubResourceToResource = (parentResourceId: string, subResourceId: string) =>
+  attachUniqueNodes<Resource, ResourceBelongsToResource, Resource>({
+    originNode: { label: ResourceLabel, filter: { _id: subResourceId } },
+    relationship: { label: ResourceBelongsToResourceLabel },
+    destinationNode: { label: ResourceLabel, filter: { _id: parentResourceId } },
+  }).then(({ originNode, destinationNode }) => ({ parentResource: destinationNode, subResource: originNode }));
+
+// export const createSubResourceSeries = (parentResouceId:string, subResourceId: string) => {
+//   attachUniqueNodes<Resource, ResourceBelongsToResource, Resource>({
+//     originNode: { label: ResourceLabel, filter: { _id: subResourceId } },
+//     relationship: { label: ResourceBelongsToResourceLabel },
+//     destinationNode: { label: ResourceLabel, filter: { _id: parentResourceId } },
+//   })
+// }

@@ -43,6 +43,11 @@ type Resource {
   creator: User
   coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
   domains(options: ResourceDomainsOptions!): ResourceDomainsResults
+  subResources: [Resource!]
+  subResourceSeries: [Resource!]
+  parentResource: Resource
+  nextResource: Resource
+  previousResource: Resource
 }
 
 input ResourceDomainsOptions {
@@ -85,6 +90,7 @@ input SetResourcesConsumedPayloadResourcesField {
   consumed: Boolean
   opened: Boolean
 }
+
 input SetResourcesConsumedPayload {
   resources: [SetResourcesConsumedPayloadResourcesField!]!
 }
@@ -99,6 +105,11 @@ type DeleteResourceResponse {
   success: Boolean!
 }
 
+type SubResourceCreatedResult {
+  parentResource: Resource!
+  subResource: Resource!
+}
+
 type Query {
   getResourceById(id: String!): Resource!
 }
@@ -106,7 +117,7 @@ type Query {
 type Mutation {
   createResource(payload: CreateResourcePayload!): Resource!
   updateResource(_id: String!, payload: UpdateResourcePayload!): Resource!
-  deleteResource(_id: String!): DeleteResourceResponse!
+  deleteResource(_id: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
   addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
   attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
   attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
@@ -114,4 +125,11 @@ type Mutation {
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
   voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
   rateResource(resourceId: String!, value: Float!): Resource!
+  addSubResource(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!
+  createSubResourceSeries(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!
+  addSubResourceToSeries(
+    parentResourceId: String!
+    previousResourceId: String!
+    subResourceId: String!
+  ): SubResourceCreatedResult!
 }

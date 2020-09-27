@@ -45,6 +45,7 @@ import {
 } from './resolvers/domains.resolvers';
 import {
   addResourceToDomainResolver,
+  addSubResourceResolver,
   attachResourceCoversConceptsResolver,
   attachResourceToDomainResolver,
   createResourceResolver,
@@ -62,6 +63,8 @@ import {
   setResourcesConsumedResolver,
   updateResourceResolver,
   voteResourceResolver,
+  getResourceParentResourceResolver,
+  getResourceSubResourcesResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -123,6 +126,7 @@ const resolvers: APIResolvers<APIContext> = {
     removeConceptBelongsToConcept: removeConceptBelongsToConceptResolver,
     addDomainBelongsToDomain: addDomainBelongsToDomainResolver,
     removeDomainBelongsToDomain: removeDomainBelongsToDomainResolver,
+    addSubResource: addSubResourceResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -168,6 +172,8 @@ const resolvers: APIResolvers<APIContext> = {
     rating: getResourceRatingResolver,
     consumed: getResourceConsumedResolver,
     creator: getResourceCreatorResolver,
+    subResources: getResourceSubResourcesResolver,
+    parentResource: getResourceParentResourceResolver,
   },
   Date: GraphQLDateTime,
 };

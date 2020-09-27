@@ -4,6 +4,7 @@ import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachResourceCoversConcepts,
   attachResourceToDomain,
+  attachSubResourceToResource,
   deleteResource,
   deleteResourceCreatedBy,
   detachResourceCoversConcepts,
@@ -11,7 +12,9 @@ import {
   getResourceCoveredConcepts,
   getResourceCreator,
   getResourceDomains,
+  getResourceParentResource,
   getResourceRating,
+  getResourceSubResources,
   getResourceUpvoteCount,
   getUserConsumedResource,
   rateResource,
@@ -91,9 +94,7 @@ export const attachResourceToDomainResolver: APIMutationResolvers['attachResourc
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  await attachResourceToDomain(domainId, resourceId);
-  const resource = await findResource({ _id: resourceId });
-  if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
+  const { resource } = await attachResourceToDomain(domainId, resourceId);
   return toAPIResource(resource);
 };
 
@@ -211,3 +212,48 @@ export const getResourceCreatorResolver: APIResourceResolvers['creator'] = async
 
   return toAPIUser(creator);
 };
+
+export const getResourceSubResourcesResolver: APIResourceResolvers['subResources'] = async resource => {
+  return getResourceSubResources(resource._id);
+};
+
+// export const getSubResourceSeries: APIResourceResolvers['subResourceSeries'] = async resource => {
+//   return toAPIResource();
+// };
+
+export const getResourceParentResourceResolver: APIResourceResolvers['parentResource'] = async resource => {
+  return getResourceParentResource(resource._id);
+};
+
+// export const getNextResource: APIResourceResolvers['nextResource'] = async resource => {
+//   return toAPIResource();
+// };
+// export const getPreviousResource: APIResourceResolvers['previousResource'] = async resource => {
+//   return toAPIResource();
+// };
+
+export const addSubResourceResolver: APIMutationResolvers['addSubResource'] = async (
+  _,
+  { parentResourceId, subResourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to add a sub resource to a resource');
+  return await attachSubResourceToResource(parentResourceId, subResourceId);
+};
+
+// export const createSubResourceSeriesResolver: APIMutationResolvers['createSubResourceSeries'] = async (
+//   _,
+//   { parentResourceId, subResourceId },
+//   { user }
+// ) => {
+//   if (!user) throw new UnauthenticatedError('Must be logged in to create resource series');
+//   return createSubResourceSeries(parentResourceId, subResourceId);
+// };
+
+// export const addSubResourceToSeriesResolver: APIMutationResolvers['addSubResourceToSeries'] = async (
+//   _,
+//   { parentResourceId, previousResourceId, subResourceId },
+//   { user }
+// ) => {
+//   return null;
+// };
