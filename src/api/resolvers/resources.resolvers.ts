@@ -14,7 +14,9 @@ import {
   getResourceCoveredConcepts,
   getResourceCreator,
   getResourceDomains,
+  getResourceNextResource,
   getResourceParentResource,
+  getResourcePreviousResource,
   getResourceRating,
   getResourceSubResources,
   getResourceSubResourceSeries,
@@ -228,12 +230,13 @@ export const getResourceParentResourceResolver: APIResourceResolvers['parentReso
   return getResourceParentResource(resource._id);
 };
 
-// export const getNextResource: APIResourceResolvers['nextResource'] = async resource => {
-//   return toAPIResource();
-// };
-// export const getPreviousResource: APIResourceResolvers['previousResource'] = async resource => {
-//   return toAPIResource();
-// };
+export const getResourceNextResourceResolver: APIResourceResolvers['nextResource'] = async resource => {
+  return getResourceNextResource(resource._id);
+};
+
+export const getResourcePreviousResourceResolver: APIResourceResolvers['previousResource'] = async resource => {
+  return getResourcePreviousResource(resource._id);
+};
 
 export const addSubResourceResolver: APIMutationResolvers['addSubResource'] = async (
   _,

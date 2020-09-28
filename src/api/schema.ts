@@ -68,6 +68,8 @@ import {
   addSubResourceToSeriesResolver,
   createSubResourceSeriesResolver,
   getResourceSubResourceSeriesResolver,
+  getResourcePreviousResourceResolver,
+  getResourceNextResourceResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -180,6 +182,8 @@ const resolvers: APIResolvers<APIContext> = {
     subResources: getResourceSubResourcesResolver,
     parentResource: getResourceParentResourceResolver,
     subResourceSeries: getResourceSubResourceSeriesResolver,
+    previousResource: getResourcePreviousResourceResolver,
+    nextResource: getResourceNextResourceResolver,
   },
   Date: GraphQLDateTime,
 };

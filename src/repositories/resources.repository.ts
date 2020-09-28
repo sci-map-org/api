@@ -28,13 +28,13 @@ import { Resource, ResourceLabel, ResourceMediaType, ResourceType } from '../ent
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
-  attachNodes,
   attachUniqueNodes,
   createRelatedNode,
   deleteOne,
   deleteRelatedNode,
   findOne,
   getFilterString,
+  getOptionalRelatedNode,
   getRelatedNode,
   getRelatedNodes,
   updateOne,
@@ -361,7 +361,7 @@ export const getResourceSubResourceSeries = async (parentResourceId: string) => 
 };
 
 export const getResourceParentResource = (subResourceId: string) =>
-  getRelatedNode<Resource>({
+  getOptionalRelatedNode<Resource, ResourceBelongsToResource, Resource>({
     originNode: {
       label: ResourceLabel,
       filter: { _id: subResourceId },
@@ -369,6 +369,41 @@ export const getResourceParentResource = (subResourceId: string) =>
     relationship: {
       label: ResourceBelongsToResourceLabel,
       filter: {},
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: {},
+    },
+  });
+
+export const getResourceNextResource = (resourceId: string) =>
+  getOptionalRelatedNode<Resource, ResourceHasNextResource, Resource>({
+    originNode: {
+      label: ResourceLabel,
+      filter: { _id: resourceId },
+    },
+    relationship: {
+      label: ResourceHasNextResourceLabel,
+      filter: {},
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: {},
+    },
+  });
+
+export const getResourcePreviousResource = (resourceId: string) =>
+  getOptionalRelatedNode<Resource, ResourceHasNextResource, Resource>({
+    originNode: {
+      label: ResourceLabel,
+      filter: { _id: resourceId },
+    },
+    relationship: {
+      label: ResourceHasNextResourceLabel,
+      filter: {},
+      direction: 'IN',
     },
     destinationNode: {
       label: ResourceLabel,
