@@ -65,6 +65,9 @@ import {
   voteResourceResolver,
   getResourceParentResourceResolver,
   getResourceSubResourcesResolver,
+  addSubResourceToSeriesResolver,
+  createSubResourceSeriesResolver,
+  getResourceSubResourceSeriesResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -127,6 +130,8 @@ const resolvers: APIResolvers<APIContext> = {
     addDomainBelongsToDomain: addDomainBelongsToDomainResolver,
     removeDomainBelongsToDomain: removeDomainBelongsToDomainResolver,
     addSubResource: addSubResourceResolver,
+    createSubResourceSeries: createSubResourceSeriesResolver,
+    addSubResourceToSeries: addSubResourceToSeriesResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -174,6 +179,7 @@ const resolvers: APIResolvers<APIContext> = {
     creator: getResourceCreatorResolver,
     subResources: getResourceSubResourcesResolver,
     parentResource: getResourceParentResourceResolver,
+    subResourceSeries: getResourceSubResourceSeriesResolver,
   },
   Date: GraphQLDateTime,
 };

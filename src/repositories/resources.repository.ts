@@ -1,3 +1,4 @@
+import { node, Query, relation } from 'cypher-query-builder';
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
 import { Concept, ConceptLabel } from '../entities/Concept';
@@ -11,13 +12,21 @@ import {
   ResourceBelongsToResourceLabel,
 } from '../entities/relationships/ResourceBelongsToResource';
 import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
+import {
+  ResourceHasNextResource,
+  ResourceHasNextResourceLabel,
+} from '../entities/relationships/ResourceHasNextResource';
+import {
+  ResourceStartsWithResource,
+  ResourceStartsWithResourceLabel,
+} from '../entities/relationships/ResourceStartsWithResource';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import { UserCreatedResource, UserCreatedResourceLabel } from '../entities/relationships/UserCreatedResource';
 import { UserRatedResource, UserRatedResourceLabel } from '../entities/relationships/UserRatedResource';
 import { UserVotedResource, UserVotedResourceLabel } from '../entities/relationships/UserVotedResource';
 import { Resource, ResourceLabel, ResourceMediaType, ResourceType } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
-import { neo4jDriver } from '../infra/neo4j';
+import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachNodes,
   attachUniqueNodes,
@@ -337,6 +346,20 @@ export const getResourceSubResources = (parentResourceId: string) =>
     .then(prop('items'))
     .then(map(prop('destinationNode')));
 
+export const getResourceSubResourceSeries = async (parentResourceId: string) => {
+  const q = new Query(neo4jQb);
+  q.match([
+    node('parent', ResourceLabel, { _id: parentResourceId }),
+    relation('out', '', ResourceStartsWithResourceLabel),
+    node('i', ResourceLabel),
+    relation('out', '', ResourceHasNextResourceLabel, undefined, [1, 100]),
+    node('r', ResourceLabel),
+  ]);
+  q.raw(`WITH DISTINCT i, collect(r) as c UNWIND ([i] + c) as resourceSeries RETURN resourceSeries`);
+  const results = await q.run();
+  return results.map(r => r.resourceSeries.properties);
+};
+
 export const getResourceParentResource = (subResourceId: string) =>
   getRelatedNode<Resource>({
     originNode: {
@@ -360,10 +383,22 @@ export const attachSubResourceToResource = (parentResourceId: string, subResourc
     destinationNode: { label: ResourceLabel, filter: { _id: parentResourceId } },
   }).then(({ originNode, destinationNode }) => ({ parentResource: destinationNode, subResource: originNode }));
 
-// export const createSubResourceSeries = (parentResouceId:string, subResourceId: string) => {
-//   attachUniqueNodes<Resource, ResourceBelongsToResource, Resource>({
-//     originNode: { label: ResourceLabel, filter: { _id: subResourceId } },
-//     relationship: { label: ResourceBelongsToResourceLabel },
-//     destinationNode: { label: ResourceLabel, filter: { _id: parentResourceId } },
-//   })
-// }
+export const createSubResourceSeries = (parentResouceId: string, subResourceId: string) =>
+  attachUniqueNodes<Resource, ResourceStartsWithResource, Resource>({
+    originNode: { label: ResourceLabel, filter: { _id: parentResouceId } },
+    relationship: { label: ResourceStartsWithResourceLabel },
+    destinationNode: { label: ResourceLabel, filter: { _id: subResourceId } },
+  }).then(() => attachSubResourceToResource(parentResouceId, subResourceId));
+
+export const addSubResourceToSeries = (parentResourceId: string, previousResourceId: string, subResourceId: string) =>
+  attachSubResourceToResource(parentResourceId, subResourceId).then(({ parentResource }) =>
+    attachUniqueNodes<Resource, ResourceHasNextResource, Resource>({
+      originNode: { label: ResourceLabel, filter: { _id: previousResourceId } },
+      relationship: { label: ResourceHasNextResourceLabel },
+      destinationNode: { label: ResourceLabel, filter: { _id: subResourceId } },
+    }).then(({ originNode, destinationNode }) => ({
+      parentResource,
+      previousResource: originNode,
+      subResource: destinationNode,
+    }))
+  );

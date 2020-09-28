@@ -2,9 +2,11 @@ import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  addSubResourceToSeries,
   attachResourceCoversConcepts,
   attachResourceToDomain,
   attachSubResourceToResource,
+  createSubResourceSeries,
   deleteResource,
   deleteResourceCreatedBy,
   detachResourceCoversConcepts,
@@ -15,6 +17,7 @@ import {
   getResourceParentResource,
   getResourceRating,
   getResourceSubResources,
+  getResourceSubResourceSeries,
   getResourceUpvoteCount,
   getUserConsumedResource,
   rateResource,
@@ -217,9 +220,9 @@ export const getResourceSubResourcesResolver: APIResourceResolvers['subResources
   return getResourceSubResources(resource._id);
 };
 
-// export const getSubResourceSeries: APIResourceResolvers['subResourceSeries'] = async resource => {
-//   return toAPIResource();
-// };
+export const getResourceSubResourceSeriesResolver: APIResourceResolvers['subResourceSeries'] = async resource => {
+  return getResourceSubResourceSeries(resource._id);
+};
 
 export const getResourceParentResourceResolver: APIResourceResolvers['parentResource'] = async resource => {
   return getResourceParentResource(resource._id);
@@ -241,19 +244,19 @@ export const addSubResourceResolver: APIMutationResolvers['addSubResource'] = as
   return await attachSubResourceToResource(parentResourceId, subResourceId);
 };
 
-// export const createSubResourceSeriesResolver: APIMutationResolvers['createSubResourceSeries'] = async (
-//   _,
-//   { parentResourceId, subResourceId },
-//   { user }
-// ) => {
-//   if (!user) throw new UnauthenticatedError('Must be logged in to create resource series');
-//   return createSubResourceSeries(parentResourceId, subResourceId);
-// };
+export const createSubResourceSeriesResolver: APIMutationResolvers['createSubResourceSeries'] = async (
+  _,
+  { parentResourceId, subResourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to create resource series');
+  return createSubResourceSeries(parentResourceId, subResourceId);
+};
 
-// export const addSubResourceToSeriesResolver: APIMutationResolvers['addSubResourceToSeries'] = async (
-//   _,
-//   { parentResourceId, previousResourceId, subResourceId },
-//   { user }
-// ) => {
-//   return null;
-// };
+export const addSubResourceToSeriesResolver: APIMutationResolvers['addSubResourceToSeries'] = async (
+  _,
+  { parentResourceId, previousResourceId, subResourceId },
+  { user }
+) => {
+  return addSubResourceToSeries(parentResourceId, previousResourceId, subResourceId);
+};

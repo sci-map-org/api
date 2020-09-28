@@ -44,3 +44,9 @@ Please check out our [Contribution guide](https://sci-map.org/about/contributing
 ## License
 
 Licensed under [GNU GPL v3.0](https://choosealicense.com/licenses/gpl-3.0/): You may copy, distribute and modify the software as long as you track changes/dates in source files. Any modifications to or software including (via compiler) GPL-licensed code must also be made available under the GPL along with build & install instructions.
+
+## Possible Improvements / TODO / TBD
+
+- remove filters in repo methods where not needed (e.g. for resources) ?
+- Use neo4j-graphql-js ? Right now doesn't have the abilities necessary
+- use class entities for nodes / relationships ? Need to keep the same flexibilities if needed though
