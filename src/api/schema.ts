@@ -71,6 +71,7 @@ import {
   getResourcePreviousResourceResolver,
   getResourceNextResourceResolver,
   getResourceCoveredConceptsByDomainResolver,
+  detachResourceFromDomainResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -113,6 +114,7 @@ const resolvers: APIResolvers<APIContext> = {
     updateResource: updateResourceResolver,
     deleteResource: deleteResourceResolver,
     attachResourceToDomain: attachResourceToDomainResolver,
+    detachResourceFromDomain: detachResourceFromDomainResolver,
     addConceptToDomain: addConceptToDomainResolver,
     updateConceptBelongsToDomain: updateConceptBelongsToDomainResolver,
     updateConcept: updateConceptResolver,

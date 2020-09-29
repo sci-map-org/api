@@ -26,6 +26,7 @@ import {
   rateResource,
   updateResource,
   voteResource,
+  detachResourceFromDomain,
 } from '../../repositories/resources.repository';
 import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
@@ -101,6 +102,16 @@ export const attachResourceToDomainResolver: APIMutationResolvers['attachResourc
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
   const { resource } = await attachResourceToDomain(resourceId, domainId);
+  return toAPIResource(resource);
+};
+
+export const detachResourceFromDomainResolver: APIMutationResolvers['detachResourceFromDomain'] = async (
+  _parent,
+  { domainId, resourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to detach a resource from a domain');
+  const { resource } = await detachResourceFromDomain(resourceId, domainId);
   return toAPIResource(resource);
 };
 

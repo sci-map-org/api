@@ -33,6 +33,7 @@ import {
   createRelatedNode,
   deleteOne,
   deleteRelatedNode,
+  detachUniqueNodes,
   findOne,
   getFilterString,
   getOptionalRelatedNode,
@@ -93,6 +94,22 @@ export const attachResourceToDomain = (resourceId: string, domainId: string) =>
     originNode: { label: ResourceLabel, filter: { _id: resourceId } },
     relationship: { label: ResourceBelongsToDomainLabel },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
+  }).then(({ originNode, destinationNode }) => ({ domain: destinationNode, resource: originNode }));
+
+export const detachResourceFromDomain = (resourceId: string, domainId: string) =>
+  detachUniqueNodes<Resource, ResourceBelongsToDomain, Domain>({
+    originNode: {
+      label: ResourceLabel,
+      filter: { _id: resourceId },
+    },
+    relationship: {
+      label: ResourceBelongsToDomainLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: DomainLabel,
+      filter: { _id: domainId },
+    },
   }).then(({ originNode, destinationNode }) => ({ domain: destinationNode, resource: originNode }));
 
 export const findResource = findOne<Resource, { _id: string }>({ label: ResourceLabel });
