@@ -188,7 +188,7 @@ export const getResourceCoveredConcepts = (_id: string): Promise<Concept[]> =>
     .then(prop('items'))
     .then(map(prop('destinationNode')));
 
-export const getResourceDomainCoveredConcepts = async (
+export const getResourceCoveredConceptsByDomain = async (
   resourceId: string
 ): Promise<{ domain: Domain; coveredConcepts: Concept[] }[]> => {
   const q = new Query(neo4jQb);

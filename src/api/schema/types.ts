@@ -659,9 +659,9 @@ export type APIResource = {
   _id: Scalars['String'];
   consumed?: Maybe<APIConsumedResource>;
   coveredConcepts?: Maybe<APIResourceCoveredConceptsResults>;
+  coveredConceptsByDomains?: Maybe<Array<APIResourceCoveredConceptsByDomainsItem>>;
   creator?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
-  domainCoveredConcepts?: Maybe<Array<APIResourceDomainCoveredConceptsItem>>;
   domains?: Maybe<APIResourceDomainsResults>;
   durationMs?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
@@ -688,6 +688,12 @@ export type APIResourceDomainsArgs = {
   options: APIResourceDomainsOptions;
 };
 
+export type APIResourceCoveredConceptsByDomainsItem = {
+   __typename?: 'ResourceCoveredConceptsByDomainsItem';
+  coveredConcepts: Array<APIConcept>;
+  domain: APIDomain;
+};
+
 export type APIResourceCoveredConceptsOptions = {
   pagination?: Maybe<APIPaginationOptions>;
 };
@@ -695,12 +701,6 @@ export type APIResourceCoveredConceptsOptions = {
 export type APIResourceCoveredConceptsResults = {
    __typename?: 'ResourceCoveredConceptsResults';
   items: Array<APIConcept>;
-};
-
-export type APIResourceDomainCoveredConceptsItem = {
-   __typename?: 'ResourceDomainCoveredConceptsItem';
-  coveredConcepts: Array<APIConcept>;
-  domain: APIDomain;
 };
 
 export type APIResourceDomainsOptions = {
@@ -924,7 +924,7 @@ export type APIResolversTypes = ResolversObject<{
   Date: ResolverTypeWrapper<Scalars['Date']>,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
-  ResourceDomainCoveredConceptsItem: ResolverTypeWrapper<APIResourceDomainCoveredConceptsItem>,
+  ResourceCoveredConceptsByDomainsItem: ResolverTypeWrapper<APIResourceCoveredConceptsByDomainsItem>,
   Domain: ResolverTypeWrapper<APIDomain>,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -1007,7 +1007,7 @@ export type APIResolversParentTypes = ResolversObject<{
   Date: Scalars['Date'],
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
-  ResourceDomainCoveredConceptsItem: APIResourceDomainCoveredConceptsItem,
+  ResourceCoveredConceptsByDomainsItem: APIResourceCoveredConceptsByDomainsItem,
   Domain: APIDomain,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -1285,9 +1285,9 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   consumed?: Resolver<Maybe<APIResolversTypes['ConsumedResource']>, ParentType, ContextType>,
   coveredConcepts?: Resolver<Maybe<APIResolversTypes['ResourceCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredConceptsArgs, 'options'>>,
+  coveredConceptsByDomains?: Resolver<Maybe<Array<APIResolversTypes['ResourceCoveredConceptsByDomainsItem']>>, ParentType, ContextType>,
   creator?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  domainCoveredConcepts?: Resolver<Maybe<Array<APIResolversTypes['ResourceDomainCoveredConceptsItem']>>, ParentType, ContextType>,
   domains?: Resolver<Maybe<APIResolversTypes['ResourceDomainsResults']>, ParentType, ContextType, RequireFields<APIResourceDomainsArgs, 'options'>>,
   durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
@@ -1305,14 +1305,14 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
-export type APIResourceCoveredConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceCoveredConceptsResults'] = APIResolversParentTypes['ResourceCoveredConceptsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
+export type APIResourceCoveredConceptsByDomainsItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceCoveredConceptsByDomainsItem'] = APIResolversParentTypes['ResourceCoveredConceptsByDomainsItem']> = ResolversObject<{
+  coveredConcepts?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
+  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
-export type APIResourceDomainCoveredConceptsItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceDomainCoveredConceptsItem'] = APIResolversParentTypes['ResourceDomainCoveredConceptsItem']> = ResolversObject<{
-  coveredConcepts?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
-  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
+export type APIResourceCoveredConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceCoveredConceptsResults'] = APIResolversParentTypes['ResourceCoveredConceptsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1386,8 +1386,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Mutation?: APIMutationResolvers<ContextType>,
   Query?: APIQueryResolvers<ContextType>,
   Resource?: APIResourceResolvers<ContextType>,
+  ResourceCoveredConceptsByDomainsItem?: APIResourceCoveredConceptsByDomainsItemResolvers<ContextType>,
   ResourceCoveredConceptsResults?: APIResourceCoveredConceptsResultsResolvers<ContextType>,
-  ResourceDomainCoveredConceptsItem?: APIResourceDomainCoveredConceptsItemResolvers<ContextType>,
   ResourceDomainsResults?: APIResourceDomainsResultsResolvers<ContextType>,
   ResourceTag?: APIResourceTagResolvers<ContextType>,
   ResourceTagSearchResult?: APIResourceTagSearchResultResolvers<ContextType>,

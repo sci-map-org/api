@@ -70,7 +70,7 @@ import {
   getResourceSubResourceSeriesResolver,
   getResourcePreviousResourceResolver,
   getResourceNextResourceResolver,
-  getResourceDomainCoveredConceptsResolver,
+  getResourceCoveredConceptsByDomainResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -174,7 +174,7 @@ const resolvers: APIResolvers<APIContext> = {
   },
   Resource: {
     coveredConcepts: getResourceCoveredConceptsResolver,
-    domainCoveredConcepts: getResourceDomainCoveredConceptsResolver,
+    coveredConceptsByDomain: getResourceCoveredConceptsByDomainResolver,
     domains: getResourceDomainsResolver,
     tags: getResourceTagsResolver,
     upvotes: getResourceUpvotesResolver,
