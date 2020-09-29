@@ -99,7 +99,7 @@ export const attachResourceToDomainResolver: APIMutationResolvers['attachResourc
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  const { resource } = await attachResourceToDomain(domainId, resourceId);
+  const { resource } = await attachResourceToDomain(resourceId, domainId);
   return toAPIResource(resource);
 };
 
