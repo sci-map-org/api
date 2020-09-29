@@ -3,6 +3,7 @@ import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
+import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
   ResourceBelongsToDomain,
   ResourceBelongsToDomainLabel,
@@ -186,6 +187,26 @@ export const getResourceCoveredConcepts = (_id: string): Promise<Concept[]> =>
   })
     .then(prop('items'))
     .then(map(prop('destinationNode')));
+
+export const getResourceDomainCoveredConcepts = async (
+  resourceId: string
+): Promise<{ domain: Domain; coveredConcepts: Concept[] }[]> => {
+  const q = new Query(neo4jQb);
+  q.match([
+    node('', ResourceLabel, { _id: resourceId }),
+    relation('out', '', ResourceCoversConceptLabel),
+    node('concept', ConceptLabel),
+    relation('out', '', ConceptBelongsToDomainLabel),
+    node('domain', DomainLabel),
+  ]);
+  q.raw('WITH DISTINCT domain, collect(concept) as concepts RETURN *');
+
+  const results = await q.run();
+  return results.map(r => ({
+    domain: r.domain.properties,
+    coveredConcepts: r.concepts.map(c => c.properties),
+  }));
+};
 
 export const getResourceDomains = (_id: string) =>
   getRelatedNodes<Resource, ResourceBelongsToDomain, Domain>({

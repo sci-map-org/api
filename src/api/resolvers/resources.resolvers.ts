@@ -13,6 +13,7 @@ import {
   findResource,
   getResourceCoveredConcepts,
   getResourceCreator,
+  getResourceDomainCoveredConcepts,
   getResourceDomains,
   getResourceNextResource,
   getResourceParentResource,
@@ -135,6 +136,10 @@ export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredCo
   return {
     items: await getResourceCoveredConcepts(resource._id),
   };
+};
+
+export const getResourceDomainCoveredConceptsResolver: APIResourceResolvers['domainCoveredConcepts'] = async resource => {
+  return await getResourceDomainCoveredConcepts(resource._id);
 };
 
 export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async (resource, { options }) => {

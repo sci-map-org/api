@@ -661,6 +661,7 @@ export type APIResource = {
   coveredConcepts?: Maybe<APIResourceCoveredConceptsResults>;
   creator?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
+  domainCoveredConcepts?: Maybe<Array<APIResourceDomainCoveredConceptsItem>>;
   domains?: Maybe<APIResourceDomainsResults>;
   durationMs?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
@@ -694,6 +695,12 @@ export type APIResourceCoveredConceptsOptions = {
 export type APIResourceCoveredConceptsResults = {
    __typename?: 'ResourceCoveredConceptsResults';
   items: Array<APIConcept>;
+};
+
+export type APIResourceDomainCoveredConceptsItem = {
+   __typename?: 'ResourceDomainCoveredConceptsItem';
+  coveredConcepts: Array<APIConcept>;
+  domain: APIDomain;
 };
 
 export type APIResourceDomainsOptions = {
@@ -917,8 +924,7 @@ export type APIResolversTypes = ResolversObject<{
   Date: ResolverTypeWrapper<Scalars['Date']>,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
-  ResourceDomainsOptions: APIResourceDomainsOptions,
-  ResourceDomainsResults: ResolverTypeWrapper<APIResourceDomainsResults>,
+  ResourceDomainCoveredConceptsItem: ResolverTypeWrapper<APIResourceDomainCoveredConceptsItem>,
   Domain: ResolverTypeWrapper<APIDomain>,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -937,6 +943,8 @@ export type APIResolversTypes = ResolversObject<{
   ResourceType: ResourceType,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
+  ResourceDomainsOptions: APIResourceDomainsOptions,
+  ResourceDomainsResults: ResolverTypeWrapper<APIResourceDomainsResults>,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: ResolverTypeWrapper<APIResourceTag>,
   KnownConcept: ResolverTypeWrapper<APIKnownConcept>,
@@ -999,8 +1007,7 @@ export type APIResolversParentTypes = ResolversObject<{
   Date: Scalars['Date'],
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
-  ResourceDomainsOptions: APIResourceDomainsOptions,
-  ResourceDomainsResults: APIResourceDomainsResults,
+  ResourceDomainCoveredConceptsItem: APIResourceDomainCoveredConceptsItem,
   Domain: APIDomain,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -1019,6 +1026,8 @@ export type APIResolversParentTypes = ResolversObject<{
   ResourceType: ResourceType,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: APIDomainResourcesResults,
+  ResourceDomainsOptions: APIResourceDomainsOptions,
+  ResourceDomainsResults: APIResourceDomainsResults,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: APIResourceTag,
   KnownConcept: APIKnownConcept,
@@ -1278,6 +1287,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   coveredConcepts?: Resolver<Maybe<APIResolversTypes['ResourceCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredConceptsArgs, 'options'>>,
   creator?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  domainCoveredConcepts?: Resolver<Maybe<Array<APIResolversTypes['ResourceDomainCoveredConceptsItem']>>, ParentType, ContextType>,
   domains?: Resolver<Maybe<APIResolversTypes['ResourceDomainsResults']>, ParentType, ContextType, RequireFields<APIResourceDomainsArgs, 'options'>>,
   durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
@@ -1297,6 +1307,12 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
 
 export type APIResourceCoveredConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceCoveredConceptsResults'] = APIResolversParentTypes['ResourceCoveredConceptsResults']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIResourceDomainCoveredConceptsItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceDomainCoveredConceptsItem'] = APIResolversParentTypes['ResourceDomainCoveredConceptsItem']> = ResolversObject<{
+  coveredConcepts?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
+  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1371,6 +1387,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Query?: APIQueryResolvers<ContextType>,
   Resource?: APIResourceResolvers<ContextType>,
   ResourceCoveredConceptsResults?: APIResourceCoveredConceptsResultsResolvers<ContextType>,
+  ResourceDomainCoveredConceptsItem?: APIResourceDomainCoveredConceptsItemResolvers<ContextType>,
   ResourceDomainsResults?: APIResourceDomainsResultsResolvers<ContextType>,
   ResourceTag?: APIResourceTagResolvers<ContextType>,
   ResourceTagSearchResult?: APIResourceTagSearchResultResolvers<ContextType>,

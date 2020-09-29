@@ -42,6 +42,7 @@ type Resource {
   consumed: ConsumedResource
   creator: User
   coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
+  domainCoveredConcepts: [ResourceDomainCoveredConceptsItem!]
   domains(options: ResourceDomainsOptions!): ResourceDomainsResults
   subResources: [Resource!]
   subResourceSeries: [Resource!]
@@ -64,6 +65,11 @@ input ResourceCoveredConceptsOptions {
 
 type ResourceCoveredConceptsResults {
   items: [Concept!]!
+}
+
+type ResourceDomainCoveredConceptsItem {
+  domain: Domain!
+  coveredConcepts: [Concept!]!
 }
 
 input CreateResourcePayload {
