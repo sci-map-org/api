@@ -193,7 +193,12 @@ export const getResourceCoveredConceptsByDomain = async (
 ): Promise<{ domain: Domain; coveredConcepts: Concept[] }[]> => {
   const q = new Query(neo4jQb);
   q.match([
-    node('', ResourceLabel, { _id: resourceId }),
+    node('resource', ResourceLabel, { _id: resourceId }),
+    relation('out', '', ResourceBelongsToDomainLabel),
+    node('domain', DomainLabel),
+  ]);
+  q.optionalMatch([
+    node('resource'),
     relation('out', '', ResourceCoversConceptLabel),
     node('concept', ConceptLabel),
     relation('out', '', ConceptBelongsToDomainLabel),
