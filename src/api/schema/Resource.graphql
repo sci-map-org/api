@@ -125,7 +125,7 @@ type SearchResourcesResult {
 }
 
 type Query {
-  searchResources(query: String!, options: SearchResourcesOptions): SearchResourcesResult!
+  searchResources(query: String!, options: SearchResourcesOptions!): SearchResourcesResult!
   getResourceById(id: String!): Resource!
 }
 

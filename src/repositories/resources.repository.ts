@@ -45,12 +45,12 @@ import { PaginationOptions } from './util/pagination';
 
 export const searchResources = async (
   query: string,
-  options?: { pagination?: PaginationOptions }
+  options: { pagination?: PaginationOptions }
 ): Promise<Resource[]> => {
   const pagination: Required<PaginationOptions> = {
     limit: 20,
     offset: 0,
-    ...options?.pagination,
+    ...options.pagination,
   };
   const q = new Query(neo4jQb);
   q.match([node('r', ResourceLabel)]);

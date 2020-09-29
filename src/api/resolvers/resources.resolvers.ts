@@ -55,7 +55,7 @@ export const searchResourcesResolver: APIQueryResolvers['searchResources'] = asy
   if (query.length < SEARCH_RESOURCES_MIN_QUERY_LENGTH)
     throw new UserInputError(`Must have at least ${SEARCH_RESOURCES_MIN_QUERY_LENGTH} characters in the search query`);
   return {
-    items: await searchResources(query, options ? nullToUndefined(options) : undefined),
+    items: await searchResources(query, nullToUndefined(options)),
   };
 };
 
