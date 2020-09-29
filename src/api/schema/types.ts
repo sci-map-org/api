@@ -601,6 +601,7 @@ export type APIQuery = {
   listArticles: APIListArticlesResult;
   searchDomains: APISearchDomainsResult;
   searchResourceTags: Array<APIResourceTagSearchResult>;
+  searchResources: APISearchResourcesResult;
 };
 
 
@@ -646,6 +647,12 @@ export type APIQuerySearchDomainsArgs = {
 
 export type APIQuerySearchResourceTagsArgs = {
   options: APISearchResourceTagsOptions;
+};
+
+
+export type APIQuerySearchResourcesArgs = {
+  options?: Maybe<APISearchResourcesOptions>;
+  query: Scalars['String'];
 };
 
 export type APIRegisterGooglePayload = {
@@ -747,6 +754,15 @@ export type APISearchDomainsOptions = {
 export type APISearchDomainsResult = {
    __typename?: 'SearchDomainsResult';
   items: Array<APIDomain>;
+};
+
+export type APISearchResourcesOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
+};
+
+export type APISearchResourcesResult = {
+   __typename?: 'SearchResourcesResult';
+  items: Array<APIResource>;
 };
 
 export type APISearchResourceTagsOptions = {
@@ -963,6 +979,8 @@ export type APIResolversTypes = ResolversObject<{
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
   ResourceTagSearchResult: ResolverTypeWrapper<APIResourceTagSearchResult>,
+  SearchResourcesOptions: APISearchResourcesOptions,
+  SearchResourcesResult: ResolverTypeWrapper<APISearchResourcesResult>,
   Mutation: ResolverTypeWrapper<{}>,
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
@@ -1046,6 +1064,8 @@ export type APIResolversParentTypes = ResolversObject<{
   SearchDomainsResult: APISearchDomainsResult,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
   ResourceTagSearchResult: APIResourceTagSearchResult,
+  SearchResourcesOptions: APISearchResourcesOptions,
+  SearchResourcesResult: APISearchResourcesResult,
   Mutation: {},
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
@@ -1287,6 +1307,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
   searchDomains?: Resolver<APIResolversTypes['SearchDomainsResult'], ParentType, ContextType, RequireFields<APIQuerySearchDomainsArgs, 'options'>>,
   searchResourceTags?: Resolver<Array<APIResolversTypes['ResourceTagSearchResult']>, ParentType, ContextType, RequireFields<APIQuerySearchResourceTagsArgs, 'options'>>,
+  searchResources?: Resolver<APIResolversTypes['SearchResourcesResult'], ParentType, ContextType, RequireFields<APIQuerySearchResourcesArgs, 'query'>>,
 }>;
 
 export type APIResourceResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Resource'] = APIResolversParentTypes['Resource']> = ResolversObject<{
@@ -1345,6 +1366,11 @@ export type APISearchDomainsResultResolvers<ContextType = APIContext, ParentType
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APISearchResourcesResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchResourcesResult'] = APIResolversParentTypes['SearchResourcesResult']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APISubResourceCreatedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SubResourceCreatedResult'] = APIResolversParentTypes['SubResourceCreatedResult']> = ResolversObject<{
   parentResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
   subResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
@@ -1400,6 +1426,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   ResourceTag?: APIResourceTagResolvers<ContextType>,
   ResourceTagSearchResult?: APIResourceTagSearchResultResolvers<ContextType>,
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
+  SearchResourcesResult?: APISearchResourcesResultResolvers<ContextType>,
   SubResourceCreatedResult?: APISubResourceCreatedResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,

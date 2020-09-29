@@ -72,6 +72,7 @@ import {
   getResourceNextResourceResolver,
   getResourceCoveredConceptsByDomainResolver,
   detachResourceFromDomainResolver,
+  searchResourcesResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -149,6 +150,7 @@ const resolvers: APIResolvers<APIContext> = {
     getConcept: getConceptResolver,
     getConceptByKey: getConceptByKeyResolver,
     searchResourceTags: searchResourceTagsResolver,
+    searchResources: searchResourcesResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

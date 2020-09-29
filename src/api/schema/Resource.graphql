@@ -116,7 +116,16 @@ type SubResourceCreatedResult {
   subResource: Resource!
 }
 
+input SearchResourcesOptions {
+  pagination: PaginationOptions
+}
+
+type SearchResourcesResult {
+  items: [Resource!]!
+}
+
 type Query {
+  searchResources(query: String!, options: SearchResourcesOptions): SearchResourcesResult!
   getResourceById(id: String!): Resource!
 }
 

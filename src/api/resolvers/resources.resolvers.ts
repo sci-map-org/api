@@ -27,6 +27,7 @@ import {
   updateResource,
   voteResource,
   detachResourceFromDomain,
+  searchResources,
 } from '../../repositories/resources.repository';
 import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
@@ -44,9 +45,19 @@ import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
 
+const SEARCH_RESOURCES_MIN_QUERY_LENGTH = 3;
+
 export function toAPIResource(resource: Resource): APIResource {
   return resource;
 }
+
+export const searchResourcesResolver: APIQueryResolvers['searchResources'] = async (_parent, { query, options }) => {
+  if (query.length < SEARCH_RESOURCES_MIN_QUERY_LENGTH)
+    throw new UserInputError(`Must have at least ${SEARCH_RESOURCES_MIN_QUERY_LENGTH} characters in the search query`);
+  return {
+    items: await searchResources(query, options ? nullToUndefined(options) : undefined),
+  };
+};
 
 export const createResourceResolver: APIMutationResolvers['createResource'] = async (
   _parent,

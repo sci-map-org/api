@@ -41,7 +41,30 @@ import {
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
+import { PaginationOptions } from './util/pagination';
 
+export const searchResources = async (
+  query: string,
+  options?: { pagination?: PaginationOptions }
+): Promise<Resource[]> => {
+  const pagination: Required<PaginationOptions> = {
+    limit: 20,
+    offset: 0,
+    ...options?.pagination,
+  };
+  const q = new Query(neo4jQb);
+  q.match([node('r', ResourceLabel)]);
+  q.raw(
+    `WHERE (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
+    { query }
+  );
+  q.return('r')
+    .skip(pagination.offset)
+    .limit(pagination.limit);
+
+  const results = await q.run();
+  return results.map(item => item.r.properties);
+};
 interface CreateResourceData {
   name: string;
   type: ResourceType;
