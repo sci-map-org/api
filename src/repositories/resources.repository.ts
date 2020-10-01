@@ -418,6 +418,9 @@ export const getResourceSubResourceSeries = async (parentResourceId: string) => 
     node('parent', ResourceLabel, { _id: parentResourceId }),
     relation('out', '', ResourceStartsWithResourceLabel),
     node('i', ResourceLabel),
+  ]);
+  q.optionalMatch([
+    node('i'),
     relation('out', '', ResourceHasNextResourceLabel, undefined, [1, 100]),
     node('r', ResourceLabel),
   ]);
