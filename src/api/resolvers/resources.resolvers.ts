@@ -288,5 +288,6 @@ export const addSubResourceToSeriesResolver: APIMutationResolvers['addSubResourc
   { parentResourceId, previousResourceId, subResourceId },
   { user }
 ) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to create resource series');
   return addSubResourceToSeries(parentResourceId, previousResourceId, subResourceId);
 };
