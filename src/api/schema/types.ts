@@ -309,6 +309,8 @@ export type APIMutation = {
   addConceptToDomain: APIConcept;
   addDomainBelongsToDomain: APIDomain;
   addResourceToDomain: APIResource;
+  addSubResource: APISubResourceCreatedResult;
+  addSubResourceToSeries: APISubResourceSeriesCreatedResult;
   addTagsToResource: APIResource;
   adminUpdateUser: APIUser;
   attachResourceCoversConcepts: APIResource;
@@ -316,11 +318,13 @@ export type APIMutation = {
   createArticle: APIArticle;
   createDomain: APIDomain;
   createResource: APIResource;
+  createSubResourceSeries: APISubResourceSeriesCreatedResult;
   deleteArticle: APIDeleteArticleResponse;
   deleteConcept: APIDeleteConceptResult;
   deleteDomain: APIDeleteDomainResponse;
   deleteResource: APIDeleteResourceResponse;
   detachResourceCoversConcepts: APIResource;
+  detachResourceFromDomain: APIResource;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
   rateResource: APIResource;
@@ -374,6 +378,19 @@ export type APIMutationAddResourceToDomainArgs = {
 };
 
 
+export type APIMutationAddSubResourceArgs = {
+  parentResourceId: Scalars['String'];
+  subResourceId: Scalars['String'];
+};
+
+
+export type APIMutationAddSubResourceToSeriesArgs = {
+  parentResourceId: Scalars['String'];
+  previousResourceId: Scalars['String'];
+  subResourceId: Scalars['String'];
+};
+
+
 export type APIMutationAddTagsToResourceArgs = {
   resourceId: Scalars['String'];
   tags: Array<Scalars['String']>;
@@ -413,6 +430,12 @@ export type APIMutationCreateResourceArgs = {
 };
 
 
+export type APIMutationCreateSubResourceSeriesArgs = {
+  parentResourceId: Scalars['String'];
+  subResourceId: Scalars['String'];
+};
+
+
 export type APIMutationDeleteArticleArgs = {
   id: Scalars['String'];
 };
@@ -435,6 +458,12 @@ export type APIMutationDeleteResourceArgs = {
 
 export type APIMutationDetachResourceCoversConceptsArgs = {
   conceptIds: Array<Scalars['String']>;
+  resourceId: Scalars['String'];
+};
+
+
+export type APIMutationDetachResourceFromDomainArgs = {
+  domainId: Scalars['String'];
   resourceId: Scalars['String'];
 };
 
@@ -572,6 +601,7 @@ export type APIQuery = {
   listArticles: APIListArticlesResult;
   searchDomains: APISearchDomainsResult;
   searchResourceTags: Array<APIResourceTagSearchResult>;
+  searchResources: APISearchResourcesResult;
 };
 
 
@@ -619,6 +649,12 @@ export type APIQuerySearchResourceTagsArgs = {
   options: APISearchResourceTagsOptions;
 };
 
+
+export type APIQuerySearchResourcesArgs = {
+  options: APISearchResourcesOptions;
+  query: Scalars['String'];
+};
+
 export type APIRegisterGooglePayload = {
   displayName: Scalars['String'];
   idToken: Scalars['String'];
@@ -637,13 +673,20 @@ export type APIResource = {
   _id: Scalars['String'];
   consumed?: Maybe<APIConsumedResource>;
   coveredConcepts?: Maybe<APIResourceCoveredConceptsResults>;
+  coveredConceptsByDomain?: Maybe<Array<APIResourceCoveredConceptsByDomainItem>>;
   creator?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   domains?: Maybe<APIResourceDomainsResults>;
   durationMs?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
+  nextResource?: Maybe<APIResource>;
+  parentResources?: Maybe<Array<APIResource>>;
+  previousResource?: Maybe<APIResource>;
   rating?: Maybe<Scalars['Float']>;
+  seriesParentResource?: Maybe<APIResource>;
+  subResourceSeries?: Maybe<Array<APIResource>>;
+  subResources?: Maybe<Array<APIResource>>;
   tags?: Maybe<Array<APIResourceTag>>;
   type: ResourceType;
   upvotes?: Maybe<Scalars['Int']>;
@@ -658,6 +701,12 @@ export type APIResourceCoveredConceptsArgs = {
 
 export type APIResourceDomainsArgs = {
   options: APIResourceDomainsOptions;
+};
+
+export type APIResourceCoveredConceptsByDomainItem = {
+   __typename?: 'ResourceCoveredConceptsByDomainItem';
+  coveredConcepts: Array<APIConcept>;
+  domain: APIDomain;
 };
 
 export type APIResourceCoveredConceptsOptions = {
@@ -708,6 +757,15 @@ export type APISearchDomainsResult = {
   items: Array<APIDomain>;
 };
 
+export type APISearchResourcesOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
+};
+
+export type APISearchResourcesResult = {
+   __typename?: 'SearchResourcesResult';
+  items: Array<APIResource>;
+};
+
 export type APISearchResourceTagsOptions = {
   pagination: APIPaginationOptions;
   query: Scalars['String'];
@@ -733,6 +791,18 @@ export type APISetResourcesConsumedPayloadResourcesField = {
 };
 
 export { SortingDirection };
+
+export type APISubResourceCreatedResult = {
+   __typename?: 'SubResourceCreatedResult';
+  parentResource: APIResource;
+  subResource: APIResource;
+};
+
+export type APISubResourceSeriesCreatedResult = {
+   __typename?: 'SubResourceSeriesCreatedResult';
+  seriesParentResource: APIResource;
+  subResource: APIResource;
+};
 
 export type APIUpdateArticlePayload = {
   content?: Maybe<Scalars['String']>;
@@ -884,8 +954,7 @@ export type APIResolversTypes = ResolversObject<{
   Date: ResolverTypeWrapper<Scalars['Date']>,
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
-  ResourceDomainsOptions: APIResourceDomainsOptions,
-  ResourceDomainsResults: ResolverTypeWrapper<APIResourceDomainsResults>,
+  ResourceCoveredConceptsByDomainItem: ResolverTypeWrapper<APIResourceCoveredConceptsByDomainItem>,
   Domain: ResolverTypeWrapper<APIDomain>,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -904,6 +973,8 @@ export type APIResolversTypes = ResolversObject<{
   ResourceType: ResourceType,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
+  ResourceDomainsOptions: APIResourceDomainsOptions,
+  ResourceDomainsResults: ResolverTypeWrapper<APIResourceDomainsResults>,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: ResolverTypeWrapper<APIResourceTag>,
   KnownConcept: ResolverTypeWrapper<APIKnownConcept>,
@@ -915,9 +986,13 @@ export type APIResolversTypes = ResolversObject<{
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
   ResourceTagSearchResult: ResolverTypeWrapper<APIResourceTagSearchResult>,
+  SearchResourcesOptions: APISearchResourcesOptions,
+  SearchResourcesResult: ResolverTypeWrapper<APISearchResourcesResult>,
   Mutation: ResolverTypeWrapper<{}>,
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
+  SubResourceCreatedResult: ResolverTypeWrapper<APISubResourceCreatedResult>,
+  SubResourceSeriesCreatedResult: ResolverTypeWrapper<APISubResourceSeriesCreatedResult>,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
@@ -965,8 +1040,7 @@ export type APIResolversParentTypes = ResolversObject<{
   Date: Scalars['Date'],
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
-  ResourceDomainsOptions: APIResourceDomainsOptions,
-  ResourceDomainsResults: APIResourceDomainsResults,
+  ResourceCoveredConceptsByDomainItem: APIResourceCoveredConceptsByDomainItem,
   Domain: APIDomain,
   DomainConceptsOptions: APIDomainConceptsOptions,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -985,6 +1059,8 @@ export type APIResolversParentTypes = ResolversObject<{
   ResourceType: ResourceType,
   DomainResourcesSortingType: APIDomainResourcesSortingType,
   DomainResourcesResults: APIDomainResourcesResults,
+  ResourceDomainsOptions: APIResourceDomainsOptions,
+  ResourceDomainsResults: APIResourceDomainsResults,
   ResourceMediaType: ResourceMediaType,
   ResourceTag: APIResourceTag,
   KnownConcept: APIKnownConcept,
@@ -996,9 +1072,13 @@ export type APIResolversParentTypes = ResolversObject<{
   SearchDomainsResult: APISearchDomainsResult,
   SearchResourceTagsOptions: APISearchResourceTagsOptions,
   ResourceTagSearchResult: APIResourceTagSearchResult,
+  SearchResourcesOptions: APISearchResourcesOptions,
+  SearchResourcesResult: APISearchResourcesResult,
   Mutation: {},
   AddConceptToDomainPayload: APIAddConceptToDomainPayload,
   CreateResourcePayload: APICreateResourcePayload,
+  SubResourceCreatedResult: APISubResourceCreatedResult,
+  SubResourceSeriesCreatedResult: APISubResourceSeriesCreatedResult,
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
   CreateArticlePayload: APICreateArticlePayload,
   CreateDomainPayload: APICreateDomainPayload,
@@ -1187,6 +1267,8 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   addConceptToDomain?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptToDomainArgs, 'domainId' | 'payload'>>,
   addDomainBelongsToDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationAddDomainBelongsToDomainArgs, 'parentDomainId' | 'subDomainId'>>,
   addResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddResourceToDomainArgs, 'domainId' | 'payload'>>,
+  addSubResource?: Resolver<APIResolversTypes['SubResourceCreatedResult'], ParentType, ContextType, RequireFields<APIMutationAddSubResourceArgs, 'parentResourceId' | 'subResourceId'>>,
+  addSubResourceToSeries?: Resolver<APIResolversTypes['SubResourceSeriesCreatedResult'], ParentType, ContextType, RequireFields<APIMutationAddSubResourceToSeriesArgs, 'parentResourceId' | 'previousResourceId' | 'subResourceId'>>,
   addTagsToResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddTagsToResourceArgs, 'resourceId' | 'tags'>>,
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
   attachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceCoversConceptsArgs, 'conceptIds' | 'resourceId'>>,
@@ -1194,11 +1276,13 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
   createDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationCreateDomainArgs, 'payload'>>,
   createResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationCreateResourceArgs, 'payload'>>,
+  createSubResourceSeries?: Resolver<APIResolversTypes['SubResourceSeriesCreatedResult'], ParentType, ContextType, RequireFields<APIMutationCreateSubResourceSeriesArgs, 'parentResourceId' | 'subResourceId'>>,
   deleteArticle?: Resolver<APIResolversTypes['DeleteArticleResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteArticleArgs, 'id'>>,
   deleteConcept?: Resolver<APIResolversTypes['DeleteConceptResult'], ParentType, ContextType, RequireFields<APIMutationDeleteConceptArgs, '_id'>>,
   deleteDomain?: Resolver<APIResolversTypes['DeleteDomainResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteDomainArgs, 'id'>>,
   deleteResource?: Resolver<APIResolversTypes['DeleteResourceResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteResourceArgs, '_id'>>,
   detachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceCoversConceptsArgs, 'conceptIds' | 'resourceId'>>,
+  detachResourceFromDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceFromDomainArgs, 'domainId' | 'resourceId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
   rateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationRateResourceArgs, 'resourceId' | 'value'>>,
@@ -1232,23 +1316,37 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
   searchDomains?: Resolver<APIResolversTypes['SearchDomainsResult'], ParentType, ContextType, RequireFields<APIQuerySearchDomainsArgs, 'options'>>,
   searchResourceTags?: Resolver<Array<APIResolversTypes['ResourceTagSearchResult']>, ParentType, ContextType, RequireFields<APIQuerySearchResourceTagsArgs, 'options'>>,
+  searchResources?: Resolver<APIResolversTypes['SearchResourcesResult'], ParentType, ContextType, RequireFields<APIQuerySearchResourcesArgs, 'options' | 'query'>>,
 }>;
 
 export type APIResourceResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Resource'] = APIResolversParentTypes['Resource']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   consumed?: Resolver<Maybe<APIResolversTypes['ConsumedResource']>, ParentType, ContextType>,
   coveredConcepts?: Resolver<Maybe<APIResolversTypes['ResourceCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredConceptsArgs, 'options'>>,
+  coveredConceptsByDomain?: Resolver<Maybe<Array<APIResolversTypes['ResourceCoveredConceptsByDomainItem']>>, ParentType, ContextType>,
   creator?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domains?: Resolver<Maybe<APIResolversTypes['ResourceDomainsResults']>, ParentType, ContextType, RequireFields<APIResourceDomainsArgs, 'options'>>,
   durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  nextResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>,
+  parentResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
+  previousResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>,
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
+  seriesParentResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>,
+  subResourceSeries?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
+  subResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['ResourceTag']>>, ParentType, ContextType>,
   type?: Resolver<APIResolversTypes['ResourceType'], ParentType, ContextType>,
   upvotes?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIResourceCoveredConceptsByDomainItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceCoveredConceptsByDomainItem'] = APIResolversParentTypes['ResourceCoveredConceptsByDomainItem']> = ResolversObject<{
+  coveredConcepts?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
+  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1275,6 +1373,23 @@ export type APIResourceTagSearchResultResolvers<ContextType = APIContext, Parent
 
 export type APISearchDomainsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchDomainsResult'] = APIResolversParentTypes['SearchDomainsResult']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APISearchResourcesResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchResourcesResult'] = APIResolversParentTypes['SearchResourcesResult']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APISubResourceCreatedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SubResourceCreatedResult'] = APIResolversParentTypes['SubResourceCreatedResult']> = ResolversObject<{
+  parentResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
+  subResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APISubResourceSeriesCreatedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SubResourceSeriesCreatedResult'] = APIResolversParentTypes['SubResourceSeriesCreatedResult']> = ResolversObject<{
+  seriesParentResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
+  subResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1321,11 +1436,15 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Mutation?: APIMutationResolvers<ContextType>,
   Query?: APIQueryResolvers<ContextType>,
   Resource?: APIResourceResolvers<ContextType>,
+  ResourceCoveredConceptsByDomainItem?: APIResourceCoveredConceptsByDomainItemResolvers<ContextType>,
   ResourceCoveredConceptsResults?: APIResourceCoveredConceptsResultsResolvers<ContextType>,
   ResourceDomainsResults?: APIResourceDomainsResultsResolvers<ContextType>,
   ResourceTag?: APIResourceTagResolvers<ContextType>,
   ResourceTagSearchResult?: APIResourceTagSearchResultResolvers<ContextType>,
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
+  SearchResourcesResult?: APISearchResourcesResultResolvers<ContextType>,
+  SubResourceCreatedResult?: APISubResourceCreatedResultResolvers<ContextType>,
+  SubResourceSeriesCreatedResult?: APISubResourceSeriesCreatedResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,
 }>;

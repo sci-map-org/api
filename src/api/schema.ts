@@ -45,6 +45,7 @@ import {
 } from './resolvers/domains.resolvers';
 import {
   addResourceToDomainResolver,
+  addSubResourceResolver,
   attachResourceCoversConceptsResolver,
   attachResourceToDomainResolver,
   createResourceResolver,
@@ -62,6 +63,17 @@ import {
   setResourcesConsumedResolver,
   updateResourceResolver,
   voteResourceResolver,
+  getResourceParentResourcesResolver,
+  getResourceSubResourcesResolver,
+  addSubResourceToSeriesResolver,
+  createSubResourceSeriesResolver,
+  getResourceSubResourceSeriesResolver,
+  getResourcePreviousResourceResolver,
+  getResourceNextResourceResolver,
+  getResourceCoveredConceptsByDomainResolver,
+  detachResourceFromDomainResolver,
+  searchResourcesResolver,
+  getResourceSeriesParentResourceResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -104,6 +116,7 @@ const resolvers: APIResolvers<APIContext> = {
     updateResource: updateResourceResolver,
     deleteResource: deleteResourceResolver,
     attachResourceToDomain: attachResourceToDomainResolver,
+    detachResourceFromDomain: detachResourceFromDomainResolver,
     addConceptToDomain: addConceptToDomainResolver,
     updateConceptBelongsToDomain: updateConceptBelongsToDomainResolver,
     updateConcept: updateConceptResolver,
@@ -123,6 +136,9 @@ const resolvers: APIResolvers<APIContext> = {
     removeConceptBelongsToConcept: removeConceptBelongsToConceptResolver,
     addDomainBelongsToDomain: addDomainBelongsToDomainResolver,
     removeDomainBelongsToDomain: removeDomainBelongsToDomainResolver,
+    addSubResource: addSubResourceResolver,
+    createSubResourceSeries: createSubResourceSeriesResolver,
+    addSubResourceToSeries: addSubResourceToSeriesResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -135,6 +151,7 @@ const resolvers: APIResolvers<APIContext> = {
     getConcept: getConceptResolver,
     getConceptByKey: getConceptByKeyResolver,
     searchResourceTags: searchResourceTagsResolver,
+    searchResources: searchResourcesResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -162,12 +179,19 @@ const resolvers: APIResolvers<APIContext> = {
   },
   Resource: {
     coveredConcepts: getResourceCoveredConceptsResolver,
+    coveredConceptsByDomain: getResourceCoveredConceptsByDomainResolver,
     domains: getResourceDomainsResolver,
     tags: getResourceTagsResolver,
     upvotes: getResourceUpvotesResolver,
     rating: getResourceRatingResolver,
     consumed: getResourceConsumedResolver,
     creator: getResourceCreatorResolver,
+    subResources: getResourceSubResourcesResolver,
+    parentResources: getResourceParentResourcesResolver,
+    seriesParentResource: getResourceSeriesParentResourceResolver,
+    subResourceSeries: getResourceSubResourceSeriesResolver,
+    previousResource: getResourcePreviousResourceResolver,
+    nextResource: getResourceNextResourceResolver,
   },
   Date: GraphQLDateTime,
 };

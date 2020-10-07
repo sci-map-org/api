@@ -139,22 +139,39 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
   };
 };
 
+export const getOptionalRelatedNode = <OriginEntity, RelationshipEntity, DestinationEntity>(config: {
+  originNode: { label: string; filter: FilterObject<OriginEntity> };
+  relationship: { label: string; filter?: FilterObject<RelationshipEntity>; direction?: 'IN' | 'OUT' };
+  destinationNode: { label: string; filter?: FilterObject<DestinationEntity> };
+}): Promise<DestinationEntity | null> =>
+  getRelatedNodes(config).then(({ items }) => {
+    if (!items.length) return null;
+    if (items.length > 1)
+      logger.error(
+        `More than 1 pair ${config.originNode.label} with filter ${JSON.stringify(config.originNode.filter)} or ${
+          config.destinationNode.label
+        } with filter ${JSON.stringify(
+          config.destinationNode.filter
+        )}: data inconsistency as they are expected to be unique`
+      );
+    return items[0].destinationNode;
+  });
 export const getRelatedNode = async <E>({
   originNode,
   relationship,
   destinationNode,
 }: {
   originNode: { label: string; filter: object };
-  relationship: { label: string; filter: object };
+  relationship: { label: string; filter: object; direction?: 'IN' | 'OUT' };
   destinationNode: { label: string; filter: object };
 }): Promise<E> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})-[relationship:${
-      relationship.label
-    } ${getFilterString(relationship.filter, 'relationshipFilter')}]-(destinationNode:${
-      destinationNode.label
-    } ${getFilterString(
+    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})${
+      relationship.direction === 'IN' ? '<' : ''
+    }-[relationship:${relationship.label} ${getFilterString(relationship.filter, 'relationshipFilter')}]-${
+      relationship.direction === 'OUT' ? '>' : ''
+    }(destinationNode:${destinationNode.label} ${getFilterString(
       destinationNode.filter,
       'destinationNodeFilter'
     )}) RETURN properties(destinationNode) as destinationNode`,

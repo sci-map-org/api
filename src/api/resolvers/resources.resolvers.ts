@@ -2,21 +2,33 @@ import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  addSubResourceToSeries,
   attachResourceCoversConcepts,
   attachResourceToDomain,
+  attachSubResourceToResource,
+  createSubResourceSeries,
   deleteResource,
   deleteResourceCreatedBy,
   detachResourceCoversConcepts,
   findResource,
   getResourceCoveredConcepts,
   getResourceCreator,
+  getResourceCoveredConceptsByDomain,
   getResourceDomains,
+  getResourceNextResource,
+  getResourceParentResources,
+  getResourcePreviousResource,
   getResourceRating,
+  getResourceSubResources,
+  getResourceSubResourceSeries,
   getResourceUpvoteCount,
   getUserConsumedResource,
   rateResource,
   updateResource,
   voteResource,
+  detachResourceFromDomain,
+  searchResources,
+  getResourceSeriesParentResource,
 } from '../../repositories/resources.repository';
 import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
@@ -34,9 +46,19 @@ import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
 
+const SEARCH_RESOURCES_MIN_QUERY_LENGTH = 3;
+
 export function toAPIResource(resource: Resource): APIResource {
   return resource;
 }
+
+export const searchResourcesResolver: APIQueryResolvers['searchResources'] = async (_parent, { query, options }) => {
+  if (query.length < SEARCH_RESOURCES_MIN_QUERY_LENGTH)
+    throw new UserInputError(`Must have at least ${SEARCH_RESOURCES_MIN_QUERY_LENGTH} characters in the search query`);
+  return {
+    items: await searchResources(query, nullToUndefined(options)),
+  };
+};
 
 export const createResourceResolver: APIMutationResolvers['createResource'] = async (
   _parent,
@@ -91,9 +113,17 @@ export const attachResourceToDomainResolver: APIMutationResolvers['attachResourc
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  await attachResourceToDomain(domainId, resourceId);
-  const resource = await findResource({ _id: resourceId });
-  if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
+  const { resource } = await attachResourceToDomain(resourceId, domainId);
+  return toAPIResource(resource);
+};
+
+export const detachResourceFromDomainResolver: APIMutationResolvers['detachResourceFromDomain'] = async (
+  _parent,
+  { domainId, resourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to detach a resource from a domain');
+  const { resource } = await detachResourceFromDomain(resourceId, domainId);
   return toAPIResource(resource);
 };
 
@@ -129,6 +159,10 @@ export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredCo
   return {
     items: await getResourceCoveredConcepts(resource._id),
   };
+};
+
+export const getResourceCoveredConceptsByDomainResolver: APIResourceResolvers['coveredConceptsByDomain'] = async resource => {
+  return await getResourceCoveredConceptsByDomain(resource._id);
 };
 
 export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async (resource, { options }) => {
@@ -210,4 +244,76 @@ export const getResourceCreatorResolver: APIResourceResolvers['creator'] = async
   const creator = await getResourceCreator({ _id: resource._id });
 
   return toAPIUser(creator);
+};
+
+export const getResourceSubResourcesResolver: APIResourceResolvers['subResources'] = async resource => {
+  return getResourceSubResources(resource._id);
+};
+
+export const getResourceSubResourceSeriesResolver: APIResourceResolvers['subResourceSeries'] = async resource => {
+  return getResourceSubResourceSeries(resource._id);
+};
+
+export const getResourceParentResourcesResolver: APIResourceResolvers['parentResources'] = async resource => {
+  return getResourceParentResources(resource._id);
+};
+
+export const getResourceSeriesParentResourceResolver: APIResourceResolvers['seriesParentResource'] = async resource => {
+  return getResourceSeriesParentResource(resource._id);
+};
+
+export const getResourceNextResourceResolver: APIResourceResolvers['nextResource'] = async resource => {
+  return getResourceNextResource(resource._id);
+};
+
+export const getResourcePreviousResourceResolver: APIResourceResolvers['previousResource'] = async resource => {
+  return getResourcePreviousResource(resource._id);
+};
+
+export const addSubResourceResolver: APIMutationResolvers['addSubResource'] = async (
+  _,
+  { parentResourceId, subResourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to add a sub resource to a resource');
+  return await attachSubResourceToResource(parentResourceId, subResourceId);
+};
+
+export const createSubResourceSeriesResolver: APIMutationResolvers['createSubResourceSeries'] = async (
+  _,
+  { parentResourceId, subResourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to create resource series');
+  const existingParent = await getResourceSeriesParentResource(subResourceId);
+  if (!!existingParent)
+    throw new UserInputError(
+      `Resource with _id ${subResourceId} is already part of a series (parent with id ${existingParent._id})`
+    );
+  return createSubResourceSeries(parentResourceId, subResourceId);
+};
+
+export const addSubResourceToSeriesResolver: APIMutationResolvers['addSubResourceToSeries'] = async (
+  _,
+  { parentResourceId, previousResourceId, subResourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to create resource series');
+  const existingParent = await getResourceSeriesParentResource(subResourceId);
+  if (!!existingParent)
+    throw new UserInputError(
+      `Resource with _id ${subResourceId} is already part of a series (parent with id ${existingParent._id})`
+    );
+  // In the future, resources would be able to belong to several series:
+  // that's why we already pass the parent
+  const { previousResource, subResource } = await addSubResourceToSeries(
+    parentResourceId,
+    previousResourceId,
+    subResourceId
+  );
+  return {
+    previousResource,
+    subResource,
+    seriesParentResource: (await getResourceSeriesParentResource(previousResourceId)) as Resource,
+  };
 };

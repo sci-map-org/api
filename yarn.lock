@@ -2423,15 +2423,15 @@ cssfilter@0.0.10:
   resolved "https://registry.yarnpkg.com/cssfilter/-/cssfilter-0.0.10.tgz#c6d2672632a2e5c83e013e6864a42ce8defd20ae"
   integrity sha1-xtJnJjKi5cg+AT5oZKQs6N79IK4=
 
-cypher-query-builder@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/cypher-query-builder/-/cypher-query-builder-6.0.0.tgz#0d4c7bdc64b561d15f3bd2279ae07cc2c633b662"
-  integrity sha512-lXCO6v+XZJrNNtmyrA5ssrQfCttOA2oyjQctiRT6XT66UxytfS0i3XvN7ikUBkQi+vaeSoN6ZX/SJ91wbq0o7Q==
+cypher-query-builder@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/cypher-query-builder/-/cypher-query-builder-6.0.1.tgz#68e4f9b6bd15119818f24beaf4f26f53b915cb0a"
+  integrity sha512-EALe546XM35CadQw1fA5jGo7ABjdQixuJB6Mm39lxIX+6oCuhJViKL5vGx87dGO+Q6I5kyGL8Ny9uzo5u+/YGQ==
   dependencies:
     "@types/lodash" "^4.14.136"
     "@types/node" "^12.6.1"
     lodash "^4.17.15"
-    neo4j-driver "^4.0.1"
+    neo4j-driver "^4.1.2"
     node-cleanup "^2.1.2"
     rxjs "^6.5.2"
     tslib "^1.10.0"
@@ -4642,7 +4642,7 @@ negotiator@0.6.2:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
   integrity sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==
 
-neo4j-driver@4.1.2, neo4j-driver@^4.0.1:
+neo4j-driver@4.1.2, neo4j-driver@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/neo4j-driver/-/neo4j-driver-4.1.2.tgz#b7dc520a8b64b7dccd143058cf6cdf6fd6cb9ccd"
   integrity sha512-hD13lwOuWi53IorgxL0/7HdBrR74VsQTMzZbp45a5e+vhciGtkqsfPH4oy33g+UOeORmxQ1y/lLnKpYe0Ll6xg==
