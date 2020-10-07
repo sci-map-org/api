@@ -50,3 +50,9 @@ Licensed under [GNU GPL v3.0](https://choosealicense.com/licenses/gpl-3.0/): You
 - remove filters in repo methods where not needed (e.g. for resources) ?
 - Use neo4j-graphql-js ? Right now doesn't have the abilities necessary
 - use class entities for nodes / relationships ? Need to keep the same flexibilities if needed though
+
+### Importing a db dump locally
+
+Since v4, auth is managed in the system database which comes along in a db dump. Using neo4j desktop, replace the content of the data folder by the content of the dump, then reset the password. You'll see a warning message:
+`Authentication Disabled To reset the password you need to enable authentication first.`
+The password will still be reset. After that, run the database, open the browser and connect to the db (`:server connect` with neo4j/the password you just set).
