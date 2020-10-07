@@ -63,7 +63,7 @@ import {
   setResourcesConsumedResolver,
   updateResourceResolver,
   voteResourceResolver,
-  getResourceParentResourceResolver,
+  getResourceParentResourcesResolver,
   getResourceSubResourcesResolver,
   addSubResourceToSeriesResolver,
   createSubResourceSeriesResolver,
@@ -73,6 +73,7 @@ import {
   getResourceCoveredConceptsByDomainResolver,
   detachResourceFromDomainResolver,
   searchResourcesResolver,
+  getResourceSeriesParentResourceResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToResourceResolver,
@@ -186,7 +187,8 @@ const resolvers: APIResolvers<APIContext> = {
     consumed: getResourceConsumedResolver,
     creator: getResourceCreatorResolver,
     subResources: getResourceSubResourcesResolver,
-    parentResource: getResourceParentResourceResolver,
+    parentResources: getResourceParentResourcesResolver,
+    seriesParentResource: getResourceSeriesParentResourceResolver,
     subResourceSeries: getResourceSubResourceSeriesResolver,
     previousResource: getResourcePreviousResourceResolver,
     nextResource: getResourceNextResourceResolver,

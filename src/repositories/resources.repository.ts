@@ -429,8 +429,8 @@ export const getResourceSubResourceSeries = async (parentResourceId: string) => 
   return results.map(r => r.resourceSeries.properties);
 };
 
-export const getResourceParentResource = (subResourceId: string) =>
-  getOptionalRelatedNode<Resource, ResourceBelongsToResource, Resource>({
+export const getResourceParentResources = (subResourceId: string): Promise<Resource[]> =>
+  getRelatedNodes<Resource, ResourceBelongsToResource, Resource>({
     originNode: {
       label: ResourceLabel,
       filter: { _id: subResourceId },
@@ -444,7 +444,25 @@ export const getResourceParentResource = (subResourceId: string) =>
       label: ResourceLabel,
       filter: {},
     },
-  });
+  })
+    .then(prop('items'))
+    .then(map(prop('destinationNode')));
+
+export const getResourceSeriesParentResource = async (subResourceId: string): Promise<Resource | null> => {
+  const q = new Query(neo4jQb);
+  q.match([
+    node('s', ResourceLabel, { _id: subResourceId }),
+    relation('in', '', ResourceHasNextResourceLabel, undefined, [0, 100]),
+    node('r', ResourceLabel),
+    relation('in', '', ResourceStartsWithResourceLabel),
+    node('i', ResourceLabel),
+  ]);
+
+  q.return('i');
+
+  const results = await q.run();
+  return results.map(r => r.i.properties)[0] || null;
+};
 
 export const getResourceNextResource = (resourceId: string) =>
   getOptionalRelatedNode<Resource, ResourceHasNextResource, Resource>({
@@ -492,17 +510,14 @@ export const createSubResourceSeries = (parentResouceId: string, subResourceId: 
     originNode: { label: ResourceLabel, filter: { _id: parentResouceId } },
     relationship: { label: ResourceStartsWithResourceLabel },
     destinationNode: { label: ResourceLabel, filter: { _id: subResourceId } },
-  }).then(() => attachSubResourceToResource(parentResouceId, subResourceId));
+  }).then(({ originNode, destinationNode }) => ({ seriesParentResource: originNode, subResource: destinationNode }));
 
 export const addSubResourceToSeries = (parentResourceId: string, previousResourceId: string, subResourceId: string) =>
-  attachSubResourceToResource(parentResourceId, subResourceId).then(({ parentResource }) =>
-    attachUniqueNodes<Resource, ResourceHasNextResource, Resource>({
-      originNode: { label: ResourceLabel, filter: { _id: previousResourceId } },
-      relationship: { label: ResourceHasNextResourceLabel },
-      destinationNode: { label: ResourceLabel, filter: { _id: subResourceId } },
-    }).then(({ originNode, destinationNode }) => ({
-      parentResource,
-      previousResource: originNode,
-      subResource: destinationNode,
-    }))
-  );
+  attachUniqueNodes<Resource, ResourceHasNextResource, Resource>({
+    originNode: { label: ResourceLabel, filter: { _id: previousResourceId } },
+    relationship: { label: ResourceHasNextResourceLabel, onCreateProps: { parentResourceId } },
+    destinationNode: { label: ResourceLabel, filter: { _id: subResourceId } },
+  }).then(({ originNode, destinationNode }) => ({
+    previousResource: originNode,
+    subResource: destinationNode,
+  }));

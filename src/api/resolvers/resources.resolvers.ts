@@ -16,7 +16,7 @@ import {
   getResourceCoveredConceptsByDomain,
   getResourceDomains,
   getResourceNextResource,
-  getResourceParentResource,
+  getResourceParentResources,
   getResourcePreviousResource,
   getResourceRating,
   getResourceSubResources,
@@ -28,6 +28,7 @@ import {
   voteResource,
   detachResourceFromDomain,
   searchResources,
+  getResourceSeriesParentResource,
 } from '../../repositories/resources.repository';
 import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
@@ -253,8 +254,12 @@ export const getResourceSubResourceSeriesResolver: APIResourceResolvers['subReso
   return getResourceSubResourceSeries(resource._id);
 };
 
-export const getResourceParentResourceResolver: APIResourceResolvers['parentResource'] = async resource => {
-  return getResourceParentResource(resource._id);
+export const getResourceParentResourcesResolver: APIResourceResolvers['parentResources'] = async resource => {
+  return getResourceParentResources(resource._id);
+};
+
+export const getResourceSeriesParentResourceResolver: APIResourceResolvers['seriesParentResource'] = async resource => {
+  return getResourceSeriesParentResource(resource._id);
 };
 
 export const getResourceNextResourceResolver: APIResourceResolvers['nextResource'] = async resource => {
@@ -280,6 +285,11 @@ export const createSubResourceSeriesResolver: APIMutationResolvers['createSubRes
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to create resource series');
+  const existingParent = await getResourceSeriesParentResource(subResourceId);
+  if (!!existingParent)
+    throw new UserInputError(
+      `Resource with _id ${subResourceId} is already part of a series (parent with id ${existingParent._id})`
+    );
   return createSubResourceSeries(parentResourceId, subResourceId);
 };
 
@@ -289,5 +299,21 @@ export const addSubResourceToSeriesResolver: APIMutationResolvers['addSubResourc
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to create resource series');
-  return addSubResourceToSeries(parentResourceId, previousResourceId, subResourceId);
+  const existingParent = await getResourceSeriesParentResource(subResourceId);
+  if (!!existingParent)
+    throw new UserInputError(
+      `Resource with _id ${subResourceId} is already part of a series (parent with id ${existingParent._id})`
+    );
+  // In the future, resources would be able to belong to several series:
+  // that's why we already pass the parent
+  const { previousResource, subResource } = await addSubResourceToSeries(
+    parentResourceId,
+    previousResourceId,
+    subResourceId
+  );
+  return {
+    previousResource,
+    subResource,
+    seriesParentResource: (await getResourceSeriesParentResource(previousResourceId)) as Resource,
+  };
 };

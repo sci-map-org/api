@@ -45,8 +45,9 @@ type Resource {
   coveredConceptsByDomain: [ResourceCoveredConceptsByDomainItem!]
   domains(options: ResourceDomainsOptions!): ResourceDomainsResults
   subResources: [Resource!]
+  parentResources: [Resource!]
   subResourceSeries: [Resource!]
-  parentResource: Resource
+  seriesParentResource: Resource
   nextResource: Resource
   previousResource: Resource
 }
@@ -116,6 +117,11 @@ type SubResourceCreatedResult {
   subResource: Resource!
 }
 
+type SubResourceSeriesCreatedResult {
+  seriesParentResource: Resource!
+  subResource: Resource!
+}
+
 input SearchResourcesOptions {
   pagination: PaginationOptions
 }
@@ -142,10 +148,10 @@ type Mutation {
   voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
   rateResource(resourceId: String!, value: Float!): Resource!
   addSubResource(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!
-  createSubResourceSeries(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!
+  createSubResourceSeries(parentResourceId: String!, subResourceId: String!): SubResourceSeriesCreatedResult!
   addSubResourceToSeries(
     parentResourceId: String!
     previousResourceId: String!
     subResourceId: String!
-  ): SubResourceCreatedResult!
+  ): SubResourceSeriesCreatedResult!
 }
