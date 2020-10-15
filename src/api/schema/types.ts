@@ -62,8 +62,8 @@ export type APIQuery = {
   currentUser?: Maybe<APICurrentUser>;
   getArticleByKey: APIArticle;
   getConcept: APIConcept;
-  getConceptByKey: APIConcept;
   getDomainByKey: APIDomain;
+  getDomainConceptByKey: APIConcept;
   getResourceById: APIResource;
   getUser: APIUser;
   listArticles: APIListArticlesResult;
@@ -83,13 +83,14 @@ export type APIQueryGetConceptArgs = {
 };
 
 
-export type APIQueryGetConceptByKeyArgs = {
+export type APIQueryGetDomainByKeyArgs = {
   key: Scalars['String'];
 };
 
 
-export type APIQueryGetDomainByKeyArgs = {
-  key: Scalars['String'];
+export type APIQueryGetDomainConceptByKeyArgs = {
+  conceptKey: Scalars['String'];
+  domainKey: Scalars['String'];
 };
 
 
@@ -1123,8 +1124,8 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>,
   getConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptArgs, '_id'>>,
-  getConceptByKey?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptByKeyArgs, 'key'>>,
   getDomainByKey?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIQueryGetDomainByKeyArgs, 'key'>>,
+  getDomainConceptByKey?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetDomainConceptByKeyArgs, 'conceptKey' | 'domainKey'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,

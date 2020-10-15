@@ -10,6 +10,7 @@ import {
   detachConceptBelongsToConcept,
   detachConceptReferencesConcept,
   findConcept,
+  findDomainConceptByKey,
   getConceptCoveredByResources,
   getConceptDomain,
   getConceptParentConcepts,
@@ -36,9 +37,12 @@ export const getConceptResolver: APIQueryResolvers['getConcept'] = async (_paren
   return toAPIConcept(concept);
 };
 
-export const getConceptByKeyResolver: APIQueryResolvers['getConceptByKey'] = async (_parent, { key }) => {
-  const concept = await findConcept({ key });
-  if (!concept) throw new NotFoundError('Concept', key, 'key');
+export const getDomainConceptByKeyResolver: APIQueryResolvers['getDomainConceptByKey'] = async (
+  _parent,
+  { conceptKey, domainKey }
+) => {
+  const concept = await findDomainConceptByKey(domainKey, conceptKey);
+  if (!concept) throw new NotFoundError('Concept', conceptKey, 'key');
   return toAPIConcept(concept);
 };
 

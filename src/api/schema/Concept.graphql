@@ -67,7 +67,7 @@ type DeleteConceptResult {
 
 type Query {
   getConcept(_id: String!): Concept!
-  getConceptByKey(key: String!): Concept!
+  getDomainConceptByKey(domainKey: String!, conceptKey: String!): Concept!
 }
 
 type Mutation {
