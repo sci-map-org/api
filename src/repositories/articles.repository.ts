@@ -28,7 +28,7 @@ export interface UpdateArticleData {
 const generateKey = generate;
 
 export const createArticle = (author: { _id: string } | { key: string }, data: CreateArticleData): Promise<Article> =>
-  createRelatedNode({
+  createRelatedNode<User, UserCreatedArticle, Article>({
     originNode: {
       label: UserLabel,
       filter: author,

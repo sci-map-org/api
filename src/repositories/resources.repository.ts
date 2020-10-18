@@ -83,9 +83,9 @@ interface UpdateResourceData {
 }
 
 export const createResource = (user: { _id: string }, data: CreateResourceData): Promise<Resource> =>
-  createRelatedNode({
+  createRelatedNode<User, UserCreatedResource, Resource>({
     originNode: { label: UserLabel, filter: user },
-    relationship: { label: 'CREATED', props: { createdAt: Date.now() } },
+    relationship: { label: UserCreatedResourceLabel, props: { createdAt: Date.now() } },
     newNode: { label: ResourceLabel, props: { ...data, _id: shortid.generate() } },
   });
 

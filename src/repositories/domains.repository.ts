@@ -10,7 +10,9 @@ import {
   DomainBelongsToDomain,
   DomainBelongsToDomainLabel,
 } from '../entities/relationships/DomainBelongsToDomain';
+import { UserCreatedDomain, UserCreatedDomainLabel } from '../entities/relationships/UserCreatedDomain';
 import { Resource, ResourceType } from '../entities/Resource';
+import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachUniqueNodes,
@@ -36,9 +38,9 @@ interface UpdateDomainData {
 }
 
 export const createDomain = (user: { _id: string } | { key: string }, data: CreateDomainData): Promise<Domain> =>
-  createRelatedNode({
-    originNode: { label: 'User', filter: user },
-    relationship: { label: 'CREATED', props: { createdAt: Date.now() } },
+  createRelatedNode<User, UserCreatedDomain, Domain>({
+    originNode: { label: UserLabel, filter: user },
+    relationship: { label: UserCreatedDomainLabel, props: { createdAt: Date.now() } },
     newNode: { label: DomainLabel, props: { ...data, _id: shortid.generate() } },
   });
 
