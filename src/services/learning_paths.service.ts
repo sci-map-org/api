@@ -1,5 +1,5 @@
 import {LearningPath} from "../entities/LearningPath";
-import {createLearningPath} from "../repositories/learning_paths.repositories";
+import {createLearningPath} from "../repositories/learning_paths.repository";
 import {Resource} from "../entities/Resource";
 
 interface CreateAndSaveLearningPathData {
@@ -8,6 +8,7 @@ interface CreateAndSaveLearningPathData {
 	resources: Resource[];
 }
 
-export const createAndSaveLearningPath = (data: CreateAndSaveLearningPathData, userId: string): Promise<LearningPath> => {
-	const createdLearningPath = createLearningPath(data);
-}
+// export const createAndSaveLearningPath = (data: CreateAndSaveLearningPathData, userId: string): Promise<LearningPath> => {
+// 	const createdLearningPath = createLearningPath(data);
+	
+// }
