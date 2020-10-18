@@ -1,16 +1,9 @@
 import { omit } from 'lodash';
-import {
-  ResourceMediaType,
-  ResourceType,
-  APIDomainResourcesOptions,
-  SortingDirection,
-  APIDomainResourcesSortingType,
-} from '../api/schema/types';
+import { ResourceMediaType, ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import { createResource } from '../repositories/resources.repository';
 import { attachResourceTagsToResource, findOrCreateResourceTag } from '../repositories/resource_tags.repository';
-import { listDomainResources, getDomainRelevantResources } from '../repositories/domains.repository';
-import { PaginationOptions } from '../repositories/util/pagination';
+import { sendDiscordNotification } from './discord/discord_webhooks.service';
 
 interface CreateAndSaveResourceData {
   name: string;
@@ -31,27 +24,8 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
       resourceTags.map(r => r.name)
     );
   }
+  sendDiscordNotification(
+    `Yay, new resource created: ${createdResource.name}, id: ${createdResource._id} (by user with id ${userId})`
+  );
   return createdResource;
-};
-
-interface GetDomainResourcesOptions {
-  sorting?: { direction: SortingDirection; type: APIDomainResourcesSortingType };
-  pagination?: PaginationOptions;
-}
-/**
- * Default: sort by Relevance
- */
-export const getDomainResources = async (
-  domainId: string,
-  userId: string | undefined,
-  options: GetDomainResourcesOptions
-): Promise<Resource[]> => {
-  const sorting = options.sorting || {
-    direction: SortingDirection.DESC,
-    type: APIDomainResourcesSortingType.Relevance,
-  };
-  if (sorting.type === APIDomainResourcesSortingType.Relevance) {
-    return getDomainRelevantResources(domainId, userId, options.pagination);
-  }
-  return listDomainResources({ _id: domainId });
 };

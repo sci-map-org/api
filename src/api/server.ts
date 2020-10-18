@@ -1,4 +1,4 @@
-import { ApolloServer } from 'apollo-server-koa';
+import { ApolloServer, AuthenticationError } from 'apollo-server-koa';
 import * as Koa from 'koa';
 
 import { schema } from '../api/schema';
@@ -27,7 +27,11 @@ const server = new ApolloServer({
   context: async (context): Promise<APIContext> => {
     const jwt = context.ctx.request.header.authorization;
     if (!!jwt) {
-      return { user: await validateAndDecodeJWT(jwt) };
+      try {
+        return { user: await validateAndDecodeJWT(jwt) };
+      } catch (err) {
+        throw new AuthenticationError('Invalid token');
+      }
     }
     return {};
   },

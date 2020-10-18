@@ -12,6 +12,7 @@ enum ResourceType {
   podcast
   podcast_series
   youtube_video
+  youtube_video_series
   book
   talk
   documentary
@@ -41,7 +42,14 @@ type Resource {
   consumed: ConsumedResource
   creator: User
   coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
+  coveredConceptsByDomain: [ResourceCoveredConceptsByDomainItem!]
   domains(options: ResourceDomainsOptions!): ResourceDomainsResults
+  subResources: [Resource!]
+  parentResources: [Resource!]
+  subResourceSeries: [Resource!]
+  seriesParentResource: Resource
+  nextResource: Resource
+  previousResource: Resource
 }
 
 input ResourceDomainsOptions {
@@ -58,6 +66,11 @@ input ResourceCoveredConceptsOptions {
 
 type ResourceCoveredConceptsResults {
   items: [Concept!]!
+}
+
+type ResourceCoveredConceptsByDomainItem {
+  domain: Domain!
+  coveredConcepts: [Concept!]!
 }
 
 input CreateResourcePayload {
@@ -84,6 +97,7 @@ input SetResourcesConsumedPayloadResourcesField {
   consumed: Boolean
   opened: Boolean
 }
+
 input SetResourcesConsumedPayload {
   resources: [SetResourcesConsumedPayloadResourcesField!]!
 }
@@ -98,19 +112,46 @@ type DeleteResourceResponse {
   success: Boolean!
 }
 
+type SubResourceCreatedResult {
+  parentResource: Resource!
+  subResource: Resource!
+}
+
+type SubResourceSeriesCreatedResult {
+  seriesParentResource: Resource!
+  subResource: Resource!
+}
+
+input SearchResourcesOptions {
+  pagination: PaginationOptions
+}
+
+type SearchResourcesResult {
+  items: [Resource!]!
+}
+
 type Query {
+  searchResources(query: String!, options: SearchResourcesOptions!): SearchResourcesResult!
   getResourceById(id: String!): Resource!
 }
 
 type Mutation {
   createResource(payload: CreateResourcePayload!): Resource!
   updateResource(_id: String!, payload: UpdateResourcePayload!): Resource!
-  deleteResource(_id: String!): DeleteResourceResponse!
+  deleteResource(_id: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
   addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
   attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
+  detachResourceFromDomain(domainId: String!, resourceId: String!): Resource!
   attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
   voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
   rateResource(resourceId: String!, value: Float!): Resource!
+  addSubResource(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!
+  createSubResourceSeries(parentResourceId: String!, subResourceId: String!): SubResourceSeriesCreatedResult!
+  addSubResourceToSeries(
+    parentResourceId: String!
+    previousResourceId: String!
+    subResourceId: String!
+  ): SubResourceSeriesCreatedResult!
 }

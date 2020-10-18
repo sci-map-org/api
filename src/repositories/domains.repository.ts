@@ -1,5 +1,7 @@
+import { inArray, node, Query, relation } from 'cypher-query-builder';
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
+import { APIDomainResourcesSortingType } from '../api/schema/types';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
@@ -8,12 +10,8 @@ import {
   DomainBelongsToDomain,
   DomainBelongsToDomainLabel,
 } from '../entities/relationships/DomainBelongsToDomain';
-import {
-  ResourceBelongsToDomain,
-  ResourceBelongsToDomainLabel,
-} from '../entities/relationships/ResourceBelongsToDomain';
-import { Resource, ResourceLabel } from '../entities/Resource';
-import { neo4jDriver } from '../infra/neo4j';
+import { Resource, ResourceType } from '../entities/Resource';
+import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachUniqueNodes,
   createRelatedNode,
@@ -23,7 +21,6 @@ import {
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
-import { PaginationOptions } from './util/pagination';
 import { SortingDirection } from './util/sorting';
 
 interface CreateDomainData {
@@ -103,55 +100,95 @@ export const getDomainConcepts = (
       }))
     );
 
-// TODO rename, find convention
-export const listDomainResources = (
-  domainFilter: { key: string } | { _id: string },
-  pagination?: PaginationOptions
-): Promise<Resource[]> =>
-  getRelatedNodes<Domain, ResourceBelongsToDomain, Resource>({
-    originNode: {
-      label: DomainLabel,
-      filter: domainFilter,
-    },
-    relationship: {
-      label: ResourceBelongsToDomainLabel,
-    },
-    destinationNode: {
-      label: ResourceLabel,
-    },
-    pagination: { offset: 0, limit: 100, ...pagination },
-  })
-    .then(prop('items'))
-    .then(map(prop('destinationNode')));
+interface DomainResourcesFilter {
+  resourceTypeIn?: ResourceType[];
+  consumedByUser?: Boolean;
+}
 
-export const getDomainRelevantResources = async (
+export const getDomainResources = async (
   domainId: string,
   userId: string | undefined,
-  pagination?: PaginationOptions
+  {
+    query,
+    filter,
+    sortingType,
+  }: { query?: string; filter?: DomainResourcesFilter; sortingType: APIDomainResourcesSortingType }
 ): Promise<Resource[]> => {
-  const session = neo4jDriver.session();
+  const q = new Query(neo4jQb);
+  if (userId) q.matchNode('u', 'User', { _id: userId });
 
-  let query: string;
-  if (!userId) {
-    query = `match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource) optional match (r)-[:COVERS]->(cc:Concept) 
-  optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc)
-  WITH DISTINCT r, count(distinct mpc) as cmpc, count(cc) as ccc return r, properties(r) as resource, cmpc, sign(ccc)/(0.1+cmpc) as score ORDER BY score DESC`;
-  } else {
-    query = `match (u:User {_id: $userId}) match (d:Domain {_id: $domainId})<-[:BELONGS_TO]-(r:Resource) optional match (r)-[:COVERS]->(cc:Concept) 
-  optional match (cc)-[dpc:REFERENCES*0..5]->(mpc:Concept) WHERE NOT (r)-[:COVERS]->(mpc) AND NOT (u)-[:KNOWS]->(mpc) 
-  optional match (cc)<-[rkc:KNOWS]-(u) 
-  WITH DISTINCT r, count(cc) as ccc, 1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness, count(distinct mpc) as cmpc return r, properties(r) as resource, usefulness, cmpc, sign(ccc)*usefulness/(0.1+cmpc) as score ORDER BY score DESC`;
+  q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('r', 'Resource')]);
+
+  const hasWhereClause = !!filter && !!filter.resourceTypeIn;
+  if (hasWhereClause)
+    q.where({
+      r: {
+        ...(!!filter?.resourceTypeIn && { type: inArray(filter.resourceTypeIn) }),
+      },
+    });
+  if (query)
+    q.raw(
+      `${
+        hasWhereClause ? ' AND ' : 'WHERE '
+      } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
+      { query }
+    );
+
+  if (userId && filter?.consumedByUser === true) {
+    q.raw(
+      `${
+        hasWhereClause || query ? ' AND ' : 'WHERE '
+      } EXISTS { (u)-[consumed_r:CONSUMED]->(r) WHERE exists(consumed_r.consumedAt) }`
+    );
   }
 
-  const { records } = await session.run(query, {
-    domainId,
-    userId,
-  });
+  if (userId && filter?.consumedByUser === false) {
+    q.raw(
+      `${
+        hasWhereClause || query ? ' AND ' : ' WHERE '
+      } (NOT (u)-[:CONSUMED]->(r) OR EXISTS { (u)-[consumed_r:CONSUMED]->(r)  where consumed_r.consumedAt IS NULL })`
+    );
+  }
 
-  session.close();
-  return records.map(r => {
-    return r.get('resource');
-  });
+  if (sortingType === APIDomainResourcesSortingType.Recommended) {
+    q.optionalMatch([node('r'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
+    q.optionalMatch([node('cc'), relation('out', 'dpc', 'REFERENCES', [0, 5]), node('mpc', 'Concept')]);
+    q.raw('WHERE NOT (r)-[:COVERS]->(mpc)');
+    if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
+    if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
+    if (userId)
+      q.with([
+        'DISTINCT r',
+        'u',
+        'count(cc) as ccc',
+        'count(distinct mpc) as cmpc',
+        '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
+      ]);
+    else q.with(['DISTINCT r', 'count(cc) as ccc', 'count(distinct mpc) as cmpc']);
+
+    if (userId) {
+      q.raw(`CALL {
+        WITH r,u
+          MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
+          WHERE (NOT (u)-[:CONSUMED]->(nextToConsume) OR EXISTS { (u)-[consumed_r:CONSUMED]->(nextToConsume)  where consumed_r.consumedAt IS NULL })
+          AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
+          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((r)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
+          return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+      }`)
+      q.return(['r', 'properties(r) as resource', 'cmpc', ' usefulness', 'sign(ccc)*usefulness/(0.1+cmpc) + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) as score']);
+    }
+     
+    else q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) as score']);
+    q.orderBy('score', 'DESC');
+  } else {
+    q.match([node('r'), relation('in', 'createdResource', 'CREATED'), node('', 'User')]);
+    q.return(['r']);
+    q.orderBy('createdResource.createdAt', 'DESC');
+  }
+
+  const r = await q.run();
+  const resources = r.map(i => i.r.properties);
+  return resources;
 };
 
 export const attachDomainBelongsToDomain = (

@@ -22,6 +22,7 @@ import {
   getRelatedNode,
   getRelatedNodes,
   updateOne,
+  getOptionalRelatedNode,
 } from './util/abstract_graph_repo';
 import {
   ConceptBelongsToConcept,
@@ -55,7 +56,23 @@ export const createConcept = (user: { _id: string } | { key: string }, data: Cre
     },
   });
 
-export const findConcept = findOne<Concept, { _id: string } | { key: string }>({ label: ConceptLabel });
+export const findConcept = findOne<Concept, { _id: string }>({ label: ConceptLabel });
+
+export const findDomainConceptByKey = (domainKey: string, conceptKey: string): Promise<Concept | null> =>
+  getOptionalRelatedNode<Domain, ConceptBelongsToDomain, Concept>({
+    originNode: {
+      label: DomainLabel,
+      filter: { key: domainKey },
+    },
+    relationship: {
+      label: ConceptBelongsToDomainLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: ConceptLabel,
+      filter: { key: conceptKey },
+    },
+  });
 
 export const updateConcept = updateOne<Concept, { _id: string }, UpdateConceptData>({ label: ConceptLabel });
 

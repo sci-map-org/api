@@ -39,6 +39,15 @@ const EMAIL = typedEnv.envGroup(
   'EMAIL'
 );
 
+const DISCORD = typedEnv.envGroup(
+  {
+    BOTS_WEBHOOK_ID: typedEnv.types.OptionalString,
+    BOTS_WEBHOOK_TOKEN: typedEnv.types.OptionalString,
+    ERRORS_WEBHOOK_URL: typedEnv.types.OptionalString,
+  },
+  'DISCORD'
+);
+
 const API = typedEnv.envGroup({
   PORT: typedEnv.types.PortNumber,
   GRAPHQL_MOCK_ENABLED: typedEnv.types.Boolean,
@@ -53,6 +62,7 @@ const envSchema = typedEnv.envSchema({
   AWS,
   AUTH,
   EMAIL,
+  DISCORD,
   API,
   OTHER,
 });
