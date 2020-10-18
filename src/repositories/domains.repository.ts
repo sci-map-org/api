@@ -159,14 +159,25 @@ export const getDomainResources = async (
     if (userId)
       q.with([
         'DISTINCT r',
+        'u',
         'count(cc) as ccc',
         'count(distinct mpc) as cmpc',
         '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
       ]);
     else q.with(['DISTINCT r', 'count(cc) as ccc', 'count(distinct mpc) as cmpc']);
 
-    if (userId)
-      q.return(['r', 'properties(r) as resource', 'cmpc', ' usefulness', 'sign(ccc)*usefulness/(0.1+cmpc) as score']);
+    if (userId) {
+      q.raw(`CALL {
+        WITH r,u
+          MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
+          WHERE (NOT (u)-[:CONSUMED]->(nextToConsume) OR EXISTS { (u)-[consumed_r:CONSUMED]->(nextToConsume)  where consumed_r.consumedAt IS NULL })
+          AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
+          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((r)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
+          return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+      }`)
+      q.return(['r', 'properties(r) as resource', 'cmpc', ' usefulness', 'sign(ccc)*usefulness/(0.1+cmpc) + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) as score']);
+    }
+     
     else q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) as score']);
     q.orderBy('score', 'DESC');
   } else {
