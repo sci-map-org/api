@@ -342,7 +342,7 @@ export type APIMutationLoginGoogleArgs = {
 
 export type APIMutationPutLearningPathArgs = {
   _id: Scalars['String'];
-  payload: APIPutLearningPathPayload;
+  payload: APICreateLearningPathPayload;
 };
 
 
@@ -640,25 +640,12 @@ export type APILearningPath = {
   _id: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   name: Scalars['String'];
-  resources?: Maybe<APILearningPathResourcesResults>;
-};
-
-
-export type APILearningPathResourcesArgs = {
-  options?: Maybe<APILearningPathResourcesOptions>;
-};
-
-export type APILearningPathResourcesOptions = {
-  pagination?: Maybe<APIPaginationOptions>;
-};
-
-export type APILearningPathResourcesResults = {
-   __typename?: 'LearningPathResourcesResults';
-  items: Array<APILearningPathResourceItem>;
+  resourceItems?: Maybe<Array<APILearningPathResourceItem>>;
 };
 
 export type APILearningPathResourceItem = {
    __typename?: 'LearningPathResourceItem';
+  description?: Maybe<Scalars['String']>;
   learningPathId: Scalars['String'];
   resource: APIResource;
   tags?: Maybe<Array<Scalars['String']>>;
@@ -667,10 +654,11 @@ export type APILearningPathResourceItem = {
 export type APICreateLearningPathPayload = {
   description?: Maybe<Scalars['String']>;
   name: Scalars['String'];
-  resources: Array<APICreateLearningPathResourceItem>;
+  resourceItems?: Maybe<Array<APICreateLearningPathResourceItem>>;
 };
 
 export type APICreateLearningPathResourceItem = {
+  note?: Maybe<Scalars['String']>;
   resourceId: Scalars['String'];
   tags?: Maybe<Array<Scalars['String']>>;
 };
@@ -679,17 +667,6 @@ export type APIDeleteLearningPathResult = {
    __typename?: 'DeleteLearningPathResult';
   _id: Scalars['String'];
   success: Scalars['Boolean'];
-};
-
-export type APIPutLearningPathPayload = {
-  description?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  resources?: Maybe<Array<Maybe<APIPutLearningPathResourceItem>>>;
-};
-
-export type APIPutLearningPathResourceItem = {
-  resourceId: Scalars['String'];
-  tags?: Maybe<Array<Scalars['String']>>;
 };
 
 export { ResourceMediaType };
@@ -1070,14 +1047,10 @@ export type APIResolversTypes = ResolversObject<{
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
   LearningPath: ResolverTypeWrapper<APILearningPath>,
-  LearningPathResourcesOptions: APILearningPathResourcesOptions,
-  LearningPathResourcesResults: ResolverTypeWrapper<APILearningPathResourcesResults>,
   LearningPathResourceItem: ResolverTypeWrapper<APILearningPathResourceItem>,
   CreateLearningPathPayload: APICreateLearningPathPayload,
   CreateLearningPathResourceItem: APICreateLearningPathResourceItem,
   DeleteLearningPathResult: ResolverTypeWrapper<APIDeleteLearningPathResult>,
-  PutLearningPathPayload: APIPutLearningPathPayload,
-  PutLearningPathResourceItem: APIPutLearningPathResourceItem,
   ResourceMediaType: ResourceMediaType,
   ResourceType: ResourceType,
   ConsumedResource: ResolverTypeWrapper<APIConsumedResource>,
@@ -1166,14 +1139,10 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: APIDeleteDomainResponse,
   LearningPath: APILearningPath,
-  LearningPathResourcesOptions: APILearningPathResourcesOptions,
-  LearningPathResourcesResults: APILearningPathResourcesResults,
   LearningPathResourceItem: APILearningPathResourceItem,
   CreateLearningPathPayload: APICreateLearningPathPayload,
   CreateLearningPathResourceItem: APICreateLearningPathResourceItem,
   DeleteLearningPathResult: APIDeleteLearningPathResult,
-  PutLearningPathPayload: APIPutLearningPathPayload,
-  PutLearningPathResourceItem: APIPutLearningPathResourceItem,
   ResourceMediaType: ResourceMediaType,
   ResourceType: ResourceType,
   ConsumedResource: APIConsumedResource,
@@ -1393,16 +1362,12 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  resources?: Resolver<Maybe<APIResolversTypes['LearningPathResourcesResults']>, ParentType, ContextType, RequireFields<APILearningPathResourcesArgs, never>>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APILearningPathResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathResourcesResults'] = APIResolversParentTypes['LearningPathResourcesResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['LearningPathResourceItem']>, ParentType, ContextType>,
+  resourceItems?: Resolver<Maybe<Array<APIResolversTypes['LearningPathResourceItem']>>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
 export type APILearningPathResourceItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathResourceItem'] = APIResolversParentTypes['LearningPathResourceItem']> = ResolversObject<{
+  description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   learningPathId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   resource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['String']>>, ParentType, ContextType>,
@@ -1573,7 +1538,6 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   LearningPath?: APILearningPathResolvers<ContextType>,
-  LearningPathResourcesResults?: APILearningPathResourcesResultsResolvers<ContextType>,
   LearningPathResourceItem?: APILearningPathResourceItemResolvers<ContextType>,
   DeleteLearningPathResult?: APIDeleteLearningPathResultResolvers<ContextType>,
   ConsumedResource?: APIConsumedResourceResolvers<ContextType>,

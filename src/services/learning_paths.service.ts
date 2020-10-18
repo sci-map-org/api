@@ -1,14 +1,13 @@
-import {LearningPath} from "../entities/LearningPath";
-import {createLearningPath} from "../repositories/learning_paths.repository";
-import {Resource} from "../entities/Resource";
+import { LearningPath } from "../entities/LearningPath";
+import { createLearningPath, CreateLearningPathData, LearningPathResourceItem } from "../repositories/learning_paths.repository";
 
-interface CreateAndSaveLearningPathData {
-	name: string;
-	description: string;
-	resources: Resource[];
+interface CreateFullLearningPathData extends CreateLearningPathData {
+	resourceItems?: LearningPathResourceItem[];
 }
 
-// export const createAndSaveLearningPath = (data: CreateAndSaveLearningPathData, userId: string): Promise<LearningPath> => {
-// 	const createdLearningPath = createLearningPath(data);
-	
-// }
+export const createFullLearningPath = async (userId: string, data: CreateFullLearningPathData): Promise<LearningPath> => {
+	const createdLearningPath = await createLearningPath(userId, data);
+
+	// TODO add resources
+	return createdLearningPath
+}

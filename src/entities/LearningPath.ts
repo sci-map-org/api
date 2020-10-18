@@ -5,5 +5,5 @@ export const LearningPathLabel = 'LearningPath'
 export interface LearningPath {
 	_id: string;
 	name: string;
-	description: string;
+	description?: string;
 }

@@ -2,15 +2,7 @@ type LearningPath {
   _id: String!
   name: String!
   description: String
-  resources(options: LearningPathResourcesOptions): LearningPathResourcesResults
-}
-
-input LearningPathResourcesOptions {
-  pagination: PaginationOptions
-}
-
-type LearningPathResourcesResults {
-  items: [LearningPathResourceItem!]!
+  resourceItems: [LearningPathResourceItem!]
 }
 
 type LearningPathResourceItem {
@@ -23,13 +15,13 @@ type LearningPathResourceItem {
 input CreateLearningPathPayload {
   name: String!
   description: String
-  resources: [CreateLearningPathResourceItem!]!
+  resourceItems: [CreateLearningPathResourceItem!]
 }
 
 input CreateLearningPathResourceItem {
   resourceId: String!
   tags: [String!]
-  description: String
+  note: String
 }
 
 type DeleteLearningPathResult {
@@ -37,21 +29,21 @@ type DeleteLearningPathResult {
   _id: String!
 }
 
-input PutLearningPathPayload {
-  name: String!
-  description: String
-  resources: [PutLearningPathResourceItem]
-}
+# input PutLearningPathPayload {
+#   name: String!
+#   description: String
+#   resources: [CreateLearningPathResourceItem!]
+# }
 
-input PutLearningPathResourceItem {
-  resourceId: String!
-  tags: [String!]
-  description: String
-}
+# input PutLearningPathResourceItem {
+#   resourceId: String!
+#   tags: [String!]
+#   description: String
+# }
 
 type Mutation {
   createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
-  putLearningPath(_id: String!, payload: PutLearningPathPayload!): LearningPath!
+  putLearningPath(_id: String!, payload: CreateLearningPathPayload!): LearningPath!
   deleteLearningPath(_id: String!): DeleteLearningPathResult!
 }
 

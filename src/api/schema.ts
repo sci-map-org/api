@@ -43,6 +43,7 @@ import {
   getDomainSubDomainsResolver,
   getDomainParentDomainsResolver,
 } from './resolvers/domains.resolvers';
+import { createLearningPathResolver, getLearningPathResolver } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
   addSubResourceResolver,
@@ -139,6 +140,7 @@ const resolvers: APIResolvers<APIContext> = {
     addSubResource: addSubResourceResolver,
     createSubResourceSeries: createSubResourceSeriesResolver,
     addSubResourceToSeries: addSubResourceToSeriesResolver,
+    createLearningPath: createLearningPathResolver
   },
   Query: {
     currentUser: currentUserResolver,
@@ -152,6 +154,7 @@ const resolvers: APIResolvers<APIContext> = {
     getDomainConceptByKey: getDomainConceptByKeyResolver,
     searchResourceTags: searchResourceTagsResolver,
     searchResources: searchResourcesResolver,
+    getLearningPath: getLearningPathResolver
   },
   Article: {
     author: getArticleAuthorResolver,
