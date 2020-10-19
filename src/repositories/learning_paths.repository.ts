@@ -2,6 +2,7 @@ import { Query } from "cypher-query-builder";
 import { omit } from "lodash";
 import { generate } from "shortid";
 import { LearningPath, LearningPathLabel } from "../entities/LearningPath";
+import { ResourceHasNextInLearningPathResourceLabel } from "../entities/relationships/ResourceHasNextInLearningPathResource";
 import { UserCreatedLearningPath, UserCreatedLearningPathLabel } from "../entities/relationships/UserCreatedLearningPath";
 import { User, UserLabel } from "../entities/User";
 import { neo4jQb } from "../infra/neo4j";
@@ -10,7 +11,7 @@ import { createRelatedNode, deleteOne, findOne, updateOne } from "./util/abstrac
 export interface LearningPathResourceItem {
 	resourceId: string
 	tags?: string[]
-	description?: string
+	note?: string
 }
 
 interface UpdateLearningPathData {
@@ -47,12 +48,26 @@ export const findLearningPath = findOne<LearningPath, { _id: string }>({ label: 
 
 
 
-const addResourcesToLearningPath = async (learningPathId: string, resourceItems: LearningPathResourceItem[]): Promise<LearningPath & {resourceItems: LearningPathResourceItem[]}> => {
+export const addResourcesToLearningPath = async (learningPathId: string, resourceItems: LearningPathResourceItem[]): Promise<LearningPath & {resourceItems: LearningPathResourceItem[]}> => {
 	const q = new Query(neo4jQb)
-
+	q.raw(`
+	WITH $resourceItems[0] as firstResourceItem, $resourceItems as resourceItems
+	MATCH (lp:LearningPath {_id: $learningPathId})
+	MATCH (firstResource:Resource {_id: firstResourceItem.resourceId})
+	CREATE (lp)-[:STARTS_WITH {learningPathId: $learningPathId, tags: firstResourceItem.tags, note: firstResourceItem.note}]->(firstResource)
+	WITH resourceItems, lp, firstResource
+	UNWIND resourceItems as item
+	match (r:Resource {_id: item.resourceId})
+	with collect(r) as resources, resourceItems, lp, firstResource
+	FOREACH (i in range(0, size(resources) - 2) |
+		FOREACH (node1 in [resources[i]] |
+		  FOREACH (node2 in [resources[i+1]] |
+			CREATE (node1)-[:${ResourceHasNextInLearningPathResourceLabel} {learningPathId: $learningPathId, tags: resourceItems[i+1].tags, note: resourceItems[i+1].note}]->(node2))))
+	return *`, {learningPathId, resourceItems})
 
 	const results = await q.run();
-	return results.map(r => r.i.properties)[0] || null;
+	// return results.map(r => r.i.properties)[0] || null;
+	return null as any
 }
 //   attachUniqueNodes<Resource, ResourceHasNextResource, Resource>({
 //     originNode: { label: ResourceLabel, filter: { _id: previousResourceId } },

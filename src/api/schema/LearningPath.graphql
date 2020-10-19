@@ -9,7 +9,7 @@ type LearningPathResourceItem {
   resource: Resource!
   learningPathId: String!
   tags: [String!]
-  description: String
+  note: String
 }
 
 input CreateLearningPathPayload {

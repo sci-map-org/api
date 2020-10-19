@@ -645,8 +645,8 @@ export type APILearningPath = {
 
 export type APILearningPathResourceItem = {
    __typename?: 'LearningPathResourceItem';
-  description?: Maybe<Scalars['String']>;
   learningPathId: Scalars['String'];
+  note?: Maybe<Scalars['String']>;
   resource: APIResource;
   tags?: Maybe<Array<Scalars['String']>>;
 };
@@ -821,7 +821,6 @@ export type APIUser = {
    __typename?: 'User';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
-  createdLearningPaths?: Maybe<Array<APILearningPath>>;
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
@@ -833,11 +832,6 @@ export type APIUserArticlesArgs = {
   options: APIListArticlesOptions;
 };
 
-
-export type APIUserCreatedLearningPathsArgs = {
-  options: APIUserLearningPathsOptions;
-};
-
 export type APIUserLearningPathsOptions = {
   pagination?: Maybe<APIPaginationOptions>;
 };
@@ -846,6 +840,8 @@ export type APICurrentUser = {
    __typename?: 'CurrentUser';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
+  /** private stuff here */
+  createdLearningPaths?: Maybe<Array<APILearningPath>>;
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
@@ -855,6 +851,11 @@ export type APICurrentUser = {
 
 export type APICurrentUserArticlesArgs = {
   options: APIListArticlesOptions;
+};
+
+
+export type APICurrentUserCreatedLearningPathsArgs = {
+  options: APIUserLearningPathsOptions;
 };
 
 export type APILoginResponse = {
@@ -1367,8 +1368,8 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
 }>;
 
 export type APILearningPathResourceItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathResourceItem'] = APIResolversParentTypes['LearningPathResourceItem']> = ResolversObject<{
-  description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   learningPathId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  note?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   resource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['String']>>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
@@ -1464,7 +1465,6 @@ export type APIResourceTagSearchResultResolvers<ContextType = APIContext, Parent
 export type APIUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['User'] = APIResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APIUserArticlesArgs, 'options'>>,
-  createdLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APIUserCreatedLearningPathsArgs, 'options'>>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -1475,6 +1475,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
+  createdLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningPathsArgs, 'options'>>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
