@@ -1,12 +1,13 @@
-import { Query } from "cypher-query-builder";
-import { omit } from "lodash";
+import { node, Query, relation } from "cypher-query-builder";
 import { generate } from "shortid";
 import { LearningPath, LearningPathLabel } from "../entities/LearningPath";
+import { LearningPathStartsWithResourceLabel } from "../entities/relationships/LearningPathStartsWithResource";
 import { ResourceHasNextInLearningPathResourceLabel } from "../entities/relationships/ResourceHasNextInLearningPathResource";
 import { UserCreatedLearningPath, UserCreatedLearningPathLabel } from "../entities/relationships/UserCreatedLearningPath";
+import { ResourceLabel } from "../entities/Resource";
 import { User, UserLabel } from "../entities/User";
 import { neo4jQb } from "../infra/neo4j";
-import { createRelatedNode, deleteOne, findOne, updateOne } from "./util/abstract_graph_repo";
+import { createRelatedNode, findOne } from "./util/abstract_graph_repo";
 
 export interface LearningPathResourceItem {
 	resourceId: string
@@ -42,6 +43,31 @@ export const createLearningPath = (userId: string, data: CreateLearningPathData)
 
 export const findLearningPath = findOne<LearningPath, { _id: string }>({ label: LearningPathLabel });
 
+export const getLearningPathResourceItems = async (learningPathId: string) => {
+	const q = new Query(neo4jQb)
+	q.match([
+	  node('learningPath', LearningPathLabel, { _id: learningPathId }),
+	  relation('out', 'i_rel', LearningPathStartsWithResourceLabel),
+	  node('i', ResourceLabel),
+	]);
+	q.optionalMatch([
+	  node('i'),
+	  relation('out', '', ResourceHasNextInLearningPathResourceLabel, {learningPathId}, [0, 100]),
+	  node('', ResourceLabel),
+	  relation('out', 'r_rel', ResourceHasNextInLearningPathResourceLabel, {learningPathId}),
+	  node('r', ResourceLabel),
+	]);
+
+	q.raw(`WITH DISTINCT i_rel { .*, resource: properties(i)} as i_item, collect(r_rel { .*, resource: properties(r)}) as r_item`)
+
+	q.raw(`UNWIND ([i_item] + r_item) as resourceItem RETURN resourceItem`);
+	console.log(q.toString())
+	const results = await q.run();
+	console.log(results)
+	const b= results.map(r => r.resourceItem);
+	console.log(b)
+	return b
+}
 // export const deleteLearningPath = deleteOne<LearningPath, { _id: string }>({ label: 'LearningPath' });
 
 // export const putLearningPath = updateOne<LearningPath, { _id: string }, UpdateLearningPathData>({ label: 'LearningPath' });

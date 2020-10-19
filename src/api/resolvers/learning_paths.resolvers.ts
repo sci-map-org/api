@@ -1,11 +1,9 @@
-import {APIMutationResolvers, APILearningPath, APIQueryResolvers} from "../schema/types";
-import {UnauthenticatedError} from "../errors/UnauthenticatedError";
-import {toAPIResource} from "./resources.resolvers";
-import {nullToUndefined} from "../util/nullToUndefined";
-import {createLearningPath, findLearningPath} from "../../repositories/learning_paths.repository";
-import {LearningPath} from "../../entities/LearningPath";
-import { createFullLearningPath } from "../../services/learning_paths.service";
 import { NotFoundError } from "../../errors/NotFoundError";
+import { findLearningPath, getLearningPathResourceItems } from "../../repositories/learning_paths.repository";
+import { createFullLearningPath } from "../../services/learning_paths.service";
+import { UnauthenticatedError } from "../errors/UnauthenticatedError";
+import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers } from "../schema/types";
+import { nullToUndefined } from "../util/nullToUndefined";
 
 // export const createLearningPathResolver: APIMutationResolvers['createLearningPath'] = async (_parent, { payload }, { user }) => {
 //   if (!user) throw new UnauthenticatedError('Must be logged in to add a learning path');
@@ -29,4 +27,8 @@ export const getLearningPathResolver: APIQueryResolvers['getLearningPath'] = asy
     const learningPath = await findLearningPath({_id})
     if(!learningPath) throw new NotFoundError('LearningPath', _id)
     return learningPath
+}
+
+export const getLearningPathResourceItemsResolver: APILearningPathResolvers['resourceItems'] = async (learningPath) => {
+    return await getLearningPathResourceItems(learningPath._id)
 }

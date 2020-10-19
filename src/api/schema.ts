@@ -43,7 +43,7 @@ import {
   getDomainSubDomainsResolver,
   getDomainParentDomainsResolver,
 } from './resolvers/domains.resolvers';
-import { createLearningPathResolver, getLearningPathResolver } from './resolvers/learning_paths.resolvers';
+import { createLearningPathResolver, getLearningPathResolver, getLearningPathResourceItemsResolver } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
   addSubResourceResolver,
@@ -197,6 +197,9 @@ const resolvers: APIResolvers<APIContext> = {
     subResourceSeries: getResourceSubResourceSeriesResolver,
     previousResource: getResourcePreviousResourceResolver,
     nextResource: getResourceNextResourceResolver,
+  },
+  LearningPath: {
+    resourceItems: getLearningPathResourceItemsResolver
   },
   Date: GraphQLDateTime,
 };
