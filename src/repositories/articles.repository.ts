@@ -1,4 +1,4 @@
-import { pipe, prop, map } from 'ramda';
+import { map, pipe, prop } from 'ramda';
 import { generate } from 'shortid';
 import { Article, ArticleContentType, ArticleLabel } from '../entities/Article';
 import { UserCreatedArticle, UserCreatedArticleLabel } from '../entities/relationships/UserCreatedArticle';
@@ -11,7 +11,7 @@ import {
   getFilterString,
   getRelatedNode,
   getRelatedNodes,
-  updateRelatedNode,
+  updateRelatedNode
 } from './util/abstract_graph_repo';
 
 export interface CreateArticleData {
@@ -69,8 +69,8 @@ export const findArticlesCreatedBy = async (
 ): Promise<Article[]> =>
   getRelatedNodes<User, UserCreatedArticle, Article>({
     originNode: { label: UserLabel, filter: authorFilter },
-    relationship: { label: UserCreatedArticleLabel, filter: {} },
-    destinationNode: { label: ArticleLabel, filter: {} },
+    relationship: { label: UserCreatedArticleLabel },
+    destinationNode: { label: ArticleLabel },
     pagination,
   })
     .then(pipe(prop('items')))

@@ -85,6 +85,7 @@ import {
   adminUpdateUserResolver,
   currentUserResolver,
   getCurrentUserCreatedArticlesResolver,
+  getCurrentUserCreatedLearningPaths,
   getUserCreatedArticlesResolver,
   getUserResolver,
   loginGoogleResolver,
@@ -164,6 +165,7 @@ const resolvers: APIResolvers<APIContext> = {
   },
   CurrentUser: {
     articles: getCurrentUserCreatedArticlesResolver,
+    createdLearningPaths: getCurrentUserCreatedLearningPaths
   },
   Domain: {
     concepts: getDomainConceptsResolver,

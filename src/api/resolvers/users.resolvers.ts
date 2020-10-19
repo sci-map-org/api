@@ -1,11 +1,11 @@
 import { User, UserRole } from '../../entities/User';
 import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
-import { findUser, updateUser } from '../../repositories/users.repository';
+import { findUser, getUserLearningPaths, updateUser } from '../../repositories/users.repository';
 import {
   DiscourseSSOInputPayload,
   generateDiscourseSSORedirectUrl,
-  validateDiscourseSSO,
+  validateDiscourseSSO
 } from '../../services/auth/discourse_sso';
 import { identifyGoogleIdToken } from '../../services/auth/google_sign_in';
 import { getJWT, verifyAndDecodeEmailVerificationToken } from '../../services/auth/jwt';
@@ -19,7 +19,7 @@ import {
   APIMutationResolvers,
   APIQueryResolvers,
   APIUser,
-  APIUserResolvers,
+  APIUserResolvers
 } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIArticle } from './articles.resolvers';
@@ -154,3 +154,8 @@ export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = 
   if (!updatedUser) throw new NotFoundError('User', id);
   return toAPIUser(updatedUser);
 };
+
+
+export const getCurrentUserCreatedLearningPaths: APICurrentUserResolvers['createdLearningPaths'] = async (currentUser) => {
+  return await getUserLearningPaths(currentUser._id)
+}
