@@ -178,7 +178,16 @@ export const getDomainResources = async (
       q.return(['r', 'properties(r) as resource', 'cmpc', ' usefulness', 'sign(ccc)*usefulness/(0.1+cmpc) + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) as score']);
     }
      
-    else q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) as score']);
+    else {
+      q.raw(`CALL {
+        WITH r
+          MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
+          WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
+          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
+          return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+      }`)
+      q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) -1*cprnc as score']);
+  }
     q.orderBy('score', 'DESC');
   } else {
     q.match([node('r'), relation('in', 'createdResource', 'CREATED'), node('', 'User')]);
