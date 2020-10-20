@@ -43,7 +43,13 @@ import {
   getDomainSubDomainsResolver,
   getDomainParentDomainsResolver,
 } from './resolvers/domains.resolvers';
-import { createLearningPathResolver, getLearningPathResolver, getLearningPathResourceItemsResolver } from './resolvers/learning_paths.resolvers';
+import { 
+  createLearningPathResolver, 
+  deleteLearningPathResolver, 
+  getLearningPathResolver, 
+  getLearningPathResourceItemsResolver, 
+  putLearningPathResolver 
+} from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
   addSubResourceResolver,
@@ -141,7 +147,9 @@ const resolvers: APIResolvers<APIContext> = {
     addSubResource: addSubResourceResolver,
     createSubResourceSeries: createSubResourceSeriesResolver,
     addSubResourceToSeries: addSubResourceToSeriesResolver,
-    createLearningPath: createLearningPathResolver
+    createLearningPath: createLearningPathResolver,
+    putLearningPath: putLearningPathResolver,
+    deleteLearningPath: deleteLearningPathResolver
   },
   Query: {
     currentUser: currentUserResolver,
