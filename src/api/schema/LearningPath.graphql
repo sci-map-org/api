@@ -1,5 +1,6 @@
 type LearningPath {
   _id: String!
+  key: String!
   name: String!
   description: String
   resourceItems: [LearningPathResourceItem!]
@@ -8,20 +9,19 @@ type LearningPath {
 type LearningPathResourceItem {
   resource: Resource!
   learningPathId: String!
-  tags: [String!]
-  note: String
+  description: String
 }
 
 input CreateLearningPathPayload {
   name: String!
+  key: String
   description: String
-  resourceItems: [CreateLearningPathResourceItem!]
+  resourceItems: [CreateLearningPathResourceItem!]!
 }
 
 input CreateLearningPathResourceItem {
   resourceId: String!
-  tags: [String!]
-  note: String
+  description: String
 }
 
 type DeleteLearningPathResult {
@@ -29,24 +29,19 @@ type DeleteLearningPathResult {
   _id: String!
 }
 
-# input PutLearningPathPayload {
-#   name: String!
-#   description: String
-#   resources: [CreateLearningPathResourceItem!]
-# }
-
-# input PutLearningPathResourceItem {
-#   resourceId: String!
-#   tags: [String!]
-#   description: String
-# }
+input UpdateLearningPathPayload {
+  name: String
+  description: String
+  resourceItems: [CreateLearningPathResourceItem!]
+}
 
 type Mutation {
   createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
-  putLearningPath(_id: String!, payload: CreateLearningPathPayload!): LearningPath!
+  updateLearningPath(_id: String!, payload: UpdateLearningPathPayload!): LearningPath!
   deleteLearningPath(_id: String!): DeleteLearningPathResult!
 }
 
 type Query {
   getLearningPath(_id: String!): LearningPath!
+  getLearningPathByKey(key: String!): LearningPath!
 }
