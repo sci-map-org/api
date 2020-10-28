@@ -13,6 +13,10 @@ type User {
   articles(options: ListArticlesOptions!): ListArticlesResult
 }
 
+input UserLearningPathsOptions {
+  pagination: PaginationOptions
+}
+
 type CurrentUser {
   _id: String!
   email: String!
@@ -21,6 +25,7 @@ type CurrentUser {
   role: UserRole!
   articles(options: ListArticlesOptions!): ListArticlesResult
   # private stuff here
+  createdLearningPaths(options: UserLearningPathsOptions!): [LearningPath!]
 }
 
 type LoginResponse {

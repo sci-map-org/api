@@ -15,3 +15,4 @@ type Mutation {
     payload: UpdateConceptBelongsToConceptPayload!
   ): Concept! # TODO return parent concept
 }
+

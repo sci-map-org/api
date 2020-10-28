@@ -207,15 +207,15 @@ export const createNode = <E>({ label }: { label: string }) => async (props: E):
   return record.get('node');
 };
 
-export const createRelatedNode = async <OF extends object, RP extends object, NP extends object>({
+export const createRelatedNode = async <OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
   originNode,
   relationship,
   newNode,
 }: {
-  originNode: { label: string; filter: OF };
-  relationship: { label: string; props: RP };
-  newNode: { label: string; props: NP };
-}): Promise<NP> => {
+  originNode: { label: string; filter: FilterObject<OriginNodeEntity> };
+  relationship: { label: string; props: RelationshipEntity };
+  newNode: { label: string; props: DestinationNodeEntity };
+}): Promise<DestinationNodeEntity> => {
   const session = neo4jDriver.session();
 
   const { records } = await session.run(

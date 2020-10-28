@@ -1,0 +1,47 @@
+type LearningPath {
+  _id: String!
+  key: String!
+  name: String!
+  description: String
+  resourceItems: [LearningPathResourceItem!]
+}
+
+type LearningPathResourceItem {
+  resource: Resource!
+  learningPathId: String!
+  description: String
+}
+
+input CreateLearningPathPayload {
+  name: String!
+  key: String
+  description: String
+  resourceItems: [CreateLearningPathResourceItem!]!
+}
+
+input CreateLearningPathResourceItem {
+  resourceId: String!
+  description: String
+}
+
+type DeleteLearningPathResult {
+  success: Boolean!
+  _id: String!
+}
+
+input UpdateLearningPathPayload {
+  name: String
+  description: String
+  resourceItems: [CreateLearningPathResourceItem!]
+}
+
+type Mutation {
+  createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
+  updateLearningPath(_id: String!, payload: UpdateLearningPathPayload!): LearningPath!
+  deleteLearningPath(_id: String!): DeleteLearningPathResult!
+}
+
+type Query {
+  getLearningPath(_id: String!): LearningPath!
+  getLearningPathByKey(key: String!): LearningPath!
+}

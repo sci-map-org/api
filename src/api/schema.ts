@@ -44,6 +44,14 @@ import {
   getDomainParentDomainsResolver,
 } from './resolvers/domains.resolvers';
 import {
+  createLearningPathResolver,
+  deleteLearningPathResolver,
+  getLearningPathByKeyResolver,
+  getLearningPathResolver,
+  getLearningPathResourceItemsResolver,
+  updateLearningPathResolver
+} from './resolvers/learning_paths.resolvers';
+import {
   addResourceToDomainResolver,
   addSubResourceResolver,
   attachResourceCoversConceptsResolver,
@@ -84,6 +92,7 @@ import {
   adminUpdateUserResolver,
   currentUserResolver,
   getCurrentUserCreatedArticlesResolver,
+  getCurrentUserCreatedLearningPaths,
   getUserCreatedArticlesResolver,
   getUserResolver,
   loginGoogleResolver,
@@ -139,6 +148,9 @@ const resolvers: APIResolvers<APIContext> = {
     addSubResource: addSubResourceResolver,
     createSubResourceSeries: createSubResourceSeriesResolver,
     addSubResourceToSeries: addSubResourceToSeriesResolver,
+    createLearningPath: createLearningPathResolver,
+    updateLearningPath: updateLearningPathResolver,
+    deleteLearningPath: deleteLearningPathResolver
   },
   Query: {
     currentUser: currentUserResolver,
@@ -152,6 +164,8 @@ const resolvers: APIResolvers<APIContext> = {
     getDomainConceptByKey: getDomainConceptByKeyResolver,
     searchResourceTags: searchResourceTagsResolver,
     searchResources: searchResourcesResolver,
+    getLearningPath: getLearningPathResolver,
+    getLearningPathByKey: getLearningPathByKeyResolver
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -161,6 +175,7 @@ const resolvers: APIResolvers<APIContext> = {
   },
   CurrentUser: {
     articles: getCurrentUserCreatedArticlesResolver,
+    createdLearningPaths: getCurrentUserCreatedLearningPaths
   },
   Domain: {
     concepts: getDomainConceptsResolver,
@@ -192,6 +207,9 @@ const resolvers: APIResolvers<APIContext> = {
     subResourceSeries: getResourceSubResourceSeriesResolver,
     previousResource: getResourcePreviousResourceResolver,
     nextResource: getResourceNextResourceResolver,
+  },
+  LearningPath: {
+    resourceItems: getLearningPathResourceItemsResolver
   },
   Date: GraphQLDateTime,
 };

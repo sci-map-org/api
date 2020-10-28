@@ -1,12 +1,15 @@
 import { omit } from 'lodash';
+import { map, pipe, prop } from 'ramda';
 import { nullToUndefined } from '../api/util/nullToUndefined';
 import { Concept, ConceptLabel } from '../entities/Concept';
+import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
+import { UserCreatedLearningPath, UserCreatedLearningPathLabel } from '../entities/relationships/UserCreatedLearningPath';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { User, UserLabel, UserRole } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
-import { attachNodes, detachNodes, findOne, updateOne } from './util/abstract_graph_repo';
+import { attachNodes, detachNodes, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
 
 import shortid = require('shortid');
 
@@ -121,3 +124,12 @@ export const attachUserConsumedResources = (
       })
     )
   );
+
+export const getUserLearningPaths= (userId: string) : Promise<LearningPath[]> =>
+  getRelatedNodes<User, UserCreatedLearningPath, LearningPath>({
+    originNode: { label: UserLabel, filter: {_id: userId} },
+    relationship: { label: UserCreatedLearningPathLabel },
+    destinationNode: { label: LearningPathLabel },
+  })
+    .then(pipe(prop('items')))
+    .then(map(prop('destinationNode')));

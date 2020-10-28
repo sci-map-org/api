@@ -29,6 +29,7 @@ import {
   ConceptBelongsToConceptLabel,
   DEFAULT_INDEX_VALUE,
 } from '../entities/relationships/ConceptBelongsToConcept';
+import { UserCreatedConceptLabel, UserCreatedConcept } from '../entities/relationships/UserCreatedConcept';
 
 interface CreateConceptData {
   name: string;
@@ -43,9 +44,9 @@ interface UpdateConceptData {
 }
 
 export const createConcept = (user: { _id: string } | { key: string }, data: CreateConceptData): Promise<Concept> =>
-  createRelatedNode({
-    originNode: { label: 'User', filter: user },
-    relationship: { label: 'CREATED', props: { createdAt: Date.now() } },
+  createRelatedNode<User, UserCreatedConcept, Concept>({
+    originNode: { label: UserLabel, filter: user },
+    relationship: { label: UserCreatedConceptLabel, props: { createdAt: Date.now() } },
     newNode: {
       label: ConceptLabel,
       props: {
