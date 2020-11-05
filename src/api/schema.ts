@@ -44,11 +44,14 @@ import {
   getDomainParentDomainsResolver,
 } from './resolvers/domains.resolvers';
 import {
+  addComplementaryResourceToLearningPathResolver,
   createLearningPathResolver,
   deleteLearningPathResolver,
   getLearningPathByKeyResolver,
+  getLearningPathComplementaryResourcesResolver,
   getLearningPathResolver,
   getLearningPathResourceItemsResolver,
+  removeComplementaryResourceFromLearningPathResolver,
   updateLearningPathResolver
 } from './resolvers/learning_paths.resolvers';
 import {
@@ -150,7 +153,9 @@ const resolvers: APIResolvers<APIContext> = {
     addSubResourceToSeries: addSubResourceToSeriesResolver,
     createLearningPath: createLearningPathResolver,
     updateLearningPath: updateLearningPathResolver,
-    deleteLearningPath: deleteLearningPathResolver
+    deleteLearningPath: deleteLearningPathResolver,
+    addComplementaryResourceToLearningPath: addComplementaryResourceToLearningPathResolver,
+    removeComplementaryResourceFromLearningPath: removeComplementaryResourceFromLearningPathResolver
   },
   Query: {
     currentUser: currentUserResolver,
@@ -209,7 +214,8 @@ const resolvers: APIResolvers<APIContext> = {
     nextResource: getResourceNextResourceResolver,
   },
   LearningPath: {
-    resourceItems: getLearningPathResourceItemsResolver
+    resourceItems: getLearningPathResourceItemsResolver,
+    complementaryResources: getLearningPathComplementaryResourcesResolver
   },
   Date: GraphQLDateTime,
 };

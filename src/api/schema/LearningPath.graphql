@@ -4,6 +4,7 @@ type LearningPath {
   name: String!
   description: String
   resourceItems: [LearningPathResourceItem!]
+  complementaryResources: [Resource!]
 }
 
 type LearningPathResourceItem {
@@ -29,6 +30,11 @@ type DeleteLearningPathResult {
   _id: String!
 }
 
+type ComplementaryResourceUpdatedResult {
+  resource: Resource!
+  learningPath: LearningPath!
+}
+
 input UpdateLearningPathPayload {
   name: String
   description: String
@@ -39,6 +45,14 @@ type Mutation {
   createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
   updateLearningPath(_id: String!, payload: UpdateLearningPathPayload!): LearningPath!
   deleteLearningPath(_id: String!): DeleteLearningPathResult!
+  addComplementaryResourceToLearningPath(
+    learningPathId: String!
+    resourceId: String!
+  ): ComplementaryResourceUpdatedResult!
+  removeComplementaryResourceFromLearningPath(
+    learningPathId: String!
+    resourceId: String!
+  ): ComplementaryResourceUpdatedResult!
 }
 
 type Query {

@@ -156,6 +156,7 @@ export type APIDeleteArticleResponse = {
 
 export type APIMutation = {
    __typename?: 'Mutation';
+  addComplementaryResourceToLearningPath: APIComplementaryResourceUpdatedResult;
   addConceptBelongsToConcept: APIConcept;
   addConceptReferencesConcept: APIConcept;
   addConceptToDomain: APIConcept;
@@ -184,6 +185,7 @@ export type APIMutation = {
   rateResource: APIResource;
   register: APICurrentUser;
   registerGoogle: APICurrentUser;
+  removeComplementaryResourceFromLearningPath: APIComplementaryResourceUpdatedResult;
   removeConceptBelongsToConcept: APIConcept;
   removeConceptReferencesConcept: APIConcept;
   removeDomainBelongsToDomain: APIDomain;
@@ -200,6 +202,12 @@ export type APIMutation = {
   updateResource: APIResource;
   verifyEmailAddress: APIVerifyEmailResponse;
   voteResource: APIResource;
+};
+
+
+export type APIMutationAddComplementaryResourceToLearningPathArgs = {
+  learningPathId: Scalars['String'];
+  resourceId: Scalars['String'];
 };
 
 
@@ -359,6 +367,12 @@ export type APIMutationRegisterArgs = {
 
 export type APIMutationRegisterGoogleArgs = {
   payload: APIRegisterGooglePayload;
+};
+
+
+export type APIMutationRemoveComplementaryResourceFromLearningPathArgs = {
+  learningPathId: Scalars['String'];
+  resourceId: Scalars['String'];
 };
 
 
@@ -644,6 +658,7 @@ export type APIDeleteDomainResponse = {
 export type APILearningPath = {
    __typename?: 'LearningPath';
   _id: Scalars['String'];
+  complementaryResources?: Maybe<Array<APIResource>>;
   description?: Maybe<Scalars['String']>;
   key: Scalars['String'];
   name: Scalars['String'];
@@ -673,6 +688,12 @@ export type APIDeleteLearningPathResult = {
    __typename?: 'DeleteLearningPathResult';
   _id: Scalars['String'];
   success: Scalars['Boolean'];
+};
+
+export type APIComplementaryResourceUpdatedResult = {
+   __typename?: 'ComplementaryResourceUpdatedResult';
+  learningPath: APILearningPath;
+  resource: APIResource;
 };
 
 export type APIUpdateLearningPathPayload = {
@@ -1064,6 +1085,7 @@ export type APIResolversTypes = ResolversObject<{
   CreateLearningPathPayload: APICreateLearningPathPayload,
   CreateLearningPathResourceItem: APICreateLearningPathResourceItem,
   DeleteLearningPathResult: ResolverTypeWrapper<APIDeleteLearningPathResult>,
+  ComplementaryResourceUpdatedResult: ResolverTypeWrapper<APIComplementaryResourceUpdatedResult>,
   UpdateLearningPathPayload: APIUpdateLearningPathPayload,
   ResourceMediaType: ResourceMediaType,
   ResourceType: ResourceType,
@@ -1157,6 +1179,7 @@ export type APIResolversParentTypes = ResolversObject<{
   CreateLearningPathPayload: APICreateLearningPathPayload,
   CreateLearningPathResourceItem: APICreateLearningPathResourceItem,
   DeleteLearningPathResult: APIDeleteLearningPathResult,
+  ComplementaryResourceUpdatedResult: APIComplementaryResourceUpdatedResult,
   UpdateLearningPathPayload: APIUpdateLearningPathPayload,
   ResourceMediaType: ResourceMediaType,
   ResourceType: ResourceType,
@@ -1240,6 +1263,7 @@ export type APIDeleteArticleResponseResolvers<ContextType = APIContext, ParentTy
 }>;
 
 export type APIMutationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Mutation'] = APIResolversParentTypes['Mutation']> = ResolversObject<{
+  addComplementaryResourceToLearningPath?: Resolver<APIResolversTypes['ComplementaryResourceUpdatedResult'], ParentType, ContextType, RequireFields<APIMutationAddComplementaryResourceToLearningPathArgs, 'learningPathId' | 'resourceId'>>,
   addConceptBelongsToConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptBelongsToConceptArgs, 'parentConceptId' | 'subConceptId'>>,
   addConceptReferencesConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
   addConceptToDomain?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationAddConceptToDomainArgs, 'domainId' | 'payload'>>,
@@ -1268,6 +1292,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   rateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationRateResourceArgs, 'resourceId' | 'value'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>,
+  removeComplementaryResourceFromLearningPath?: Resolver<APIResolversTypes['ComplementaryResourceUpdatedResult'], ParentType, ContextType, RequireFields<APIMutationRemoveComplementaryResourceFromLearningPathArgs, 'learningPathId' | 'resourceId'>>,
   removeConceptBelongsToConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationRemoveConceptBelongsToConceptArgs, 'parentConceptId' | 'subConceptId'>>,
   removeConceptReferencesConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationRemoveConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
   removeDomainBelongsToDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationRemoveDomainBelongsToDomainArgs, 'parentDomainId' | 'subDomainId'>>,
@@ -1376,6 +1401,7 @@ export type APIDeleteDomainResponseResolvers<ContextType = APIContext, ParentTyp
 
 export type APILearningPathResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPath'] = APIResolversParentTypes['LearningPath']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  complementaryResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -1393,6 +1419,12 @@ export type APILearningPathResourceItemResolvers<ContextType = APIContext, Paren
 export type APIDeleteLearningPathResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteLearningPathResult'] = APIResolversParentTypes['DeleteLearningPathResult']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIComplementaryResourceUpdatedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ComplementaryResourceUpdatedResult'] = APIResolversParentTypes['ComplementaryResourceUpdatedResult']> = ResolversObject<{
+  learningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType>,
+  resource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1556,6 +1588,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningPath?: APILearningPathResolvers<ContextType>,
   LearningPathResourceItem?: APILearningPathResourceItemResolvers<ContextType>,
   DeleteLearningPathResult?: APIDeleteLearningPathResultResolvers<ContextType>,
+  ComplementaryResourceUpdatedResult?: APIComplementaryResourceUpdatedResultResolvers<ContextType>,
   ConsumedResource?: APIConsumedResourceResolvers<ContextType>,
   Resource?: APIResourceResolvers<ContextType>,
   ResourceDomainsResults?: APIResourceDomainsResultsResolvers<ContextType>,

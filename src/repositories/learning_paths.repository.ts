@@ -1,14 +1,16 @@
 import { node, Query, relation } from "cypher-query-builder";
+import { map, prop } from "ramda";
 import { generate } from "shortid";
 import { LearningPath, LearningPathLabel } from "../entities/LearningPath";
 import { LearningPathStartsWithResourceLabel } from "../entities/relationships/LearningPathStartsWithResource";
+import { ResourceBelongsToLearningPath, ResourceBelongsToLearningPathLabel } from "../entities/relationships/ResourceBelongsToLearningPath";
 import { ResourceHasNextInLearningPathResourceLabel } from "../entities/relationships/ResourceHasNextInLearningPathResource";
 import { UserCreatedLearningPath, UserCreatedLearningPathLabel } from "../entities/relationships/UserCreatedLearningPath";
-import { ResourceLabel } from "../entities/Resource";
+import { Resource, ResourceLabel } from "../entities/Resource";
 import { User, UserLabel } from "../entities/User";
 import { NotFoundError } from "../errors/NotFoundError";
 import { neo4jQb } from "../infra/neo4j";
-import { createRelatedNode, deleteOne, getOptionalRelatedNode, updateOne } from "./util/abstract_graph_repo";
+import { attachUniqueNodes, createRelatedNode, deleteOne, detachUniqueNodes, getOptionalRelatedNode, getRelatedNodes, updateOne } from "./util/abstract_graph_repo";
 
 export interface LearningPathResourceItem {
 	resourceId: string
@@ -117,3 +119,32 @@ export const deleteLearningPathResourceItems = async (learningPathId: string): P
 	if (!learningPath) throw new NotFoundError('Learning Path', learningPathId)
 	return learningPath
 }
+
+export const attachResourceToLearningPath = async (learningPathId: string, resourceId: string): Promise<{ learningPath: LearningPath, resource: Resource }> =>
+	attachUniqueNodes<Resource, ResourceBelongsToLearningPath, LearningPath>({
+		originNode: { label: ResourceLabel, filter: { _id: resourceId } },
+		relationship: { label: ResourceBelongsToLearningPathLabel },
+		destinationNode: { label: LearningPathLabel, filter: { _id: learningPathId } },
+	}).then(({ originNode, destinationNode }) => ({ learningPath: destinationNode, resource: originNode }));
+
+export const detachResourceFromLearningPath = async (learningPathId: string, resourceId: string): Promise<{ learningPath: LearningPath, resource: Resource }> => detachUniqueNodes<Resource, ResourceBelongsToLearningPath, LearningPath>({
+	originNode: { label: ResourceLabel, filter: { _id: resourceId } },
+	relationship: { label: ResourceBelongsToLearningPathLabel, filter: {} },
+	destinationNode: { label: LearningPathLabel, filter: { _id: learningPathId } }
+}).then(({ originNode, destinationNode }) => ({ learningPath: destinationNode, resource: originNode }));
+
+export const getLearningPathComplementaryResources = (learningPathId: string): Promise<Resource[]> => getRelatedNodes<LearningPath, ResourceBelongsToLearningPath, Resource>({
+	originNode: {
+		label: LearningPathLabel,
+		filter: { _id: learningPathId },
+	},
+	relationship: {
+		label: ResourceBelongsToLearningPathLabel,
+		direction: 'IN',
+	},
+	destinationNode: {
+		label: ResourceLabel,
+	},
+})
+	.then(prop('items'))
+	.then(map(prop('destinationNode')));
