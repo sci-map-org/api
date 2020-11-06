@@ -18,7 +18,7 @@ export const updateLearningPathResolver: APIMutationResolvers['updateLearningPat
     const learningPath = await findLearningPathCreatedBy(user._id, { _id })
     if (!learningPath) throw new NotFoundError('LearningPath', _id)
 
-    return await updateFullLearningPath(_id, nullToUndefined(payload))
+    return await updateFullLearningPath(_id, { ...nullToUndefined(payload), durationMs: payload.durationMs })
 }
 
 export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPath'] = async (_ctx, { _id }, { user }) => {

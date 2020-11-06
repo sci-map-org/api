@@ -746,6 +746,7 @@ export type APILearningPath = APILearningMaterial & {
   coveredConceptsByDomain?: Maybe<Array<APILearningMaterialCoveredConceptsByDomainItem>>;
   description?: Maybe<Scalars['String']>;
   domains?: Maybe<Array<APIDomain>>;
+  durationMs?: Maybe<Scalars['Int']>;
   key: Scalars['String'];
   name: Scalars['String'];
   rating?: Maybe<Scalars['Float']>;
@@ -767,6 +768,7 @@ export type APILearningPathResourceItem = {
 
 export type APICreateLearningPathPayload = {
   description?: Maybe<Scalars['String']>;
+  durationMs?: Maybe<Scalars['Int']>;
   key?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   resourceItems: Array<APICreateLearningPathResourceItem>;
@@ -792,6 +794,7 @@ export type APIComplementaryResourceUpdatedResult = {
 
 export type APIUpdateLearningPathPayload = {
   description?: Maybe<Scalars['String']>;
+  durationMs?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
   resourceItems?: Maybe<Array<APICreateLearningPathResourceItem>>;
 };
@@ -1532,6 +1535,7 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
   coveredConceptsByDomain?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialCoveredConceptsByDomainItem']>>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domains?: Resolver<Maybe<Array<APIResolversTypes['Domain']>>, ParentType, ContextType>,
+  durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,

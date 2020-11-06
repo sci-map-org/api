@@ -6,4 +6,5 @@ export interface LearningPath extends BaseLearningMaterial {
 	key: string
 	name: string;
 	description?: string;
+	durationMs?: number
 }

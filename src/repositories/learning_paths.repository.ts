@@ -22,12 +22,14 @@ export interface CreateLearningPathData {
 	name: string;
 	key: string
 	description?: string;
+	durationMs?: number
 }
 
 export interface UpdateLearningPathData {
 	name?: string;
 	key?: string
 	description?: string;
+	durationMs?: number | null
 }
 
 export const createLearningPath = (userId: string, data: CreateLearningPathData): Promise<LearningPath> => createRelatedNode<User, UserCreatedLearningPath, LearningPath>({
