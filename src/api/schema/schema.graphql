@@ -4,6 +4,7 @@
 # import Query.*, Mutation.* from "Article.graphql"
 # import Query.*, Mutation.* from "Domain.graphql"
 # import Query.*, Mutation.* from "ResourceTag.graphql"
+# import Mutation.* from "LearningMaterial.graphql"
 # import Query.*, Mutation.* from "Resource.graphql"
 # import Query.*, Mutation.* from "Concept.graphql"
 # import Query.*, Mutation.* from "LearningPath.graphql"

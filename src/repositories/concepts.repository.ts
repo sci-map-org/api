@@ -48,7 +48,7 @@ export const createConcept = (user: { _id: string } | { key: string }, data: Cre
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedConceptLabel, props: { createdAt: Date.now() } },
     newNode: {
-      label: ConceptLabel,
+      labels: [ConceptLabel],
       props: {
         ...data,
         key: generateUrlKey(data.key || data.name), // a bit ugly

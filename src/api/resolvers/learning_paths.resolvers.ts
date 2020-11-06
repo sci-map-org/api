@@ -1,4 +1,5 @@
 import { NotFoundError } from "../../errors/NotFoundError";
+import { getLearningMaterialRating } from "../../repositories/learning_materials.repository";
 import { attachResourceToLearningPath, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathResourceItems } from "../../repositories/learning_paths.repository";
 import { createFullLearningPath, deleteFullLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
 import { UnauthenticatedError } from "../errors/UnauthenticatedError";
@@ -73,3 +74,5 @@ export const getLearningPathResourceItemsResolver: APILearningPathResolvers['res
 export const getLearningPathComplementaryResourcesResolver: APILearningPathResolvers['complementaryResources'] = async (learningPath) => {
     return await getLearningPathComplementaryResources(learningPath._id)
 }
+
+export const getLearningPathRatingResolver: APILearningPathResolvers['rating'] = (learningPath) => getLearningMaterialRating(learningPath._id)

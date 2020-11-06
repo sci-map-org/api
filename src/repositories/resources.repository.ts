@@ -3,6 +3,7 @@ import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
+import { LearningMaterialLabel } from '../entities/LearningMaterial';
 import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
   ResourceBelongsToDomain,
@@ -23,7 +24,6 @@ import {
 } from '../entities/relationships/ResourceStartsWithResource';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import { UserCreatedResource, UserCreatedResourceLabel } from '../entities/relationships/UserCreatedResource';
-import { UserRatedResource, UserRatedResourceLabel } from '../entities/relationships/UserRatedResource';
 import { UserVotedResource, UserVotedResourceLabel } from '../entities/relationships/UserVotedResource';
 import { Resource, ResourceLabel, ResourceMediaType, ResourceType } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
@@ -86,7 +86,10 @@ export const createResource = (user: { _id: string }, data: CreateResourceData):
   createRelatedNode<User, UserCreatedResource, Resource>({
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedResourceLabel, props: { createdAt: Date.now() } },
-    newNode: { label: ResourceLabel, props: { ...data, _id: shortid.generate() } },
+    newNode: {
+      labels: [ResourceLabel, LearningMaterialLabel],
+      props: { ...data, createdAt: Date.now(), _id: shortid.generate() }
+    },
   });
 
 export const updateResource = updateOne<Resource, { _id: string }, UpdateResourceData>({ label: ResourceLabel });
@@ -156,8 +159,7 @@ export const attachResourceCoversConcepts = async (
     )}) MATCH (destinationNode:${destinationNode.label} ${getFilterString(
       destinationNode.filter,
       'destinationNodeFilter'
-    )}) WHERE destinationNode._id IN $conceptIds MERGE (originNode)-[relationship:${
-      relationship.label
+    )}) WHERE destinationNode._id IN $conceptIds MERGE (originNode)-[relationship:${relationship.label
     }]->(destinationNode) ON CREATE SET relationship = $relationshipProps RETURN properties(relationship) as relationship, properties(originNode) as originNode`,
     {
       originNodeFilter: originNode.filter,
@@ -193,8 +195,7 @@ export const detachResourceCoversConcepts = async (
     )}) MATCH (destinationNode:${destinationNode.label} ${getFilterString(
       destinationNode.filter,
       'destinationNodeFilter'
-    )}) WHERE destinationNode._id IN $conceptIds MATCH (originNode)-[relationship:${
-      relationship.label
+    )}) WHERE destinationNode._id IN $conceptIds MATCH (originNode)-[relationship:${relationship.label
     }]->(destinationNode) DELETE relationship RETURN properties(originNode) as originNode`,
     {
       originNodeFilter: originNode.filter,
@@ -333,50 +334,6 @@ export const getResourceUpvoteCount = async (resourceId: string): Promise<number
 
   if (!record) throw new Error();
   return Number(record.get('upvoteCount').toString());
-};
-
-export const rateResource = async (userId: string, resourceId: string, value: number): Promise<Resource> =>
-  attachUniqueNodes<User, UserRatedResource, Resource>({
-    originNode: {
-      label: UserLabel,
-      filter: { _id: userId },
-    },
-    relationship: {
-      label: UserRatedResourceLabel,
-      onCreateProps: {
-        value,
-      },
-      onMergeProps: {
-        value,
-      },
-    },
-    destinationNode: {
-      label: ResourceLabel,
-      filter: {
-        _id: resourceId,
-      },
-    },
-  }).then(({ destinationNode }) => {
-    return destinationNode;
-  });
-
-export const getResourceRating = async (resourceId: string): Promise<number | null> => {
-  const session = neo4jDriver.session();
-
-  const { records } = await session.run(
-    `MATCH (resource:${ResourceLabel})<-[v:${UserRatedResourceLabel}]-(:User) WHERE resource._id = $resourceId 
-    WITH avg(v.value) AS rating RETURN rating`,
-    {
-      resourceId,
-    }
-  );
-
-  session.close();
-
-  const record = records.pop();
-
-  if (!record) throw new Error();
-  return record.get('rating') ? Number(record.get('rating').toString()) : null;
 };
 
 export const getResourceCreator = (resourceFilter: { _id: string }) =>

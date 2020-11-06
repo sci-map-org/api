@@ -1,6 +1,7 @@
 import { node, Query, relation } from "cypher-query-builder";
 import { map, prop } from "ramda";
 import { generate } from "shortid";
+import { LearningMaterialLabel } from "../entities/LearningMaterial";
 import { LearningPath, LearningPathLabel } from "../entities/LearningPath";
 import { LearningPathStartsWithResourceLabel } from "../entities/relationships/LearningPathStartsWithResource";
 import { ResourceBelongsToLearningPath, ResourceBelongsToLearningPathLabel } from "../entities/relationships/ResourceBelongsToLearningPath";
@@ -39,7 +40,7 @@ export const createLearningPath = (userId: string, data: CreateLearningPathData)
 		props: { createdAt: Date.now() }
 	},
 	newNode: {
-		label: LearningPathLabel,
+		labels: [LearningPathLabel, LearningMaterialLabel],
 		props: { ...data, _id: generate(), createdAt: Date.now() }
 	}
 });

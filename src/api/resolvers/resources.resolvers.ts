@@ -1,6 +1,7 @@
 import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
+import { getLearningMaterialRating } from '../../repositories/learning_materials.repository';
 import {
   addSubResourceToSeries,
   attachResourceCoversConcepts,
@@ -10,25 +11,46 @@ import {
   deleteResource,
   deleteResourceCreatedBy,
   detachResourceCoversConcepts,
-  findResource,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  detachResourceFromDomain, findResource,
   getResourceCoveredConcepts,
-  getResourceCreator,
-  getResourceCoveredConceptsByDomain,
+
+  getResourceCoveredConceptsByDomain, getResourceCreator,
+
   getResourceDomains,
   getResourceNextResource,
   getResourceParentResources,
   getResourcePreviousResource,
-  getResourceRating,
-  getResourceSubResources,
+
+
+
+
+
+
+
+
+  getResourceSeriesParentResource, getResourceSubResources,
   getResourceSubResourceSeries,
   getResourceUpvoteCount,
   getUserConsumedResource,
-  rateResource,
-  updateResource,
-  voteResource,
-  detachResourceFromDomain,
-  searchResources,
-  getResourceSeriesParentResource,
+
+
+
+  searchResources, updateResource,
+  voteResource
 } from '../../repositories/resources.repository';
 import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
@@ -40,9 +62,8 @@ import {
   APIQueryResolvers,
   APIResource,
   APIResourceResolvers,
-  APIResourceVoteValue,
+  APIResourceVoteValue
 } from '../schema/types';
-import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
 
@@ -165,10 +186,8 @@ export const getResourceCoveredConceptsByDomainResolver: APIResourceResolvers['c
   return await getResourceCoveredConceptsByDomain(resource._id);
 };
 
-export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async (resource, { options }) => {
-  return {
-    items: await getResourceDomains(resource._id),
-  };
+export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async (resource) => {
+  return await getResourceDomains(resource._id)
 };
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
@@ -221,24 +240,11 @@ export const voteResourceResolver: APIMutationResolvers['voteResource'] = async 
   return toAPIResource(resource);
 };
 
-export const rateResourceResolver: APIMutationResolvers['rateResource'] = async (
-  _parent,
-  { resourceId, value },
-  { user }
-) => {
-  restrictAccess('contributorOrAdmin', user, 'Must be logged in and an admin or a contributor to rate a resource');
-  if (value < 0 || value > 5) throw new UserInputError('Ratings must be >=0 and <=5');
-  const resource = await rateResource(user!._id, resourceId, value);
-  return toAPIResource(resource);
-};
-
 export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
   return getResourceUpvoteCount(resource._id);
 };
 
-export const getResourceRatingResolver: APIResourceResolvers['rating'] = async resource => {
-  return getResourceRating(resource._id);
-};
+export const getResourceRatingResolver: APIResourceResolvers['rating'] = async resource => getLearningMaterialRating(resource._id)
 
 export const getResourceCreatorResolver: APIResourceResolvers['creator'] = async resource => {
   const creator = await getResourceCreator({ _id: resource._id });

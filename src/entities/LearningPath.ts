@@ -1,11 +1,9 @@
-import { Resource } from "./Resource";
+import { BaseLearningMaterial } from "./LearningMaterial";
 
 export const LearningPathLabel = 'LearningPath'
 
-export interface LearningPath {
-	_id: string;
+export interface LearningPath extends BaseLearningMaterial {
 	key: string
 	name: string;
 	description?: string;
-	createdAt: number
 }

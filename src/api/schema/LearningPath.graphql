@@ -1,10 +1,15 @@
-type LearningPath {
+type LearningPath implements LearningMaterial {
   _id: String!
   key: String!
   name: String!
   description: String
   resourceItems: [LearningPathResourceItem!]
   complementaryResources: [Resource!]
+  tags: [ResourceTag!]
+  rating: Float
+  coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
+  coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
+  domains: [Domain!]
 }
 
 type LearningPathResourceItem {

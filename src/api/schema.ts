@@ -30,6 +30,7 @@ import {
   removeConceptBelongsToConceptResolver,
   addConceptBelongsToConceptResolver,
 } from './resolvers/concepts.resolvers';
+import { learningMaterialResolveType, rateLearningMaterialResolver } from './resolvers/learning_materials.resolvers';
 import {
   createDomainResolver,
   deleteDomainResolver,
@@ -52,7 +53,8 @@ import {
   getLearningPathResolver,
   getLearningPathResourceItemsResolver,
   removeComplementaryResourceFromLearningPathResolver,
-  updateLearningPathResolver
+  updateLearningPathResolver,
+  getLearningPathRatingResolver
 } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
@@ -70,7 +72,6 @@ import {
   getResourceRatingResolver,
   getResourceTagsResolver,
   getResourceUpvotesResolver,
-  rateResourceResolver,
   setResourcesConsumedResolver,
   updateResourceResolver,
   voteResourceResolver,
@@ -141,7 +142,6 @@ const resolvers: APIResolvers<APIContext> = {
     setConceptsUnknown: setConceptsUnKnownResolver,
     setResourcesConsumed: setResourcesConsumedResolver,
     voteResource: voteResourceResolver,
-    rateResource: rateResourceResolver,
     addConceptReferencesConcept: addConceptReferencesConceptResolver,
     removeConceptReferencesConcept: removeConceptReferencesConceptResolver,
     addConceptBelongsToConcept: addConceptBelongsToConceptResolver,
@@ -155,7 +155,8 @@ const resolvers: APIResolvers<APIContext> = {
     updateLearningPath: updateLearningPathResolver,
     deleteLearningPath: deleteLearningPathResolver,
     addComplementaryResourceToLearningPath: addComplementaryResourceToLearningPathResolver,
-    removeComplementaryResourceFromLearningPath: removeComplementaryResourceFromLearningPathResolver
+    removeComplementaryResourceFromLearningPath: removeComplementaryResourceFromLearningPathResolver,
+    rateLearningMaterial: rateLearningMaterialResolver
   },
   Query: {
     currentUser: currentUserResolver,
@@ -215,7 +216,11 @@ const resolvers: APIResolvers<APIContext> = {
   },
   LearningPath: {
     resourceItems: getLearningPathResourceItemsResolver,
-    complementaryResources: getLearningPathComplementaryResourcesResolver
+    complementaryResources: getLearningPathComplementaryResourcesResolver,
+    rating: getLearningPathRatingResolver
+  },
+  LearningMaterial: {
+    __resolveType: learningMaterialResolveType
   },
   Date: GraphQLDateTime,
 };
