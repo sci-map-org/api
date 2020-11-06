@@ -2,7 +2,7 @@ import { omit } from 'lodash';
 import { ResourceMediaType, ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import { createResource } from '../repositories/resources.repository';
-import { attachResourceTagsToResource, findOrCreateResourceTag } from '../repositories/resource_tags.repository';
+import { attachTagsToLearningMaterial, findOrCreateLearningMaterialTag } from '../repositories/learning_material_tags.repository';
 import { sendDiscordNotification } from './discord/discord_webhooks.service';
 
 interface CreateAndSaveResourceData {
@@ -18,8 +18,8 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
   const tags = data.tags;
   const createdResource = await createResource({ _id: userId }, omit(data, 'tags'));
   if (tags && tags.length) {
-    const resourceTags = await Promise.all(tags.map(t => findOrCreateResourceTag(t)));
-    await attachResourceTagsToResource(
+    const resourceTags = await Promise.all(tags.map(t => findOrCreateLearningMaterialTag(t)));
+    await attachTagsToLearningMaterial(
       createdResource._id,
       resourceTags.map(r => r.name)
     );

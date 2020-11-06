@@ -33,7 +33,7 @@ type Resource implements LearningMaterial {
   name: String!
   type: ResourceType!
   mediaType: ResourceMediaType!
-  tags: [ResourceTag!]
+  tags: [LearningMaterialTag!]
   url: String!
   upvotes: Int
   rating: Float

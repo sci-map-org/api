@@ -2,6 +2,7 @@ import { generate } from "shortid";
 import { generateUrlKey } from "../api/util/urlKey";
 import { LearningPath } from "../entities/LearningPath";
 import { NotFoundError } from "../errors/NotFoundError";
+import { attachTagsToLearningMaterial, findOrCreateLearningMaterialTag } from "../repositories/learning_material_tags.repository";
 import { addResourcesToLearningPath, createLearningPath, CreateLearningPathData, deleteLearningPath, deleteLearningPathResourceItems, LearningPathResourceItem, updateLearningPath } from "../repositories/learning_paths.repository";
 
 interface CreateFullLearningPathData {
@@ -9,6 +10,7 @@ interface CreateFullLearningPathData {
 	key?: string
 	description?: string;
 	resourceItems: LearningPathResourceItem[];
+	tags?: string[]
 }
 
 interface UpdateFullLearningPathData {
@@ -19,10 +21,16 @@ interface UpdateFullLearningPathData {
 
 
 export const createFullLearningPath = async (userId: string, data: CreateFullLearningPathData): Promise<LearningPath> => {
-	const { resourceItems, ...learningPathData } = data
+	const { resourceItems, tags, ...learningPathData } = data
 
 	const createdLearningPath = await createLearningPath(userId, { ...learningPathData, key: learningPathData.key ? generateUrlKey(learningPathData.key) : generateLearningPathUniqueKey(learningPathData.name) });
-
+	if (tags && tags.length) {
+		const learningPathTags = await Promise.all(tags.map(t => findOrCreateLearningMaterialTag(t)));
+		await attachTagsToLearningMaterial(
+			createdLearningPath._id,
+			learningPathTags.map(r => r.name)
+		);
+	}
 	if (resourceItems.length) await addResourcesToLearningPath(createdLearningPath._id, resourceItems)
 
 	return createdLearningPath

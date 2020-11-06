@@ -52,7 +52,7 @@ import {
   searchResources, updateResource,
   voteResource
 } from '../../repositories/resources.repository';
-import { getResourceResourceTags } from '../../repositories/resource_tags.repository';
+import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
 import { hasAccess } from '../../services/users.service';
@@ -191,7 +191,7 @@ export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async
 };
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
-  return await getResourceResourceTags(resource._id);
+  return await getLearningMaterialTags(resource._id);
 };
 
 export const setResourcesConsumedResolver: APIMutationResolvers['setResourcesConsumed'] = async (

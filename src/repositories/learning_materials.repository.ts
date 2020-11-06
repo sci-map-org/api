@@ -3,7 +3,9 @@ import { LearningMaterial, LearningMaterialLabel } from "../entities/LearningMat
 import { UserRatedLearningMaterial, UserRatedLearningMaterialLabel } from "../entities/relationships/UserRatedLearningMaterial";
 import { User, UserLabel } from "../entities/User";
 import { neo4jQb } from "../infra/neo4j";
-import { attachUniqueNodes } from "./util/abstract_graph_repo";
+import { attachUniqueNodes, findOne } from "./util/abstract_graph_repo";
+
+export const findLearningMaterial = (learningMaterialId: string) => findOne<LearningMaterial, { _id: string }>({ label: LearningMaterialLabel })({ _id: learningMaterialId });
 
 export const rateLearningMaterial = async (userId: string, learningMaterialId: string, value: number): Promise<LearningMaterial> =>
     attachUniqueNodes<User, UserRatedLearningMaterial, LearningMaterial>({

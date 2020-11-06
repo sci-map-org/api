@@ -54,7 +54,8 @@ import {
   getLearningPathResourceItemsResolver,
   removeComplementaryResourceFromLearningPathResolver,
   updateLearningPathResolver,
-  getLearningPathRatingResolver
+  getLearningPathRatingResolver,
+  getLearningPathTagsResolver
 } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
@@ -88,10 +89,10 @@ import {
   getResourceSeriesParentResourceResolver,
 } from './resolvers/resources.resolvers';
 import {
-  addTagsToResourceResolver,
-  removeTagsFromResourceResolver,
-  searchResourceTagsResolver,
-} from './resolvers/resource_tags.resolvers';
+  addTagsToLearningMaterialResolver,
+  searchLearningMaterialTagsResolver,
+  removeTagsFromLearningMaterialResolver
+} from './resolvers/learning_material_tags.resolvers';
 import {
   adminUpdateUserResolver,
   currentUserResolver,
@@ -136,8 +137,8 @@ const resolvers: APIResolvers<APIContext> = {
     deleteConcept: deleteConceptResolver,
     attachResourceCoversConcepts: attachResourceCoversConceptsResolver,
     detachResourceCoversConcepts: detachResourceCoversConceptsResolver,
-    addTagsToResource: addTagsToResourceResolver,
-    removeTagsFromResource: removeTagsFromResourceResolver,
+    addTagsToLearningMaterial: addTagsToLearningMaterialResolver,
+    removeTagsFromLearningMaterial: removeTagsFromLearningMaterialResolver,
     setConceptsKnown: setConceptsKnownResolver,
     setConceptsUnknown: setConceptsUnKnownResolver,
     setResourcesConsumed: setResourcesConsumedResolver,
@@ -168,7 +169,7 @@ const resolvers: APIResolvers<APIContext> = {
     getResourceById: getResourceByIdResolver,
     getConcept: getConceptResolver,
     getDomainConceptByKey: getDomainConceptByKeyResolver,
-    searchResourceTags: searchResourceTagsResolver,
+    searchLearningMaterialTags: searchLearningMaterialTagsResolver,
     searchResources: searchResourcesResolver,
     getLearningPath: getLearningPathResolver,
     getLearningPathByKey: getLearningPathByKeyResolver
@@ -217,7 +218,8 @@ const resolvers: APIResolvers<APIContext> = {
   LearningPath: {
     resourceItems: getLearningPathResourceItemsResolver,
     complementaryResources: getLearningPathComplementaryResourcesResolver,
-    rating: getLearningPathRatingResolver
+    rating: getLearningPathRatingResolver,
+    tags: getLearningPathTagsResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType

@@ -1,6 +1,6 @@
 interface LearningMaterial {
   _id: String!
-  tags: [ResourceTag!]
+  tags: [LearningMaterialTag!]
   rating: Float
   coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
   coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]

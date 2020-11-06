@@ -5,7 +5,7 @@ type LearningPath implements LearningMaterial {
   description: String
   resourceItems: [LearningPathResourceItem!]
   complementaryResources: [Resource!]
-  tags: [ResourceTag!]
+  tags: [LearningMaterialTag!]
   rating: Float
   coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
   coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
@@ -22,6 +22,7 @@ input CreateLearningPathPayload {
   name: String!
   key: String
   description: String
+  tags: [String!]
   resourceItems: [CreateLearningPathResourceItem!]!
 }
 
