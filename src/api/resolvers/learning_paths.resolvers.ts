@@ -1,7 +1,7 @@
 import { NotFoundError } from "../../errors/NotFoundError";
 import { getLearningMaterialCoveredConcepts, getLearningMaterialCoveredConceptsByDomain, getLearningMaterialDomains, getLearningMaterialRating } from "../../repositories/learning_materials.repository";
 import { getLearningMaterialTags } from "../../repositories/learning_material_tags.repository";
-import { attachResourceToLearningPath, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathResourceItems, getUserStartedLearningPath } from "../../repositories/learning_paths.repository";
+import { attachResourceToLearningPath, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathCreator, getLearningPathResourceItems, getUserStartedLearningPath } from "../../repositories/learning_paths.repository";
 import { createFullLearningPath, deleteFullLearningPath, startUserLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
 import { UnauthenticatedError } from "../errors/UnauthenticatedError";
 import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers } from "../schema/types";
@@ -105,3 +105,7 @@ export const getLearningPathStartedResolver: APILearningPathResolvers['started']
     const started = await getUserStartedLearningPath(user._id, learningPath._id)
     return started ? { startedAt: new Date(started.startedAt) } : null
 };
+
+export const getLearningPathCreatedByResolver: APILearningPathResolvers['createdBy'] = async (learningPath) => {
+    return await getLearningPathCreator(learningPath._id)
+}

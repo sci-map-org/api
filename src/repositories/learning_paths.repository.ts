@@ -7,12 +7,12 @@ import { LearningPathStartsWithResourceLabel } from "../entities/relationships/L
 import { ResourceBelongsToLearningPath, ResourceBelongsToLearningPathLabel } from "../entities/relationships/ResourceBelongsToLearningPath";
 import { ResourceHasNextInLearningPathResourceLabel } from "../entities/relationships/ResourceHasNextInLearningPathResource";
 import { UserCreatedLearningPath, UserCreatedLearningPathLabel } from "../entities/relationships/UserCreatedLearningPath";
-import { UserStartedLearningPath, UserStartLearningPathLabel } from "../entities/relationships/UserStartedLearningPath";
+import { UserStartedLearningPath, UserStartedLearningPathLabel } from "../entities/relationships/UserStartedLearningPath";
 import { Resource, ResourceLabel } from "../entities/Resource";
 import { User, UserLabel } from "../entities/User";
 import { NotFoundError } from "../errors/NotFoundError";
 import { neo4jQb } from "../infra/neo4j";
-import { attachUniqueNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNodes, updateOne } from "./util/abstract_graph_repo";
+import { attachUniqueNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes, updateOne } from "./util/abstract_graph_repo";
 
 export interface LearningPathResourceItem {
 	resourceId: string
@@ -160,7 +160,7 @@ export const getLearningPathComplementaryResources = (learningPathId: string): P
 export const attachUserStartedLearningPath = (userId: string, learningPathId: string): Promise<{ user: User, relationship: UserStartedLearningPath, learningPath: LearningPath }> =>
 	attachUniqueNodes<User, UserStartedLearningPath, LearningPath>({
 		originNode: { label: UserLabel, filter: { _id: userId } },
-		relationship: { label: UserStartLearningPathLabel, onCreateProps: { startedAt: Date.now() } },
+		relationship: { label: UserStartedLearningPathLabel, onCreateProps: { startedAt: Date.now() } },
 		destinationNode: { label: LearningPathLabel, filter: { _id: learningPathId } }
 	}).then(({ originNode, relationship, destinationNode }) => ({
 		user: originNode,
@@ -176,7 +176,7 @@ export const getUserStartedLearningPath = (userId: string, learningPathId: strin
 			filter: { _id: userId },
 		},
 		relationship: {
-			label: UserStartLearningPathLabel,
+			label: UserStartedLearningPathLabel,
 			direction: 'OUT',
 		},
 		destinationNode: {
@@ -184,3 +184,19 @@ export const getUserStartedLearningPath = (userId: string, learningPathId: strin
 			filter: { _id: learningPathId },
 		}
 	}).then((result) => result ? result.relationship : null)
+
+export const getLearningPathCreator = (learningPathId: string): Promise<User> => getRelatedNode<User>({
+	originNode: {
+		label: LearningPathLabel,
+		filter: { _id: learningPathId },
+	},
+	relationship: {
+		label: UserCreatedLearningPathLabel,
+		filter: {},
+		direction: 'IN',
+	},
+	destinationNode: {
+		label: UserLabel,
+		filter: {}
+	}
+})

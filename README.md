@@ -50,6 +50,7 @@ Licensed under [GNU GPL v3.0](https://choosealicense.com/licenses/gpl-3.0/): You
 - remove filters in repo methods where not needed (e.g. for resources) ?
 - Use neo4j-graphql-js ? Right now doesn't have the abilities necessary
 - use class entities for nodes / relationships ? Need to keep the same flexibilities if needed though
+- Have clearer conventions on the repositories / resolvers, split logic
 
 ### Importing a db dump locally
 

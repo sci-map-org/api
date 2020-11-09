@@ -60,7 +60,8 @@ import {
   getLearningPathCoveredConceptsResolver,
   getLearningPathCoveredConceptsByDomainResolver,
   startLearningPathResolver,
-  getLearningPathStartedResolver
+  getLearningPathStartedResolver,
+  getLearningPathCreatedByResolver
 } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
@@ -99,6 +100,7 @@ import {
   currentUserResolver,
   getCurrentUserCreatedArticlesResolver,
   getCurrentUserCreatedLearningPaths,
+  getCurrentUserStartedLearningPaths,
   getUserCreatedArticlesResolver,
   getUserResolver,
   loginGoogleResolver,
@@ -184,7 +186,8 @@ const resolvers: APIResolvers<APIContext> = {
   },
   CurrentUser: {
     articles: getCurrentUserCreatedArticlesResolver,
-    createdLearningPaths: getCurrentUserCreatedLearningPaths
+    createdLearningPaths: getCurrentUserCreatedLearningPaths,
+    startedLearningPaths: getCurrentUserStartedLearningPaths
   },
   Domain: {
     concepts: getDomainConceptsResolver,
@@ -225,7 +228,8 @@ const resolvers: APIResolvers<APIContext> = {
     domains: getLearningPathDomainsResolver,
     coveredConcepts: getLearningPathCoveredConceptsResolver,
     coveredConceptsByDomain: getLearningPathCoveredConceptsByDomainResolver,
-    started: getLearningPathStartedResolver
+    started: getLearningPathStartedResolver,
+    createdBy: getLearningPathCreatedByResolver
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType

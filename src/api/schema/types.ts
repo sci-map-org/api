@@ -722,6 +722,7 @@ export type APILearningPath = APILearningMaterial & {
   complementaryResources?: Maybe<Array<APIResource>>;
   coveredConcepts?: Maybe<APILearningMaterialCoveredConceptsResults>;
   coveredConceptsByDomain?: Maybe<Array<APILearningMaterialCoveredConceptsByDomainItem>>;
+  createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   domains?: Maybe<Array<APIDomain>>;
   durationMs?: Maybe<Scalars['Int']>;
@@ -948,6 +949,7 @@ export type APICurrentUser = {
   email: Scalars['String'];
   key: Scalars['String'];
   role: UserRole;
+  startedLearningPaths?: Maybe<Array<APILearningPath>>;
 };
 
 
@@ -957,6 +959,11 @@ export type APICurrentUserArticlesArgs = {
 
 
 export type APICurrentUserCreatedLearningPathsArgs = {
+  options: APIUserLearningPathsOptions;
+};
+
+
+export type APICurrentUserStartedLearningPathsArgs = {
   options: APIUserLearningPathsOptions;
 };
 
@@ -1527,6 +1534,7 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
   complementaryResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
   coveredConcepts?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APILearningPathCoveredConceptsArgs, 'options'>>,
   coveredConceptsByDomain?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialCoveredConceptsByDomainItem']>>, ParentType, ContextType>,
+  createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domains?: Resolver<Maybe<Array<APIResolversTypes['Domain']>>, ParentType, ContextType>,
   durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
@@ -1658,6 +1666,7 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
+  startedLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningPathsArgs, 'options'>>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 

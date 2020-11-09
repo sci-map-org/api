@@ -13,6 +13,7 @@ type LearningPath implements LearningMaterial {
   coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
   domains: [Domain!]
   started: LearningPathStarted
+  createdBy: User
 }
 
 type LearningPathResourceItem {

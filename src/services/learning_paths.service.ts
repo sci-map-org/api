@@ -36,7 +36,7 @@ export const createFullLearningPath = async (userId: string, data: CreateFullLea
 		);
 	}
 	if (resourceItems.length) await addResourcesToLearningPath(createdLearningPath._id, resourceItems)
-
+	await attachUserStartedLearningPath(userId, createdLearningPath._id)
 	return createdLearningPath
 }
 

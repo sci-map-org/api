@@ -1,7 +1,7 @@
 import { User, UserRole } from '../../entities/User';
 import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
-import { findUser, getUserLearningPaths, updateUser } from '../../repositories/users.repository';
+import { findUser, getLearningPathsCreatedBy, getLearningPathsStartedBy, updateUser } from '../../repositories/users.repository';
 import {
   DiscourseSSOInputPayload,
   generateDiscourseSSORedirectUrl,
@@ -157,5 +157,9 @@ export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = 
 
 
 export const getCurrentUserCreatedLearningPaths: APICurrentUserResolvers['createdLearningPaths'] = async (currentUser) => {
-  return await getUserLearningPaths(currentUser._id)
+  return await getLearningPathsCreatedBy(currentUser._id)
+}
+
+export const getCurrentUserStartedLearningPaths: APICurrentUserResolvers['startedLearningPaths'] = async (currentUser) => {
+  return await getLearningPathsStartedBy(currentUser._id)
 }

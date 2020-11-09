@@ -1,4 +1,4 @@
-export const UserStartLearningPathLabel = 'STARTED'
+export const UserStartedLearningPathLabel = 'STARTED'
 
 export interface UserStartedLearningPath {
     startedAt: number
