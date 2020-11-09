@@ -140,7 +140,11 @@ export const getOptionalRelatedNode = <OriginEntity, RelationshipEntity, Destina
   originNode: { label: string; filter: FilterObject<OriginEntity> };
   relationship: { label: string; filter?: FilterObject<RelationshipEntity>; direction?: 'IN' | 'OUT' };
   destinationNode: { label: string; filter?: FilterObject<DestinationEntity> };
-}): Promise<DestinationEntity | null> =>
+}): Promise<{
+  originNode: OriginEntity;
+  relationship: RelationshipEntity
+  destinationNode: DestinationEntity
+} | null> =>
   getRelatedNodes(config).then(({ items }) => {
     if (!items.length) return null;
     if (items.length > 1)
@@ -150,8 +154,9 @@ export const getOptionalRelatedNode = <OriginEntity, RelationshipEntity, Destina
           config.destinationNode.filter
         )}: data inconsistency as they are expected to be unique`
       );
-    return items[0].destinationNode;
+    return items[0];
   });
+
 export const getRelatedNode = async <E>({
   originNode,
   relationship,

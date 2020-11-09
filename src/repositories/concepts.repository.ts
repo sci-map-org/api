@@ -73,7 +73,7 @@ export const findDomainConceptByKey = (domainKey: string, conceptKey: string): P
       label: ConceptLabel,
       filter: { key: conceptKey },
     },
-  });
+  }).then((result) => result ? result.destinationNode : null);;
 
 export const updateConcept = updateOne<Concept, { _id: string }, UpdateConceptData>({ label: ConceptLabel });
 

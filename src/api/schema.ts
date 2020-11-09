@@ -58,7 +58,9 @@ import {
   getLearningPathTagsResolver,
   getLearningPathDomainsResolver,
   getLearningPathCoveredConceptsResolver,
-  getLearningPathCoveredConceptsByDomainResolver
+  getLearningPathCoveredConceptsByDomainResolver,
+  startLearningPathResolver,
+  getLearningPathStartedResolver
 } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
@@ -156,6 +158,7 @@ const resolvers: APIResolvers<APIContext> = {
     deleteLearningPath: deleteLearningPathResolver,
     addComplementaryResourceToLearningPath: addComplementaryResourceToLearningPathResolver,
     removeComplementaryResourceFromLearningPath: removeComplementaryResourceFromLearningPathResolver,
+    startLearningPath: startLearningPathResolver,
     rateLearningMaterial: rateLearningMaterialResolver
   },
   Query: {
@@ -221,7 +224,8 @@ const resolvers: APIResolvers<APIContext> = {
     tags: getLearningPathTagsResolver,
     domains: getLearningPathDomainsResolver,
     coveredConcepts: getLearningPathCoveredConceptsResolver,
-    coveredConceptsByDomain: getLearningPathCoveredConceptsByDomainResolver
+    coveredConceptsByDomain: getLearningPathCoveredConceptsByDomainResolver,
+    started: getLearningPathStartedResolver
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType

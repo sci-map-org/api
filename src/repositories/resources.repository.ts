@@ -260,7 +260,7 @@ export const getResourceSeriesParentResource = async (subResourceId: string): Pr
   return results.map(r => r.i.properties)[0] || null;
 };
 
-export const getResourceNextResource = (resourceId: string) =>
+export const getResourceNextResource = (resourceId: string): Promise<Resource | null> =>
   getOptionalRelatedNode<Resource, ResourceHasNextResource, Resource>({
     originNode: {
       label: ResourceLabel,
@@ -275,9 +275,9 @@ export const getResourceNextResource = (resourceId: string) =>
       label: ResourceLabel,
       filter: {},
     },
-  });
+  }).then((result) => result ? result.destinationNode : null);
 
-export const getResourcePreviousResource = (resourceId: string) =>
+export const getResourcePreviousResource = (resourceId: string): Promise<Resource | null> =>
   getOptionalRelatedNode<Resource, ResourceHasNextResource, Resource>({
     originNode: {
       label: ResourceLabel,
@@ -292,7 +292,7 @@ export const getResourcePreviousResource = (resourceId: string) =>
       label: ResourceLabel,
       filter: {},
     },
-  });
+  }).then((result) => result ? result.destinationNode : null);;
 
 export const attachSubResourceToResource = (parentResourceId: string, subResourceId: string) =>
   attachUniqueNodes<Resource, ResourceBelongsToResource, Resource>({

@@ -7,11 +7,12 @@ import { LearningPathStartsWithResourceLabel } from "../entities/relationships/L
 import { ResourceBelongsToLearningPath, ResourceBelongsToLearningPathLabel } from "../entities/relationships/ResourceBelongsToLearningPath";
 import { ResourceHasNextInLearningPathResourceLabel } from "../entities/relationships/ResourceHasNextInLearningPathResource";
 import { UserCreatedLearningPath, UserCreatedLearningPathLabel } from "../entities/relationships/UserCreatedLearningPath";
+import { UserStartedLearningPath, UserStartLearningPathLabel } from "../entities/relationships/UserStartedLearningPath";
 import { Resource, ResourceLabel } from "../entities/Resource";
 import { User, UserLabel } from "../entities/User";
 import { NotFoundError } from "../errors/NotFoundError";
 import { neo4jQb } from "../infra/neo4j";
-import { attachUniqueNodes, createRelatedNode, deleteOne, detachUniqueNodes, getOptionalRelatedNode, getRelatedNodes, updateOne } from "./util/abstract_graph_repo";
+import { attachUniqueNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNodes, updateOne } from "./util/abstract_graph_repo";
 
 export interface LearningPathResourceItem {
 	resourceId: string
@@ -22,6 +23,7 @@ export interface CreateLearningPathData {
 	name: string;
 	key: string
 	description?: string;
+	public?: boolean
 	durationMs?: number
 }
 
@@ -29,6 +31,7 @@ export interface UpdateLearningPathData {
 	name?: string;
 	key?: string
 	description?: string;
+	public?: boolean
 	durationMs?: number | null
 }
 
@@ -43,16 +46,18 @@ export const createLearningPath = (userId: string, data: CreateLearningPathData)
 	},
 	newNode: {
 		labels: [LearningPathLabel, LearningMaterialLabel],
-		props: { ...data, _id: generate(), createdAt: Date.now() }
+		props: { public: false, ...data, _id: generate(), createdAt: Date.now() }
 	}
 });
+
+export const findLearningPath = findOne<LearningPath, { _id: string } | { key: string }>({ label: LearningMaterialLabel })
 
 export const findLearningPathCreatedBy = (userId: string, learningPathFilter: { _id: string } | { key: string }): Promise<LearningPath | null> =>
 	getOptionalRelatedNode<User, UserCreatedLearningPath, LearningPath>({
 		originNode: { label: UserLabel, filter: { _id: userId } },
 		relationship: { label: UserCreatedLearningPathLabel, direction: 'OUT' },
 		destinationNode: { label: LearningPathLabel, filter: learningPathFilter }
-	});
+	}).then(result => result ? result.destinationNode : null);
 
 export const getLearningPathResourceItems = async (learningPathId: string) => {
 	const q = new Query(neo4jQb)
@@ -151,3 +156,31 @@ export const getLearningPathComplementaryResources = (learningPathId: string): P
 })
 	.then(prop('items'))
 	.then(map(prop('destinationNode')));
+
+export const attachUserStartedLearningPath = (userId: string, learningPathId: string): Promise<{ user: User, relationship: UserStartedLearningPath, learningPath: LearningPath }> =>
+	attachUniqueNodes<User, UserStartedLearningPath, LearningPath>({
+		originNode: { label: UserLabel, filter: { _id: userId } },
+		relationship: { label: UserStartLearningPathLabel, onCreateProps: { startedAt: Date.now() } },
+		destinationNode: { label: LearningPathLabel, filter: { _id: learningPathId } }
+	}).then(({ originNode, relationship, destinationNode }) => ({
+		user: originNode,
+		relationship,
+		learningPath: destinationNode
+	}))
+
+export const getUserStartedLearningPath = (userId: string, learningPathId: string):
+	Promise<UserStartedLearningPath | null> =>
+	getOptionalRelatedNode<User, UserStartedLearningPath, LearningPath>({
+		originNode: {
+			label: UserLabel,
+			filter: { _id: userId },
+		},
+		relationship: {
+			label: UserStartLearningPathLabel,
+			direction: 'OUT',
+		},
+		destinationNode: {
+			label: LearningPathLabel,
+			filter: { _id: learningPathId },
+		}
+	}).then((result) => result ? result.relationship : null)

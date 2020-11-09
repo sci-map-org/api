@@ -84,7 +84,6 @@ export const getConceptCoveredByResourcesResolver: APIConceptResolvers['coveredB
 
 export const getConceptKnownResolver: APIConceptResolvers['known'] = async (parentConcept, _args, { user }) => {
   if (!user) return null;
-
   return await getUserKnowsConcept(user._id, parentConcept._id);
 };
 

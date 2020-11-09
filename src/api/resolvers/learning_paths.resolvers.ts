@@ -1,8 +1,8 @@
 import { NotFoundError } from "../../errors/NotFoundError";
 import { getLearningMaterialCoveredConcepts, getLearningMaterialCoveredConceptsByDomain, getLearningMaterialDomains, getLearningMaterialRating } from "../../repositories/learning_materials.repository";
 import { getLearningMaterialTags } from "../../repositories/learning_material_tags.repository";
-import { attachResourceToLearningPath, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathResourceItems } from "../../repositories/learning_paths.repository";
-import { createFullLearningPath, deleteFullLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
+import { attachResourceToLearningPath, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathResourceItems, getUserStartedLearningPath } from "../../repositories/learning_paths.repository";
+import { createFullLearningPath, deleteFullLearningPath, startUserLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
 import { UnauthenticatedError } from "../errors/UnauthenticatedError";
 import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers } from "../schema/types";
 import { nullToUndefined } from "../util/nullToUndefined";
@@ -67,6 +67,10 @@ export const removeComplementaryResourceFromLearningPathResolver: APIMutationRes
     return await detachResourceFromLearningPath(learningPathId, resourceId)
 }
 
+export const startLearningPathResolver: APIMutationResolvers['startLearningPath'] = async (_ctx, { learningPathId }, { user }) => {
+    if (!user) throw new UnauthenticatedError('Must be logged in')
+    return await startUserLearningPath(user._id, learningPathId)
+}
 
 export const getLearningPathResourceItemsResolver: APILearningPathResolvers['resourceItems'] = async (learningPath) => {
     return await getLearningPathResourceItems(learningPath._id)
@@ -92,4 +96,12 @@ export const getLearningPathCoveredConceptsByDomainResolver: APILearningPathReso
 
 export const getLearningPathDomainsResolver: APILearningPathResolvers['domains'] = async (learningPath) => {
     return await getLearningMaterialDomains(learningPath._id)
+};
+
+
+export const getLearningPathStartedResolver: APILearningPathResolvers['started'] = async (learningPath, _, { user }) => {
+    if (!user) return null;
+
+    const started = await getUserStartedLearningPath(user._id, learningPath._id)
+    return started ? { startedAt: new Date(started.startedAt) } : null
 };

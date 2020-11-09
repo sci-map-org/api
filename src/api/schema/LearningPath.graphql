@@ -2,6 +2,7 @@ type LearningPath implements LearningMaterial {
   _id: String!
   key: String!
   name: String!
+  public: Boolean!
   description: String
   durationMs: Int
   resourceItems: [LearningPathResourceItem!]
@@ -11,6 +12,7 @@ type LearningPath implements LearningMaterial {
   coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
   coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
   domains: [Domain!]
+  started: LearningPathStarted
 }
 
 type LearningPathResourceItem {
@@ -19,10 +21,15 @@ type LearningPathResourceItem {
   description: String
 }
 
+type LearningPathStarted {
+  startedAt: Date!
+}
+
 input CreateLearningPathPayload {
   name: String!
   key: String
   description: String
+  public: Boolean
   durationMs: Int
   tags: [String!]
   resourceItems: [CreateLearningPathResourceItem!]!
@@ -45,11 +52,16 @@ type ComplementaryResourceUpdatedResult {
 
 input UpdateLearningPathPayload {
   name: String
+  public: Boolean
   description: String
   durationMs: Int
   resourceItems: [CreateLearningPathResourceItem!]
 }
 
+type LearningPathStartedResult {
+  user: CurrentUser!
+  learningPath: LearningPath!
+}
 type Mutation {
   createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
   updateLearningPath(_id: String!, payload: UpdateLearningPathPayload!): LearningPath!
@@ -62,6 +74,7 @@ type Mutation {
     learningPathId: String!
     resourceId: String!
   ): ComplementaryResourceUpdatedResult!
+  startLearningPath(learningPathId: String!): LearningPathStartedResult!
 }
 
 type Query {

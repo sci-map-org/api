@@ -1,9 +1,11 @@
+import { ForbiddenError } from "apollo-server-koa";
 import { generate } from "shortid";
 import { generateUrlKey } from "../api/util/urlKey";
 import { LearningPath } from "../entities/LearningPath";
+import { User } from "../entities/User";
 import { NotFoundError } from "../errors/NotFoundError";
 import { attachTagsToLearningMaterial, findOrCreateLearningMaterialTag } from "../repositories/learning_material_tags.repository";
-import { addResourcesToLearningPath, createLearningPath, CreateLearningPathData, deleteLearningPath, deleteLearningPathResourceItems, LearningPathResourceItem, updateLearningPath } from "../repositories/learning_paths.repository";
+import { addResourcesToLearningPath, attachUserStartedLearningPath, createLearningPath, CreateLearningPathData, deleteLearningPath, deleteLearningPathResourceItems, findLearningPath, findLearningPathCreatedBy, LearningPathResourceItem, updateLearningPath } from "../repositories/learning_paths.repository";
 
 interface CreateFullLearningPathData {
 	name: string;
@@ -57,4 +59,16 @@ export const deleteFullLearningPath = async (learningPathId: string): Promise<vo
 
 function generateLearningPathUniqueKey(name: string): string {
 	return generate() + '_' + generateUrlKey(name)
+}
+
+
+export const startUserLearningPath = async (userId: string, learningPathId: string): Promise<{ user: User, learningPath: LearningPath }> => {
+	const learningPath = await findLearningPath({ _id: learningPathId })
+
+	if (!learningPath) throw new NotFoundError('LearningPath', learningPathId)
+
+	if (!learningPath.public) {
+		if (!(await findLearningPathCreatedBy(userId, { _id: learningPathId }))) throw new ForbiddenError(`Learning path ${learningPathId} is not public, can not start it`)
+	}
+	return attachUserStartedLearningPath(userId, learningPathId)
 }
