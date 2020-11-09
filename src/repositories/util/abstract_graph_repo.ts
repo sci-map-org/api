@@ -316,13 +316,15 @@ export const attachNodes = async <OriginNodeEntity, RelationshipEntity, Destinat
 }[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (originNode:${originNode.label} ${getFilterString(
+    `MATCH (originNode:${originNode.label}) WHERE ${buildFilter(
       originNode.filter,
-      'originNodeFilter'
-    )}) MATCH (destinationNode:${destinationNode.label} ${getFilterString(
+      'originNodeFilter',
+      'originNode'
+    )} MATCH (destinationNode:${destinationNode.label}) WHERE ${buildFilter(
       destinationNode.filter,
-      'destinationNodeFilter'
-    )}) MERGE (originNode)-[relationship:${relationship.label}]->(destinationNode)${relationship.onCreateProps ? `ON CREATE SET relationship = $relationshipOnCreateProps` : ''
+      'destinationNodeFilter',
+      'destinationNode'
+    )} MERGE (originNode)-[relationship:${relationship.label}]->(destinationNode)${relationship.onCreateProps ? `ON CREATE SET relationship = $relationshipOnCreateProps` : ''
     } ${relationship.onMergeProps ? 'ON MATCH SET relationship += $relationshipOnMergeProps' : ''} RETURN 
     properties(originNode) as originNode,
     properties(relationship) as relationship,

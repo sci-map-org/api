@@ -140,10 +140,6 @@ type Mutation {
   updateResource(_id: String!, payload: UpdateResourcePayload!): Resource!
   deleteResource(_id: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
   addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
-  attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
-  detachResourceFromDomain(domainId: String!, resourceId: String!): Resource!
-  attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
-  detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
   voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
   addSubResource(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!

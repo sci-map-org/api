@@ -9,7 +9,7 @@ import {
   ConceptReferencesConceptLabel,
   STRENGTH_DEFAULT_VALUE,
 } from '../entities/relationships/ConceptReferencesConcept';
-import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
+import { LearningMaterialCoversConcept, LearningMaterialCoversConceptLabel } from '../entities/relationships/LearningMaterialCoversConcept';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
@@ -129,13 +129,13 @@ export const getConceptDomain = (conceptId: string) =>
   });
 
 export const getConceptCoveredByResources = (_id: string): Promise<Resource[]> =>
-  getRelatedNodes<Concept, ResourceCoversConcept, Resource>({
+  getRelatedNodes<Concept, LearningMaterialCoversConcept, Resource>({
     originNode: {
       label: ConceptLabel,
       filter: { _id },
     },
     relationship: {
-      label: ResourceCoversConceptLabel,
+      label: LearningMaterialCoversConceptLabel,
     },
     destinationNode: {
       label: ResourceLabel,

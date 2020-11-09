@@ -169,8 +169,6 @@ export type APIMutation = {
   adminUpdateUser: APIUser;
   attachLearningMaterialCoversConcepts: APILearningMaterial;
   attachLearningMaterialToDomain: APILearningMaterial;
-  attachResourceCoversConcepts: APIResource;
-  attachResourceToDomain: APIResource;
   createArticle: APIArticle;
   createDomain: APIDomain;
   createLearningPath: APILearningPath;
@@ -183,8 +181,6 @@ export type APIMutation = {
   deleteResource: APIDeleteResourceResponse;
   detachLearningMaterialCoversConcepts: APILearningMaterial;
   detachLearningMaterialFromDomain: APILearningMaterial;
-  detachResourceCoversConcepts: APIResource;
-  detachResourceFromDomain: APIResource;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
   rateLearningMaterial: APILearningMaterial;
@@ -197,6 +193,12 @@ export type APIMutation = {
   removeTagsFromLearningMaterial: APILearningMaterial;
   setConceptsKnown: Array<APIConcept>;
   setConceptsUnknown: Array<APIConcept>;
+  /**
+   * attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
+   * detachResourceFromDomain(domainId: String!, resourceId: String!): Resource!
+   * attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
+   * detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
+   */
   setResourcesConsumed: Array<APIResource>;
   updateArticle: APIArticle;
   updateConcept: APIConcept;
@@ -283,18 +285,6 @@ export type APIMutationAttachLearningMaterialToDomainArgs = {
 };
 
 
-export type APIMutationAttachResourceCoversConceptsArgs = {
-  conceptIds: Array<Scalars['String']>;
-  resourceId: Scalars['String'];
-};
-
-
-export type APIMutationAttachResourceToDomainArgs = {
-  domainId: Scalars['String'];
-  resourceId: Scalars['String'];
-};
-
-
 export type APIMutationCreateArticleArgs = {
   payload: APICreateArticlePayload;
 };
@@ -355,18 +345,6 @@ export type APIMutationDetachLearningMaterialCoversConceptsArgs = {
 export type APIMutationDetachLearningMaterialFromDomainArgs = {
   domainId: Scalars['String'];
   learningMaterialId: Scalars['String'];
-};
-
-
-export type APIMutationDetachResourceCoversConceptsArgs = {
-  conceptIds: Array<Scalars['String']>;
-  resourceId: Scalars['String'];
-};
-
-
-export type APIMutationDetachResourceFromDomainArgs = {
-  domainId: Scalars['String'];
-  resourceId: Scalars['String'];
 };
 
 
@@ -1363,8 +1341,6 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
   attachLearningMaterialCoversConcepts?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAttachLearningMaterialCoversConceptsArgs, 'conceptIds' | 'learningMaterialId'>>,
   attachLearningMaterialToDomain?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAttachLearningMaterialToDomainArgs, 'domainId' | 'learningMaterialId'>>,
-  attachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceCoversConceptsArgs, 'conceptIds' | 'resourceId'>>,
-  attachResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAttachResourceToDomainArgs, 'domainId' | 'resourceId'>>,
   createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
   createDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationCreateDomainArgs, 'payload'>>,
   createLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationCreateLearningPathArgs, 'payload'>>,
@@ -1377,8 +1353,6 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   deleteResource?: Resolver<APIResolversTypes['DeleteResourceResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteResourceArgs, '_id'>>,
   detachLearningMaterialCoversConcepts?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialCoversConceptsArgs, 'conceptIds' | 'learningMaterialId'>>,
   detachLearningMaterialFromDomain?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialFromDomainArgs, 'domainId' | 'learningMaterialId'>>,
-  detachResourceCoversConcepts?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceCoversConceptsArgs, 'conceptIds' | 'resourceId'>>,
-  detachResourceFromDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationDetachResourceFromDomainArgs, 'domainId' | 'resourceId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
   rateLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRateLearningMaterialArgs, 'learningMaterialId' | 'value'>>,

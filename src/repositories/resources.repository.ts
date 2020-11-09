@@ -1,26 +1,18 @@
 import { node, Query, relation } from 'cypher-query-builder';
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
-import { Concept, ConceptLabel } from '../entities/Concept';
-import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningMaterialLabel } from '../entities/LearningMaterial';
-import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import {
-  ResourceBelongsToDomain,
-  ResourceBelongsToDomainLabel,
-} from '../entities/relationships/ResourceBelongsToDomain';
 import {
   ResourceBelongsToResource,
-  ResourceBelongsToResourceLabel,
+  ResourceBelongsToResourceLabel
 } from '../entities/relationships/ResourceBelongsToResource';
-import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
 import {
   ResourceHasNextResource,
-  ResourceHasNextResourceLabel,
+  ResourceHasNextResourceLabel
 } from '../entities/relationships/ResourceHasNextResource';
 import {
   ResourceStartsWithResource,
-  ResourceStartsWithResourceLabel,
+  ResourceStartsWithResourceLabel
 } from '../entities/relationships/ResourceStartsWithResource';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import { UserCreatedResource, UserCreatedResourceLabel } from '../entities/relationships/UserCreatedResource';
@@ -33,13 +25,13 @@ import {
   createRelatedNode,
   deleteOne,
   deleteRelatedNode,
-  detachUniqueNodes,
+
   findOne,
-  getFilterString,
+
   getOptionalRelatedNode,
   getRelatedNode,
   getRelatedNodes,
-  updateOne,
+  updateOne
 } from './util/abstract_graph_repo';
 import { PaginationOptions } from './util/pagination';
 
@@ -115,160 +107,7 @@ export const deleteResourceCreatedBy = (
     },
   });
 
-export const attachResourceToDomain = (resourceId: string, domainId: string) =>
-  attachUniqueNodes<Resource, ResourceBelongsToDomain, Domain>({
-    originNode: { label: ResourceLabel, filter: { _id: resourceId } },
-    relationship: { label: ResourceBelongsToDomainLabel },
-    destinationNode: { label: DomainLabel, filter: { _id: domainId } },
-  }).then(({ originNode, destinationNode }) => ({ domain: destinationNode, resource: originNode }));
-
-export const detachResourceFromDomain = (resourceId: string, domainId: string) =>
-  detachUniqueNodes<Resource, ResourceBelongsToDomain, Domain>({
-    originNode: {
-      label: ResourceLabel,
-      filter: { _id: resourceId },
-    },
-    relationship: {
-      label: ResourceBelongsToDomainLabel,
-      filter: {},
-    },
-    destinationNode: {
-      label: DomainLabel,
-      filter: { _id: domainId },
-    },
-  }).then(({ originNode, destinationNode }) => ({ domain: destinationNode, resource: originNode }));
-
 export const findResource = findOne<Resource, { _id: string }>({ label: ResourceLabel });
-
-// TODO use attachUniqueNodes
-export const attachResourceCoversConcepts = async (
-  resourceId: string,
-  conceptIds: string[],
-  props: { userId: string }
-): Promise<Resource | null> => {
-  const originNode = { label: ResourceLabel, filter: { _id: resourceId } };
-  const relationship = { label: ResourceCoversConceptLabel, props };
-  const destinationNode = { label: ConceptLabel, filter: {} };
-
-  const session = neo4jDriver.session();
-
-  const { records } = await session.run(
-    `MATCH (originNode:${originNode.label} ${getFilterString(
-      originNode.filter,
-      'originNodeFilter'
-    )}) MATCH (destinationNode:${destinationNode.label} ${getFilterString(
-      destinationNode.filter,
-      'destinationNodeFilter'
-    )}) WHERE destinationNode._id IN $conceptIds MERGE (originNode)-[relationship:${relationship.label
-    }]->(destinationNode) ON CREATE SET relationship = $relationshipProps RETURN properties(relationship) as relationship, properties(originNode) as originNode`,
-    {
-      originNodeFilter: originNode.filter,
-      destinationNodeFilter: destinationNode.filter,
-      relationshipProps: relationship.props,
-      conceptIds,
-    }
-  );
-
-  session.close();
-
-  const record = records.pop();
-
-  if (!record) throw new Error();
-
-  return record.get('originNode');
-};
-
-export const detachResourceCoversConcepts = async (
-  resourceId: string,
-  conceptIds: string[]
-): Promise<Resource | null> => {
-  const originNode = { label: ResourceLabel, filter: { _id: resourceId } };
-  const relationship = { label: ResourceCoversConceptLabel, props: {} };
-  const destinationNode = { label: ConceptLabel, filter: {} };
-
-  const session = neo4jDriver.session();
-
-  const { records } = await session.run(
-    `MATCH (originNode:${originNode.label} ${getFilterString(
-      originNode.filter,
-      'originNodeFilter'
-    )}) MATCH (destinationNode:${destinationNode.label} ${getFilterString(
-      destinationNode.filter,
-      'destinationNodeFilter'
-    )}) WHERE destinationNode._id IN $conceptIds MATCH (originNode)-[relationship:${relationship.label
-    }]->(destinationNode) DELETE relationship RETURN properties(originNode) as originNode`,
-    {
-      originNodeFilter: originNode.filter,
-      destinationNodeFilter: destinationNode.filter,
-      conceptIds,
-    }
-  );
-
-  session.close();
-
-  const record = records.pop();
-
-  if (!record) throw new Error();
-
-  return record.get('originNode');
-};
-
-export const getResourceCoveredConcepts = (_id: string): Promise<Concept[]> =>
-  getRelatedNodes<Resource, ResourceCoversConcept, Concept>({
-    originNode: {
-      label: ResourceLabel,
-      filter: { _id },
-    },
-    relationship: {
-      label: ResourceCoversConceptLabel,
-    },
-    destinationNode: {
-      label: ConceptLabel,
-    },
-  })
-    .then(prop('items'))
-    .then(map(prop('destinationNode')));
-
-export const getResourceCoveredConceptsByDomain = async (
-  resourceId: string
-): Promise<{ domain: Domain; coveredConcepts: Concept[] }[]> => {
-  const q = new Query(neo4jQb);
-  q.match([
-    node('resource', ResourceLabel, { _id: resourceId }),
-    relation('out', '', ResourceBelongsToDomainLabel),
-    node('domain', DomainLabel),
-  ]);
-  q.optionalMatch([
-    node('resource'),
-    relation('out', '', ResourceCoversConceptLabel),
-    node('concept', ConceptLabel),
-    relation('out', '', ConceptBelongsToDomainLabel),
-    node('domain', DomainLabel),
-  ]);
-  q.raw('WITH DISTINCT domain, collect(concept) as concepts RETURN *');
-
-  const results = await q.run();
-  return results.map(r => ({
-    domain: r.domain.properties,
-    coveredConcepts: r.concepts.map(c => c.properties),
-  }));
-};
-
-export const getResourceDomains = (_id: string) =>
-  getRelatedNodes<Resource, ResourceBelongsToDomain, Domain>({
-    originNode: {
-      label: ResourceLabel,
-      filter: { _id },
-    },
-    relationship: {
-      label: ResourceBelongsToDomainLabel,
-    },
-    destinationNode: {
-      label: DomainLabel,
-    },
-  })
-    .then(prop('items'))
-    .then(map(prop('destinationNode')));
 
 export const getUserConsumedResource = async (
   userId: string,

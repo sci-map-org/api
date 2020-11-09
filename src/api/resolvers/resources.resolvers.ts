@@ -1,58 +1,26 @@
 import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { getLearningMaterialRating } from '../../repositories/learning_materials.repository';
+import { attachLearningMaterialToDomain, getLearningMaterialCoveredConcepts, getLearningMaterialCoveredConceptsByDomain, getLearningMaterialDomains, getLearningMaterialRating } from '../../repositories/learning_materials.repository';
+import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import {
   addSubResourceToSeries,
-  attachResourceCoversConcepts,
-  attachResourceToDomain,
   attachSubResourceToResource,
   createSubResourceSeries,
   deleteResource,
   deleteResourceCreatedBy,
-  detachResourceCoversConcepts,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  detachResourceFromDomain, findResource,
-  getResourceCoveredConcepts,
-
-  getResourceCoveredConceptsByDomain, getResourceCreator,
-
-  getResourceDomains,
+  findResource,
+  getResourceCreator,
   getResourceNextResource,
   getResourceParentResources,
   getResourcePreviousResource,
-
-
-
-
-
-
-
-
   getResourceSeriesParentResource, getResourceSubResources,
   getResourceSubResourceSeries,
   getResourceUpvoteCount,
   getUserConsumedResource,
-
-
-
   searchResources, updateResource,
   voteResource
 } from '../../repositories/resources.repository';
-import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
 import { hasAccess } from '../../services/users.service';
@@ -124,28 +92,8 @@ export const addResourceToDomainResolver: APIMutationResolvers['addResourceToDom
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
   const createdResource = await createAndSaveResource(nullToUndefined(payload), user._id);
-  await attachResourceToDomain(createdResource._id, domainId);
+  await attachLearningMaterialToDomain(createdResource._id, domainId);
   return toAPIResource(createdResource);
-};
-
-export const attachResourceToDomainResolver: APIMutationResolvers['attachResourceToDomain'] = async (
-  _parent,
-  { domainId, resourceId },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  const { resource } = await attachResourceToDomain(resourceId, domainId);
-  return toAPIResource(resource);
-};
-
-export const detachResourceFromDomainResolver: APIMutationResolvers['detachResourceFromDomain'] = async (
-  _parent,
-  { domainId, resourceId },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to detach a resource from a domain');
-  const { resource } = await detachResourceFromDomain(resourceId, domainId);
-  return toAPIResource(resource);
 };
 
 export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { id }) => {
@@ -154,40 +102,18 @@ export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = asy
   return toAPIResource(resource);
 };
 
-export const attachResourceCoversConceptsResolver: APIMutationResolvers['attachResourceCoversConcepts'] = async (
-  _parent,
-  { resourceId, conceptIds },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to add covered concepts to a resource');
-  const resource = await attachResourceCoversConcepts(resourceId, conceptIds, { userId: user._id });
-  if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
-  return toAPIResource(resource);
-};
-
-export const detachResourceCoversConceptsResolver: APIMutationResolvers['detachResourceCoversConcepts'] = async (
-  _parent,
-  { resourceId, conceptIds },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to remove covered concepts to a resource');
-  const resource = await detachResourceCoversConcepts(resourceId, conceptIds);
-  if (!resource) throw new NotFoundError('Resource', resourceId, '_id');
-  return toAPIResource(resource);
-};
-
 export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredConcepts'] = async resource => {
   return {
-    items: await getResourceCoveredConcepts(resource._id),
+    items: await getLearningMaterialCoveredConcepts(resource._id),
   };
 };
 
 export const getResourceCoveredConceptsByDomainResolver: APIResourceResolvers['coveredConceptsByDomain'] = async resource => {
-  return await getResourceCoveredConceptsByDomain(resource._id);
+  return await getLearningMaterialCoveredConceptsByDomain(resource._id);
 };
 
 export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async (resource) => {
-  return await getResourceDomains(resource._id)
+  return await getLearningMaterialDomains(resource._id)
 };
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
