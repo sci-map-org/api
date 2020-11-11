@@ -1,11 +1,10 @@
-import { ForbiddenError } from "apollo-server-koa";
 import { generate } from "shortid";
 import { generateUrlKey } from "../api/util/urlKey";
 import { LearningPath } from "../entities/LearningPath";
 import { User } from "../entities/User";
 import { NotFoundError } from "../errors/NotFoundError";
 import { attachTagsToLearningMaterial, findOrCreateLearningMaterialTag } from "../repositories/learning_material_tags.repository";
-import { addResourcesToLearningPath, attachUserStartedLearningPath, createLearningPath, CreateLearningPathData, deleteLearningPath, deleteLearningPathResourceItems, findLearningPath, findLearningPathCreatedBy, LearningPathResourceItem, updateLearningPath } from "../repositories/learning_paths.repository";
+import { addResourcesToLearningPath, attachUserStartedLearningPath, createLearningPath, deleteLearningPath, deleteLearningPathResourceItems, findLearningPath, findLearningPathCreatedBy, LearningPathResourceItem, updateLearningPath } from "../repositories/learning_paths.repository";
 
 interface CreateFullLearningPathData {
 	name: string;
@@ -61,14 +60,21 @@ function generateLearningPathUniqueKey(name: string): string {
 	return generate() + '_' + generateUrlKey(name)
 }
 
+/**
+ * Throws NotFoundError if the user doesn't have access to the learning path (not public and not the owner)
+ */
+export const findLearningPathIfAuthorized = async (learningPathFilter: { key: string } | { _id: string }, userId?: string): Promise<LearningPath> => {
+	const learningPath = await findLearningPath(learningPathFilter)
 
-export const startUserLearningPath = async (userId: string, learningPathId: string): Promise<{ user: User, learningPath: LearningPath }> => {
-	const learningPath = await findLearningPath({ _id: learningPathId })
-
-	if (!learningPath) throw new NotFoundError('LearningPath', learningPathId)
+	if (!learningPath) throw new NotFoundError('LearningPath', JSON.stringify(learningPathFilter))
 
 	if (!learningPath.public) {
-		if (!(await findLearningPathCreatedBy(userId, { _id: learningPathId }))) throw new ForbiddenError(`Learning path ${learningPathId} is not public, can not start it`)
+		if (!userId || !(await findLearningPathCreatedBy(userId, learningPathFilter))) throw new NotFoundError('LearningPath', JSON.stringify(learningPathFilter))
 	}
+	return learningPath
+}
+
+export const startUserLearningPath = async (userId: string, learningPathId: string): Promise<{ user: User, learningPath: LearningPath }> => {
+	await findLearningPathIfAuthorized({ _id: learningPathId }, userId)
 	return attachUserStartedLearningPath(userId, learningPathId)
 }

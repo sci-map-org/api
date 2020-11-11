@@ -2,7 +2,7 @@ import { NotFoundError } from "../../errors/NotFoundError";
 import { getLearningMaterialCoveredConcepts, getLearningMaterialCoveredConceptsByDomain, getLearningMaterialDomains, getLearningMaterialRating } from "../../repositories/learning_materials.repository";
 import { getLearningMaterialTags } from "../../repositories/learning_material_tags.repository";
 import { attachResourceToLearningPath, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathCreator, getLearningPathResourceItems, getUserStartedLearningPath } from "../../repositories/learning_paths.repository";
-import { createFullLearningPath, deleteFullLearningPath, startUserLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
+import { createFullLearningPath, deleteFullLearningPath, findLearningPathIfAuthorized, startUserLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
 import { UnauthenticatedError } from "../errors/UnauthenticatedError";
 import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers } from "../schema/types";
 import { nullToUndefined } from "../util/nullToUndefined";
@@ -35,18 +35,12 @@ export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPat
 }
 
 export const getLearningPathResolver: APIQueryResolvers['getLearningPath'] = async (_ctx, { _id }, { user }) => {
-    if (!user) throw new UnauthenticatedError('Must be logged in')
-
-    const learningPath = await findLearningPathCreatedBy(user._id, { _id })
-    if (!learningPath) throw new NotFoundError('LearningPath', _id)
+    const learningPath = await findLearningPathIfAuthorized({ _id }, user?._id)
     return learningPath
 }
 
 export const getLearningPathByKeyResolver: APIQueryResolvers['getLearningPathByKey'] = async (_ctx, { key }, { user }) => {
-    if (!user) throw new UnauthenticatedError('Must be logged in')
-
-    const learningPath = await findLearningPathCreatedBy(user._id, { key })
-    if (!learningPath) throw new NotFoundError('LearningPath', key, 'key')
+    const learningPath = await findLearningPathIfAuthorized({ key }, user?._id)
     return learningPath
 }
 
