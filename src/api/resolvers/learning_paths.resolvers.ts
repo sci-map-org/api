@@ -1,10 +1,11 @@
 import { NotFoundError } from "../../errors/NotFoundError";
 import { getLearningMaterialCoveredConcepts, getLearningMaterialCoveredConceptsByDomain, getLearningMaterialDomains, getLearningMaterialRating } from "../../repositories/learning_materials.repository";
 import { getLearningMaterialTags } from "../../repositories/learning_material_tags.repository";
+import { findLearningPath } from '../../repositories/learning_paths.repository'
 import { attachResourceToLearningPath, countLearningPathStartedBy, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathCreator, getLearningPathResourceItems, getLearningPathStartedBy, getUserStartedLearningPath } from "../../repositories/learning_paths.repository";
 import { createFullLearningPath, deleteFullLearningPath, findLearningPathIfAuthorized, startUserLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
 import { UnauthenticatedError } from "../errors/UnauthenticatedError";
-import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers } from "../schema/types";
+import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from "../schema/types";
 import { nullToUndefined } from "../util/nullToUndefined";
 
 export const createLearningPathResolver: APIMutationResolvers['createLearningPath'] = async (_ctx, { payload }, { user }) => {
@@ -15,7 +16,7 @@ export const createLearningPathResolver: APIMutationResolvers['createLearningPat
 export const updateLearningPathResolver: APIMutationResolvers['updateLearningPath'] = async (_ctx, { _id, payload }, { user }) => {
     if (!user) throw new UnauthenticatedError('Must be logged in')
 
-    const learningPath = await findLearningPathCreatedBy(user._id, { _id })
+    const learningPath = user.role === UserRole.ADMIN ? await findLearningPath({ _id }) : await findLearningPathCreatedBy(user._id, { _id })
     if (!learningPath) throw new NotFoundError('LearningPath', _id)
 
     return await updateFullLearningPath(_id, { ...nullToUndefined(payload), durationMs: payload.durationMs })
@@ -23,7 +24,13 @@ export const updateLearningPathResolver: APIMutationResolvers['updateLearningPat
 
 export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPath'] = async (_ctx, { _id }, { user }) => {
     if (!user) throw new UnauthenticatedError('Must be logged in')
-
+    if (user.role === UserRole.ADMIN) {
+        await deleteFullLearningPath(_id)
+        return {
+            success: true,
+            _id: _id
+        }
+    }
     const learningPath = await findLearningPathCreatedBy(user._id, { _id })
     if (!learningPath) throw new NotFoundError('LearningPath', _id)
 
