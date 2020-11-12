@@ -113,7 +113,7 @@ export const getUserConsumedResource = async (
   userId: string,
   resourceId: string
 ): Promise<UserConsumedResource | null> => {
-  const { items } = await getRelatedNodes<User, UserConsumedResource, Resource>({
+  const item = await getOptionalRelatedNode<User, UserConsumedResource, Resource>({
     originNode: {
       label: UserLabel,
       filter: { _id: userId },
@@ -126,9 +126,7 @@ export const getUserConsumedResource = async (
       filter: { _id: resourceId },
     },
   });
-  const [result] = items;
-  if (!result) return null;
-  return result.relationship;
+  return item ? item.relationship : null;
 };
 
 export const voteResource = async (userId: string, resourceId: string, value: number): Promise<Resource> =>
@@ -205,7 +203,6 @@ export const getResourceSubResources = (parentResourceId: string) =>
       label: ResourceLabel,
     },
   })
-    .then(prop('items'))
     .then(map(prop('destinationNode')));
 
 export const getResourceSubResourceSeries = async (parentResourceId: string) => {
@@ -241,7 +238,6 @@ export const getResourceParentResources = (subResourceId: string): Promise<Resou
       filter: {},
     },
   })
-    .then(prop('items'))
     .then(map(prop('destinationNode')));
 
 export const getResourceSeriesParentResource = async (subResourceId: string): Promise<Resource | null> => {

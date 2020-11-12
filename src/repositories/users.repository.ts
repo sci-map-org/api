@@ -1,5 +1,5 @@
 import { omit } from 'lodash';
-import { map, pipe, prop } from 'ramda';
+import { map, prop } from 'ramda';
 import { nullToUndefined } from '../api/util/nullToUndefined';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
@@ -132,7 +132,6 @@ export const getLearningPathsCreatedBy = (userId: string): Promise<LearningPath[
     relationship: { label: UserCreatedLearningPathLabel },
     destinationNode: { label: LearningPathLabel },
   })
-    .then(pipe(prop('items')))
     .then(map(prop('destinationNode')));
 
 export const getLearningPathsStartedBy = (userId: string): Promise<LearningPath[]> => getRelatedNodes<User, UserStartedLearningPath, LearningPath>({
@@ -140,5 +139,4 @@ export const getLearningPathsStartedBy = (userId: string): Promise<LearningPath[
   relationship: { label: UserStartedLearningPathLabel },
   destinationNode: { label: LearningPathLabel },
 })
-  .then(pipe(prop('items')))
   .then(map(prop('destinationNode')));

@@ -12,7 +12,8 @@ import { Resource, ResourceLabel } from "../entities/Resource";
 import { User, UserLabel } from "../entities/User";
 import { NotFoundError } from "../errors/NotFoundError";
 import { neo4jQb } from "../infra/neo4j";
-import { attachUniqueNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes, updateOne } from "./util/abstract_graph_repo";
+import { attachUniqueNodes, countRelatedNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes, updateOne } from "./util/abstract_graph_repo";
+import { PaginationOptions } from "./util/pagination";
 
 export interface LearningPathResourceItem {
 	resourceId: string
@@ -154,7 +155,6 @@ export const getLearningPathComplementaryResources = (learningPathId: string): P
 		label: ResourceLabel,
 	},
 })
-	.then(prop('items'))
 	.then(map(prop('destinationNode')));
 
 export const attachUserStartedLearningPath = (userId: string, learningPathId: string): Promise<{ user: User, relationship: UserStartedLearningPath, learningPath: LearningPath }> =>
@@ -200,3 +200,37 @@ export const getLearningPathCreator = (learningPathId: string): Promise<User> =>
 		filter: {}
 	}
 })
+
+export const getLearningPathStartedBy = (learningPathId: string, { pagination }: { pagination?: PaginationOptions }): Promise<{ user: User, relationship: UserStartedLearningPath }[]> =>
+	getRelatedNodes<LearningPath, UserStartedLearningPath, User>({
+		originNode: {
+			label: LearningPathLabel,
+			filter: { _id: learningPathId },
+		},
+		relationship: {
+			label: UserStartedLearningPathLabel,
+			direction: 'IN',
+		},
+		destinationNode: {
+			label: UserLabel,
+		},
+		pagination,
+	}).then((items) => items.map(({ relationship, destinationNode }) => ({
+		relationship,
+		user: destinationNode
+	})))
+
+export const countLearningPathStartedBy = (learningPathId: string): Promise<number> =>
+	countRelatedNodes<LearningPath, UserStartedLearningPath, User>({
+		originNode: {
+			label: LearningPathLabel,
+			filter: { _id: learningPathId },
+		},
+		relationship: {
+			label: UserStartedLearningPathLabel,
+			direction: 'IN',
+		},
+		destinationNode: {
+			label: UserLabel,
+		},
+	})

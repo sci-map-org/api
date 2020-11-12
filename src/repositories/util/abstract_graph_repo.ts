@@ -70,7 +70,6 @@ export const deleteOne = <Entity, F extends FilterObject<Entity>>({ label }: { l
   return { deletedCount: results.records.length };
 };
 
-//TODO sorting + count + direction + tests
 export const getRelatedNodes = async <OriginEntity, RelationshipEntity, DestinationEntity>({
   originNode,
   relationship,
@@ -87,15 +86,11 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
     field: keyof RelationshipEntity | keyof DestinationEntity;
     direction: 'ASC' | 'DESC';
   };
-  count?: boolean;
-}): Promise<{
-  items: Array<{
-    originNode: OriginEntity;
-    relationship: RelationshipEntity;
-    destinationNode: DestinationEntity;
-  }>;
-  count?: number;
-}> => {
+}): Promise<Array<{
+  originNode: OriginEntity;
+  relationship: RelationshipEntity;
+  destinationNode: DestinationEntity;
+}>> => {
   const session = neo4jDriver.session();
   const sortingClause = sorting ? `ORDER BY ${sorting.entity}.${sorting.field} ${sorting.direction}` : '';
   const whereClause = `WHERE ${buildFilter(originNode.filter, 'originNodeFilter', 'originNode')}
@@ -123,17 +118,44 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
   });
 
   session.close();
+  return records.map(r => ({
+    originNode: r.get('originNode') as OriginEntity,
+    relationship: r.get('relationship') as RelationshipEntity,
+    destinationNode: r.get('destinationNode') as DestinationEntity,
+  }))
+};
 
-  return {
-    items: records.map(r => {
-      return {
-        originNode: r.get('originNode') as OriginEntity,
-        relationship: r.get('relationship') as RelationshipEntity,
-        destinationNode: r.get('destinationNode') as DestinationEntity,
-      };
-    }),
-    count: undefined,
-  };
+export const countRelatedNodes = async <OriginEntity, RelationshipEntity, DestinationEntity>({
+  originNode,
+  relationship,
+  destinationNode,
+}: {
+  originNode: { label: string; filter: FilterObject<OriginEntity> };
+  relationship: { label: string; filter?: FilterObject<RelationshipEntity>; direction?: 'IN' | 'OUT' };
+  destinationNode: { label: string; filter?: FilterObject<DestinationEntity> };
+}): Promise<number> => {
+  const session = neo4jDriver.session();
+  const whereClause = `WHERE ${buildFilter(originNode.filter, 'originNodeFilter', 'originNode')}
+  ${relationship.filter && Object.keys(relationship.filter).length
+      ? ' AND ' + buildFilter(relationship.filter, 'relationshipFilter', 'relationship')
+      : ''
+    }
+  ${destinationNode.filter && Object.keys(destinationNode.filter).length
+      ? ' AND ' + buildFilter(destinationNode.filter, 'destinationNodeFilter', 'destinationNode')
+      : ''
+    }`;
+  const query = `MATCH (originNode:${originNode.label})${relationship.direction === 'IN' ? '<' : ''}-[relationship:${relationship.label
+    }]
+  -${relationship.direction === 'OUT' ? '>' : ''}(destinationNode:${destinationNode.label}) ${whereClause} RETURN 
+  count(destinationNode) as count`;
+  const { records } = await session.run(query, {
+    originNodeFilter: originNode.filter,
+    relationshipFilter: relationship.filter,
+    destinationNodeFilter: destinationNode.filter,
+  });
+
+  session.close();
+  return Number(records[0].get('count').toString())
 };
 
 export const getOptionalRelatedNode = <OriginEntity, RelationshipEntity, DestinationEntity>(config: {
@@ -145,7 +167,7 @@ export const getOptionalRelatedNode = <OriginEntity, RelationshipEntity, Destina
   relationship: RelationshipEntity
   destinationNode: DestinationEntity
 } | null> =>
-  getRelatedNodes(config).then(({ items }) => {
+  getRelatedNodes(config).then((items) => {
     if (!items.length) return null;
     if (items.length > 1)
       logger.error(

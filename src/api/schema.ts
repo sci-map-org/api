@@ -61,7 +61,8 @@ import {
   getLearningPathCoveredConceptsByDomainResolver,
   startLearningPathResolver,
   getLearningPathStartedResolver,
-  getLearningPathCreatedByResolver
+  getLearningPathCreatedByResolver,
+  getLearningPathStartedByResolver
 } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
@@ -229,7 +230,8 @@ const resolvers: APIResolvers<APIContext> = {
     coveredConcepts: getLearningPathCoveredConceptsResolver,
     coveredConceptsByDomain: getLearningPathCoveredConceptsByDomainResolver,
     started: getLearningPathStartedResolver,
-    createdBy: getLearningPathCreatedByResolver
+    createdBy: getLearningPathCreatedByResolver,
+    startedBy: getLearningPathStartedByResolver
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType

@@ -1,7 +1,7 @@
 import { NotFoundError } from "../../errors/NotFoundError";
 import { getLearningMaterialCoveredConcepts, getLearningMaterialCoveredConceptsByDomain, getLearningMaterialDomains, getLearningMaterialRating } from "../../repositories/learning_materials.repository";
 import { getLearningMaterialTags } from "../../repositories/learning_material_tags.repository";
-import { attachResourceToLearningPath, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathCreator, getLearningPathResourceItems, getUserStartedLearningPath } from "../../repositories/learning_paths.repository";
+import { attachResourceToLearningPath, countLearningPathStartedBy, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathCreator, getLearningPathResourceItems, getLearningPathStartedBy, getUserStartedLearningPath } from "../../repositories/learning_paths.repository";
 import { createFullLearningPath, deleteFullLearningPath, findLearningPathIfAuthorized, startUserLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
 import { UnauthenticatedError } from "../errors/UnauthenticatedError";
 import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers } from "../schema/types";
@@ -102,4 +102,14 @@ export const getLearningPathStartedResolver: APILearningPathResolvers['started']
 
 export const getLearningPathCreatedByResolver: APILearningPathResolvers['createdBy'] = async (learningPath) => {
     return await getLearningPathCreator(learningPath._id)
+}
+
+export const getLearningPathStartedByResolver: APILearningPathResolvers['startedBy'] = async (learningPath, { options }) => {
+    return {
+        count: await countLearningPathStartedBy(learningPath._id),
+        items: (await getLearningPathStartedBy(learningPath._id, nullToUndefined(options))).map(({ user, relationship }) => ({
+            user,
+            startedAt: new Date(relationship.startedAt)
+        }))
+    }
 }

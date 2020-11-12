@@ -24,7 +24,6 @@ export const getLearningMaterialTags = (learningMaterialId: string): Promise<Lea
       label: LearningMaterialTagLabel,
     },
   })
-    .then(prop('items'))
     .then(map(prop('destinationNode')));
 
 export const findOrCreateLearningMaterialTag = async (name: string): Promise<LearningMaterialTag> => {

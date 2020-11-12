@@ -732,12 +732,34 @@ export type APILearningPath = APILearningMaterial & {
   rating?: Maybe<Scalars['Float']>;
   resourceItems?: Maybe<Array<APILearningPathResourceItem>>;
   started?: Maybe<APILearningPathStarted>;
+  startedBy?: Maybe<APILearningPathStartedByResults>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
 };
 
 
 export type APILearningPathCoveredConceptsArgs = {
   options: APILearningMaterialCoveredConceptsOptions;
+};
+
+
+export type APILearningPathStartedByArgs = {
+  options: APILearningPathStartedByOptions;
+};
+
+export type APILearningPathStartedByOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
+};
+
+export type APILearningPathStartedByResults = {
+   __typename?: 'LearningPathStartedByResults';
+  count: Scalars['Int'];
+  items: Array<APILearningPathStartedByItem>;
+};
+
+export type APILearningPathStartedByItem = {
+   __typename?: 'LearningPathStartedByItem';
+  startedAt: Scalars['Date'];
+  user: APIUser;
 };
 
 export type APILearningPathResourceItem = {
@@ -1167,6 +1189,9 @@ export type APIResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']>,
   SearchLearningMaterialTagsOptions: APISearchLearningMaterialTagsOptions,
   LearningPath: ResolverTypeWrapper<APILearningPath>,
+  LearningPathStartedByOptions: APILearningPathStartedByOptions,
+  LearningPathStartedByResults: ResolverTypeWrapper<APILearningPathStartedByResults>,
+  LearningPathStartedByItem: ResolverTypeWrapper<APILearningPathStartedByItem>,
   LearningPathResourceItem: ResolverTypeWrapper<APILearningPathResourceItem>,
   LearningPathStarted: ResolverTypeWrapper<APILearningPathStarted>,
   CreateLearningPathPayload: APICreateLearningPathPayload,
@@ -1269,6 +1294,9 @@ export type APIResolversParentTypes = ResolversObject<{
   Int: Scalars['Int'],
   SearchLearningMaterialTagsOptions: APISearchLearningMaterialTagsOptions,
   LearningPath: APILearningPath,
+  LearningPathStartedByOptions: APILearningPathStartedByOptions,
+  LearningPathStartedByResults: APILearningPathStartedByResults,
+  LearningPathStartedByItem: APILearningPathStartedByItem,
   LearningPathResourceItem: APILearningPathResourceItem,
   LearningPathStarted: APILearningPathStarted,
   CreateLearningPathPayload: APICreateLearningPathPayload,
@@ -1544,7 +1572,20 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   resourceItems?: Resolver<Maybe<Array<APIResolversTypes['LearningPathResourceItem']>>, ParentType, ContextType>,
   started?: Resolver<Maybe<APIResolversTypes['LearningPathStarted']>, ParentType, ContextType>,
+  startedBy?: Resolver<Maybe<APIResolversTypes['LearningPathStartedByResults']>, ParentType, ContextType, RequireFields<APILearningPathStartedByArgs, 'options'>>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialTag']>>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningPathStartedByResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathStartedByResults'] = APIResolversParentTypes['LearningPathStartedByResults']> = ResolversObject<{
+  count?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>,
+  items?: Resolver<Array<APIResolversTypes['LearningPathStartedByItem']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningPathStartedByItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathStartedByItem'] = APIResolversParentTypes['LearningPathStartedByItem']> = ResolversObject<{
+  startedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
+  user?: Resolver<APIResolversTypes['User'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1732,6 +1773,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningMaterialTag?: APILearningMaterialTagResolvers<ContextType>,
   LearningMaterialTagSearchResult?: APILearningMaterialTagSearchResultResolvers<ContextType>,
   LearningPath?: APILearningPathResolvers<ContextType>,
+  LearningPathStartedByResults?: APILearningPathStartedByResultsResolvers<ContextType>,
+  LearningPathStartedByItem?: APILearningPathStartedByItemResolvers<ContextType>,
   LearningPathResourceItem?: APILearningPathResourceItemResolvers<ContextType>,
   LearningPathStarted?: APILearningPathStartedResolvers<ContextType>,
   DeleteLearningPathResult?: APIDeleteLearningPathResultResolvers<ContextType>,

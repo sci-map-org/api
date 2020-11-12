@@ -92,7 +92,6 @@ export const getDomainConcepts = (
       },
     }),
   })
-    .then(prop('items'))
     .then(
       map(item => ({
         relationship: item.relationship,
@@ -255,7 +254,7 @@ const getDomainBelongsToDomains = (filter: { _id: string } | { key: string }, di
     destinationNode: {
       label: DomainLabel,
     },
-  }).then(({ items }) => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
+  }).then((items) => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
 
 export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =>
   getDomainBelongsToDomains(filter, 'IN');

@@ -136,7 +136,6 @@ export const getLearningMaterialCoveredConcepts = (_id: string): Promise<Concept
             label: ConceptLabel,
         },
     })
-        .then(prop('items'))
         .then(map(prop('destinationNode')));
 
 export const getLearningMaterialCoveredConceptsByDomain = async (
@@ -177,5 +176,4 @@ export const getLearningMaterialDomains = (_id: string) =>
             label: DomainLabel,
         },
     })
-        .then(prop('items'))
         .then(map(prop('destinationNode')));

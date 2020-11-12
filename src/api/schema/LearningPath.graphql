@@ -14,6 +14,21 @@ type LearningPath implements LearningMaterial {
   domains: [Domain!]
   started: LearningPathStarted
   createdBy: User
+  startedBy(options: LearningPathStartedByOptions!): LearningPathStartedByResults
+}
+
+input LearningPathStartedByOptions {
+  pagination: PaginationOptions
+}
+
+type LearningPathStartedByResults {
+  items: [LearningPathStartedByItem!]!
+  count: Int!
+}
+
+type LearningPathStartedByItem {
+  user: User!
+  startedAt: Date!
 }
 
 type LearningPathResourceItem {

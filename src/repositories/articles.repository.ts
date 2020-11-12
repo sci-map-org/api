@@ -72,7 +72,6 @@ export const findArticlesCreatedBy = async (
     destinationNode: { label: ArticleLabel },
     pagination,
   })
-    .then(pipe(prop('items')))
     .then(map(prop('destinationNode')));
 
 export const findArticle = findOne<Article, { key: string } | { _id: string }>({ label: 'Article' });
