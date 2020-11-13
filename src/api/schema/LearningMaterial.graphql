@@ -33,5 +33,5 @@ type Mutation {
   detachLearningMaterialFromDomain(domainId: String!, learningMaterialId: String!): LearningMaterial!
   attachLearningMaterialCoversConcepts(learningMaterialId: String!, conceptIds: [String!]!): LearningMaterial!
   detachLearningMaterialCoversConcepts(learningMaterialId: String!, conceptIds: [String!]!): LearningMaterial!
-  rateLearningMaterial(learningMaterialId: String!, value: Float!): LearningMaterial! # will this return the whole thing (probably not)? Will apollo understand?
+  rateLearningMaterial(learningMaterialId: String!, value: Float!): LearningMaterial!
 }
