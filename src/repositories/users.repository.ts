@@ -4,9 +4,15 @@ import { nullToUndefined } from '../api/util/nullToUndefined';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
-import { UserCreatedLearningPath, UserCreatedLearningPathLabel } from '../entities/relationships/UserCreatedLearningPath';
+import {
+  UserCreatedLearningMaterial,
+  UserCreatedLearningMaterialLabel,
+} from '../entities/relationships/UserCreatedLearningMaterial';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
-import { UserStartedLearningPath, UserStartedLearningPathLabel } from '../entities/relationships/UserStartedLearningPath';
+import {
+  UserStartedLearningPath,
+  UserStartedLearningPathLabel,
+} from '../entities/relationships/UserStartedLearningPath';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { User, UserLabel, UserRole } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
@@ -127,16 +133,15 @@ export const attachUserConsumedResources = (
   );
 
 export const getLearningPathsCreatedBy = (userId: string): Promise<LearningPath[]> =>
-  getRelatedNodes<User, UserCreatedLearningPath, LearningPath>({
+  getRelatedNodes<User, UserCreatedLearningMaterial, LearningPath>({
     originNode: { label: UserLabel, filter: { _id: userId } },
-    relationship: { label: UserCreatedLearningPathLabel },
+    relationship: { label: UserCreatedLearningMaterialLabel },
     destinationNode: { label: LearningPathLabel },
-  })
-    .then(map(prop('destinationNode')));
+  }).then(map(prop('destinationNode')));
 
-export const getLearningPathsStartedBy = (userId: string): Promise<LearningPath[]> => getRelatedNodes<User, UserStartedLearningPath, LearningPath>({
-  originNode: { label: UserLabel, filter: { _id: userId } },
-  relationship: { label: UserStartedLearningPathLabel },
-  destinationNode: { label: LearningPathLabel },
-})
-  .then(map(prop('destinationNode')));
+export const getLearningPathsStartedBy = (userId: string): Promise<LearningPath[]> =>
+  getRelatedNodes<User, UserStartedLearningPath, LearningPath>({
+    originNode: { label: UserLabel, filter: { _id: userId } },
+    relationship: { label: UserStartedLearningPathLabel },
+    destinationNode: { label: LearningPathLabel },
+  }).then(map(prop('destinationNode')));

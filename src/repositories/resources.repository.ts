@@ -4,18 +4,21 @@ import * as shortid from 'shortid';
 import { LearningMaterialLabel } from '../entities/LearningMaterial';
 import {
   ResourceBelongsToResource,
-  ResourceBelongsToResourceLabel
+  ResourceBelongsToResourceLabel,
 } from '../entities/relationships/ResourceBelongsToResource';
 import {
   ResourceHasNextResource,
-  ResourceHasNextResourceLabel
+  ResourceHasNextResourceLabel,
 } from '../entities/relationships/ResourceHasNextResource';
 import {
   ResourceStartsWithResource,
-  ResourceStartsWithResourceLabel
+  ResourceStartsWithResourceLabel,
 } from '../entities/relationships/ResourceStartsWithResource';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
-import { UserCreatedResource, UserCreatedResourceLabel } from '../entities/relationships/UserCreatedResource';
+import {
+  UserCreatedLearningMaterial,
+  UserCreatedLearningMaterialLabel,
+} from '../entities/relationships/UserCreatedLearningMaterial';
 import { UserVotedResource, UserVotedResourceLabel } from '../entities/relationships/UserVotedResource';
 import { Resource, ResourceLabel, ResourceMediaType, ResourceType } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
@@ -25,13 +28,11 @@ import {
   createRelatedNode,
   deleteOne,
   deleteRelatedNode,
-
   findOne,
-
   getOptionalRelatedNode,
   getRelatedNode,
   getRelatedNodes,
-  updateOne
+  updateOne,
 } from './util/abstract_graph_repo';
 import { PaginationOptions } from './util/pagination';
 
@@ -75,12 +76,12 @@ interface UpdateResourceData {
 }
 
 export const createResource = (user: { _id: string }, data: CreateResourceData): Promise<Resource> =>
-  createRelatedNode<User, UserCreatedResource, Resource>({
+  createRelatedNode<User, UserCreatedLearningMaterial, Resource>({
     originNode: { label: UserLabel, filter: user },
-    relationship: { label: UserCreatedResourceLabel, props: { createdAt: Date.now() } },
+    relationship: { label: UserCreatedLearningMaterialLabel, props: { createdAt: Date.now() } },
     newNode: {
       labels: [ResourceLabel, LearningMaterialLabel],
-      props: { ...data, createdAt: Date.now(), _id: shortid.generate() }
+      props: { ...data, createdAt: Date.now(), _id: shortid.generate() },
     },
   });
 
@@ -92,13 +93,13 @@ export const deleteResourceCreatedBy = (
   creatorFilter: { _id: string } | { key: string },
   resourceId: string
 ): Promise<{ deletedCount: number }> =>
-  deleteRelatedNode<User, UserCreatedResource, Resource>({
+  deleteRelatedNode<User, UserCreatedLearningMaterial, Resource>({
     originNode: {
       label: UserLabel,
       filter: creatorFilter,
     },
     relationship: {
-      label: UserCreatedResourceLabel,
+      label: UserCreatedLearningMaterialLabel,
       filter: {},
     },
     destinationNode: {
@@ -180,7 +181,7 @@ export const getResourceCreator = (resourceFilter: { _id: string }) =>
       filter: resourceFilter,
     },
     relationship: {
-      label: UserCreatedResourceLabel,
+      label: UserCreatedLearningMaterialLabel,
       filter: {},
     },
     destinationNode: {
@@ -202,8 +203,7 @@ export const getResourceSubResources = (parentResourceId: string) =>
     destinationNode: {
       label: ResourceLabel,
     },
-  })
-    .then(map(prop('destinationNode')));
+  }).then(map(prop('destinationNode')));
 
 export const getResourceSubResourceSeries = async (parentResourceId: string) => {
   const q = new Query(neo4jQb);
@@ -237,8 +237,7 @@ export const getResourceParentResources = (subResourceId: string): Promise<Resou
       label: ResourceLabel,
       filter: {},
     },
-  })
-    .then(map(prop('destinationNode')));
+  }).then(map(prop('destinationNode')));
 
 export const getResourceSeriesParentResource = async (subResourceId: string): Promise<Resource | null> => {
   const q = new Query(neo4jQb);
@@ -271,7 +270,7 @@ export const getResourceNextResource = (resourceId: string): Promise<Resource | 
       label: ResourceLabel,
       filter: {},
     },
-  }).then((result) => result ? result.destinationNode : null);
+  }).then(result => (result ? result.destinationNode : null));
 
 export const getResourcePreviousResource = (resourceId: string): Promise<Resource | null> =>
   getOptionalRelatedNode<Resource, ResourceHasNextResource, Resource>({
@@ -288,7 +287,7 @@ export const getResourcePreviousResource = (resourceId: string): Promise<Resourc
       label: ResourceLabel,
       filter: {},
     },
-  }).then((result) => result ? result.destinationNode : null);;
+  }).then(result => (result ? result.destinationNode : null));
 
 export const attachSubResourceToResource = (parentResourceId: string, subResourceId: string) =>
   attachUniqueNodes<Resource, ResourceBelongsToResource, Resource>({
