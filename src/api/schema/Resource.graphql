@@ -28,12 +28,12 @@ type ConsumedResource {
   consumedAt: Date
 }
 
-type Resource {
+type Resource implements LearningMaterial {
   _id: String!
   name: String!
   type: ResourceType!
   mediaType: ResourceMediaType!
-  tags: [ResourceTag!]
+  tags: [LearningMaterialTag!]
   url: String!
   upvotes: Int
   rating: Float
@@ -41,9 +41,9 @@ type Resource {
   durationMs: Int
   consumed: ConsumedResource
   creator: User
-  coveredConcepts(options: ResourceCoveredConceptsOptions!): ResourceCoveredConceptsResults
-  coveredConceptsByDomain: [ResourceCoveredConceptsByDomainItem!]
-  domains(options: ResourceDomainsOptions!): ResourceDomainsResults
+  coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
+  coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
+  domains: [Domain!]
   subResources: [Resource!]
   parentResources: [Resource!]
   subResourceSeries: [Resource!]
@@ -140,13 +140,8 @@ type Mutation {
   updateResource(_id: String!, payload: UpdateResourcePayload!): Resource!
   deleteResource(_id: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
   addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
-  attachResourceToDomain(domainId: String!, resourceId: String!): Resource!
-  detachResourceFromDomain(domainId: String!, resourceId: String!): Resource!
-  attachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
-  detachResourceCoversConcepts(resourceId: String!, conceptIds: [String!]!): Resource!
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
   voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
-  rateResource(resourceId: String!, value: Float!): Resource!
   addSubResource(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!
   createSubResourceSeries(parentResourceId: String!, subResourceId: String!): SubResourceSeriesCreatedResult!
   addSubResourceToSeries(

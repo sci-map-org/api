@@ -1,0 +1,22 @@
+type LearningMaterialTag {
+  name: String!
+}
+
+type LearningMaterialTagSearchResult {
+  name: String!
+  usageCount: Int
+}
+
+input SearchLearningMaterialTagsOptions {
+  query: String!
+  pagination: PaginationOptions!
+}
+
+type Query {
+  searchLearningMaterialTags(options: SearchLearningMaterialTagsOptions!): [LearningMaterialTagSearchResult!]!
+}
+
+type Mutation {
+  addTagsToLearningMaterial(learningMaterialId: String!, tags: [String!]!): LearningMaterial!
+  removeTagsFromLearningMaterial(learningMaterialId: String!, tags: [String!]!): LearningMaterial!
+}

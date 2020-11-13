@@ -1,10 +1,34 @@
-type LearningPath {
+type LearningPath implements LearningMaterial {
   _id: String!
   key: String!
   name: String!
+  public: Boolean!
   description: String
+  durationMs: Int
   resourceItems: [LearningPathResourceItem!]
   complementaryResources: [Resource!]
+  tags: [LearningMaterialTag!]
+  rating: Float
+  coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
+  coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
+  domains: [Domain!]
+  started: LearningPathStarted
+  createdBy: User
+  startedBy(options: LearningPathStartedByOptions!): LearningPathStartedByResults
+}
+
+input LearningPathStartedByOptions {
+  pagination: PaginationOptions
+}
+
+type LearningPathStartedByResults {
+  items: [LearningPathStartedByItem!]!
+  count: Int!
+}
+
+type LearningPathStartedByItem {
+  user: User!
+  startedAt: Date!
 }
 
 type LearningPathResourceItem {
@@ -13,10 +37,17 @@ type LearningPathResourceItem {
   description: String
 }
 
+type LearningPathStarted {
+  startedAt: Date!
+}
+
 input CreateLearningPathPayload {
   name: String!
   key: String
   description: String
+  public: Boolean
+  durationMs: Int
+  tags: [String!]
   resourceItems: [CreateLearningPathResourceItem!]!
 }
 
@@ -37,10 +68,16 @@ type ComplementaryResourceUpdatedResult {
 
 input UpdateLearningPathPayload {
   name: String
+  public: Boolean
   description: String
+  durationMs: Int
   resourceItems: [CreateLearningPathResourceItem!]
 }
 
+type LearningPathStartedResult {
+  user: CurrentUser!
+  learningPath: LearningPath!
+}
 type Mutation {
   createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
   updateLearningPath(_id: String!, payload: UpdateLearningPathPayload!): LearningPath!
@@ -53,6 +90,7 @@ type Mutation {
     learningPathId: String!
     resourceId: String!
   ): ComplementaryResourceUpdatedResult!
+  startLearningPath(learningPathId: String!): LearningPathStartedResult!
 }
 
 type Query {

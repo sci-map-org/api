@@ -40,7 +40,7 @@ export const createArticle = (author: { _id: string } | { key: string }, data: C
       },
     },
     newNode: {
-      label: ArticleLabel,
+      labels: [ArticleLabel],
       props: { ...data, _id: generate(), key: generateKey() },
     },
   });
@@ -51,8 +51,7 @@ export const findArticles = async (
 ): Promise<Article[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${ArticleLabel} ${getFilterString(filter)}) RETURN properties(node) AS node${
-      pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''
+    `MATCH (node:${ArticleLabel} ${getFilterString(filter)}) RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''
     }${pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''}`,
     {
       filter,
@@ -73,7 +72,6 @@ export const findArticlesCreatedBy = async (
     destinationNode: { label: ArticleLabel },
     pagination,
   })
-    .then(pipe(prop('items')))
     .then(map(prop('destinationNode')));
 
 export const findArticle = findOne<Article, { key: string } | { _id: string }>({ label: 'Article' });

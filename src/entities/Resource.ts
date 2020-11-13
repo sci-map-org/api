@@ -1,3 +1,5 @@
+import { BaseLearningMaterial } from "./LearningMaterial";
+
 export const ResourceLabel = 'Resource';
 
 export enum ResourceMediaType {
@@ -26,8 +28,7 @@ export enum ResourceType {
   other = 'other',
 }
 
-export interface Resource {
-  _id: string;
+export interface Resource extends BaseLearningMaterial {
   name: string;
   type: ResourceType;
   mediaType: ResourceMediaType;

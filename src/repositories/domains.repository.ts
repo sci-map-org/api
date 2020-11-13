@@ -41,7 +41,7 @@ export const createDomain = (user: { _id: string } | { key: string }, data: Crea
   createRelatedNode<User, UserCreatedDomain, Domain>({
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedDomainLabel, props: { createdAt: Date.now() } },
-    newNode: { label: DomainLabel, props: { ...data, _id: shortid.generate() } },
+    newNode: { labels: [DomainLabel], props: { ...data, _id: shortid.generate() } },
   });
 
 export const searchDomains = async (
@@ -50,10 +50,8 @@ export const searchDomains = async (
 ): Promise<Domain[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${DomainLabel}) ${
-      query ? 'WHERE toLower(node.name) CONTAINS toLower($query) ' : ''
-    }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
-      pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
+    `MATCH (node:${DomainLabel}) ${query ? 'WHERE toLower(node.name) CONTAINS toLower($query) ' : ''
+    }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
     }`,
     {
       query,
@@ -94,7 +92,6 @@ export const getDomainConcepts = (
       },
     }),
   })
-    .then(prop('items'))
     .then(
       map(item => ({
         relationship: item.relationship,
@@ -130,24 +127,21 @@ export const getDomainResources = async (
     });
   if (query)
     q.raw(
-      `${
-        hasWhereClause ? ' AND ' : 'WHERE '
+      `${hasWhereClause ? ' AND ' : 'WHERE '
       } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
       { query }
     );
 
   if (userId && filter?.consumedByUser === true) {
     q.raw(
-      `${
-        hasWhereClause || query ? ' AND ' : 'WHERE '
+      `${hasWhereClause || query ? ' AND ' : 'WHERE '
       } EXISTS { (u)-[consumed_r:CONSUMED]->(r) WHERE exists(consumed_r.consumedAt) }`
     );
   }
 
   if (userId && filter?.consumedByUser === false) {
     q.raw(
-      `${
-        hasWhereClause || query ? ' AND ' : ' WHERE '
+      `${hasWhereClause || query ? ' AND ' : ' WHERE '
       } (NOT (u)-[:CONSUMED]->(r) OR EXISTS { (u)-[consumed_r:CONSUMED]->(r)  where consumed_r.consumedAt IS NULL })`
     );
   }
@@ -179,7 +173,7 @@ export const getDomainResources = async (
       }`)
       q.return(['r', 'properties(r) as resource', 'cmpc', ' usefulness', 'sign(ccc)*usefulness/(0.1+cmpc) + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) as score']);
     }
-     
+
     else {
       q.raw(`CALL {
         WITH r
@@ -189,7 +183,7 @@ export const getDomainResources = async (
           return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
       }`)
       q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) -1*cprnc as score']);
-  }
+    }
     q.orderBy('score', 'DESC');
   } else {
     q.match([node('r'), relation('in', 'createdResource', 'CREATED'), node('', 'User')]);
@@ -260,7 +254,7 @@ const getDomainBelongsToDomains = (filter: { _id: string } | { key: string }, di
     destinationNode: {
       label: DomainLabel,
     },
-  }).then(({ items }) => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
+  }).then((items) => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
 
 export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =>
   getDomainBelongsToDomains(filter, 'IN');

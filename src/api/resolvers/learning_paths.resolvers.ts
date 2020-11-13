@@ -1,75 +1,182 @@
-import { NotFoundError } from "../../errors/NotFoundError";
-import { attachResourceToLearningPath, detachResourceFromLearningPath, findLearningPathCreatedBy, getLearningPathComplementaryResources, getLearningPathResourceItems } from "../../repositories/learning_paths.repository";
-import { createFullLearningPath, deleteFullLearningPath, updateFullLearningPath } from "../../services/learning_paths.service";
-import { UnauthenticatedError } from "../errors/UnauthenticatedError";
-import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers } from "../schema/types";
-import { nullToUndefined } from "../util/nullToUndefined";
+import { NotFoundError } from '../../errors/NotFoundError';
+import {
+  getLearningMaterialCoveredConcepts,
+  getLearningMaterialCoveredConceptsByDomain,
+  getLearningMaterialDomains,
+  getLearningMaterialRating,
+} from '../../repositories/learning_materials.repository';
+import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
+import { findLearningPath } from '../../repositories/learning_paths.repository';
+import {
+  attachResourceToLearningPath,
+  countLearningPathStartedBy,
+  detachResourceFromLearningPath,
+  findLearningPathCreatedBy,
+  getLearningPathComplementaryResources,
+  getLearningPathCreator,
+  getLearningPathResourceItems,
+  getLearningPathStartedBy,
+  getUserStartedLearningPath,
+} from '../../repositories/learning_paths.repository';
+import {
+  createFullLearningPath,
+  deleteFullLearningPath,
+  findLearningPathIfAuthorized,
+  startUserLearningPath,
+  updateFullLearningPath,
+} from '../../services/learning_paths.service';
+import { UnauthenticatedError } from '../errors/UnauthenticatedError';
+import { APILearningPathResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
+import { nullToUndefined } from '../util/nullToUndefined';
 
-export const createLearningPathResolver: APIMutationResolvers['createLearningPath'] = async (_ctx, { payload }, { user }) => {
-    if (!user) throw new UnauthenticatedError(`Must be logged in to create a learning path`)
-    return createFullLearningPath(user._id, nullToUndefined(payload))
-}
+export const createLearningPathResolver: APIMutationResolvers['createLearningPath'] = async (
+  _ctx,
+  { payload },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError(`Must be logged in to create a learning path`);
+  return createFullLearningPath(user._id, nullToUndefined(payload));
+};
 
-export const updateLearningPathResolver: APIMutationResolvers['updateLearningPath'] = async (_ctx, { _id, payload }, { user }) => {
-    if (!user) throw new UnauthenticatedError('Must be logged in')
+export const updateLearningPathResolver: APIMutationResolvers['updateLearningPath'] = async (
+  _ctx,
+  { _id, payload },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
 
-    const learningPath = await findLearningPathCreatedBy(user._id, { _id })
-    if (!learningPath) throw new NotFoundError('LearningPath', _id)
+  const learningPath =
+    user.role === UserRole.ADMIN ? await findLearningPath({ _id }) : await findLearningPathCreatedBy(user._id, { _id });
+  if (!learningPath) throw new NotFoundError('LearningPath', _id);
 
-    return await updateFullLearningPath(_id, nullToUndefined(payload))
-}
+  return await updateFullLearningPath(_id, { ...nullToUndefined(payload), durationMs: payload.durationMs });
+};
 
-export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPath'] = async (_ctx, { _id }, { user }) => {
-    if (!user) throw new UnauthenticatedError('Must be logged in')
-
-    const learningPath = await findLearningPathCreatedBy(user._id, { _id })
-    if (!learningPath) throw new NotFoundError('LearningPath', _id)
-
-    await deleteFullLearningPath(_id)
+export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPath'] = async (
+  _ctx,
+  { _id },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  if (user.role === UserRole.ADMIN) {
+    await deleteFullLearningPath(_id);
     return {
-        success: true,
-        _id: learningPath._id
-    }
-}
+      success: true,
+      _id: _id,
+    };
+  }
+  const learningPath = await findLearningPathCreatedBy(user._id, { _id });
+  if (!learningPath) throw new NotFoundError('LearningPath', _id);
+
+  await deleteFullLearningPath(_id);
+  return {
+    success: true,
+    _id: learningPath._id,
+  };
+};
 
 export const getLearningPathResolver: APIQueryResolvers['getLearningPath'] = async (_ctx, { _id }, { user }) => {
-    if (!user) throw new UnauthenticatedError('Must be logged in')
+  const learningPath = await findLearningPathIfAuthorized({ _id }, user?._id);
+  return learningPath;
+};
 
-    const learningPath = await findLearningPathCreatedBy(user._id, { _id })
-    if (!learningPath) throw new NotFoundError('LearningPath', _id)
-    return learningPath
-}
+export const getLearningPathByKeyResolver: APIQueryResolvers['getLearningPathByKey'] = async (
+  _ctx,
+  { key },
+  { user }
+) => {
+  const learningPath = await findLearningPathIfAuthorized({ key }, user?._id);
+  return learningPath;
+};
 
-export const getLearningPathByKeyResolver: APIQueryResolvers['getLearningPathByKey'] = async (_ctx, { key }, { user }) => {
-    if (!user) throw new UnauthenticatedError('Must be logged in')
+export const addComplementaryResourceToLearningPathResolver: APIMutationResolvers['addComplementaryResourceToLearningPath'] = async (
+  _ctx,
+  { learningPathId, resourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
 
-    const learningPath = await findLearningPathCreatedBy(user._id, { key })
-    if (!learningPath) throw new NotFoundError('LearningPath', key, 'key')
-    return learningPath
-}
+  const learningPath = await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+  if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
-export const addComplementaryResourceToLearningPathResolver: APIMutationResolvers['addComplementaryResourceToLearningPath'] = async (_ctx, { learningPathId, resourceId }, { user }) => {
-    if (!user) throw new UnauthenticatedError('Must be logged in')
+  return await attachResourceToLearningPath(learningPathId, resourceId);
+};
+export const removeComplementaryResourceFromLearningPathResolver: APIMutationResolvers['removeComplementaryResourceFromLearningPath'] = async (
+  _ctx,
+  { learningPathId, resourceId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
 
-    const learningPath = await findLearningPathCreatedBy(user._id, { _id: learningPathId })
-    if (!learningPath) throw new NotFoundError('LearningPath', learningPathId)
+  const learningPath = await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+  if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
-    return await attachResourceToLearningPath(learningPathId, resourceId)
-}
-export const removeComplementaryResourceFromLearningPathResolver: APIMutationResolvers['removeComplementaryResourceFromLearningPath'] = async (_ctx, { learningPathId, resourceId }, { user }) => {
-    if (!user) throw new UnauthenticatedError('Must be logged in')
+  return await detachResourceFromLearningPath(learningPathId, resourceId);
+};
 
-    const learningPath = await findLearningPathCreatedBy(user._id, { _id: learningPathId })
-    if (!learningPath) throw new NotFoundError('LearningPath', learningPathId)
+export const startLearningPathResolver: APIMutationResolvers['startLearningPath'] = async (
+  _ctx,
+  { learningPathId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  return await startUserLearningPath(user._id, learningPathId);
+};
 
-    return await detachResourceFromLearningPath(learningPathId, resourceId)
-}
+export const getLearningPathResourceItemsResolver: APILearningPathResolvers['resourceItems'] = async learningPath => {
+  return await getLearningPathResourceItems(learningPath._id);
+};
 
+export const getLearningPathComplementaryResourcesResolver: APILearningPathResolvers['complementaryResources'] = async learningPath => {
+  return await getLearningPathComplementaryResources(learningPath._id);
+};
 
-export const getLearningPathResourceItemsResolver: APILearningPathResolvers['resourceItems'] = async (learningPath) => {
-    return await getLearningPathResourceItems(learningPath._id)
-}
+export const getLearningPathRatingResolver: APILearningPathResolvers['rating'] = learningPath =>
+  getLearningMaterialRating(learningPath._id);
 
-export const getLearningPathComplementaryResourcesResolver: APILearningPathResolvers['complementaryResources'] = async (learningPath) => {
-    return await getLearningPathComplementaryResources(learningPath._id)
-}
+export const getLearningPathTagsResolver: APILearningPathResolvers['tags'] = async learningPath =>
+  getLearningMaterialTags(learningPath._id);
+
+export const getLearningPathCoveredConceptsResolver: APILearningPathResolvers['coveredConcepts'] = async learningPath => {
+  return {
+    items: await getLearningMaterialCoveredConcepts(learningPath._id),
+  };
+};
+
+export const getLearningPathCoveredConceptsByDomainResolver: APILearningPathResolvers['coveredConceptsByDomain'] = async learningPath => {
+  return await getLearningMaterialCoveredConceptsByDomain(learningPath._id);
+};
+
+export const getLearningPathDomainsResolver: APILearningPathResolvers['domains'] = async learningPath => {
+  return await getLearningMaterialDomains(learningPath._id);
+};
+
+export const getLearningPathStartedResolver: APILearningPathResolvers['started'] = async (
+  learningPath,
+  _,
+  { user }
+) => {
+  if (!user) return null;
+
+  const started = await getUserStartedLearningPath(user._id, learningPath._id);
+  return started ? { startedAt: new Date(started.startedAt) } : null;
+};
+
+export const getLearningPathCreatedByResolver: APILearningPathResolvers['createdBy'] = async learningPath => {
+  return await getLearningPathCreator(learningPath._id);
+};
+
+export const getLearningPathStartedByResolver: APILearningPathResolvers['startedBy'] = async (
+  learningPath,
+  { options }
+) => {
+  return {
+    count: await countLearningPathStartedBy(learningPath._id),
+    items: (await getLearningPathStartedBy(learningPath._id, nullToUndefined(options))).map(
+      ({ user, relationship }) => ({
+        user,
+        startedAt: new Date(relationship.startedAt),
+      })
+    ),
+  };
+};

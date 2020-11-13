@@ -1,0 +1,37 @@
+interface LearningMaterial {
+  _id: String!
+  tags: [LearningMaterialTag!]
+  rating: Float
+  coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
+  coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
+  domains: [Domain!]
+}
+
+input LearningMaterialCoveredConceptsOptions {
+  pagination: PaginationOptions
+}
+
+type LearningMaterialCoveredConceptsResults {
+  items: [Concept!]!
+}
+
+type LearningMaterialCoveredConceptsByDomainItem {
+  domain: Domain!
+  coveredConcepts: [Concept!]!
+}
+
+input LearningMaterialDomainsOptions {
+  pagination: PaginationOptions
+}
+
+type LearningMaterialDomainsResults {
+  items: [Domain!]!
+}
+
+type Mutation {
+  attachLearningMaterialToDomain(domainId: String!, learningMaterialId: String!): LearningMaterial!
+  detachLearningMaterialFromDomain(domainId: String!, learningMaterialId: String!): LearningMaterial!
+  attachLearningMaterialCoversConcepts(learningMaterialId: String!, conceptIds: [String!]!): LearningMaterial!
+  detachLearningMaterialCoversConcepts(learningMaterialId: String!, conceptIds: [String!]!): LearningMaterial!
+  rateLearningMaterial(learningMaterialId: String!, value: Float!): LearningMaterial!
+}

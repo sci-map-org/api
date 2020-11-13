@@ -9,7 +9,7 @@ import {
   ConceptReferencesConceptLabel,
   STRENGTH_DEFAULT_VALUE,
 } from '../entities/relationships/ConceptReferencesConcept';
-import { ResourceCoversConcept, ResourceCoversConceptLabel } from '../entities/relationships/ResourceCoversConcept';
+import { LearningMaterialCoversConcept, LearningMaterialCoversConceptLabel } from '../entities/relationships/LearningMaterialCoversConcept';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
@@ -48,7 +48,7 @@ export const createConcept = (user: { _id: string } | { key: string }, data: Cre
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedConceptLabel, props: { createdAt: Date.now() } },
     newNode: {
-      label: ConceptLabel,
+      labels: [ConceptLabel],
       props: {
         ...data,
         key: generateUrlKey(data.key || data.name), // a bit ugly
@@ -73,7 +73,7 @@ export const findDomainConceptByKey = (domainKey: string, conceptKey: string): P
       label: ConceptLabel,
       filter: { key: conceptKey },
     },
-  });
+  }).then((result) => result ? result.destinationNode : null);;
 
 export const updateConcept = updateOne<Concept, { _id: string }, UpdateConceptData>({ label: ConceptLabel });
 
@@ -129,23 +129,22 @@ export const getConceptDomain = (conceptId: string) =>
   });
 
 export const getConceptCoveredByResources = (_id: string): Promise<Resource[]> =>
-  getRelatedNodes<Concept, ResourceCoversConcept, Resource>({
+  getRelatedNodes<Concept, LearningMaterialCoversConcept, Resource>({
     originNode: {
       label: ConceptLabel,
       filter: { _id },
     },
     relationship: {
-      label: ResourceCoversConceptLabel,
+      label: LearningMaterialCoversConceptLabel,
     },
     destinationNode: {
       label: ResourceLabel,
     },
   })
-    .then(prop('items'))
     .then(map(prop('destinationNode')));
 
 export const getUserKnowsConcept = async (userId: string, conceptId: string): Promise<UserKnowsConcept | null> => {
-  const { items } = await getRelatedNodes<User, UserKnowsConcept, Concept>({
+  const item = await getOptionalRelatedNode<User, UserKnowsConcept, Concept>({
     originNode: {
       label: UserLabel,
       filter: { _id: userId },
@@ -160,9 +159,8 @@ export const getUserKnowsConcept = async (userId: string, conceptId: string): Pr
       },
     },
   });
-  const [result] = items;
-  if (!result) return null;
-  return result.relationship;
+  if (!item) return null;
+  return item.relationship;
 };
 
 export const attachConceptReferencesConcept = (
@@ -223,7 +221,7 @@ const getConceptReferences = (filter: { _id: string } | { key: string }, directi
     destinationNode: {
       label: ConceptLabel,
     },
-  }).then(({ items }) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
+  }).then((items) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
 
 export const getConceptsReferencedByConcept = (filter: { _id: string } | { key: string }) =>
   getConceptReferences(filter, 'OUT');
@@ -289,7 +287,7 @@ const getConceptBelongsToConcepts = (filter: { _id: string } | { key: string }, 
     destinationNode: {
       label: ConceptLabel,
     },
-  }).then(({ items }) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
+  }).then((items) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
 
 export const getConceptSubConcepts = (filter: { _id: string } | { key: string }) =>
   getConceptBelongsToConcepts(filter, 'IN');
