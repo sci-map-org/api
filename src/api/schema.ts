@@ -30,7 +30,14 @@ import {
   removeConceptBelongsToConceptResolver,
   addConceptBelongsToConceptResolver,
 } from './resolvers/concepts.resolvers';
-import { attachLearningMaterialCoversConceptsResolver, attachLearningMaterialToDomainResolver, detachLearningMaterialCoversConceptsResolver, detachLearningMaterialFromDomainResolver, learningMaterialResolveType, rateLearningMaterialResolver } from './resolvers/learning_materials.resolvers';
+import {
+  attachLearningMaterialCoversConceptsResolver,
+  attachLearningMaterialToDomainResolver,
+  detachLearningMaterialCoversConceptsResolver,
+  detachLearningMaterialFromDomainResolver,
+  learningMaterialResolveType,
+  rateLearningMaterialResolver,
+} from './resolvers/learning_materials.resolvers';
 import {
   createDomainResolver,
   deleteDomainResolver,
@@ -43,6 +50,7 @@ import {
   removeDomainBelongsToDomainResolver,
   getDomainSubDomainsResolver,
   getDomainParentDomainsResolver,
+  getDomainLearningPathsResolver,
 } from './resolvers/domains.resolvers';
 import {
   addComplementaryResourceToLearningPathResolver,
@@ -62,7 +70,7 @@ import {
   startLearningPathResolver,
   getLearningPathStartedResolver,
   getLearningPathCreatedByResolver,
-  getLearningPathStartedByResolver
+  getLearningPathStartedByResolver,
 } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
@@ -94,7 +102,7 @@ import {
 import {
   addTagsToLearningMaterialResolver,
   searchLearningMaterialTagsResolver,
-  removeTagsFromLearningMaterialResolver
+  removeTagsFromLearningMaterialResolver,
 } from './resolvers/learning_material_tags.resolvers';
 import {
   adminUpdateUserResolver,
@@ -162,7 +170,7 @@ const resolvers: APIResolvers<APIContext> = {
     addComplementaryResourceToLearningPath: addComplementaryResourceToLearningPathResolver,
     removeComplementaryResourceFromLearningPath: removeComplementaryResourceFromLearningPathResolver,
     startLearningPath: startLearningPathResolver,
-    rateLearningMaterial: rateLearningMaterialResolver
+    rateLearningMaterial: rateLearningMaterialResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -177,7 +185,7 @@ const resolvers: APIResolvers<APIContext> = {
     searchLearningMaterialTags: searchLearningMaterialTagsResolver,
     searchResources: searchResourcesResolver,
     getLearningPath: getLearningPathResolver,
-    getLearningPathByKey: getLearningPathByKeyResolver
+    getLearningPathByKey: getLearningPathByKeyResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -188,13 +196,14 @@ const resolvers: APIResolvers<APIContext> = {
   CurrentUser: {
     articles: getCurrentUserCreatedArticlesResolver,
     createdLearningPaths: getCurrentUserCreatedLearningPaths,
-    startedLearningPaths: getCurrentUserStartedLearningPaths
+    startedLearningPaths: getCurrentUserStartedLearningPaths,
   },
   Domain: {
     concepts: getDomainConceptsResolver,
     resources: getDomainResourcesResolver,
     subDomains: getDomainSubDomainsResolver,
     parentDomains: getDomainParentDomainsResolver,
+    learningPaths: getDomainLearningPathsResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,
@@ -231,10 +240,10 @@ const resolvers: APIResolvers<APIContext> = {
     coveredConceptsByDomain: getLearningPathCoveredConceptsByDomainResolver,
     started: getLearningPathStartedResolver,
     createdBy: getLearningPathCreatedByResolver,
-    startedBy: getLearningPathStartedByResolver
+    startedBy: getLearningPathStartedByResolver,
   },
   LearningMaterial: {
-    __resolveType: learningMaterialResolveType
+    __resolveType: learningMaterialResolveType,
   },
   Date: GraphQLDateTime,
 };

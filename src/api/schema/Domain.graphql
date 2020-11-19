@@ -5,8 +5,27 @@ type Domain {
   description: String
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
   resources(options: DomainResourcesOptions!): DomainResourcesResults
+  learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
   subDomains: [DomainBelongsToDomainItem!]
   parentDomains: [DomainBelongsToDomainItem!]
+}
+# Domain learning paths
+enum DomainLearningPathsSortingFields {
+  createdAt
+}
+
+input DomainLearningPathsSortingOptions {
+  field: DomainLearningPathsSortingFields!
+  direction: SortingDirection!
+}
+
+input DomainLearningPathsOptions {
+  pagination: PaginationOptions
+  sorting: DomainLearningPathsSortingOptions!
+}
+
+type DomainLearningPathsResults {
+  items: [LearningPath!]!
 }
 
 # Domain concepts

@@ -11,6 +11,7 @@ import {
   detachDomainBelongsToDomain,
   getDomainParentDomains,
   getDomainSubDomains,
+  getDomainLearningPaths,
 } from '../../repositories/domains.repository';
 import { getDomainResources } from '../../repositories/domains.repository';
 import { APIDomain, APIDomainResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
@@ -68,6 +69,13 @@ export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (
 export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, { options }, { user }) => {
   return {
     items: (await getDomainResources(domain._id, user?._id, nullToUndefined(options))).map(toAPIResource),
+  };
+};
+
+export const getDomainLearningPathsResolver: APIDomainResolvers['learningPaths'] = async (domain, { options }, ctx) => {
+  const { sorting } = options;
+  return {
+    items: await getDomainLearningPaths({ _id: domain._id }, sorting || undefined),
   };
 };
 

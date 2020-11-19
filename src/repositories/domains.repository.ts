@@ -1,15 +1,20 @@
 import { inArray, node, Query, relation } from 'cypher-query-builder';
-import { map, prop } from 'ramda';
+import { map } from 'ramda';
 import * as shortid from 'shortid';
 import { APIDomainResourcesSortingType } from '../api/schema/types';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
+import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
   DEFAULT_INDEX_VALUE,
   DomainBelongsToDomain,
   DomainBelongsToDomainLabel,
 } from '../entities/relationships/DomainBelongsToDomain';
+import {
+  LearningMaterialBelongsToDomain,
+  LearningMaterialBelongsToDomainLabel,
+} from '../entities/relationships/LearningMaterialBelongsToDomain';
 import { UserCreatedDomain, UserCreatedDomainLabel } from '../entities/relationships/UserCreatedDomain';
 import { Resource, ResourceType } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
@@ -50,8 +55,10 @@ export const searchDomains = async (
 ): Promise<Domain[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${DomainLabel}) ${query ? 'WHERE toLower(node.name) CONTAINS toLower($query) ' : ''
-    }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
+    `MATCH (node:${DomainLabel}) ${
+      query ? 'WHERE toLower(node.name) CONTAINS toLower($query) ' : ''
+    }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
+      pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
     }`,
     {
       query,
@@ -91,14 +98,36 @@ export const getDomainConcepts = (
         field: sorting.field,
       },
     }),
-  })
-    .then(
-      map(item => ({
-        relationship: item.relationship,
-        concept: item.destinationNode,
-      }))
-    );
+  }).then(
+    map(item => ({
+      relationship: item.relationship,
+      concept: item.destinationNode,
+    }))
+  );
 
+export const getDomainLearningPaths = (
+  domainFilter: { key: string } | { _id: string },
+  sorting?: { direction: SortingDirection; field: 'createdAt' }
+): Promise<LearningPath[]> =>
+  getRelatedNodes<Domain, LearningMaterialBelongsToDomain, LearningPath>({
+    originNode: {
+      label: DomainLabel,
+      filter: domainFilter,
+    },
+    relationship: {
+      label: LearningMaterialBelongsToDomainLabel,
+    },
+    destinationNode: {
+      label: LearningPathLabel,
+    },
+    ...(sorting && {
+      sorting: {
+        entity: 'destinationNode',
+        direction: sorting.direction,
+        field: sorting.field,
+      },
+    }),
+  }).then(map(item => item.destinationNode));
 interface DomainResourcesFilter {
   resourceTypeIn?: ResourceType[];
   consumedByUser?: Boolean;
@@ -127,21 +156,24 @@ export const getDomainResources = async (
     });
   if (query)
     q.raw(
-      `${hasWhereClause ? ' AND ' : 'WHERE '
+      `${
+        hasWhereClause ? ' AND ' : 'WHERE '
       } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
       { query }
     );
 
   if (userId && filter?.consumedByUser === true) {
     q.raw(
-      `${hasWhereClause || query ? ' AND ' : 'WHERE '
+      `${
+        hasWhereClause || query ? ' AND ' : 'WHERE '
       } EXISTS { (u)-[consumed_r:CONSUMED]->(r) WHERE exists(consumed_r.consumedAt) }`
     );
   }
 
   if (userId && filter?.consumedByUser === false) {
     q.raw(
-      `${hasWhereClause || query ? ' AND ' : ' WHERE '
+      `${
+        hasWhereClause || query ? ' AND ' : ' WHERE '
       } (NOT (u)-[:CONSUMED]->(r) OR EXISTS { (u)-[consumed_r:CONSUMED]->(r)  where consumed_r.consumedAt IS NULL })`
     );
   }
@@ -170,18 +202,22 @@ export const getDomainResources = async (
           AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
           WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((r)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
           return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
-      }`)
-      q.return(['r', 'properties(r) as resource', 'cmpc', ' usefulness', 'sign(ccc)*usefulness/(0.1+cmpc) + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) as score']);
-    }
-
-    else {
+      }`);
+      q.return([
+        'r',
+        'properties(r) as resource',
+        'cmpc',
+        ' usefulness',
+        'sign(ccc)*usefulness/(0.1+cmpc) + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) as score',
+      ]);
+    } else {
       q.raw(`CALL {
         WITH r
           MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
           WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
           WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
           return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
-      }`)
+      }`);
       q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) -1*cprnc as score']);
     }
     q.orderBy('score', 'DESC');
@@ -254,7 +290,7 @@ const getDomainBelongsToDomains = (filter: { _id: string } | { key: string }, di
     destinationNode: {
       label: DomainLabel,
     },
-  }).then((items) => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
+  }).then(items => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
 
 export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =>
   getDomainBelongsToDomains(filter, 'IN');

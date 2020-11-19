@@ -556,6 +556,7 @@ export type APIDomain = {
   concepts?: Maybe<APIDomainConceptsResults>;
   description?: Maybe<Scalars['String']>;
   key: Scalars['String'];
+  learningPaths?: Maybe<APIDomainLearningPathsResults>;
   name: Scalars['String'];
   parentDomains?: Maybe<Array<APIDomainBelongsToDomainItem>>;
   resources?: Maybe<APIDomainResourcesResults>;
@@ -568,8 +569,33 @@ export type APIDomainConceptsArgs = {
 };
 
 
+export type APIDomainLearningPathsArgs = {
+  options: APIDomainLearningPathsOptions;
+};
+
+
 export type APIDomainResourcesArgs = {
   options: APIDomainResourcesOptions;
+};
+
+/** Domain learning paths */
+export enum APIDomainLearningPathsSortingFields {
+  CreatedAt = 'createdAt'
+}
+
+export type APIDomainLearningPathsSortingOptions = {
+  direction: SortingDirection;
+  field: APIDomainLearningPathsSortingFields;
+};
+
+export type APIDomainLearningPathsOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
+  sorting: APIDomainLearningPathsSortingOptions;
+};
+
+export type APIDomainLearningPathsResults = {
+   __typename?: 'DomainLearningPathsResults';
+  items: Array<APILearningPath>;
 };
 
 /** Domain concepts */
@@ -1162,6 +1188,10 @@ export type APIResolversTypes = ResolversObject<{
   SetConceptKnownPayload: APISetConceptKnownPayload,
   DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
   Domain: ResolverTypeWrapper<APIDomain>,
+  DomainLearningPathsSortingFields: APIDomainLearningPathsSortingFields,
+  DomainLearningPathsSortingOptions: APIDomainLearningPathsSortingOptions,
+  DomainLearningPathsOptions: APIDomainLearningPathsOptions,
+  DomainLearningPathsResults: ResolverTypeWrapper<APIDomainLearningPathsResults>,
   DomainConceptSortingEntities: APIDomainConceptSortingEntities,
   DomainConceptSortingFields: APIDomainConceptSortingFields,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -1267,6 +1297,10 @@ export type APIResolversParentTypes = ResolversObject<{
   SetConceptKnownPayload: APISetConceptKnownPayload,
   DeleteConceptResult: APIDeleteConceptResult,
   Domain: APIDomain,
+  DomainLearningPathsSortingFields: APIDomainLearningPathsSortingFields,
+  DomainLearningPathsSortingOptions: APIDomainLearningPathsSortingOptions,
+  DomainLearningPathsOptions: APIDomainLearningPathsOptions,
+  DomainLearningPathsResults: APIDomainLearningPathsResults,
   DomainConceptSortingEntities: APIDomainConceptSortingEntities,
   DomainConceptSortingFields: APIDomainConceptSortingFields,
   DomainConceptSortingOptions: APIDomainConceptSortingOptions,
@@ -1480,10 +1514,16 @@ export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIR
   concepts?: Resolver<Maybe<APIResolversTypes['DomainConceptsResults']>, ParentType, ContextType, RequireFields<APIDomainConceptsArgs, 'options'>>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  learningPaths?: Resolver<Maybe<APIResolversTypes['DomainLearningPathsResults']>, ParentType, ContextType, RequireFields<APIDomainLearningPathsArgs, 'options'>>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   parentDomains?: Resolver<Maybe<Array<APIResolversTypes['DomainBelongsToDomainItem']>>, ParentType, ContextType>,
   resources?: Resolver<Maybe<APIResolversTypes['DomainResourcesResults']>, ParentType, ContextType, RequireFields<APIDomainResourcesArgs, 'options'>>,
   subDomains?: Resolver<Maybe<Array<APIResolversTypes['DomainBelongsToDomainItem']>>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIDomainLearningPathsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainLearningPathsResults'] = APIResolversParentTypes['DomainLearningPathsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['LearningPath']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1760,6 +1800,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   ConceptCoveredByResourcesResults?: APIConceptCoveredByResourcesResultsResolvers<ContextType>,
   DeleteConceptResult?: APIDeleteConceptResultResolvers<ContextType>,
   Domain?: APIDomainResolvers<ContextType>,
+  DomainLearningPathsResults?: APIDomainLearningPathsResultsResolvers<ContextType>,
   DomainConceptsItem?: APIDomainConceptsItemResolvers<ContextType>,
   DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,
   DomainBelongsToDomainItem?: APIDomainBelongsToDomainItemResolvers<ContextType>,
