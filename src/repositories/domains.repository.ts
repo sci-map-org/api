@@ -105,7 +105,7 @@ export const getDomainConcepts = (
     }))
   );
 
-export const getDomainLearningPaths = (
+export const getDomainPublicLearningPaths = (
   domainFilter: { key: string } | { _id: string },
   sorting?: { direction: SortingDirection; field: 'createdAt' }
 ): Promise<LearningPath[]> =>
@@ -119,6 +119,7 @@ export const getDomainLearningPaths = (
     },
     destinationNode: {
       label: LearningPathLabel,
+      filter: { public: true },
     },
     ...(sorting && {
       sorting: {

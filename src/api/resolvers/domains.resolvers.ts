@@ -1,19 +1,19 @@
 import { Domain } from '../../entities/Domain';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  attachDomainBelongsToDomain,
   createDomain,
   deleteDomain,
+  detachDomainBelongsToDomain,
   findDomain,
   getDomainConcepts,
+  getDomainParentDomains,
+  getDomainPublicLearningPaths,
+  getDomainResources,
+  getDomainSubDomains,
   searchDomains,
   updateDomain,
-  attachDomainBelongsToDomain,
-  detachDomainBelongsToDomain,
-  getDomainParentDomains,
-  getDomainSubDomains,
-  getDomainLearningPaths,
 } from '../../repositories/domains.repository';
-import { getDomainResources } from '../../repositories/domains.repository';
 import { APIDomain, APIDomainResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
@@ -75,7 +75,7 @@ export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async
 export const getDomainLearningPathsResolver: APIDomainResolvers['learningPaths'] = async (domain, { options }, ctx) => {
   const { sorting } = options;
   return {
-    items: await getDomainLearningPaths({ _id: domain._id }, sorting || undefined),
+    items: await getDomainPublicLearningPaths({ _id: domain._id }, sorting || undefined),
   };
 };
 
