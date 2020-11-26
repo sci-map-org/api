@@ -94,16 +94,19 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
   const session = neo4jDriver.session();
   const sortingClause = sorting ? `ORDER BY ${sorting.entity}.${sorting.field} ${sorting.direction}` : '';
   const whereClause = `WHERE ${buildFilter(originNode.filter, 'originNodeFilter', 'originNode')}
-  ${relationship.filter && Object.keys(relationship.filter).length
+  ${
+    relationship.filter && Object.keys(relationship.filter).length
       ? ' AND ' + buildFilter(relationship.filter, 'relationshipFilter', 'relationship')
       : ''
-    }
-  ${destinationNode.filter && Object.keys(destinationNode.filter).length
+  }
+  ${
+    destinationNode.filter && Object.keys(destinationNode.filter).length
       ? ' AND ' + buildFilter(destinationNode.filter, 'destinationNodeFilter', 'destinationNode')
       : ''
-    }`;
-  const query = `MATCH (originNode:${originNode.label})${relationship.direction === 'IN' ? '<' : ''}-[relationship:${relationship.label
-    }]
+  }`;
+  const query = `MATCH (originNode:${originNode.label})${relationship.direction === 'IN' ? '<' : ''}-[relationship:${
+    relationship.label
+  }]
   -${relationship.direction === 'OUT' ? '>' : ''}(destinationNode:${destinationNode.label}) ${whereClause} RETURN 
   properties(originNode) as originNode, 
   properties(destinationNode) as destinationNode, 
@@ -122,7 +125,7 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
     originNode: r.get('originNode') as OriginEntity,
     relationship: r.get('relationship') as RelationshipEntity,
     destinationNode: r.get('destinationNode') as DestinationEntity,
-  }))
+  }));
 };
 
 export const countRelatedNodes = async <OriginEntity, RelationshipEntity, DestinationEntity>({
@@ -136,16 +139,19 @@ export const countRelatedNodes = async <OriginEntity, RelationshipEntity, Destin
 }): Promise<number> => {
   const session = neo4jDriver.session();
   const whereClause = `WHERE ${buildFilter(originNode.filter, 'originNodeFilter', 'originNode')}
-  ${relationship.filter && Object.keys(relationship.filter).length
+  ${
+    relationship.filter && Object.keys(relationship.filter).length
       ? ' AND ' + buildFilter(relationship.filter, 'relationshipFilter', 'relationship')
       : ''
-    }
-  ${destinationNode.filter && Object.keys(destinationNode.filter).length
+  }
+  ${
+    destinationNode.filter && Object.keys(destinationNode.filter).length
       ? ' AND ' + buildFilter(destinationNode.filter, 'destinationNodeFilter', 'destinationNode')
       : ''
-    }`;
-  const query = `MATCH (originNode:${originNode.label})${relationship.direction === 'IN' ? '<' : ''}-[relationship:${relationship.label
-    }]
+  }`;
+  const query = `MATCH (originNode:${originNode.label})${relationship.direction === 'IN' ? '<' : ''}-[relationship:${
+    relationship.label
+  }]
   -${relationship.direction === 'OUT' ? '>' : ''}(destinationNode:${destinationNode.label}) ${whereClause} RETURN 
   count(destinationNode) as count`;
   const { records } = await session.run(query, {
@@ -155,7 +161,7 @@ export const countRelatedNodes = async <OriginEntity, RelationshipEntity, Destin
   });
 
   session.close();
-  return Number(records[0].get('count').toString())
+  return Number(records[0].get('count').toString());
 };
 
 export const getOptionalRelatedNode = <OriginEntity, RelationshipEntity, DestinationEntity>(config: {
@@ -164,14 +170,15 @@ export const getOptionalRelatedNode = <OriginEntity, RelationshipEntity, Destina
   destinationNode: { label: string; filter?: FilterObject<DestinationEntity> };
 }): Promise<{
   originNode: OriginEntity;
-  relationship: RelationshipEntity
-  destinationNode: DestinationEntity
+  relationship: RelationshipEntity;
+  destinationNode: DestinationEntity;
 } | null> =>
-  getRelatedNodes(config).then((items) => {
+  getRelatedNodes(config).then(items => {
     if (!items.length) return null;
     if (items.length > 1)
       logger.error(
-        `More than 1 pair ${config.originNode.label} with filter ${JSON.stringify(config.originNode.filter)} or ${config.destinationNode.label
+        `More than 1 pair ${config.originNode.label} with filter ${JSON.stringify(config.originNode.filter)} or ${
+          config.destinationNode.label
         } with filter ${JSON.stringify(
           config.destinationNode.filter
         )}: data inconsistency as they are expected to be unique`
@@ -190,8 +197,10 @@ export const getRelatedNode = async <E>({
 }): Promise<E> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})${relationship.direction === 'IN' ? '<' : ''
-    }-[relationship:${relationship.label} ${getFilterString(relationship.filter, 'relationshipFilter')}]-${relationship.direction === 'OUT' ? '>' : ''
+    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})${
+      relationship.direction === 'IN' ? '<' : ''
+    }-[relationship:${relationship.label} ${getFilterString(relationship.filter, 'relationshipFilter')}]-${
+      relationship.direction === 'OUT' ? '>' : ''
     }(destinationNode:${destinationNode.label} ${getFilterString(
       destinationNode.filter,
       'destinationNodeFilter'
@@ -235,13 +244,16 @@ export const createRelatedNode = async <OriginNodeEntity, RelationshipEntity, De
 }: {
   originNode: { label: string; filter: FilterObject<OriginNodeEntity> };
   relationship: { label: string; props: RelationshipEntity };
-  newNode: { props: DestinationNodeEntity; labels: string[]; }
+  newNode: { props: DestinationNodeEntity; labels: string[] };
 }): Promise<DestinationNodeEntity> => {
   const session = neo4jDriver.session();
 
   const { records } = await session.run(
-    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')}) CREATE (newNode:${newNode.labels.join(':')
-    } $newNodeProps) CREATE (originNode)-[relationship:${relationship.label
+    `MATCH (originNode:${originNode.label} ${getFilterString(
+      originNode.filter,
+      'originNodeFilter'
+    )}) CREATE (newNode:${newNode.labels.join(':')} $newNodeProps) CREATE (originNode)-[relationship:${
+      relationship.label
     } $relationshipProps]->(newNode) RETURN properties(newNode) as newNode`,
     {
       originNodeFilter: originNode.filter,
@@ -270,8 +282,10 @@ export const updateRelatedNode = async <OF extends object, RP extends object, NP
 }): Promise<any> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})-[relationship:${relationship.label
-    } ${getFilterString(relationship.filter, 'relationshipFilter')}]-(destinationNode:${destinationNode.label
+    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})-[relationship:${
+      relationship.label
+    } ${getFilterString(relationship.filter, 'relationshipFilter')}]-(destinationNode:${
+      destinationNode.label
     } ${getFilterString(
       destinationNode.filter,
       'destinationNodeFilter'
@@ -304,8 +318,10 @@ export const deleteRelatedNode = async <OriginNodeEntity, RelationshipEntity, De
 }): Promise<{ deletedCount: number }> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})-[relationship:${relationship.label
-    } ${getFilterString(relationship.filter, 'relationshipFilter')}]-(destinationNode:${destinationNode.label
+    `MATCH (originNode:${originNode.label} ${getFilterString(originNode.filter, 'originNodeFilter')})-[relationship:${
+      relationship.label
+    } ${getFilterString(relationship.filter, 'relationshipFilter')}]-(destinationNode:${
+      destinationNode.label
     } ${getFilterString(
       destinationNode.filter,
       'destinationNodeFilter'
@@ -322,6 +338,94 @@ export const deleteRelatedNode = async <OriginNodeEntity, RelationshipEntity, De
   return {
     deletedCount: records.length,
   };
+};
+
+export const updateUniqueRelationship = async <OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
+  originNode,
+  relationship,
+  destinationNode,
+}: {
+  originNode: { label: string; filter: FilterObject<OriginNodeEntity> };
+  relationship: {
+    label: string;
+    updateProps: UpdateType<RelationshipEntity>;
+  };
+  destinationNode: { label: string; filter: FilterObject<DestinationNodeEntity> };
+}): Promise<{
+  originNode: OriginNodeEntity;
+  relationship: RelationshipEntity;
+  destinationNode: DestinationNodeEntity;
+}> =>
+  updateRelationships<OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
+    originNode,
+    relationship,
+    destinationNode,
+  }).then(([first, ...rest]) => {
+    if (!first)
+      throw new Error(
+        `${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
+        } with filter ${JSON.stringify(destinationNode.filter)} not found`
+      );
+    if (rest.length > 1)
+      // Throwing an error is not the best in this case: the operation is already made. log.warn/err :/ ?
+      logger.error(
+        `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
+        } with filter ${JSON.stringify(destinationNode.filter)}: data inconsistency as they are expected to be unique`
+      );
+
+    return first;
+  });
+
+export const updateRelationships = async <OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
+  originNode,
+  relationship,
+  destinationNode,
+}: {
+  originNode: { label: string; filter: FilterObject<OriginNodeEntity> };
+  relationship: {
+    label: string;
+    updateProps: UpdateType<RelationshipEntity>;
+  };
+  destinationNode: { label: string; filter: FilterObject<DestinationNodeEntity> };
+}): Promise<{
+  originNode: OriginNodeEntity;
+  relationship: RelationshipEntity;
+  destinationNode: DestinationNodeEntity;
+}[]> => {
+  console.log(relationship.updateProps);
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (originNode:${originNode.label}) WHERE ${buildFilter(
+      originNode.filter,
+      'originNodeFilter',
+      'originNode'
+    )} MATCH (destinationNode:${destinationNode.label}) WHERE ${buildFilter(
+      destinationNode.filter,
+      'destinationNodeFilter',
+      'destinationNode'
+    )} MATCH (originNode)-[relationship:${
+      relationship.label
+    }]->(destinationNode) SET relationship += $relationshipUpdateProps RETURN 
+    properties(originNode) as originNode,
+    properties(relationship) as relationship,
+    properties(destinationNode) as destinationNode`,
+    {
+      originNodeFilter: originNode.filter,
+      destinationNodeFilter: destinationNode.filter,
+      relationshipUpdateProps: relationship.updateProps,
+    }
+  );
+  session.close();
+
+  return records.map(record => {
+    return {
+      originNode: record.get('originNode') as OriginNodeEntity,
+      relationship: record.get('relationship') as RelationshipEntity,
+      destinationNode: record.get('destinationNode') as DestinationNodeEntity,
+    };
+  });
 };
 
 export const attachNodes = async <OriginNodeEntity, RelationshipEntity, DestinationNodeEntity>({
@@ -351,7 +455,8 @@ export const attachNodes = async <OriginNodeEntity, RelationshipEntity, Destinat
       destinationNode.filter,
       'destinationNodeFilter',
       'destinationNode'
-    )} MERGE (originNode)-[relationship:${relationship.label}]->(destinationNode)${relationship.onCreateProps ? `ON CREATE SET relationship = $relationshipOnCreateProps` : ''
+    )} MERGE (originNode)-[relationship:${relationship.label}]->(destinationNode)${
+      relationship.onCreateProps ? `ON CREATE SET relationship = $relationshipOnCreateProps` : ''
     } ${relationship.onMergeProps ? 'ON MATCH SET relationship += $relationshipOnMergeProps' : ''} RETURN 
     properties(originNode) as originNode,
     properties(relationship) as relationship,
@@ -399,13 +504,15 @@ export const attachUniqueNodes = <OriginNodeEntity, RelationshipEntity, Destinat
   }).then(([first, ...rest]) => {
     if (!first)
       throw new Error(
-        `${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${destinationNode.label
+        `${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
         } with filter ${JSON.stringify(destinationNode.filter)} not found`
       );
     if (rest.length > 1)
       // Throwing an error is not the best in this case: the operation is already made. log.warn/err :/ ?
       logger.error(
-        `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${destinationNode.label
+        `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
         } with filter ${JSON.stringify(destinationNode.filter)}: data inconsistency as they are expected to be unique`
       );
 
@@ -434,7 +541,8 @@ export const detachNodes = async <OriginNodeEntity, RelationshipEntity, Destinat
       destinationNode.filter,
       'destinationNodeFilter',
       'destinationNode'
-    )} OPTIONAL MATCH (originNode)-[relationship:${relationship.label
+    )} OPTIONAL MATCH (originNode)-[relationship:${
+      relationship.label
     }]-(destinationNode) DELETE relationship RETURN properties(originNode) as originNode, properties(destinationNode) as destinationNode`,
     {
       originNodeFilter: originNode.filter,
@@ -471,13 +579,15 @@ export const detachUniqueNodes = <OriginNodeEntity, RelationshipEntity, Destinat
   }).then(([first, ...rest]) => {
     if (!first)
       throw new Error(
-        `${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${destinationNode.label
+        `${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
         } with filter ${JSON.stringify(destinationNode.filter)} not found`
       );
     if (rest.length > 1)
       // not great as the operation as already been made... Logging the data inconsistency is better than nothing I guess
       logger.error(
-        `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${destinationNode.label
+        `More than 1 pair ${originNode.label} with filter ${JSON.stringify(originNode.filter)} or ${
+          destinationNode.label
         } with filter ${JSON.stringify(destinationNode.filter)}: data inconsistency as they are expected to be unique`
       );
     return first;

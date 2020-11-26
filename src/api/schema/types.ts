@@ -169,6 +169,7 @@ export type APIMutation = {
   adminUpdateUser: APIUser;
   attachLearningMaterialCoversConcepts: APILearningMaterial;
   attachLearningMaterialToDomain: APILearningMaterial;
+  completeLearningPath: APILearningPathCompletedResult;
   createArticle: APIArticle;
   createDomain: APIDomain;
   createLearningPath: APILearningPath;
@@ -277,6 +278,12 @@ export type APIMutationAttachLearningMaterialCoversConceptsArgs = {
 export type APIMutationAttachLearningMaterialToDomainArgs = {
   domainId: Scalars['String'];
   learningMaterialId: Scalars['String'];
+};
+
+
+export type APIMutationCompleteLearningPathArgs = {
+  completed: Scalars['Boolean'];
+  learningPathId: Scalars['String'];
 };
 
 
@@ -819,6 +826,7 @@ export type APILearningPathStartedByResults = {
 
 export type APILearningPathStartedByItem = {
    __typename?: 'LearningPathStartedByItem';
+  completedAt?: Maybe<Scalars['Date']>;
   startedAt: Scalars['Date'];
   user: APIUser;
 };
@@ -832,6 +840,7 @@ export type APILearningPathResourceItem = {
 
 export type APILearningPathStarted = {
    __typename?: 'LearningPathStarted';
+  completedAt?: Maybe<Scalars['Date']>;
   startedAt: Scalars['Date'];
 };
 
@@ -872,6 +881,12 @@ export type APIUpdateLearningPathPayload = {
 
 export type APILearningPathStartedResult = {
    __typename?: 'LearningPathStartedResult';
+  learningPath: APILearningPath;
+  user: APICurrentUser;
+};
+
+export type APILearningPathCompletedResult = {
+   __typename?: 'LearningPathCompletedResult';
   learningPath: APILearningPath;
   user: APICurrentUser;
 };
@@ -1032,7 +1047,7 @@ export type APICurrentUser = {
   email: Scalars['String'];
   key: Scalars['String'];
   role: UserRole;
-  startedLearningPaths?: Maybe<Array<APILearningPath>>;
+  startedLearningPaths?: Maybe<Array<APILearningPathStartedItem>>;
 };
 
 
@@ -1048,6 +1063,13 @@ export type APICurrentUserCreatedLearningPathsArgs = {
 
 export type APICurrentUserStartedLearningPathsArgs = {
   options: APIUserLearningPathsOptions;
+};
+
+export type APILearningPathStartedItem = {
+   __typename?: 'LearningPathStartedItem';
+  completedAt?: Maybe<Scalars['Date']>;
+  learningPath: APILearningPath;
+  startedAt: Scalars['Date'];
 };
 
 export type APILoginResponse = {
@@ -1270,6 +1292,7 @@ export type APIResolversTypes = ResolversObject<{
   ComplementaryResourceUpdatedResult: ResolverTypeWrapper<APIComplementaryResourceUpdatedResult>,
   UpdateLearningPathPayload: APIUpdateLearningPathPayload,
   LearningPathStartedResult: ResolverTypeWrapper<APILearningPathStartedResult>,
+  LearningPathCompletedResult: ResolverTypeWrapper<APILearningPathCompletedResult>,
   ResourceMediaType: ResourceMediaType,
   ResourceType: ResourceType,
   ConsumedResource: ResolverTypeWrapper<APIConsumedResource>,
@@ -1293,6 +1316,7 @@ export type APIResolversTypes = ResolversObject<{
   User: ResolverTypeWrapper<APIUser>,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
+  LearningPathStartedItem: ResolverTypeWrapper<APILearningPathStartedItem>,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
   RegisterGooglePayload: APIRegisterGooglePayload,
@@ -1384,6 +1408,7 @@ export type APIResolversParentTypes = ResolversObject<{
   ComplementaryResourceUpdatedResult: APIComplementaryResourceUpdatedResult,
   UpdateLearningPathPayload: APIUpdateLearningPathPayload,
   LearningPathStartedResult: APILearningPathStartedResult,
+  LearningPathCompletedResult: APILearningPathCompletedResult,
   ResourceMediaType: ResourceMediaType,
   ResourceType: ResourceType,
   ConsumedResource: APIConsumedResource,
@@ -1407,6 +1432,7 @@ export type APIResolversParentTypes = ResolversObject<{
   User: APIUser,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
   CurrentUser: APICurrentUser,
+  LearningPathStartedItem: APILearningPathStartedItem,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
   RegisterGooglePayload: APIRegisterGooglePayload,
@@ -1474,6 +1500,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
   attachLearningMaterialCoversConcepts?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAttachLearningMaterialCoversConceptsArgs, 'conceptIds' | 'learningMaterialId'>>,
   attachLearningMaterialToDomain?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAttachLearningMaterialToDomainArgs, 'domainId' | 'learningMaterialId'>>,
+  completeLearningPath?: Resolver<APIResolversTypes['LearningPathCompletedResult'], ParentType, ContextType, RequireFields<APIMutationCompleteLearningPathArgs, 'completed' | 'learningPathId'>>,
   createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
   createDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationCreateDomainArgs, 'payload'>>,
   createLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationCreateLearningPathArgs, 'payload'>>,
@@ -1675,6 +1702,7 @@ export type APILearningPathStartedByResultsResolvers<ContextType = APIContext, P
 }>;
 
 export type APILearningPathStartedByItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathStartedByItem'] = APIResolversParentTypes['LearningPathStartedByItem']> = ResolversObject<{
+  completedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   startedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   user?: Resolver<APIResolversTypes['User'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
@@ -1688,6 +1716,7 @@ export type APILearningPathResourceItemResolvers<ContextType = APIContext, Paren
 }>;
 
 export type APILearningPathStartedResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathStarted'] = APIResolversParentTypes['LearningPathStarted']> = ResolversObject<{
+  completedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   startedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -1705,6 +1734,12 @@ export type APIComplementaryResourceUpdatedResultResolvers<ContextType = APICont
 }>;
 
 export type APILearningPathStartedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathStartedResult'] = APIResolversParentTypes['LearningPathStartedResult']> = ResolversObject<{
+  learningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType>,
+  user?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningPathCompletedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathCompletedResult'] = APIResolversParentTypes['LearningPathCompletedResult']> = ResolversObject<{
   learningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType>,
   user?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
@@ -1798,7 +1833,14 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
-  startedLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningPathsArgs, 'options'>>,
+  startedLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPathStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningPathsArgs, 'options'>>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningPathStartedItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPathStartedItem'] = APIResolversParentTypes['LearningPathStartedItem']> = ResolversObject<{
+  completedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
+  learningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType>,
+  startedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1873,6 +1915,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DeleteLearningPathResult?: APIDeleteLearningPathResultResolvers<ContextType>,
   ComplementaryResourceUpdatedResult?: APIComplementaryResourceUpdatedResultResolvers<ContextType>,
   LearningPathStartedResult?: APILearningPathStartedResultResolvers<ContextType>,
+  LearningPathCompletedResult?: APILearningPathCompletedResultResolvers<ContextType>,
   ConsumedResource?: APIConsumedResourceResolvers<ContextType>,
   Resource?: APIResourceResolvers<ContextType>,
   ResourceDomainsResults?: APIResourceDomainsResultsResolvers<ContextType>,
@@ -1884,6 +1927,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SearchResourcesResult?: APISearchResourcesResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
+  LearningPathStartedItem?: APILearningPathStartedItemResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,
   Date?: GraphQLScalarType,

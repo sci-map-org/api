@@ -1,8 +1,7 @@
-import { UserInputError } from 'apollo-server-koa';
 import { hasLabel, inArray, node, not, Query, relation } from 'cypher-query-builder';
 import { map } from 'ramda';
 import * as shortid from 'shortid';
-import { APIDomainResourcesSortingType, APIDomainLearningMaterialsSortingType } from '../api/schema/types';
+import { APIDomainLearningMaterialsSortingType, APIDomainResourcesSortingType } from '../api/schema/types';
 import { recommendationEngineConfig } from '../config';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
@@ -277,6 +276,9 @@ export const getDomainLearningMaterials = async (
     whereClauseStarted = true;
   }
 
+  q.raw(`${whereClauseStarted ? ' AND ' : 'WHERE '} (NOT lm:${LearningPathLabel} OR lm.public = true)`);
+  whereClauseStarted = true; // clearly not pretty but will be refactored soon anyway
+
   if (query) {
     q.raw(
       `${
@@ -292,13 +294,15 @@ export const getDomainLearningMaterials = async (
       q.raw(
         `${
           whereClauseStarted ? ' AND ' : 'WHERE '
-        } (NOT lm:${ResourceLabel} OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm) WHERE exists(consumed_r.consumedAt) })` // TODO add completion for lps
+        } ((NOT lm:${ResourceLabel} OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm) WHERE exists(consumed_r.consumedAt) }) 
+        AND (NOT lm:${LearningPathLabel} OR EXISTS { (u)-[started_r:STARTED]->(lm) WHERE exists(started_r.completedAt) }))` // TODO add completion for lps
       );
     } else {
       q.raw(
         `${
           whereClauseStarted ? ' AND ' : ' WHERE '
-        } (NOT lm:${ResourceLabel} OR (NOT (u)-[:CONSUMED]->(lm) OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm)  where consumed_r.consumedAt IS NULL }))`
+        } (NOT lm:${ResourceLabel} OR (NOT (u)-[:CONSUMED]->(lm) OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm)  where consumed_r.consumedAt IS NULL }))
+        AND (NOT lm:${LearningPathLabel} OR (NOT (u)-[:STARTED]->(lm) OR EXISTS { (u)-[started_r:STARTED]->(lm)  where started_r.completedAt IS NULL }))`
       );
     }
   }
@@ -348,7 +352,7 @@ export const getDomainLearningMaterials = async (
       // when not logged in, find the first one of series, return cprnc for each of them in order to order them
       q.raw(`CALL {
         WITH lm
-          MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
+          MATCH (nextToConsume:${lmLabel})-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
           WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
           WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
           return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc

@@ -139,9 +139,17 @@ export const getLearningPathsCreatedBy = (userId: string): Promise<LearningPath[
     destinationNode: { label: LearningPathLabel },
   }).then(map(prop('destinationNode')));
 
-export const getLearningPathsStartedBy = (userId: string): Promise<LearningPath[]> =>
+export const getLearningPathsStartedBy = (
+  userId: string
+): Promise<{ user: User; relationship: UserStartedLearningPath; learningPath: LearningPath }[]> =>
   getRelatedNodes<User, UserStartedLearningPath, LearningPath>({
     originNode: { label: UserLabel, filter: { _id: userId } },
     relationship: { label: UserStartedLearningPathLabel },
     destinationNode: { label: LearningPathLabel },
-  }).then(map(prop('destinationNode')));
+  }).then(
+    map(({ originNode, relationship, destinationNode }) => ({
+      user: originNode,
+      relationship,
+      learningPath: destinationNode,
+    }))
+  );

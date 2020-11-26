@@ -26,7 +26,13 @@ type CurrentUser {
   articles(options: ListArticlesOptions!): ListArticlesResult
   # private stuff here
   createdLearningPaths(options: UserLearningPathsOptions!): [LearningPath!]
-  startedLearningPaths(options: UserLearningPathsOptions!): [LearningPath!]
+  startedLearningPaths(options: UserLearningPathsOptions!): [LearningPathStartedItem!]
+}
+
+type LearningPathStartedItem {
+  learningPath: LearningPath!
+  startedAt: Date!
+  completedAt: Date
 }
 
 type LoginResponse {

@@ -1,11 +1,16 @@
 import { User, UserRole } from '../../entities/User';
 import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
-import { findUser, getLearningPathsCreatedBy, getLearningPathsStartedBy, updateUser } from '../../repositories/users.repository';
+import {
+  findUser,
+  getLearningPathsCreatedBy,
+  getLearningPathsStartedBy,
+  updateUser,
+} from '../../repositories/users.repository';
 import {
   DiscourseSSOInputPayload,
   generateDiscourseSSORedirectUrl,
-  validateDiscourseSSO
+  validateDiscourseSSO,
 } from '../../services/auth/discourse_sso';
 import { identifyGoogleIdToken } from '../../services/auth/google_sign_in';
 import { getJWT, verifyAndDecodeEmailVerificationToken } from '../../services/auth/jwt';
@@ -19,7 +24,7 @@ import {
   APIMutationResolvers,
   APIQueryResolvers,
   APIUser,
-  APIUserResolvers
+  APIUserResolvers,
 } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIArticle } from './articles.resolvers';
@@ -155,11 +160,15 @@ export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = 
   return toAPIUser(updatedUser);
 };
 
+export const getCurrentUserCreatedLearningPaths: APICurrentUserResolvers['createdLearningPaths'] = async currentUser => {
+  return await getLearningPathsCreatedBy(currentUser._id);
+};
 
-export const getCurrentUserCreatedLearningPaths: APICurrentUserResolvers['createdLearningPaths'] = async (currentUser) => {
-  return await getLearningPathsCreatedBy(currentUser._id)
-}
-
-export const getCurrentUserStartedLearningPaths: APICurrentUserResolvers['startedLearningPaths'] = async (currentUser) => {
-  return await getLearningPathsStartedBy(currentUser._id)
-}
+export const getCurrentUserStartedLearningPaths: APICurrentUserResolvers['startedLearningPaths'] = async currentUser => {
+  const results = await getLearningPathsStartedBy(currentUser._id);
+  return results.map(({ learningPath, relationship }) => ({
+    learningPath,
+    startedAt: new Date(relationship.startedAt),
+    completedAt: relationship.completedAt ? new Date(relationship.completedAt) : undefined,
+  }));
+};

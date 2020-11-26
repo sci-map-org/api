@@ -6,7 +6,7 @@ import {
   getLearningMaterialRating,
 } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
-import { findLearningPath } from '../../repositories/learning_paths.repository';
+import { findLearningPath, updateUserStartedLearningPath } from '../../repositories/learning_paths.repository';
 import {
   attachResourceToLearningPath,
   countLearningPathStartedBy,
@@ -123,6 +123,19 @@ export const startLearningPathResolver: APIMutationResolvers['startLearningPath'
   return await startUserLearningPath(user._id, learningPathId);
 };
 
+/**
+ * TODO: that's somewhat of a hack, might create data inconsistencies if FE doesn't call it properly. Doing it reactively
+ * is a bit to complex for now.
+ */
+export const completeLearningPathResolver: APIMutationResolvers['completeLearningPath'] = async (
+  _ctx,
+  { learningPathId, completed },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  return await updateUserStartedLearningPath(user._id, learningPathId, { completedAt: completed ? Date.now() : null });
+};
+
 export const getLearningPathResourceItemsResolver: APILearningPathResolvers['resourceItems'] = async learningPath => {
   return await getLearningPathResourceItems(learningPath._id);
 };
@@ -159,7 +172,12 @@ export const getLearningPathStartedResolver: APILearningPathResolvers['started']
   if (!user) return null;
 
   const started = await getUserStartedLearningPath(user._id, learningPath._id);
-  return started ? { startedAt: new Date(started.startedAt) } : null;
+  return started
+    ? {
+        startedAt: new Date(started.startedAt),
+        completedAt: started.completedAt ? new Date(started.completedAt) : undefined,
+      }
+    : null;
 };
 
 export const getLearningPathCreatedByResolver: APILearningPathResolvers['createdBy'] = async learningPath => {
@@ -176,6 +194,7 @@ export const getLearningPathStartedByResolver: APILearningPathResolvers['started
       ({ user, relationship }) => ({
         user,
         startedAt: new Date(relationship.startedAt),
+        completedAt: relationship.completedAt ? new Date(relationship.completedAt) : undefined,
       })
     ),
   };

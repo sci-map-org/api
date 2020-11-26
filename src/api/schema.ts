@@ -72,6 +72,7 @@ import {
   getLearningPathStartedResolver,
   getLearningPathCreatedByResolver,
   getLearningPathStartedByResolver,
+  completeLearningPathResolver,
 } from './resolvers/learning_paths.resolvers';
 import {
   addResourceToDomainResolver,
@@ -171,6 +172,7 @@ const resolvers: APIResolvers<APIContext> = {
     addComplementaryResourceToLearningPath: addComplementaryResourceToLearningPathResolver,
     removeComplementaryResourceFromLearningPath: removeComplementaryResourceFromLearningPathResolver,
     startLearningPath: startLearningPathResolver,
+    completeLearningPath: completeLearningPathResolver,
     rateLearningMaterial: rateLearningMaterialResolver,
   },
   Query: {

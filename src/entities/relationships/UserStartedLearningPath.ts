@@ -1,5 +1,6 @@
-export const UserStartedLearningPathLabel = 'STARTED'
+export const UserStartedLearningPathLabel = 'STARTED';
 
 export interface UserStartedLearningPath {
-    startedAt: number
+  startedAt: number;
+  completedAt?: number;
 }

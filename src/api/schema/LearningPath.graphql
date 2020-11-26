@@ -29,6 +29,7 @@ type LearningPathStartedByResults {
 type LearningPathStartedByItem {
   user: User!
   startedAt: Date!
+  completedAt: Date
 }
 
 type LearningPathResourceItem {
@@ -39,6 +40,7 @@ type LearningPathResourceItem {
 
 type LearningPathStarted {
   startedAt: Date!
+  completedAt: Date
 }
 
 input CreateLearningPathPayload {
@@ -78,6 +80,12 @@ type LearningPathStartedResult {
   user: CurrentUser!
   learningPath: LearningPath!
 }
+
+type LearningPathCompletedResult {
+  user: CurrentUser!
+  learningPath: LearningPath!
+}
+
 type Mutation {
   createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
   updateLearningPath(_id: String!, payload: UpdateLearningPathPayload!): LearningPath!
@@ -91,6 +99,7 @@ type Mutation {
     resourceId: String!
   ): ComplementaryResourceUpdatedResult!
   startLearningPath(learningPathId: String!): LearningPathStartedResult!
+  completeLearningPath(learningPathId: String!, completed: Boolean!): LearningPathCompletedResult!
 }
 
 type Query {
