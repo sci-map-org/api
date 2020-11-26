@@ -1,7 +1,13 @@
 import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { attachLearningMaterialToDomain, getLearningMaterialCoveredConcepts, getLearningMaterialCoveredConceptsByDomain, getLearningMaterialDomains, getLearningMaterialRating } from '../../repositories/learning_materials.repository';
+import {
+  attachLearningMaterialToDomain,
+  getLearningMaterialCoveredConcepts,
+  getLearningMaterialCoveredConceptsByDomain,
+  getLearningMaterialDomains,
+  getLearningMaterialRating,
+} from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import {
   addSubResourceToSeries,
@@ -14,12 +20,14 @@ import {
   getResourceNextResource,
   getResourceParentResources,
   getResourcePreviousResource,
-  getResourceSeriesParentResource, getResourceSubResources,
+  getResourceSeriesParentResource,
+  getResourceSubResources,
   getResourceSubResourceSeries,
   getResourceUpvoteCount,
   getUserConsumedResource,
-  searchResources, updateResource,
-  voteResource
+  searchResources,
+  updateResource,
+  voteResource,
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
@@ -30,7 +38,7 @@ import {
   APIQueryResolvers,
   APIResource,
   APIResourceResolvers,
-  APIResourceVoteValue
+  APIResourceVoteValue,
 } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
@@ -112,8 +120,8 @@ export const getResourceCoveredConceptsByDomainResolver: APIResourceResolvers['c
   return await getLearningMaterialCoveredConceptsByDomain(resource._id);
 };
 
-export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async (resource) => {
-  return await getLearningMaterialDomains(resource._id)
+export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async resource => {
+  return await getLearningMaterialDomains(resource._id);
 };
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
@@ -170,7 +178,8 @@ export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async
   return getResourceUpvoteCount(resource._id);
 };
 
-export const getResourceRatingResolver: APIResourceResolvers['rating'] = async resource => getLearningMaterialRating(resource._id)
+export const getResourceRatingResolver: APIResourceResolvers['rating'] = async resource =>
+  getLearningMaterialRating(resource._id);
 
 export const getResourceCreatorResolver: APIResourceResolvers['creator'] = async resource => {
   const creator = await getResourceCreator({ _id: resource._id });

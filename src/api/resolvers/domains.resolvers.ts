@@ -1,3 +1,4 @@
+import { UserInputError } from 'apollo-server-koa';
 import { Domain } from '../../entities/Domain';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
@@ -7,6 +8,7 @@ import {
   detachDomainBelongsToDomain,
   findDomain,
   getDomainConcepts,
+  getDomainLearningMaterials,
   getDomainParentDomains,
   getDomainPublicLearningPaths,
   getDomainResources,
@@ -67,6 +69,10 @@ export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (
 };
 
 export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, { options }, { user }) => {
+  // can't filter for consumed ones when no users
+  if (!user && options.filter.consumedByUser === true)
+    throw new UserInputError('getDomainResources : no user yet consumedByUser filter is set to true');
+
   return {
     items: (await getDomainResources(domain._id, user?._id, nullToUndefined(options))).map(toAPIResource),
   };
@@ -76,6 +82,18 @@ export const getDomainLearningPathsResolver: APIDomainResolvers['learningPaths']
   const { sorting } = options;
   return {
     items: await getDomainPublicLearningPaths({ _id: domain._id }, sorting || undefined),
+  };
+};
+
+export const getDomainLearningMaterialsResolver: APIDomainResolvers['learningMaterials'] = async (
+  domain,
+  { options },
+  { user }
+) => {
+  if (!user && options.filter.completedByUser === true)
+    throw new UserInputError('getDomainLearningMaterials : no user yet completedByUser filter is set to true');
+  return {
+    items: (await getDomainLearningMaterials(domain._id, user?._id, nullToUndefined(options))).map(toAPIResource),
   };
 };
 

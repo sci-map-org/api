@@ -1,9 +1,12 @@
-import { inArray, node, Query, relation } from 'cypher-query-builder';
+import { UserInputError } from 'apollo-server-koa';
+import { hasLabel, inArray, node, not, Query, relation } from 'cypher-query-builder';
 import { map } from 'ramda';
 import * as shortid from 'shortid';
-import { APIDomainResourcesSortingType } from '../api/schema/types';
+import { APIDomainResourcesSortingType, APIDomainLearningMaterialsSortingType } from '../api/schema/types';
+import { recommendationEngineConfig } from '../config';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
+import { LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
@@ -16,7 +19,7 @@ import {
   LearningMaterialBelongsToDomainLabel,
 } from '../entities/relationships/LearningMaterialBelongsToDomain';
 import { UserCreatedDomain, UserCreatedDomainLabel } from '../entities/relationships/UserCreatedDomain';
-import { Resource, ResourceType } from '../entities/Resource';
+import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
@@ -131,7 +134,7 @@ export const getDomainPublicLearningPaths = (
   }).then(map(item => item.destinationNode));
 interface DomainResourcesFilter {
   resourceTypeIn?: ResourceType[];
-  consumedByUser?: Boolean;
+  consumedByUser: Boolean;
 }
 
 export const getDomainResources = async (
@@ -141,42 +144,47 @@ export const getDomainResources = async (
     query,
     filter,
     sortingType,
-  }: { query?: string; filter?: DomainResourcesFilter; sortingType: APIDomainResourcesSortingType }
+  }: { query?: string; filter: DomainResourcesFilter; sortingType: APIDomainResourcesSortingType }
 ): Promise<Resource[]> => {
   const q = new Query(neo4jQb);
   if (userId) q.matchNode('u', 'User', { _id: userId });
 
   q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('r', 'Resource')]);
 
-  const hasWhereClause = !!filter && !!filter.resourceTypeIn;
-  if (hasWhereClause)
+  let whereClauseStarted = false;
+  if (!!filter.resourceTypeIn) {
     q.where({
       r: {
         ...(!!filter?.resourceTypeIn && { type: inArray(filter.resourceTypeIn) }),
       },
     });
-  if (query)
+    whereClauseStarted = true;
+  }
+
+  if (query) {
     q.raw(
       `${
-        hasWhereClause ? ' AND ' : 'WHERE '
+        whereClauseStarted ? ' AND ' : 'WHERE '
       } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
       { query }
     );
-
-  if (userId && filter?.consumedByUser === true) {
-    q.raw(
-      `${
-        hasWhereClause || query ? ' AND ' : 'WHERE '
-      } EXISTS { (u)-[consumed_r:CONSUMED]->(r) WHERE exists(consumed_r.consumedAt) }`
-    );
+    whereClauseStarted = true;
   }
 
-  if (userId && filter?.consumedByUser === false) {
-    q.raw(
-      `${
-        hasWhereClause || query ? ' AND ' : ' WHERE '
-      } (NOT (u)-[:CONSUMED]->(r) OR EXISTS { (u)-[consumed_r:CONSUMED]->(r)  where consumed_r.consumedAt IS NULL })`
-    );
+  if (userId) {
+    if (filter.consumedByUser === true) {
+      q.raw(
+        `${
+          whereClauseStarted ? ' AND ' : 'WHERE '
+        } EXISTS { (u)-[consumed_r:CONSUMED]->(r) WHERE exists(consumed_r.consumedAt) }`
+      );
+    } else {
+      q.raw(
+        `${
+          whereClauseStarted ? ' AND ' : 'WHERE '
+        } (NOT (u)-[:CONSUMED]->(r) OR EXISTS { (u)-[consumed_r:CONSUMED]->(r)  where consumed_r.consumedAt IS NULL })`
+      );
+    }
   }
 
   if (sortingType === APIDomainResourcesSortingType.Recommended) {
@@ -195,7 +203,7 @@ export const getDomainResources = async (
       ]);
     else q.with(['DISTINCT r', 'count(cc) as ccc', 'count(distinct mpc) as cmpc']);
 
-    if (userId) {
+    if (userId && filter.consumedByUser === false) {
       q.raw(`CALL {
         WITH r,u
           MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
@@ -231,6 +239,137 @@ export const getDomainResources = async (
   const r = await q.run();
   const resources = r.map(i => i.r.properties);
   return resources;
+};
+
+interface DomainLearningMaterialsFilter {
+  resourceTypeIn?: ResourceType[];
+  completedByUser: Boolean;
+  learningMaterialTypeIn?: LearningMaterialType[];
+}
+
+export const getDomainLearningMaterials = async (
+  domainId: string,
+  userId: string | undefined,
+  {
+    query,
+    filter,
+    sortingType,
+  }: { query?: string; filter: DomainLearningMaterialsFilter; sortingType: APIDomainLearningMaterialsSortingType }
+): Promise<Resource[]> => {
+  const lmLabel =
+    !!filter.learningMaterialTypeIn && filter.learningMaterialTypeIn.length === 1
+      ? filter.learningMaterialTypeIn[0]
+      : LearningMaterialLabel;
+
+  const q = new Query(neo4jQb);
+  if (userId) q.matchNode('u', 'User', { _id: userId });
+
+  q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('lm', lmLabel)]);
+
+  let whereClauseStarted = false;
+  if (filter.resourceTypeIn) {
+    q.where([
+      {
+        'lm.type': inArray(filter.resourceTypeIn),
+      },
+      not([{ lm: hasLabel(ResourceLabel) }]),
+    ]);
+    whereClauseStarted = true;
+  }
+
+  if (query) {
+    q.raw(
+      `${
+        whereClauseStarted ? ' AND ' : 'WHERE '
+      } (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR toLower(lm.type) CONTAINS toLower($query))`,
+      { query }
+    );
+    whereClauseStarted = true;
+  }
+
+  if (userId) {
+    if (filter.completedByUser) {
+      q.raw(
+        `${
+          whereClauseStarted ? ' AND ' : 'WHERE '
+        } (NOT lm:${ResourceLabel} OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm) WHERE exists(consumed_r.consumedAt) })` // TODO add completion for lps
+      );
+    } else {
+      q.raw(
+        `${
+          whereClauseStarted ? ' AND ' : ' WHERE '
+        } (NOT lm:${ResourceLabel} OR (NOT (u)-[:CONSUMED]->(lm) OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm)  where consumed_r.consumedAt IS NULL }))`
+      );
+    }
+  }
+
+  if (sortingType === APIDomainLearningMaterialsSortingType.Recommended) {
+    q.optionalMatch([node('lm'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
+    q.optionalMatch([node('cc'), relation('out', 'dpc', 'REFERENCES', [0, 5]), node('mpc', 'Concept')]);
+    q.raw('WHERE NOT (lm)-[:COVERS]->(mpc)');
+    if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
+    if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
+    if (userId)
+      q.with([
+        'DISTINCT lm',
+        'CASE WHEN lm:LearningPath THEN 1 ELSE 0 END as isLearningPath',
+        'u',
+        'count(cc) as ccc',
+        'count(distinct mpc) as cmpc',
+        '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
+      ]);
+    else
+      q.with([
+        'DISTINCT lm',
+        'CASE WHEN lm:LearningPath THEN 1 ELSE 0 END as isLearningPath',
+        'count(cc) as ccc',
+        'count(distinct mpc) as cmpc',
+      ]);
+
+    if (userId && filter.completedByUser === false) {
+      // can avoid doing that for lps
+      // undefined case: cprnc = 0 and npr =0
+      q.raw(`CALL {
+        WITH lm,u
+          MATCH (nextToConsume:${lmLabel})-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
+          WHERE (NOT (u)-[:CONSUMED]->(nextToConsume) OR EXISTS { (u)-[consumed_r:CONSUMED]->(nextToConsume)  where consumed_r.consumedAt IS NULL })
+          AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
+          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((lm)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
+          return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+      }`);
+      q.return([
+        'lm',
+        'isLearningPath',
+        'cmpc',
+        ' usefulness',
+        `sign(ccc)*usefulness/(0.1+cmpc)  + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) + isLearningPath*${recommendationEngineConfig.learningMaterials.learningPathBonus} as score`,
+      ]);
+    } else {
+      // when not logged in, find the first one of series, return cprnc for each of them in order to order them
+      q.raw(`CALL {
+        WITH lm
+          MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
+          WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
+          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
+          return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+      }`);
+      q.return([
+        'lm',
+        'cmpc',
+        `sign(ccc)/(0.1+cmpc) -1*cprnc + isLearningPath*${recommendationEngineConfig.learningMaterials.learningPathBonus} as score`,
+      ]);
+    }
+    q.orderBy('score', 'DESC');
+  } else {
+    q.match([node('lm'), relation('in', 'createdLearningMaterial', 'CREATED'), node('', 'User')]);
+    q.return(['lm']);
+    q.orderBy('createdLearningMaterial.createdAt', 'DESC');
+  }
+
+  const r = await q.run();
+  // console.log(r.map(i => ({ name: i.lm.properties.name, score: i.score, isLearningPath: i.isLearningPath })));
+  const learningMaterials = r.map(i => i.lm.properties);
+  return learningMaterials;
 };
 
 export const attachDomainBelongsToDomain = (

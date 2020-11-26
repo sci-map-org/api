@@ -556,6 +556,7 @@ export type APIDomain = {
   concepts?: Maybe<APIDomainConceptsResults>;
   description?: Maybe<Scalars['String']>;
   key: Scalars['String'];
+  learningMaterials?: Maybe<APIDomainLearningMaterialsResults>;
   learningPaths?: Maybe<APIDomainLearningPathsResults>;
   name: Scalars['String'];
   parentDomains?: Maybe<Array<APIDomainBelongsToDomainItem>>;
@@ -566,6 +567,11 @@ export type APIDomain = {
 
 export type APIDomainConceptsArgs = {
   options: APIDomainConceptsOptions;
+};
+
+
+export type APIDomainLearningMaterialsArgs = {
+  options: APIDomainLearningMaterialsOptions;
 };
 
 
@@ -644,12 +650,12 @@ export enum APIDomainResourcesSortingType {
 }
 
 export type APIDomainResourcesFilterOptions = {
-  consumedByUser?: Maybe<Scalars['Boolean']>;
+  consumedByUser: Scalars['Boolean'];
   resourceTypeIn?: Maybe<Array<ResourceType>>;
 };
 
 export type APIDomainResourcesOptions = {
-  filter?: Maybe<APIDomainResourcesFilterOptions>;
+  filter: APIDomainResourcesFilterOptions;
   /** pagination: PaginationOptions! # not required yet */
   query?: Maybe<Scalars['String']>;
   sortingType: APIDomainResourcesSortingType;
@@ -660,6 +666,30 @@ export type APIDomainResourcesResults = {
   items: Array<APIResource>;
 };
 
+/** learning materials */
+export enum APIDomainLearningMaterialsSortingType {
+  Newest = 'newest',
+  Recommended = 'recommended'
+}
+
+export type APIDomainLearningMaterialsFilterOptions = {
+  completedByUser: Scalars['Boolean'];
+  learningMaterialTypeIn?: Maybe<Array<APILearningMaterialType>>;
+  resourceTypeIn?: Maybe<Array<ResourceType>>;
+};
+
+export type APIDomainLearningMaterialsOptions = {
+  filter: APIDomainLearningMaterialsFilterOptions;
+  query?: Maybe<Scalars['String']>;
+  sortingType: APIDomainLearningMaterialsSortingType;
+};
+
+export type APIDomainLearningMaterialsResults = {
+   __typename?: 'DomainLearningMaterialsResults';
+  items: Array<APILearningMaterial>;
+};
+
+/** search domains */
 export type APISearchDomainsOptions = {
   pagination: APIPaginationOptions;
   query?: Maybe<Scalars['String']>;
@@ -701,6 +731,11 @@ export type APILearningMaterial = {
 export type APILearningMaterialCoveredConceptsArgs = {
   options: APILearningMaterialCoveredConceptsOptions;
 };
+
+export enum APILearningMaterialType {
+  LearningPath = 'LearningPath',
+  Resource = 'Resource'
+}
 
 export type APILearningMaterialCoveredConceptsOptions = {
   pagination?: Maybe<APIPaginationOptions>;
@@ -1203,12 +1238,17 @@ export type APIResolversTypes = ResolversObject<{
   DomainResourcesFilterOptions: APIDomainResourcesFilterOptions,
   DomainResourcesOptions: APIDomainResourcesOptions,
   DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
+  DomainLearningMaterialsSortingType: APIDomainLearningMaterialsSortingType,
+  DomainLearningMaterialsFilterOptions: APIDomainLearningMaterialsFilterOptions,
+  DomainLearningMaterialsOptions: APIDomainLearningMaterialsOptions,
+  DomainLearningMaterialsResults: ResolverTypeWrapper<APIDomainLearningMaterialsResults>,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
   CreateDomainPayload: APICreateDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
   LearningMaterial: APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
+  LearningMaterialType: APILearningMaterialType,
   LearningMaterialCoveredConceptsOptions: APILearningMaterialCoveredConceptsOptions,
   LearningMaterialCoveredConceptsResults: ResolverTypeWrapper<APILearningMaterialCoveredConceptsResults>,
   LearningMaterialCoveredConceptsByDomainItem: ResolverTypeWrapper<APILearningMaterialCoveredConceptsByDomainItem>,
@@ -1312,12 +1352,17 @@ export type APIResolversParentTypes = ResolversObject<{
   DomainResourcesFilterOptions: APIDomainResourcesFilterOptions,
   DomainResourcesOptions: APIDomainResourcesOptions,
   DomainResourcesResults: APIDomainResourcesResults,
+  DomainLearningMaterialsSortingType: APIDomainLearningMaterialsSortingType,
+  DomainLearningMaterialsFilterOptions: APIDomainLearningMaterialsFilterOptions,
+  DomainLearningMaterialsOptions: APIDomainLearningMaterialsOptions,
+  DomainLearningMaterialsResults: APIDomainLearningMaterialsResults,
   SearchDomainsOptions: APISearchDomainsOptions,
   SearchDomainsResult: APISearchDomainsResult,
   CreateDomainPayload: APICreateDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: APIDeleteDomainResponse,
   LearningMaterial: APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
+  LearningMaterialType: APILearningMaterialType,
   LearningMaterialCoveredConceptsOptions: APILearningMaterialCoveredConceptsOptions,
   LearningMaterialCoveredConceptsResults: APILearningMaterialCoveredConceptsResults,
   LearningMaterialCoveredConceptsByDomainItem: APILearningMaterialCoveredConceptsByDomainItem,
@@ -1514,6 +1559,7 @@ export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIR
   concepts?: Resolver<Maybe<APIResolversTypes['DomainConceptsResults']>, ParentType, ContextType, RequireFields<APIDomainConceptsArgs, 'options'>>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  learningMaterials?: Resolver<Maybe<APIResolversTypes['DomainLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APIDomainLearningMaterialsArgs, 'options'>>,
   learningPaths?: Resolver<Maybe<APIResolversTypes['DomainLearningPathsResults']>, ParentType, ContextType, RequireFields<APIDomainLearningPathsArgs, 'options'>>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   parentDomains?: Resolver<Maybe<Array<APIResolversTypes['DomainBelongsToDomainItem']>>, ParentType, ContextType>,
@@ -1546,6 +1592,11 @@ export type APIDomainBelongsToDomainItemResolvers<ContextType = APIContext, Pare
 
 export type APIDomainResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainResourcesResults'] = APIResolversParentTypes['DomainResourcesResults']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIDomainLearningMaterialsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainLearningMaterialsResults'] = APIResolversParentTypes['DomainLearningMaterialsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['LearningMaterial']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1805,6 +1856,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,
   DomainBelongsToDomainItem?: APIDomainBelongsToDomainItemResolvers<ContextType>,
   DomainResourcesResults?: APIDomainResourcesResultsResolvers<ContextType>,
+  DomainLearningMaterialsResults?: APIDomainLearningMaterialsResultsResolvers<ContextType>,
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   LearningMaterial?: APILearningMaterialResolvers,

@@ -6,6 +6,7 @@ type Domain {
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
   resources(options: DomainResourcesOptions!): DomainResourcesResults
   learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
+  learningMaterials(options: DomainLearningMaterialsOptions!): DomainLearningMaterialsResults
   subDomains: [DomainBelongsToDomainItem!]
   parentDomains: [DomainBelongsToDomainItem!]
 }
@@ -72,20 +73,43 @@ enum DomainResourcesSortingType {
 
 input DomainResourcesFilterOptions {
   resourceTypeIn: [ResourceType!]
-  consumedByUser: Boolean
+  consumedByUser: Boolean!
 }
 
 input DomainResourcesOptions {
   sortingType: DomainResourcesSortingType!
   # pagination: PaginationOptions! # not required yet
   query: String
-  filter: DomainResourcesFilterOptions
+  filter: DomainResourcesFilterOptions!
 }
 
 type DomainResourcesResults {
   items: [Resource!]!
 }
 
+# learning materials
+enum DomainLearningMaterialsSortingType {
+  recommended
+  newest
+}
+
+input DomainLearningMaterialsFilterOptions {
+  resourceTypeIn: [ResourceType!]
+  completedByUser: Boolean!
+  learningMaterialTypeIn: [LearningMaterialType!]
+}
+
+input DomainLearningMaterialsOptions {
+  sortingType: DomainLearningMaterialsSortingType!
+  query: String
+  filter: DomainLearningMaterialsFilterOptions!
+}
+
+type DomainLearningMaterialsResults {
+  items: [LearningMaterial!]!
+}
+
+# search domains
 input SearchDomainsOptions {
   query: String
   pagination: PaginationOptions!

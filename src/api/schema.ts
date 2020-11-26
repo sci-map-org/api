@@ -51,6 +51,7 @@ import {
   getDomainSubDomainsResolver,
   getDomainParentDomainsResolver,
   getDomainLearningPathsResolver,
+  getDomainLearningMaterialsResolver,
 } from './resolvers/domains.resolvers';
 import {
   addComplementaryResourceToLearningPathResolver,
@@ -204,6 +205,7 @@ const resolvers: APIResolvers<APIContext> = {
     subDomains: getDomainSubDomainsResolver,
     parentDomains: getDomainParentDomainsResolver,
     learningPaths: getDomainLearningPathsResolver,
+    learningMaterials: getDomainLearningMaterialsResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,
