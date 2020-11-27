@@ -16,7 +16,13 @@ import {
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';
-import { APIDomain, APIDomainResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
+import {
+  APIDomain,
+  APIDomainLearningMaterialsSortingType,
+  APIDomainResolvers,
+  APIMutationResolvers,
+  APIQueryResolvers,
+} from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
@@ -92,6 +98,13 @@ export const getDomainLearningMaterialsResolver: APIDomainResolvers['learningMat
 ) => {
   if (!user && options.filter.completedByUser === true)
     throw new UserInputError('getDomainLearningMaterials : no user yet completedByUser filter is set to true');
+  if (
+    options.sortingType === APIDomainLearningMaterialsSortingType.Recommended &&
+    options.filter.completedByUser === undefined
+  )
+    throw new UserInputError(
+      'getDomainLearningMaterials : when using recommendations, completedByUser Filter must be set'
+    );
   return {
     items: (await getDomainLearningMaterials(domain._id, user?._id, nullToUndefined(options))).map(toAPIResource),
   };

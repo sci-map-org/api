@@ -265,43 +265,30 @@ export const getDomainLearningMaterials = async (
 
   q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('lm', lmLabel)]);
 
-  let whereClauseStarted = false;
-  if (filter.resourceTypeIn) {
-    q.where([
-      {
-        'lm.type': inArray(filter.resourceTypeIn),
-      },
-      not([{ lm: hasLabel(ResourceLabel) }]),
-    ]);
-    whereClauseStarted = true;
-  }
+  q.raw(`WHERE (NOT lm:${LearningPathLabel} OR lm.public = true)`);
 
-  q.raw(`${whereClauseStarted ? ' AND ' : 'WHERE '} (NOT lm:${LearningPathLabel} OR lm.public = true)`);
-  whereClauseStarted = true; // clearly not pretty but will be refactored soon anyway
+  if (filter.resourceTypeIn) {
+    q.raw(`AND (NOT lm:${ResourceLabel} OR lm.type IN $resourceTypeIn)`, {
+      resourceTypeIn: filter.resourceTypeIn,
+    });
+  }
 
   if (query) {
     q.raw(
-      `${
-        whereClauseStarted ? ' AND ' : 'WHERE '
-      } (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR toLower(lm.type) CONTAINS toLower($query))`,
+      ` AND (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR toLower(lm.type) CONTAINS toLower($query))`,
       { query }
     );
-    whereClauseStarted = true;
   }
 
   if (userId) {
     if (filter.completedByUser) {
       q.raw(
-        `${
-          whereClauseStarted ? ' AND ' : 'WHERE '
-        } ((NOT lm:${ResourceLabel} OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm) WHERE exists(consumed_r.consumedAt) }) 
+        ` AND ((NOT lm:${ResourceLabel} OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm) WHERE exists(consumed_r.consumedAt) }) 
         AND (NOT lm:${LearningPathLabel} OR EXISTS { (u)-[started_r:STARTED]->(lm) WHERE exists(started_r.completedAt) }))` // TODO add completion for lps
       );
     } else {
       q.raw(
-        `${
-          whereClauseStarted ? ' AND ' : ' WHERE '
-        } (NOT lm:${ResourceLabel} OR (NOT (u)-[:CONSUMED]->(lm) OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm)  where consumed_r.consumedAt IS NULL }))
+        ` AND (NOT lm:${ResourceLabel} OR (NOT (u)-[:CONSUMED]->(lm) OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm)  where consumed_r.consumedAt IS NULL }))
         AND (NOT lm:${LearningPathLabel} OR (NOT (u)-[:STARTED]->(lm) OR EXISTS { (u)-[started_r:STARTED]->(lm)  where started_r.completedAt IS NULL }))`
       );
     }
