@@ -38,7 +38,7 @@ type Resource implements LearningMaterial {
   upvotes: Int
   rating: Float
   description: String
-  durationMs: Int
+  durationSeconds: Int
   consumed: ConsumedResource
   creator: User
   coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
@@ -79,7 +79,7 @@ input CreateResourcePayload {
   mediaType: ResourceMediaType!
   url: String!
   description: String
-  durationMs: Int
+  durationSeconds: Int
   tags: [String!] # ?
 }
 
@@ -89,7 +89,7 @@ input UpdateResourcePayload {
   mediaType: ResourceMediaType
   url: String
   description: String
-  durationMs: Int
+  durationSeconds: Int
 }
 
 input SetResourcesConsumedPayloadResourcesField {

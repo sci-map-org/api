@@ -46,7 +46,7 @@ export interface CreateLearningPathData {
   key: string;
   description?: string;
   public?: boolean;
-  durationMs?: number;
+  durationSeconds?: number;
 }
 
 export interface UpdateLearningPathData {
@@ -54,7 +54,7 @@ export interface UpdateLearningPathData {
   key?: string;
   description?: string;
   public?: boolean;
-  durationMs?: number | null;
+  durationSeconds?: number | null;
 }
 
 export const createLearningPath = (userId: string, data: CreateLearningPathData): Promise<LearningPath> =>

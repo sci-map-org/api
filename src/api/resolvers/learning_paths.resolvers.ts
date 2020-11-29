@@ -49,7 +49,10 @@ export const updateLearningPathResolver: APIMutationResolvers['updateLearningPat
     user.role === UserRole.ADMIN ? await findLearningPath({ _id }) : await findLearningPathCreatedBy(user._id, { _id });
   if (!learningPath) throw new NotFoundError('LearningPath', _id);
 
-  return await updateFullLearningPath(_id, { ...nullToUndefined(payload), durationMs: payload.durationMs });
+  return await updateFullLearningPath(_id, {
+    ...nullToUndefined(payload),
+    durationSeconds: payload.durationSeconds,
+  });
 };
 
 export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPath'] = async (

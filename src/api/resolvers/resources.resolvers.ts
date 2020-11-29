@@ -74,7 +74,7 @@ export const updateResourceResolver: APIMutationResolvers['updateResource'] = as
   if (!user) throw new UnauthenticatedError('Must be logged in to update a resource');
   const updatedResource = await updateResource(
     { _id },
-    { ...nullToUndefined(payload), durationMs: payload.durationMs }
+    { ...nullToUndefined(payload), durationSeconds: payload.durationSeconds }
   );
   if (!updatedResource) throw new NotFoundError('Resource', _id, 'id');
   return toAPIResource(updatedResource);

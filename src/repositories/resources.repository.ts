@@ -72,7 +72,7 @@ interface UpdateResourceData {
   mediaType?: ResourceMediaType;
   url?: string;
   description?: string;
-  durationMs?: number | null;
+  durationSeconds?: number | null;
 }
 
 export const createResource = (user: { _id: string }, data: CreateResourceData): Promise<Resource> =>

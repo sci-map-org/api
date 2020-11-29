@@ -793,7 +793,7 @@ export type APILearningPath = APILearningMaterial & {
   createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   domains?: Maybe<Array<APIDomain>>;
-  durationMs?: Maybe<Scalars['Int']>;
+  durationSeconds?: Maybe<Scalars['Int']>;
   key: Scalars['String'];
   name: Scalars['String'];
   public: Scalars['Boolean'];
@@ -846,7 +846,7 @@ export type APILearningPathStarted = {
 
 export type APICreateLearningPathPayload = {
   description?: Maybe<Scalars['String']>;
-  durationMs?: Maybe<Scalars['Int']>;
+  durationSeconds?: Maybe<Scalars['Int']>;
   key?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   public?: Maybe<Scalars['Boolean']>;
@@ -873,7 +873,7 @@ export type APIComplementaryResourceUpdatedResult = {
 
 export type APIUpdateLearningPathPayload = {
   description?: Maybe<Scalars['String']>;
-  durationMs?: Maybe<Scalars['Int']>;
+  durationSeconds?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
   public?: Maybe<Scalars['Boolean']>;
   resourceItems?: Maybe<Array<APICreateLearningPathResourceItem>>;
@@ -910,7 +910,7 @@ export type APIResource = APILearningMaterial & {
   creator?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   domains?: Maybe<Array<APIDomain>>;
-  durationMs?: Maybe<Scalars['Int']>;
+  durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
   nextResource?: Maybe<APIResource>;
@@ -957,7 +957,7 @@ export type APIResourceCoveredConceptsByDomainItem = {
 
 export type APICreateResourcePayload = {
   description?: Maybe<Scalars['String']>;
-  durationMs?: Maybe<Scalars['Int']>;
+  durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
   tags?: Maybe<Array<Scalars['String']>>;
@@ -967,7 +967,7 @@ export type APICreateResourcePayload = {
 
 export type APIUpdateResourcePayload = {
   description?: Maybe<Scalars['String']>;
-  durationMs?: Maybe<Scalars['Int']>;
+  durationSeconds?: Maybe<Scalars['Int']>;
   mediaType?: Maybe<ResourceMediaType>;
   name?: Maybe<Scalars['String']>;
   type?: Maybe<ResourceType>;
@@ -1683,7 +1683,7 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domains?: Resolver<Maybe<Array<APIResolversTypes['Domain']>>, ParentType, ContextType>,
-  durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
+  durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   public?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
@@ -1759,7 +1759,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   creator?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domains?: Resolver<Maybe<Array<APIResolversTypes['Domain']>>, ParentType, ContextType>,
-  durationMs?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
+  durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   nextResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>,

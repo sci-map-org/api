@@ -4,7 +4,7 @@ type LearningPath implements LearningMaterial {
   name: String!
   public: Boolean!
   description: String
-  durationMs: Int
+  durationSeconds: Int
   resourceItems: [LearningPathResourceItem!]
   complementaryResources: [Resource!]
   tags: [LearningMaterialTag!]
@@ -48,7 +48,7 @@ input CreateLearningPathPayload {
   key: String
   description: String
   public: Boolean
-  durationMs: Int
+  durationSeconds: Int
   tags: [String!]
   resourceItems: [CreateLearningPathResourceItem!]!
 }
@@ -72,7 +72,7 @@ input UpdateLearningPathPayload {
   name: String
   public: Boolean
   description: String
-  durationMs: Int
+  durationSeconds: Int
   resourceItems: [CreateLearningPathResourceItem!]
 }
 

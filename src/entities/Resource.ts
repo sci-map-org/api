@@ -1,4 +1,4 @@
-import { BaseLearningMaterial } from "./LearningMaterial";
+import { BaseLearningMaterial } from './LearningMaterial';
 
 export const ResourceLabel = 'Resource';
 
@@ -34,5 +34,5 @@ export interface Resource extends BaseLearningMaterial {
   mediaType: ResourceMediaType;
   url: string; // optional in the future ?
   description?: string;
-  durationMs?: number;
+  durationSeconds?: number;
 }

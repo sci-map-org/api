@@ -23,7 +23,7 @@ interface CreateFullLearningPathData {
   name: string;
   key?: string;
   description?: string;
-  durationMs?: number;
+  durationSeconds?: number;
   resourceItems: LearningPathResourceItem[];
   tags?: string[];
 }
@@ -31,7 +31,7 @@ interface CreateFullLearningPathData {
 interface UpdateFullLearningPathData {
   name?: string;
   description?: string;
-  durationMs?: number | null;
+  durationSeconds?: number | null;
   resourceItems?: LearningPathResourceItem[];
 }
 
