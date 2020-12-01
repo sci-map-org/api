@@ -122,6 +122,11 @@ import {
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
+import {
+  createLearningGoalResolver,
+  getLearningGoalByKeyResolver,
+  updateLearningGoalResolver,
+} from './resolvers/learning_goals.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -174,6 +179,8 @@ const resolvers: APIResolvers<APIContext> = {
     startLearningPath: startLearningPathResolver,
     completeLearningPath: completeLearningPathResolver,
     rateLearningMaterial: rateLearningMaterialResolver,
+    createLearningGoal: createLearningGoalResolver,
+    updateLearningGoal: updateLearningGoalResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -189,6 +196,7 @@ const resolvers: APIResolvers<APIContext> = {
     searchResources: searchResourcesResolver,
     getLearningPath: getLearningPathResolver,
     getLearningPathByKey: getLearningPathByKeyResolver,
+    getLearningGoalByKey: getLearningGoalByKeyResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

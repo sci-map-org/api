@@ -1,0 +1,33 @@
+type LearningGoal {
+  _id: String!
+  key: String!
+  name: String!
+  description: String
+}
+
+input CreateLearningGoalPayload {
+  name: String!
+  key: String
+  description: String
+}
+
+input UpdateLearningGoalPayload {
+  name: String
+  key: String
+  description: String
+}
+
+type DeleteLearningGoalMutationResult {
+  _id: String!
+  success: Boolean!
+}
+
+type Query {
+  getLearningGoalByKey(key: String!): LearningGoal!
+}
+
+type Mutation {
+  createLearningGoal(payload: CreateLearningGoalPayload!): LearningGoal!
+  updateLearningGoal(_id: String!, payload: UpdateLearningGoalPayload!): LearningGoal!
+  deleteLearningGoal(_id: String!): DeleteLearningGoalMutationResult!
+}

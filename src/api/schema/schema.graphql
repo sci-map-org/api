@@ -8,6 +8,7 @@
 # import Query.*, Mutation.* from "Resource.graphql"
 # import Query.*, Mutation.* from "Concept.graphql"
 # import Query.*, Mutation.* from "LearningPath.graphql"
+# import Query.*, Mutation.* from "LearningGoal.graphql"
 # import Mutation.* from "./relationships/ConceptBelongsToDomain.graphql"
 # import Mutation.* from "./relationships/ConceptBelongsToConcept.graphql"
 # import Mutation.* from "./relationships/DomainBelongsToDomain.graphql"
