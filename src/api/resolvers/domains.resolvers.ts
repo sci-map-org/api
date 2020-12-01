@@ -96,8 +96,7 @@ export const getDomainLearningMaterialsResolver: APIDomainResolvers['learningMat
   { options },
   { user }
 ) => {
-  if (!user && options.filter.completedByUser === true)
-    throw new UserInputError('getDomainLearningMaterials : no user yet completedByUser filter is set to true');
+  if (!user && options.filter.completedByUser === true) return { items: [] };
   if (
     options.sortingType === APIDomainLearningMaterialsSortingType.Recommended &&
     options.filter.completedByUser === undefined
