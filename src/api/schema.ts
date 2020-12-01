@@ -124,6 +124,7 @@ import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
 import {
   createLearningGoalResolver,
+  deleteLearningGoalResolver,
   getLearningGoalByKeyResolver,
   updateLearningGoalResolver,
 } from './resolvers/learning_goals.resolvers';
@@ -181,6 +182,7 @@ const resolvers: APIResolvers<APIContext> = {
     rateLearningMaterial: rateLearningMaterialResolver,
     createLearningGoal: createLearningGoalResolver,
     updateLearningGoal: updateLearningGoalResolver,
+    deleteLearningGoal: deleteLearningGoalResolver,
   },
   Query: {
     currentUser: currentUserResolver,

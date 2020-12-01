@@ -2,6 +2,7 @@ import { UserInputError } from 'apollo-server-koa';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   createLearningGoal,
+  deleteLearningGoal,
   findLearningGoal,
   findLearningGoalCreatedBy,
   updateLearningGoal,
@@ -39,6 +40,16 @@ export const updateLearningGoalResolver: APIMutationResolvers['updateLearningGoa
   return updatedLearningGoal;
 };
 
+export const deleteLearningGoalResolver: APIMutationResolvers['deleteLearningGoal'] = async (
+  _parent,
+  { _id },
+  { user }
+) => {
+  restrictAccess('admin', user, 'Must be logged in and an admin to delete a learning goal');
+  const { deletedCount } = await deleteLearningGoal({ _id });
+  if (!deletedCount) throw new NotFoundError('LearningGoal', _id, 'id');
+  return { _id, success: true };
+};
 export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByKey'] = async (_, { key }) => {
   const learningGoal = await findLearningGoal({ key });
   if (!learningGoal) throw new NotFoundError('LearningGoal', key, 'key');

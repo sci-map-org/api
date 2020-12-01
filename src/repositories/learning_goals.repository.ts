@@ -6,7 +6,7 @@ import {
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
 import { User, UserLabel } from '../entities/User';
-import { createRelatedNode, findOne, getOptionalRelatedNode, updateOne } from './util/abstract_graph_repo';
+import { createRelatedNode, deleteOne, findOne, getOptionalRelatedNode, updateOne } from './util/abstract_graph_repo';
 
 interface CreateLearningGoalData {
   name: string;
@@ -51,6 +51,10 @@ export const findLearningGoalCreatedBy = (
     relationship: { label: UserCreatedLearningGoalLabel, direction: 'OUT' },
     destinationNode: { label: LearningGoalLabel, filter: learningGoalFilter },
   }).then(result => (result ? result.destinationNode : null));
+
+export const deleteLearningGoal = deleteOne<LearningGoal, { _id: string } | { key: string }>({
+  label: LearningGoalLabel,
+});
 
 function generateLearningGoalKey(name: string) {
   return shortid.generate() + '_' + generateUrlKey(name);
