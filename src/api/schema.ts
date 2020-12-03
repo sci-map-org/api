@@ -52,6 +52,7 @@ import {
   getDomainParentDomainsResolver,
   getDomainLearningPathsResolver,
   getDomainLearningMaterialsResolver,
+  getDomainLearningGoalsResolver,
 } from './resolvers/domains.resolvers';
 import {
   addComplementaryResourceToLearningPathResolver,
@@ -123,10 +124,14 @@ import {
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
 import {
+  addLearningGoalToDomainResolver,
+  attachLearningGoalToDomainResolver,
   createLearningGoalResolver,
   deleteLearningGoalResolver,
+  detachLearningGoalFromDomainResolver,
   getLearningGoalByKeyResolver,
   updateLearningGoalResolver,
+  getLearningGoalDomainsResolver,
 } from './resolvers/learning_goals.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
@@ -183,6 +188,9 @@ const resolvers: APIResolvers<APIContext> = {
     createLearningGoal: createLearningGoalResolver,
     updateLearningGoal: updateLearningGoalResolver,
     deleteLearningGoal: deleteLearningGoalResolver,
+    addLearningGoalToDomain: addLearningGoalToDomainResolver,
+    attachLearningGoalToDomain: attachLearningGoalToDomainResolver,
+    detachLearningGoalFromDomain: detachLearningGoalFromDomainResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -218,6 +226,7 @@ const resolvers: APIResolvers<APIContext> = {
     parentDomains: getDomainParentDomainsResolver,
     learningPaths: getDomainLearningPathsResolver,
     learningMaterials: getDomainLearningMaterialsResolver,
+    learningGoals: getDomainLearningGoalsResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,
@@ -255,6 +264,9 @@ const resolvers: APIResolvers<APIContext> = {
     started: getLearningPathStartedResolver,
     createdBy: getLearningPathCreatedByResolver,
     startedBy: getLearningPathStartedByResolver,
+  },
+  LearningGoal: {
+    domains: getLearningGoalDomainsResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,

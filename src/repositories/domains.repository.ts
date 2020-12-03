@@ -5,6 +5,7 @@ import { APIDomainLearningMaterialsSortingType, APIDomainResourcesSortingType } 
 import { recommendationEngineConfig } from '../config';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
+import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
@@ -13,6 +14,10 @@ import {
   DomainBelongsToDomain,
   DomainBelongsToDomainLabel,
 } from '../entities/relationships/DomainBelongsToDomain';
+import {
+  LearningGoalBelongsToDomain,
+  LearningGoalBelongsToDomainLabel,
+} from '../entities/relationships/LearningGoalBelongsToDomain';
 import {
   LearningMaterialBelongsToDomain,
   LearningMaterialBelongsToDomainLabel,
@@ -428,3 +433,18 @@ export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =
 
 export const getDomainParentDomains = (filter: { _id: string } | { key: string }) =>
   getDomainBelongsToDomains(filter, 'OUT');
+
+export const getDomainLearningGoals = (domainId: string): Promise<LearningGoal[]> =>
+  getRelatedNodes<Domain, LearningGoalBelongsToDomain, LearningGoal>({
+    originNode: {
+      label: DomainLabel,
+      filter: { _id: domainId },
+    },
+    relationship: {
+      label: LearningGoalBelongsToDomainLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: LearningGoalLabel,
+    },
+  }).then(items => items.map(item => item.destinationNode));

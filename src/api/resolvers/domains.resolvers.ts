@@ -8,6 +8,7 @@ import {
   detachDomainBelongsToDomain,
   findDomain,
   getDomainConcepts,
+  getDomainLearningGoals,
   getDomainLearningMaterials,
   getDomainParentDomains,
   getDomainPublicLearningPaths,
@@ -137,4 +138,9 @@ export const getDomainSubDomainsResolver: APIDomainResolvers['subDomains'] = asy
 };
 export const getDomainParentDomainsResolver: APIDomainResolvers['parentDomains'] = async domain => {
   return getDomainParentDomains({ _id: domain._id });
+};
+
+export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals'] = async domain => {
+  const learningGoals = await getDomainLearningGoals(domain._id);
+  return learningGoals.map(learningGoal => ({ learningGoal }));
 };

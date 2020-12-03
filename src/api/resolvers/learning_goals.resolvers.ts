@@ -1,14 +1,17 @@
 import { UserInputError } from 'apollo-server-koa';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  attachLearningGoalToDomain,
   createLearningGoal,
   deleteLearningGoal,
+  detachLearningGoalFromDomain,
   findLearningGoal,
   findLearningGoalCreatedBy,
+  getLearningGoalDomains,
   updateLearningGoal,
 } from '../../repositories/learning_goals.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import { APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
+import { APILearningGoalResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 
@@ -40,6 +43,32 @@ export const updateLearningGoalResolver: APIMutationResolvers['updateLearningGoa
   return updatedLearningGoal;
 };
 
+export const addLearningGoalToDomainResolver: APIMutationResolvers['addLearningGoalToDomain'] = async (
+  _,
+  { domainId, payload },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to add a learning goal');
+  const createdLearningGoal = await createLearningGoal({ _id: user._id }, nullToUndefined(payload));
+  return await attachLearningGoalToDomain(createdLearningGoal._id, domainId);
+};
+export const attachLearningGoalToDomainResolver: APIMutationResolvers['attachLearningGoalToDomain'] = async (
+  _,
+  { domainId, learningGoalId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to attach a learning goal to a domain');
+  return await attachLearningGoalToDomain(learningGoalId, domainId);
+};
+export const detachLearningGoalFromDomainResolver: APIMutationResolvers['detachLearningGoalFromDomain'] = async (
+  _,
+  { domainId, learningGoalId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to detach a learning goal from a domain');
+  return await detachLearningGoalFromDomain(learningGoalId, domainId);
+};
+
 export const deleteLearningGoalResolver: APIMutationResolvers['deleteLearningGoal'] = async (
   _parent,
   { _id },
@@ -54,4 +83,9 @@ export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByK
   const learningGoal = await findLearningGoal({ key });
   if (!learningGoal) throw new NotFoundError('LearningGoal', key, 'key');
   return learningGoal;
+};
+
+export const getLearningGoalDomainsResolver: APILearningGoalResolvers['domains'] = async learningGoal => {
+  const domains = await getLearningGoalDomains(learningGoal._id);
+  return domains.map(domain => ({ domain }));
 };

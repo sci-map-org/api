@@ -1,12 +1,26 @@
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
+import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
+import {
+  LearningGoalBelongsToDomain,
+  LearningGoalBelongsToDomainLabel,
+} from '../entities/relationships/LearningGoalBelongsToDomain';
 import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
 import { User, UserLabel } from '../entities/User';
-import { createRelatedNode, deleteOne, findOne, getOptionalRelatedNode, updateOne } from './util/abstract_graph_repo';
+import {
+  attachUniqueNodes,
+  createRelatedNode,
+  deleteOne,
+  detachUniqueNodes,
+  findOne,
+  getOptionalRelatedNode,
+  getRelatedNodes,
+  updateOne,
+} from './util/abstract_graph_repo';
 
 interface CreateLearningGoalData {
   name: string;
@@ -55,6 +69,42 @@ export const findLearningGoalCreatedBy = (
 export const deleteLearningGoal = deleteOne<LearningGoal, { _id: string } | { key: string }>({
   label: LearningGoalLabel,
 });
+
+export const attachLearningGoalToDomain = (
+  learningGoalId: string,
+  domainId: string
+): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
+  attachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
+    originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+    relationship: { label: LearningGoalBelongsToDomainLabel, onCreateProps: {} },
+    destinationNode: { label: DomainLabel, filter: { _id: domainId } },
+  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
+
+export const detachLearningGoalFromDomain = (
+  learningGoalId: string,
+  domainId: string
+): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
+  detachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
+    originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+    relationship: { label: LearningGoalBelongsToDomainLabel, filter: {} },
+    destinationNode: { label: DomainLabel, filter: { _id: domainId } },
+  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
+
+export const getLearningGoalDomains = (learningGoalId: string): Promise<Domain[]> =>
+  getRelatedNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: {
+        _id: learningGoalId,
+      },
+    },
+    relationship: {
+      label: LearningGoalBelongsToDomainLabel,
+    },
+    destinationNode: {
+      label: DomainLabel,
+    },
+  }).then(items => items.map(({ destinationNode }) => destinationNode));
 
 function generateLearningGoalKey(name: string) {
   return shortid.generate() + '_' + generateUrlKey(name);

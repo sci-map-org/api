@@ -9,7 +9,13 @@ type Domain {
   learningMaterials(options: DomainLearningMaterialsOptions!): DomainLearningMaterialsResults
   subDomains: [DomainBelongsToDomainItem!]
   parentDomains: [DomainBelongsToDomainItem!]
+  learningGoals: [DomainLearningGoalsItem!]
 }
+
+type DomainLearningGoalsItem {
+  learningGoal: LearningGoal!
+}
+
 # Domain learning paths
 enum DomainLearningPathsSortingFields {
   createdAt
