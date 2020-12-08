@@ -1,3 +1,5 @@
 export const LearningGoalBelongsToDomainLabel = 'BELONGS_TO';
 
-export interface LearningGoalBelongsToDomain {}
+export interface LearningGoalBelongsToDomain {
+  contextualKey: string;
+}

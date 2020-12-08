@@ -18,6 +18,7 @@ import {
   detachUniqueNodes,
   findOne,
   getOptionalRelatedNode,
+  getRelatedNode,
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
@@ -72,11 +73,12 @@ export const deleteLearningGoal = deleteOne<LearningGoal, { _id: string } | { ke
 
 export const attachLearningGoalToDomain = (
   learningGoalId: string,
-  domainId: string
+  domainId: string,
+  { contextualKey }: { contextualKey: string }
 ): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
   attachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-    relationship: { label: LearningGoalBelongsToDomainLabel, onCreateProps: {} },
+    relationship: { label: LearningGoalBelongsToDomainLabel, onCreateProps: { contextualKey } },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
 
@@ -90,8 +92,8 @@ export const detachLearningGoalFromDomain = (
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
 
-export const getLearningGoalDomains = (learningGoalId: string): Promise<Domain[]> =>
-  getRelatedNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
+export const getLearningGoalDomain = (learningGoalId: string): Promise<Domain> =>
+  getRelatedNode<Domain>({
     originNode: {
       label: LearningGoalLabel,
       filter: {
@@ -100,11 +102,33 @@ export const getLearningGoalDomains = (learningGoalId: string): Promise<Domain[]
     },
     relationship: {
       label: LearningGoalBelongsToDomainLabel,
+      filter: {},
     },
     destinationNode: {
       label: DomainLabel,
+      filter: {},
     },
-  }).then(items => items.map(({ destinationNode }) => destinationNode));
+  });
+
+export const findDomainLearningGoalByKey = (
+  domainKey: string,
+  contextualLearningGoalKey: string
+): Promise<{ learningGoal: LearningGoal; domain: Domain } | null> =>
+  getOptionalRelatedNode<Domain, LearningGoalBelongsToDomain, LearningGoal>({
+    originNode: {
+      label: DomainLabel,
+      filter: { key: domainKey },
+    },
+    relationship: {
+      label: LearningGoalBelongsToDomainLabel,
+      direction: 'IN',
+      filter: { contextualKey: contextualLearningGoalKey },
+    },
+    destinationNode: {
+      label: LearningGoalLabel,
+      filter: {},
+    },
+  }).then(result => (result ? { learningGoal: result.destinationNode, domain: result.originNode } : null));
 
 function generateLearningGoalKey(name: string) {
   return shortid.generate() + '_' + generateUrlKey(name);

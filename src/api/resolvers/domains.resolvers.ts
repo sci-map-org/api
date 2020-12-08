@@ -1,5 +1,4 @@
 import { UserInputError } from 'apollo-server-koa';
-import { Domain } from '../../entities/Domain';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachDomainBelongsToDomain,
@@ -18,7 +17,6 @@ import {
   updateDomain,
 } from '../../repositories/domains.repository';
 import {
-  APIDomain,
   APIDomainLearningMaterialsSortingType,
   APIDomainResolvers,
   APIMutationResolvers,
