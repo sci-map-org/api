@@ -132,12 +132,13 @@ import { APIContext } from './server';
 import {
   addLearningGoalToDomainResolver,
   // attachLearningGoalToDomainResolver,
-  // createLearningGoalResolver,
   deleteLearningGoalResolver,
   // detachLearningGoalFromDomainResolver,
   getLearningGoalByKeyResolver,
   updateLearningGoalResolver,
-  getLearningGoalDomainsResolver,
+  getLearningGoalDomainResolver,
+  getDomainLearningGoalByKeyResolver,
+  createLearningGoalResolver,
 } from './resolvers/learning_goals.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
@@ -191,7 +192,7 @@ const resolvers: APIResolvers<APIContext> = {
     startLearningPath: startLearningPathResolver,
     completeLearningPath: completeLearningPathResolver,
     rateLearningMaterial: rateLearningMaterialResolver,
-    // createLearningGoal: createLearningGoalResolver,
+    createLearningGoal: createLearningGoalResolver,
     updateLearningGoal: updateLearningGoalResolver,
     deleteLearningGoal: deleteLearningGoalResolver,
     addLearningGoalToDomain: addLearningGoalToDomainResolver,
@@ -217,6 +218,7 @@ const resolvers: APIResolvers<APIContext> = {
     getLearningPath: getLearningPathResolver,
     getLearningPathByKey: getLearningPathByKeyResolver,
     getLearningGoalByKey: getLearningGoalByKeyResolver,
+    getDomainLearningGoalByKey: getDomainLearningGoalByKeyResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -280,7 +282,7 @@ const resolvers: APIResolvers<APIContext> = {
     outcomes: getLearningMaterialOutcomesResolver,
   },
   LearningGoal: {
-    // domain: getLearningGoalDomainResolver,
+    domain: getLearningGoalDomainResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,

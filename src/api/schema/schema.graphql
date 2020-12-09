@@ -13,4 +13,5 @@
 # import Mutation.* from "./relationships/ConceptBelongsToConcept.graphql"
 # import Mutation.* from "./relationships/DomainBelongsToDomain.graphql"
 # import * from "./relationships/ConceptReferencesConcept.graphql"
+# import * from "./relationships/LearningGoalBelongsToDomain.graphql"
 scalar Date

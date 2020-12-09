@@ -139,6 +139,9 @@ export const getDomainParentDomainsResolver: APIDomainResolvers['parentDomains']
 };
 
 export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals'] = async domain => {
-  const learningGoals = await getDomainLearningGoals(domain._id);
-  return learningGoals.map(learningGoal => ({ learningGoal }));
+  return (await getDomainLearningGoals(domain._id)).map(({ learningGoal, relationship, domain }) => ({
+    learningGoal,
+    ...relationship,
+    domain,
+  }));
 };

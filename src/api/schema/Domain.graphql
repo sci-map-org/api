@@ -9,11 +9,7 @@ type Domain {
   learningMaterials(options: DomainLearningMaterialsOptions!): DomainLearningMaterialsResults
   subDomains: [DomainBelongsToDomainItem!]
   parentDomains: [DomainBelongsToDomainItem!]
-  learningGoals: [DomainLearningGoalsItem!]
-}
-
-type DomainLearningGoalsItem {
-  learningGoal: LearningGoal!
+  learningGoals: [LearningGoalBelongsToDomain!]
 }
 
 # Domain learning paths

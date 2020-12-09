@@ -1,0 +1,6 @@
+type LearningGoalBelongsToDomain {
+  contextualName: String!
+  contextualKey: String!
+  domain: Domain!
+  learningGoal: LearningGoal!
+}

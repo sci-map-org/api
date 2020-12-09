@@ -434,7 +434,9 @@ export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =
 export const getDomainParentDomains = (filter: { _id: string } | { key: string }) =>
   getDomainBelongsToDomains(filter, 'OUT');
 
-export const getDomainLearningGoals = (domainId: string): Promise<LearningGoal[]> =>
+export const getDomainLearningGoals = (
+  domainId: string
+): Promise<{ learningGoal: LearningGoal; relationship: LearningGoalBelongsToDomain; domain: Domain }[]> =>
   getRelatedNodes<Domain, LearningGoalBelongsToDomain, LearningGoal>({
     originNode: {
       label: DomainLabel,
@@ -447,4 +449,10 @@ export const getDomainLearningGoals = (domainId: string): Promise<LearningGoal[]
     destinationNode: {
       label: LearningGoalLabel,
     },
-  }).then(items => items.map(item => item.destinationNode));
+  }).then(items =>
+    items.map(({ destinationNode, relationship, originNode }) => ({
+      learningGoal: destinationNode,
+      relationship,
+      domain: originNode,
+    }))
+  );

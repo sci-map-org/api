@@ -74,11 +74,11 @@ export const deleteLearningGoal = deleteOne<LearningGoal, { _id: string } | { ke
 export const attachLearningGoalToDomain = (
   learningGoalId: string,
   domainId: string,
-  { contextualKey }: { contextualKey: string }
+  { contextualKey, contextualName }: { contextualKey: string; contextualName: string }
 ): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
   attachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-    relationship: { label: LearningGoalBelongsToDomainLabel, onCreateProps: { contextualKey } },
+    relationship: { label: LearningGoalBelongsToDomainLabel, onCreateProps: { contextualKey, contextualName } },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
 
@@ -92,8 +92,10 @@ export const detachLearningGoalFromDomain = (
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
 
-export const getLearningGoalDomain = (learningGoalId: string): Promise<Domain> =>
-  getRelatedNode<Domain>({
+export const getLearningGoalDomain = (
+  learningGoalId: string
+): Promise<{ domain: Domain; relationship: LearningGoalBelongsToDomain; learningGoal: LearningGoal } | null> =>
+  getOptionalRelatedNode<LearningGoal, LearningGoalBelongsToDomain, Domain>({
     originNode: {
       label: LearningGoalLabel,
       filter: {
@@ -108,7 +110,9 @@ export const getLearningGoalDomain = (learningGoalId: string): Promise<Domain> =
       label: DomainLabel,
       filter: {},
     },
-  });
+  }).then(data =>
+    data ? { domain: data.destinationNode, relationship: data.relationship, learningGoal: data.originNode } : null
+  );
 
 export const findDomainLearningGoalByKey = (
   domainKey: string,

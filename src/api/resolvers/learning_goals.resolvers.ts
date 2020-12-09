@@ -1,5 +1,6 @@
 import { UserInputError } from 'apollo-server-koa';
 import { NotFoundError } from '../../errors/NotFoundError';
+import { findDomain } from '../../repositories/domains.repository';
 import {
   attachLearningGoalToDomain,
   createLearningGoal,
@@ -15,17 +16,18 @@ import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APILearningGoalResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
+import { generateUrlKey } from '../util/urlKey';
 
-// export const createLearningGoalResolver: APIMutationResolvers['createLearningGoal'] = async (
-//   _parent,
-//   { payload },
-//   { user }
-// ) => {
-//   restrictAccess('loggedInUser', user, 'Must be logged in to create a learning goal');
-//   if (user!.role === UserRole.USER && !!payload.key)
-//     throw new UserInputError('can not set the key if not an admin or contributor');
-//   return await createLearningGoal({ _id: user!._id }, nullToUndefined(payload));
-// };
+export const createLearningGoalResolver: APIMutationResolvers['createLearningGoal'] = async (
+  _parent,
+  { payload },
+  { user }
+) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in to create a learning goal');
+  if (user!.role === UserRole.USER && !!payload.key)
+    throw new UserInputError('can not set the key if not an admin or contributor');
+  return await createLearningGoal({ _id: user!._id }, nullToUndefined(payload));
+};
 
 export const updateLearningGoalResolver: APIMutationResolvers['updateLearningGoal'] = async (
   _,
@@ -46,14 +48,27 @@ export const updateLearningGoalResolver: APIMutationResolvers['updateLearningGoa
 
 export const addLearningGoalToDomainResolver: APIMutationResolvers['addLearningGoalToDomain'] = async (
   _,
-  { domainId, payload, relationshipPayload },
+  { domainId, payload },
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a learning goal');
-  const createdLearningGoal = await createLearningGoal({ _id: user._id }, nullToUndefined(payload));
+  const domain = await findDomain({ _id: domainId });
+  if (!domain) throw new NotFoundError('Domain', domainId);
+
+  const contextualKey = payload.contextualKey || generateUrlKey(payload.contextualName);
+  const createdLearningGoal = await createLearningGoal(
+    { _id: user._id },
+    {
+      name: `${domain.name} - ${payload.contextualName}`,
+      key: `${domain.key}_${contextualKey}`,
+      description: payload.description || undefined,
+    }
+  );
+
   return await attachLearningGoalToDomain(createdLearningGoal._id, domainId, {
-    contextualKey: relationshipPayload.contextualKey || createdLearningGoal.key,
-  }); // TODO check
+    contextualName: payload.contextualName,
+    contextualKey,
+  });
 };
 // export const attachLearningGoalToDomainResolver: APIMutationResolvers['attachLearningGoalToDomain'] = async (
 //   _,
@@ -101,6 +116,12 @@ export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLea
   return result;
 };
 
-export const getLearningGoalDomainsResolver: APILearningGoalResolvers['domains'] = async learningGoal => {
-  return await getLearningGoalDomain(learningGoal._id);
+export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] = async learningGoal => {
+  const result = await getLearningGoalDomain(learningGoal._id);
+  if (!result) return null;
+  return {
+    domain: result.domain,
+    ...result.relationship,
+    learningGoal: result.learningGoal,
+  };
 };
