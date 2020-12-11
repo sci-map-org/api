@@ -139,6 +139,7 @@ import {
   getLearningGoalDomainResolver,
   getDomainLearningGoalByKeyResolver,
   createLearningGoalResolver,
+  searchLearningGoalsResolver,
 } from './resolvers/learning_goals.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
@@ -219,6 +220,7 @@ const resolvers: APIResolvers<APIContext> = {
     getLearningPathByKey: getLearningPathByKeyResolver,
     getLearningGoalByKey: getLearningGoalByKeyResolver,
     getDomainLearningGoalByKey: getDomainLearningGoalByKeyResolver,
+    searchLearningGoals: searchLearningGoalsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

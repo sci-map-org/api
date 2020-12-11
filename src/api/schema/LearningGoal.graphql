@@ -48,7 +48,17 @@ type DomainAndLearningGoalResult {
   learningGoal: LearningGoal!
 }
 
+input SearchLearningGoalsOptions {
+  query: String
+  pagination: PaginationOptions!
+}
+
+type SearchLearningGoalsResult {
+  items: [LearningGoal!]!
+}
+
 type Query {
+  searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
   getDomainLearningGoalByKey(domainKey: String!, contextualLearningGoalKey: String!): DomainAndLearningGoalResult!
 }

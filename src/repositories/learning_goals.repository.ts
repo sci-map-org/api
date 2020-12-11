@@ -11,6 +11,7 @@ import {
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
 import { User, UserLabel } from '../entities/User';
+import { neo4jDriver } from '../infra/neo4j';
 import {
   attachUniqueNodes,
   createRelatedNode,
@@ -57,6 +58,26 @@ export const updateLearningGoal = updateOne<LearningGoal, { _id: string } | { ke
 
 export const findLearningGoal = findOne<LearningGoal, { key: string } | { _id: string }>({ label: LearningGoalLabel });
 
+export const searchLearningGoals = async (
+  { query }: { query?: string },
+  pagination: { offset?: number; limit?: number }
+): Promise<Domain[]> => {
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (node:${LearningGoalLabel}) ${
+      query
+        ? 'WHERE toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)'
+        : ''
+    }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
+      pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
+    }`,
+    {
+      query,
+    }
+  );
+  session.close();
+  return records.map(r => r.get('node'));
+};
 export const findLearningGoalCreatedBy = (
   userId: string,
   learningGoalFilter: { _id: string } | { key: string }

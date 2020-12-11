@@ -10,6 +10,7 @@ import {
   findLearningGoal,
   findLearningGoalCreatedBy,
   getLearningGoalDomain,
+  searchLearningGoals,
   updateLearningGoal,
 } from '../../repositories/learning_goals.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
@@ -17,6 +18,24 @@ import { APILearningGoalResolvers, APIMutationResolvers, APIQueryResolvers, User
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { generateUrlKey } from '../util/urlKey';
+
+export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLearningGoalByKey'] = async (
+  _parent,
+  { domainKey, contextualLearningGoalKey }
+) => {
+  const result = await findDomainLearningGoalByKey(domainKey, contextualLearningGoalKey);
+  if (!result) throw new NotFoundError('LearningGoal', contextualLearningGoalKey, 'contextualLearningGoalKey');
+  return result;
+};
+
+export const searchLearningGoalsResolver: APIQueryResolvers['searchLearningGoals'] = async (
+  _,
+  { options: { query, pagination } }
+) => {
+  return {
+    items: await searchLearningGoals(nullToUndefined({ query }), nullToUndefined(pagination)),
+  };
+};
 
 export const createLearningGoalResolver: APIMutationResolvers['createLearningGoal'] = async (
   _parent,
@@ -105,15 +124,6 @@ export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByK
   const learningGoal = await findLearningGoal({ key });
   if (!learningGoal) throw new NotFoundError('LearningGoal', key, 'key');
   return learningGoal;
-};
-
-export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLearningGoalByKey'] = async (
-  _parent,
-  { domainKey, contextualLearningGoalKey }
-) => {
-  const result = await findDomainLearningGoalByKey(domainKey, contextualLearningGoalKey);
-  if (!result) throw new NotFoundError('LearningGoal', contextualLearningGoalKey, 'contextualLearningGoalKey');
-  return result;
 };
 
 export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] = async learningGoal => {
