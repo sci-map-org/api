@@ -1,4 +1,4 @@
-type LearningGoal {
+type LearningGoal implements Topic {
   _id: String!
   key: String!
   name: String!

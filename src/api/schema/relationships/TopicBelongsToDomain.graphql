@@ -1,0 +1,7 @@
+type TopicBelongsToDomain {
+  index: Int!
+  contextualKey: String
+  contextualName: String
+  topic: Topic!
+  domain: Domain!
+}
