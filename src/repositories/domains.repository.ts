@@ -9,11 +9,7 @@ import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import {
-  DEFAULT_INDEX_VALUE,
-  DomainBelongsToDomain,
-  DomainBelongsToDomainLabel,
-} from '../entities/relationships/DomainBelongsToDomain';
+import { DomainBelongsToDomain, DomainBelongsToDomainLabel } from '../entities/relationships/DomainBelongsToDomain';
 import {
   LearningGoalBelongsToDomain,
   LearningGoalBelongsToDomainLabel,
@@ -22,8 +18,14 @@ import {
   LearningMaterialBelongsToDomain,
   LearningMaterialBelongsToDomainLabel,
 } from '../entities/relationships/LearningMaterialBelongsToDomain';
+import {
+  DEFAULT_INDEX_VALUE,
+  TopicBelongsToDomain,
+  TopicBelongsToDomainLabel,
+} from '../entities/relationships/TopicBelongsToDomain';
 import { UserCreatedDomain, UserCreatedDomainLabel } from '../entities/relationships/UserCreatedDomain';
 import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
+import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
@@ -456,3 +458,28 @@ export const getDomainLearningGoals = (
       domain: originNode,
     }))
   );
+
+export const getDomainSubTopics = (
+  domainId: string
+): Promise<{ domain: Domain; subTopics: { relationship: TopicBelongsToDomain; topic: Topic }[] } | null> =>
+  getRelatedNodes<Domain, TopicBelongsToDomain, Topic>({
+    originNode: {
+      label: DomainLabel,
+      filter: { _id: domainId },
+    },
+    relationship: {
+      label: TopicBelongsToDomainLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: TopicLabel,
+    },
+  }).then(items => {
+    if (items.length) {
+      return {
+        domain: items[0].originNode,
+        subTopics: items.map(({ relationship, destinationNode }) => ({ relationship, topic: destinationNode })),
+      };
+    }
+    return null;
+  });

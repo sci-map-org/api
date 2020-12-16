@@ -6,6 +6,7 @@ import {
   LearningGoalBelongsToDomain,
   LearningGoalBelongsToDomainLabel,
 } from '../entities/relationships/LearningGoalBelongsToDomain';
+import { DEFAULT_INDEX_VALUE } from '../entities/relationships/TopicBelongsToDomain';
 import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
@@ -99,7 +100,10 @@ export const attachLearningGoalToDomain = (
 ): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
   attachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-    relationship: { label: LearningGoalBelongsToDomainLabel, onCreateProps: { contextualKey, contextualName } },
+    relationship: {
+      label: LearningGoalBelongsToDomainLabel,
+      onCreateProps: { index: DEFAULT_INDEX_VALUE, contextualKey, contextualName },
+    },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
 

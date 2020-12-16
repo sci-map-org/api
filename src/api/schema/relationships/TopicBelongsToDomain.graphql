@@ -1,5 +1,5 @@
 type TopicBelongsToDomain {
-  index: Int!
+  index: Float!
   contextualKey: String
   contextualName: String
   topic: Topic!

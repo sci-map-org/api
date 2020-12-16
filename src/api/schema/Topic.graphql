@@ -2,6 +2,7 @@ interface Topic {
   _id: String!
   name: String!
   key: String # Mandatory in the future ? Could it help searching for instance ?
+  description: String
   #   domains: [TopicsBelongsToDomainItem!] # parent domains ? or belong to domain ? Cause domain can be one already. parentDomains ?
   # progress | completion
   # coveredByLearningMaterials # ? shared recommendation engine ?
