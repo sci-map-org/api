@@ -5,6 +5,8 @@ interface LearningMaterial {
   coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
   coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
   domains: [Domain!]
+  prerequisites: [LearningMaterialPrerequisiteItem!]
+  outcomes: [LearningMaterialOutcomeItem!]
 }
 
 enum LearningMaterialType {
@@ -33,10 +35,31 @@ type LearningMaterialDomainsResults {
   items: [Domain!]!
 }
 
+type LearningMaterialPrerequisiteItem {
+  learningGoal: LearningGoal!
+  strength: Float!
+  createdBy: String!
+  createdAt: Date!
+}
+
+type LearningMaterialOutcomeItem {
+  learningGoal: LearningGoal!
+  strength: Float!
+  createdBy: String!
+  createdAt: Date!
+}
+
 type Mutation {
   attachLearningMaterialToDomain(domainId: String!, learningMaterialId: String!): LearningMaterial!
   detachLearningMaterialFromDomain(domainId: String!, learningMaterialId: String!): LearningMaterial!
   attachLearningMaterialCoversConcepts(learningMaterialId: String!, conceptIds: [String!]!): LearningMaterial!
   detachLearningMaterialCoversConcepts(learningMaterialId: String!, conceptIds: [String!]!): LearningMaterial!
   rateLearningMaterial(learningMaterialId: String!, value: Float!): LearningMaterial!
+  addLearningMaterialPrerequisite(learningMaterialId: String!, prerequisiteLearningGoalId: String!): LearningMaterial!
+  removeLearningMaterialPrerequisite(
+    learningMaterialId: String!
+    prerequisiteLearningGoalId: String!
+  ): LearningMaterial!
+  addLearningMaterialOutcome(learningMaterialId: String!, outcomeLearningGoalId: String!): LearningMaterial!
+  removeLearningMaterialOutcome(learningMaterialId: String!, outcomeLearningGoalId: String!): LearningMaterial!
 }

@@ -1,5 +1,4 @@
 import { UserInputError } from 'apollo-server-koa';
-import { Domain } from '../../entities/Domain';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachDomainBelongsToDomain,
@@ -8,6 +7,7 @@ import {
   detachDomainBelongsToDomain,
   findDomain,
   getDomainConcepts,
+  getDomainLearningGoals,
   getDomainLearningMaterials,
   getDomainParentDomains,
   getDomainPublicLearningPaths,
@@ -17,7 +17,6 @@ import {
   updateDomain,
 } from '../../repositories/domains.repository';
 import {
-  APIDomain,
   APIDomainLearningMaterialsSortingType,
   APIDomainResolvers,
   APIMutationResolvers,
@@ -27,28 +26,23 @@ import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
 
-function toAPIDomain(domain: Domain): APIDomain {
-  return domain;
-}
-
 export const searchDomainsResolver: APIQueryResolvers['searchDomains'] = async (
   _parent,
   { options: { query, pagination } }
 ) => {
   const domains = await searchDomains(nullToUndefined({ query }), nullToUndefined(pagination));
-  return { items: domains.map(toAPIDomain) };
+  return { items: domains };
 };
 
 export const createDomainResolver: APIMutationResolvers['createDomain'] = async (_parent, { payload }, { user }) => {
   restrictAccess('contributorOrAdmin', user, 'Must be logged in and an admin or a contributor to create a domain');
-  const createdDomain = await createDomain({ _id: user!._id }, nullToUndefined(payload));
-  return toAPIDomain(createdDomain);
+  return await createDomain({ _id: user!._id }, nullToUndefined(payload));
 };
 
 export const getDomainByKeyResolver: APIQueryResolvers['getDomainByKey'] = async (_parent, { key }) => {
   const domain = await findDomain({ key });
   if (!domain) throw new NotFoundError('Domain', key, 'key');
-  return toAPIDomain(domain);
+  return domain;
 };
 
 export const updateDomainResolver: APIMutationResolvers['updateDomain'] = async (
@@ -59,7 +53,7 @@ export const updateDomainResolver: APIMutationResolvers['updateDomain'] = async 
   restrictAccess('contributorOrAdmin', user, 'Must be logged in and an admin or a contributor to update a domain');
   const updatedDomain = await updateDomain({ _id: id }, nullToUndefined(payload));
   if (!updatedDomain) throw new NotFoundError('Domain', id, 'id');
-  return toAPIDomain(updatedDomain);
+  return updatedDomain;
 };
 
 export const deleteDomainResolver: APIMutationResolvers['deleteDomain'] = async (_parent, { id }, { user }) => {
@@ -142,4 +136,12 @@ export const getDomainSubDomainsResolver: APIDomainResolvers['subDomains'] = asy
 };
 export const getDomainParentDomainsResolver: APIDomainResolvers['parentDomains'] = async domain => {
   return getDomainParentDomains({ _id: domain._id });
+};
+
+export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals'] = async domain => {
+  return (await getDomainLearningGoals(domain._id)).map(({ learningGoal, relationship, domain }) => ({
+    learningGoal,
+    ...relationship,
+    domain,
+  }));
 };

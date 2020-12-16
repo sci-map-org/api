@@ -31,12 +31,18 @@ import {
   addConceptBelongsToConceptResolver,
 } from './resolvers/concepts.resolvers';
 import {
+  addLearningMaterialOutcomeResolver,
+  addLearningMaterialPrerequisiteResolver,
   attachLearningMaterialCoversConceptsResolver,
   attachLearningMaterialToDomainResolver,
   detachLearningMaterialCoversConceptsResolver,
   detachLearningMaterialFromDomainResolver,
+  getLearningMaterialOutcomesResolver,
+  getLearningMaterialPrerequisitesResolver,
   learningMaterialResolveType,
   rateLearningMaterialResolver,
+  removeLearningMaterialOutcomeResolver,
+  removeLearningMaterialPrerequisiteResolver,
 } from './resolvers/learning_materials.resolvers';
 import {
   createDomainResolver,
@@ -52,6 +58,7 @@ import {
   getDomainParentDomainsResolver,
   getDomainLearningPathsResolver,
   getDomainLearningMaterialsResolver,
+  getDomainLearningGoalsResolver,
 } from './resolvers/domains.resolvers';
 import {
   addComplementaryResourceToLearningPathResolver,
@@ -122,6 +129,18 @@ import {
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
+import {
+  addLearningGoalToDomainResolver,
+  // attachLearningGoalToDomainResolver,
+  deleteLearningGoalResolver,
+  // detachLearningGoalFromDomainResolver,
+  getLearningGoalByKeyResolver,
+  updateLearningGoalResolver,
+  getLearningGoalDomainResolver,
+  getDomainLearningGoalByKeyResolver,
+  createLearningGoalResolver,
+  searchLearningGoalsResolver,
+} from './resolvers/learning_goals.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -174,6 +193,16 @@ const resolvers: APIResolvers<APIContext> = {
     startLearningPath: startLearningPathResolver,
     completeLearningPath: completeLearningPathResolver,
     rateLearningMaterial: rateLearningMaterialResolver,
+    createLearningGoal: createLearningGoalResolver,
+    updateLearningGoal: updateLearningGoalResolver,
+    deleteLearningGoal: deleteLearningGoalResolver,
+    addLearningGoalToDomain: addLearningGoalToDomainResolver,
+    // attachLearningGoalToDomain: attachLearningGoalToDomainResolver,
+    // detachLearningGoalFromDomain: detachLearningGoalFromDomainResolver,
+    addLearningMaterialPrerequisite: addLearningMaterialPrerequisiteResolver,
+    removeLearningMaterialPrerequisite: removeLearningMaterialPrerequisiteResolver,
+    addLearningMaterialOutcome: addLearningMaterialOutcomeResolver,
+    removeLearningMaterialOutcome: removeLearningMaterialOutcomeResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -189,6 +218,9 @@ const resolvers: APIResolvers<APIContext> = {
     searchResources: searchResourcesResolver,
     getLearningPath: getLearningPathResolver,
     getLearningPathByKey: getLearningPathByKeyResolver,
+    getLearningGoalByKey: getLearningGoalByKeyResolver,
+    getDomainLearningGoalByKey: getDomainLearningGoalByKeyResolver,
+    searchLearningGoals: searchLearningGoalsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -208,6 +240,7 @@ const resolvers: APIResolvers<APIContext> = {
     parentDomains: getDomainParentDomainsResolver,
     learningPaths: getDomainLearningPathsResolver,
     learningMaterials: getDomainLearningMaterialsResolver,
+    learningGoals: getDomainLearningGoalsResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,
@@ -233,6 +266,8 @@ const resolvers: APIResolvers<APIContext> = {
     subResourceSeries: getResourceSubResourceSeriesResolver,
     previousResource: getResourcePreviousResourceResolver,
     nextResource: getResourceNextResourceResolver,
+    prerequisites: getLearningMaterialPrerequisitesResolver,
+    outcomes: getLearningMaterialOutcomesResolver,
   },
   LearningPath: {
     resourceItems: getLearningPathResourceItemsResolver,
@@ -245,6 +280,11 @@ const resolvers: APIResolvers<APIContext> = {
     started: getLearningPathStartedResolver,
     createdBy: getLearningPathCreatedByResolver,
     startedBy: getLearningPathStartedByResolver,
+    prerequisites: getLearningMaterialPrerequisitesResolver,
+    outcomes: getLearningMaterialOutcomesResolver,
+  },
+  LearningGoal: {
+    domain: getLearningGoalDomainResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,

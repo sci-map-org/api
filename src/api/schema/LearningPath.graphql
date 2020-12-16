@@ -15,6 +15,8 @@ type LearningPath implements LearningMaterial {
   started: LearningPathStarted
   createdBy: User
   startedBy(options: LearningPathStartedByOptions!): LearningPathStartedByResults
+  prerequisites: [LearningMaterialPrerequisiteItem!]
+  outcomes: [LearningMaterialOutcomeItem!]
 }
 
 input LearningPathStartedByOptions {

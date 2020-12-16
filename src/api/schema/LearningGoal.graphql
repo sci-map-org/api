@@ -1,0 +1,77 @@
+type LearningGoal {
+  _id: String!
+  key: String!
+  name: String!
+  description: String
+  domain: LearningGoalBelongsToDomain
+}
+
+input CreateLearningGoalPayload {
+  name: String!
+  key: String
+  description: String
+}
+
+input AddLearningGoalToDomainPayload {
+  contextualName: String!
+  contextualKey: String
+  description: String
+}
+
+input UpdateLearningGoalPayload {
+  name: String
+  key: String
+  description: String
+}
+
+# input AttachLearningGoalToDomainPayload {
+#   contextualKey: String
+# }
+
+type DeleteLearningGoalMutationResult {
+  _id: String!
+  success: Boolean!
+}
+
+type AttachLearningGoalToDomainResult {
+  domain: Domain!
+  learningGoal: LearningGoal!
+}
+
+# type DetachLearningGoalFromDomainResult {
+#   domain: Domain!
+#   learningGoal: LearningGoal!
+# }
+
+type DomainAndLearningGoalResult {
+  domain: Domain!
+  learningGoal: LearningGoal!
+}
+
+input SearchLearningGoalsOptions {
+  query: String
+  pagination: PaginationOptions!
+}
+
+type SearchLearningGoalsResult {
+  items: [LearningGoal!]!
+}
+
+type Query {
+  searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
+  getLearningGoalByKey(key: String!): LearningGoal!
+  getDomainLearningGoalByKey(domainKey: String!, contextualLearningGoalKey: String!): DomainAndLearningGoalResult!
+}
+
+type Mutation {
+  addLearningGoalToDomain(domainId: String!, payload: AddLearningGoalToDomainPayload!): DomainAndLearningGoalResult!
+  createLearningGoal(payload: CreateLearningGoalPayload!): LearningGoal!
+  # attachLearningGoalToDomain(
+  #   learningGoalId: String!
+  #   domainId: String!
+  #   payload: AttachLearningGoalToDomainPayload!
+  # ): DomainAndLearningGoalResult!
+  # detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
+  updateLearningGoal(_id: String!, payload: UpdateLearningGoalPayload!): LearningGoal!
+  deleteLearningGoal(_id: String!): DeleteLearningGoalMutationResult!
+}
