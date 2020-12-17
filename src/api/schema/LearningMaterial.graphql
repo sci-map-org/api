@@ -35,13 +35,6 @@ type LearningMaterialDomainsResults {
   items: [Domain!]!
 }
 
-# union PrerequisiteItem = Concept | LearningGoal
-
-# type LearningMaterialPrerequisiteItem {
-#   item: PrerequisiteItem!
-#   strength: Float!
-# }
-
 type LearningMaterialPrerequisiteItem {
   learningGoal: LearningGoal!
   strength: Float!
