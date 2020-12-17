@@ -2,7 +2,7 @@
 # Represents an atomic knowledge, something that can be understood
 # learning content cover one or several concepts
 
-type Concept {
+type Concept implements Topic {
   _id: String!
   key: String!
   name: String!

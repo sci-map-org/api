@@ -1,7 +1,9 @@
-export const DomainBelongsToDomainLabel = 'BELONGS_TO';
+import { TopicBelongsToDomain, TopicBelongsToDomainLabel } from './TopicBelongsToDomain';
 
-export const DEFAULT_INDEX_VALUE = 10000000;
+export const DomainBelongsToDomainLabel = TopicBelongsToDomainLabel;
 
-export interface DomainBelongsToDomain {
-  index: number;
+// export const DEFAULT_INDEX_VALUE = 10000000;
+
+export interface DomainBelongsToDomain extends TopicBelongsToDomain {
+  // index: number;
 }

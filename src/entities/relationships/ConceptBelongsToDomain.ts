@@ -1,5 +1,7 @@
-export const ConceptBelongsToDomainLabel = 'BELONGS_TO';
+import { TopicBelongsToDomain, TopicBelongsToDomainLabel } from './TopicBelongsToDomain';
 
-export interface ConceptBelongsToDomain {
-  index: number;
+export const ConceptBelongsToDomainLabel = TopicBelongsToDomainLabel;
+
+export interface ConceptBelongsToDomain extends TopicBelongsToDomain {
+  // index: number;
 }

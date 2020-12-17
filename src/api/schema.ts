@@ -59,6 +59,7 @@ import {
   getDomainLearningPathsResolver,
   getDomainLearningMaterialsResolver,
   getDomainLearningGoalsResolver,
+  getDomainSubTopicsResolver,
 } from './resolvers/domains.resolvers';
 import {
   addComplementaryResourceToLearningPathResolver,
@@ -141,6 +142,7 @@ import {
   createLearningGoalResolver,
   searchLearningGoalsResolver,
 } from './resolvers/learning_goals.resolvers';
+import { topicResolveType } from './resolvers/topics.resolvers';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -241,6 +243,7 @@ const resolvers: APIResolvers<APIContext> = {
     learningPaths: getDomainLearningPathsResolver,
     learningMaterials: getDomainLearningMaterialsResolver,
     learningGoals: getDomainLearningGoalsResolver,
+    subTopics: getDomainSubTopicsResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,
@@ -288,6 +291,9 @@ const resolvers: APIResolvers<APIContext> = {
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,
+  },
+  Topic: {
+    __resolveType: topicResolveType,
   },
   Date: GraphQLDateTime,
 };
