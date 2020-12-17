@@ -1,21 +1,18 @@
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
-import { Concept, ConceptLabel } from '../entities/Concept';
+import { Concept } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import {
   LearningGoalBelongsToDomain,
   LearningGoalBelongsToDomainLabel,
 } from '../entities/relationships/LearningGoalBelongsToDomain';
-import { DEFAULT_INDEX_VALUE } from '../entities/relationships/TopicBelongsToDomain';
-import {
-  LearningGoalRequiresConcept,
-  LearningGoalRequiresConceptLabel,
-} from '../entities/relationships/LearningGoalRequiresConcept';
+import { LearningGoalRequiresConcept } from '../entities/relationships/LearningGoalRequiresConcept';
 import {
   LearningGoalRequiresLearningGoal,
   LearningGoalRequiresLearningGoalLabel,
 } from '../entities/relationships/LearningGoalRequiresLearningGoal';
+import { DEFAULT_INDEX_VALUE } from '../entities/relationships/TopicBelongsToDomain';
 import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
@@ -30,8 +27,6 @@ import {
   detachUniqueNodes,
   findOne,
   getOptionalRelatedNode,
-  getRelatedNode,
-  getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
 
@@ -180,44 +175,50 @@ export const attachLearningGoalRequiresSubGoal = async (
   learningGoalId: string,
   subGoalId: string,
   { strength }: { strength?: number }
-): Promise<{ subGoal: LearningGoal | Concept; learningGoal: LearningGoal }> => {
-  const subLearningGoal = await findLearningGoal({ _id: subGoalId });
-  if (!!subLearningGoal) {
-    return await attachLearningGoalRequiresLearningGoal(learningGoalId, subGoalId, { strength });
-  }
-  const { concept, learningGoal } = await attachLearningGoalRequiresConcept(learningGoalId, subGoalId, { strength });
-  return { learningGoal, subGoal: concept };
-};
-
-const attachLearningGoalRequiresLearningGoal = (
-  learningGoalId: string,
-  subLearningGoalId: string,
-  { strength }: { strength?: number }
-): Promise<{ subGoal: LearningGoal; learningGoal: LearningGoal }> =>
-  attachUniqueNodes<LearningGoal, LearningGoalRequiresLearningGoal, LearningGoal>({
+): Promise<{ subGoal: LearningGoal | Concept; learningGoal: LearningGoal }> =>
+  attachUniqueNodes<
+    LearningGoal,
+    LearningGoalRequiresLearningGoal | LearningGoalRequiresConcept,
+    LearningGoal | Concept
+  >({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
     relationship: {
       label: LearningGoalRequiresLearningGoalLabel,
       onCreateProps: { strength: strength || 100 },
       onMergeProps: { strength },
     },
-    destinationNode: { label: LearningGoalLabel, filter: { _id: subLearningGoalId } },
+    destinationNode: { label: TopicLabel, filter: { _id: subGoalId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, subGoal: destinationNode }));
 
-const attachLearningGoalRequiresConcept = (
-  learningGoalId: string,
-  conceptId: string,
-  { strength }: { strength?: number }
-): Promise<{ concept: Concept; learningGoal: LearningGoal }> =>
-  attachUniqueNodes<LearningGoal, LearningGoalRequiresConcept, Concept>({
-    originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-    relationship: {
-      label: LearningGoalRequiresConceptLabel,
-      onCreateProps: { strength: strength || 100 },
-      onMergeProps: { strength },
-    },
-    destinationNode: { label: ConceptLabel, filter: { _id: conceptId } },
-  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, concept: destinationNode }));
+// const attachLearningGoalRequiresLearningGoal = (
+//   learningGoalId: string,
+//   subLearningGoalId: string,
+//   { strength }: { strength?: number }
+// ): Promise<{ subGoal: LearningGoal; learningGoal: LearningGoal }> =>
+//   attachUniqueNodes<LearningGoal, LearningGoalRequiresLearningGoal, LearningGoal>({
+//     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+//     relationship: {
+//       label: LearningGoalRequiresLearningGoalLabel, // assert = to Concept
+//       onCreateProps: { strength: strength || 100 },
+//       onMergeProps: { strength },
+//     },
+//     destinationNode: { label: LearningGoalLabel, filter: { _id: subLearningGoalId } },
+//   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, subGoal: destinationNode }));
+
+// const attachLearningGoalRequiresConcept = (
+//   learningGoalId: string,
+//   conceptId: string,
+//   { strength }: { strength?: number }
+// ): Promise<{ concept: Concept; learningGoal: LearningGoal }> =>
+//   attachUniqueNodes<LearningGoal, LearningGoalRequiresConcept, Concept>({
+//     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+//     relationship: {
+//       label: LearningGoalRequiresConceptLabel,
+//       onCreateProps: { strength: strength || 100 },
+//       onMergeProps: { strength },
+//     },
+//     destinationNode: { label: ConceptLabel, filter: { _id: conceptId } },
+//   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, concept: destinationNode }));
 
 /**
  * TODO Cleanup once there's Topic ?
@@ -225,37 +226,42 @@ const attachLearningGoalRequiresConcept = (
 export const detachLearningGoalRequiresSubGoal = async (
   learningGoalId: string,
   subGoalId: string
-): Promise<{ subGoal: LearningGoal | Concept; learningGoal: LearningGoal }> => {
-  const subLearningGoal = await findLearningGoal({ _id: subGoalId });
-  if (!!subLearningGoal) {
-    return await detachLearningGoalRequiresLearningGoal(learningGoalId, subGoalId);
-  }
-  const { concept, learningGoal } = await detachLearningGoalRequiresConcept(learningGoalId, subGoalId);
-  return { learningGoal, subGoal: concept };
-};
-
-const detachLearningGoalRequiresLearningGoal = (
-  learningGoalId: string,
-  subLearningGoalId: string
-): Promise<{ subGoal: LearningGoal; learningGoal: LearningGoal }> =>
-  detachUniqueNodes<LearningGoal, LearningGoalRequiresLearningGoal, LearningGoal>({
+): Promise<{ subGoal: LearningGoal | Concept; learningGoal: LearningGoal }> =>
+  detachUniqueNodes<
+    LearningGoal,
+    LearningGoalRequiresLearningGoal | LearningGoalRequiresConcept,
+    LearningGoal | Concept
+  >({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
     relationship: {
       label: LearningGoalRequiresLearningGoalLabel,
       filter: {},
     },
-    destinationNode: { label: LearningGoalLabel, filter: { _id: subLearningGoalId } },
+    destinationNode: { label: TopicLabel, filter: { _id: subGoalId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, subGoal: destinationNode }));
 
-const detachLearningGoalRequiresConcept = (
-  learningGoalId: string,
-  conceptId: string
-): Promise<{ concept: Concept; learningGoal: LearningGoal }> =>
-  detachUniqueNodes<LearningGoal, LearningGoalRequiresConcept, Concept>({
-    originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-    relationship: {
-      label: LearningGoalRequiresConceptLabel,
-      filter: {},
-    },
-    destinationNode: { label: ConceptLabel, filter: { _id: conceptId } },
-  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, concept: destinationNode }));
+// const detachLearningGoalRequiresLearningGoal = (
+//   learningGoalId: string,
+//   subLearningGoalId: string
+// ): Promise<{ subGoal: LearningGoal; learningGoal: LearningGoal }> =>
+//   detachUniqueNodes<LearningGoal, LearningGoalRequiresLearningGoal, LearningGoal>({
+//     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+//     relationship: {
+//       label: LearningGoalRequiresLearningGoalLabel,
+//       filter: {},
+//     },
+//     destinationNode: { label: LearningGoalLabel, filter: { _id: subLearningGoalId } },
+//   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, subGoal: destinationNode }));
+
+// const detachLearningGoalRequiresConcept = (
+//   learningGoalId: string,
+//   conceptId: string
+// ): Promise<{ concept: Concept; learningGoal: LearningGoal }> =>
+//   detachUniqueNodes<LearningGoal, LearningGoalRequiresConcept, Concept>({
+//     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+//     relationship: {
+//       label: LearningGoalRequiresConceptLabel,
+//       filter: {},
+//     },
+//     destinationNode: { label: ConceptLabel, filter: { _id: conceptId } },
+//   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, concept: destinationNode }));
