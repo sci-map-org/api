@@ -2,8 +2,4 @@ import { TopicBelongsToDomain, TopicBelongsToDomainLabel } from './TopicBelongsT
 
 export const DomainBelongsToDomainLabel = TopicBelongsToDomainLabel;
 
-// export const DEFAULT_INDEX_VALUE = 10000000;
-
-export interface DomainBelongsToDomain extends TopicBelongsToDomain {
-  // index: number;
-}
+export interface DomainBelongsToDomain extends TopicBelongsToDomain {}

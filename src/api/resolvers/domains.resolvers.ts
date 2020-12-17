@@ -13,7 +13,7 @@ import {
   getDomainPublicLearningPaths,
   getDomainResources,
   getDomainSubDomains,
-  getDomainSubTopics,
+  // getDomainSubTopics,
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';
@@ -147,12 +147,12 @@ export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals']
   }));
 };
 
-export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = async domain => {
-  const result = await getDomainSubTopics(domain._id);
-  if (!result) throw new NotFoundError('Domain', domain._id);
-  return result.subTopics.map(({ topic, relationship }) => ({
-    topic,
-    ...relationship,
-    domain: result.domain,
-  }));
-};
+// export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = async domain => {
+//   const result = await getDomainSubTopics(domain._id);
+//   if (!result) throw new NotFoundError('Domain', domain._id);
+//   return result.subTopics.map(({ topic, relationship }) => ({
+//     topic,
+//     ...relationship,
+//     domain: result.domain,
+//   }));
+// };

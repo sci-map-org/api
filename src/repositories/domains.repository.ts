@@ -459,27 +459,27 @@ export const getDomainLearningGoals = (
     }))
   );
 
-export const getDomainSubTopics = (
-  domainId: string
-): Promise<{ domain: Domain; subTopics: { relationship: TopicBelongsToDomain; topic: Topic }[] } | null> =>
-  getRelatedNodes<Domain, TopicBelongsToDomain, Topic>({
-    originNode: {
-      label: DomainLabel,
-      filter: { _id: domainId },
-    },
-    relationship: {
-      label: TopicBelongsToDomainLabel,
-      direction: 'IN',
-    },
-    destinationNode: {
-      label: TopicLabel,
-    },
-  }).then(items => {
-    if (items.length) {
-      return {
-        domain: items[0].originNode,
-        subTopics: items.map(({ relationship, destinationNode }) => ({ relationship, topic: destinationNode })),
-      };
-    }
-    return null;
-  });
+// export const getDomainSubTopics = (
+//   domainId: string
+// ): Promise<{ domain: Domain; subTopics: { relationship: TopicBelongsToDomain; topic: Topic }[] } | null> =>
+//   getRelatedNodes<Domain, TopicBelongsToDomain, Topic>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: { _id: domainId },
+//     },
+//     relationship: {
+//       label: TopicBelongsToDomainLabel,
+//       direction: 'IN',
+//     },
+//     destinationNode: {
+//       label: TopicLabel,
+//     },
+//   }).then(items => {
+//     if (items.length) {
+//       return {
+//         domain: items[0].originNode,
+//         subTopics: items.map(({ relationship, destinationNode }) => ({ relationship, topic: destinationNode })),
+//       };
+//     }
+//     return null;
+//   });
