@@ -25,7 +25,7 @@ import {
 } from '../entities/relationships/TopicBelongsToDomain';
 import { UserCreatedDomain, UserCreatedDomainLabel } from '../entities/relationships/UserCreatedDomain';
 import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
-import { Topic, TopicLabel } from '../entities/Topic';
+import { Topic, TopicLabel, TopicType } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
@@ -55,7 +55,10 @@ export const createDomain = (user: { _id: string } | { key: string }, data: Crea
   createRelatedNode<User, UserCreatedDomain, Domain>({
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedDomainLabel, props: { createdAt: Date.now() } },
-    newNode: { labels: [DomainLabel, TopicLabel], props: { ...data, _id: shortid.generate() } },
+    newNode: {
+      labels: [DomainLabel, TopicLabel],
+      props: { ...data, _id: shortid.generate(), topicType: TopicType.Domain },
+    },
   });
 
 export const searchDomains = async (
@@ -459,27 +462,27 @@ export const getDomainLearningGoals = (
     }))
   );
 
-// export const getDomainSubTopics = (
-//   domainId: string
-// ): Promise<{ domain: Domain; subTopics: { relationship: TopicBelongsToDomain; topic: Topic }[] } | null> =>
-//   getRelatedNodes<Domain, TopicBelongsToDomain, Topic>({
-//     originNode: {
-//       label: DomainLabel,
-//       filter: { _id: domainId },
-//     },
-//     relationship: {
-//       label: TopicBelongsToDomainLabel,
-//       direction: 'IN',
-//     },
-//     destinationNode: {
-//       label: TopicLabel,
-//     },
-//   }).then(items => {
-//     if (items.length) {
-//       return {
-//         domain: items[0].originNode,
-//         subTopics: items.map(({ relationship, destinationNode }) => ({ relationship, topic: destinationNode })),
-//       };
-//     }
-//     return null;
-//   });
+export const getDomainSubTopics = (
+  domainId: string
+): Promise<{ domain: Domain; subTopics: { relationship: TopicBelongsToDomain; topic: Topic }[] } | null> =>
+  getRelatedNodes<Domain, TopicBelongsToDomain, Topic>({
+    originNode: {
+      label: DomainLabel,
+      filter: { _id: domainId },
+    },
+    relationship: {
+      label: TopicBelongsToDomainLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: TopicLabel,
+    },
+  }).then(items => {
+    if (items.length) {
+      return {
+        domain: items[0].originNode,
+        subTopics: items.map(({ relationship, destinationNode }) => ({ relationship, topic: destinationNode })),
+      };
+    }
+    return null;
+  });

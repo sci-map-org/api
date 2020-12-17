@@ -3,6 +3,7 @@ type LearningGoal implements Topic {
   key: String!
   name: String!
   description: String
+  topicType: TopicType!
   domain: LearningGoalBelongsToDomain
   requiredInGoals: [RequiredInGoalItem!]
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?

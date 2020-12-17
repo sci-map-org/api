@@ -3,6 +3,7 @@ import { UserRole } from '../../entities/User';
 import { ResourceType } from '../../entities/Resource';
 import { ResourceMediaType } from '../../entities/Resource';
 import { SortingDirection } from '../../repositories/util/sorting';
+import { TopicType } from '../../entities/Topic';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -577,6 +578,7 @@ export type APIConcept = APITopic & {
   referencedByConcepts?: Maybe<Array<APIConceptReferencesConceptItem>>;
   referencingConcepts?: Maybe<Array<APIConceptReferencesConceptItem>>;
   subConcepts?: Maybe<Array<APIConceptBelongsToConceptItem>>;
+  topicType: TopicType;
 };
 
 
@@ -652,6 +654,7 @@ export type APIDomain = APITopic & {
   resources?: Maybe<APIDomainResourcesResults>;
   subDomains?: Maybe<Array<APIDomainBelongsToDomainItem>>;
   subTopics?: Maybe<Array<APITopicBelongsToDomain>>;
+  topicType: TopicType;
 };
 
 
@@ -817,6 +820,7 @@ export type APILearningGoal = APITopic & {
   name: Scalars['String'];
   requiredInGoals?: Maybe<Array<APIRequiredInGoalItem>>;
   requiredSubGoals?: Maybe<Array<APISubGoalItem>>;
+  topicType: TopicType;
 };
 
 export type APIRequiredInGoalItem = {
@@ -1211,9 +1215,12 @@ export type APISearchResourcesResult = {
 export type APITopic = {
   _id: Scalars['String'];
   description?: Maybe<Scalars['String']>;
-  key?: Maybe<Scalars['String']>;
+  key: Scalars['String'];
   name: Scalars['String'];
+  topicType: TopicType;
 };
+
+export { TopicType };
 
 export { UserRole };
 
@@ -1546,6 +1553,7 @@ export type APIResolversTypes = ResolversObject<{
   SearchResourcesOptions: APISearchResourcesOptions,
   SearchResourcesResult: ResolverTypeWrapper<APISearchResourcesResult>,
   Topic: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'],
+  TopicType: TopicType,
   UserRole: UserRole,
   User: ResolverTypeWrapper<APIUser>,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1682,6 +1690,7 @@ export type APIResolversParentTypes = ResolversObject<{
   SearchResourcesOptions: APISearchResourcesOptions,
   SearchResourcesResult: APISearchResourcesResult,
   Topic: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'],
+  TopicType: TopicType,
   UserRole: UserRole,
   User: APIUser,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1819,6 +1828,7 @@ export type APIConceptResolvers<ContextType = APIContext, ParentType extends API
   referencedByConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptReferencesConceptItem']>>, ParentType, ContextType>,
   referencingConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptReferencesConceptItem']>>, ParentType, ContextType>,
   subConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptBelongsToConceptItem']>>, ParentType, ContextType>,
+  topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1863,6 +1873,7 @@ export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIR
   resources?: Resolver<Maybe<APIResolversTypes['DomainResourcesResults']>, ParentType, ContextType, RequireFields<APIDomainResourcesArgs, 'options'>>,
   subDomains?: Resolver<Maybe<Array<APIResolversTypes['DomainBelongsToDomainItem']>>, ParentType, ContextType>,
   subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicBelongsToDomain']>>, ParentType, ContextType>,
+  topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -1917,6 +1928,7 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   requiredInGoals?: Resolver<Maybe<Array<APIResolversTypes['RequiredInGoalItem']>>, ParentType, ContextType>,
   requiredSubGoals?: Resolver<Maybe<Array<APIResolversTypes['SubGoalItem']>>, ParentType, ContextType>,
+  topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2174,8 +2186,9 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   __resolveType: TypeResolveFn<'Concept' | 'Domain' | 'LearningGoal', ParentType, ContextType>,
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  key?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
 }>;
 
 export type APIUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['User'] = APIResolversParentTypes['User']> = ResolversObject<{

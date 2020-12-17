@@ -7,6 +7,7 @@ type Concept implements Topic {
   key: String!
   name: String!
   description: String
+  topicType: TopicType!
   domain: Domain
   coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
   known: KnownConcept

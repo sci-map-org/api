@@ -11,6 +11,8 @@ import {
   findLearningGoal,
   findLearningGoalCreatedBy,
   getLearningGoalDomain,
+  getLearningGoalRequiredInGoals,
+  getLearningGoalRequiredSubGoals,
   searchLearningGoals,
   updateLearningGoal,
 } from '../../repositories/learning_goals.repository';
@@ -156,10 +158,18 @@ export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] =
   };
 };
 
-export const getLearningGoalRequiredSubGoals: APILearningGoalResolvers['requiredSubGoals'] = async learningGoal => {
-  return [];
+export const getLearningGoalRequiredSubGoalsResolver: APILearningGoalResolvers['requiredSubGoals'] = async learningGoal => {
+  const results = await getLearningGoalRequiredSubGoals(learningGoal._id);
+  return results.map(({ relationship, subGoal }) => ({
+    subGoal,
+    ...relationship,
+  }));
 };
 
-export const getLearningGoalRequiredInGoals: APILearningGoalResolvers['requiredInGoals'] = async learningGoal => {
-  return [];
+export const getLearningGoalRequiredInGoalsResolver: APILearningGoalResolvers['requiredInGoals'] = async learningGoal => {
+  const results = await getLearningGoalRequiredInGoals(learningGoal._id);
+  return results.map(({ relationship, parentGoal }) => ({
+    goal: parentGoal,
+    ...relationship,
+  }));
 };
