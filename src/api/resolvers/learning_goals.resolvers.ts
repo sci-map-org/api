@@ -2,10 +2,11 @@ import { UserInputError } from 'apollo-server-koa';
 import { NotFoundError } from '../../errors/NotFoundError';
 import { findDomain } from '../../repositories/domains.repository';
 import {
+  attachLearningGoalRequiresSubGoal,
   attachLearningGoalToDomain,
   createLearningGoal,
   deleteLearningGoal,
-  detachLearningGoalFromDomain,
+  detachLearningGoalRequiresSubGoal,
   findDomainLearningGoalByKey,
   findLearningGoal,
   findLearningGoalCreatedBy,
@@ -126,6 +127,25 @@ export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByK
   return learningGoal;
 };
 
+export const attachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['attachLearningGoalRequiresSubGoal'] = async (
+  _,
+  { subGoalId, learningGoalId, payload },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  return await attachLearningGoalRequiresSubGoal(learningGoalId, subGoalId, {
+    strength: payload.strength || 100,
+  });
+};
+export const detachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['detachLearningGoalRequiresSubGoal'] = async (
+  _,
+  { subGoalId, learningGoalId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  return await detachLearningGoalRequiresSubGoal(learningGoalId, subGoalId);
+};
+
 export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] = async learningGoal => {
   const result = await getLearningGoalDomain(learningGoal._id);
   if (!result) return null;
@@ -134,4 +154,12 @@ export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] =
     ...result.relationship,
     learningGoal: result.learningGoal,
   };
+};
+
+export const getLearningGoalRequiredSubGoals: APILearningGoalResolvers['requiredSubGoals'] = async learningGoal => {
+  return [];
+};
+
+export const getLearningGoalRequiredInGoals: APILearningGoalResolvers['requiredInGoals'] = async learningGoal => {
+  return [];
 };
