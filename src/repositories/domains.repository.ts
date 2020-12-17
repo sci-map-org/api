@@ -55,7 +55,7 @@ export const createDomain = (user: { _id: string } | { key: string }, data: Crea
   createRelatedNode<User, UserCreatedDomain, Domain>({
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedDomainLabel, props: { createdAt: Date.now() } },
-    newNode: { labels: [DomainLabel], props: { ...data, _id: shortid.generate() } },
+    newNode: { labels: [DomainLabel, TopicLabel], props: { ...data, _id: shortid.generate() } },
   });
 
 export const searchDomains = async (

@@ -20,6 +20,7 @@ import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
+import { TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import {
@@ -47,7 +48,7 @@ export const createLearningGoal = (
     originNode: { label: UserLabel, filter: userFilter },
     relationship: { label: UserCreatedLearningGoalLabel, props: { createdAt: Date.now() } },
     newNode: {
-      labels: [LearningGoalLabel],
+      labels: [LearningGoalLabel, TopicLabel],
       props: {
         ...data,
         _id: shortid.generate(),

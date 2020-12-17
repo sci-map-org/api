@@ -33,6 +33,7 @@ import {
   DEFAULT_INDEX_VALUE,
 } from '../entities/relationships/ConceptBelongsToConcept';
 import { UserCreatedConceptLabel, UserCreatedConcept } from '../entities/relationships/UserCreatedConcept';
+import { TopicLabel } from '../entities/Topic';
 
 interface CreateConceptData {
   name: string;
@@ -51,7 +52,7 @@ export const createConcept = (user: { _id: string } | { key: string }, data: Cre
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedConceptLabel, props: { createdAt: Date.now() } },
     newNode: {
-      labels: [ConceptLabel],
+      labels: [ConceptLabel, TopicLabel],
       props: {
         ...data,
         key: generateUrlKey(data.key || data.name), // a bit ugly
