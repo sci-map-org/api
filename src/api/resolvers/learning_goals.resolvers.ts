@@ -10,6 +10,7 @@ import {
   findDomainLearningGoalByKey,
   findLearningGoal,
   findLearningGoalCreatedBy,
+  getLearningGoalCreator,
   getLearningGoalDomain,
   getLearningGoalRequiredInGoals,
   getLearningGoalRequiredSubGoals,
@@ -172,4 +173,8 @@ export const getLearningGoalRequiredInGoalsResolver: APILearningGoalResolvers['r
     goal: parentGoal,
     ...relationship,
   }));
+};
+
+export const getLearningGoalCreatedByResolver: APILearningGoalResolvers['createdBy'] = async learningGoal => {
+  return await getLearningGoalCreator(learningGoal._id);
 };

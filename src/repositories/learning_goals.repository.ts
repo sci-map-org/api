@@ -27,6 +27,7 @@ import {
   detachUniqueNodes,
   findOne,
   getOptionalRelatedNode,
+  getRelatedNode,
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
@@ -313,3 +314,20 @@ export const getLearningGoalRequiredInGoals = (
       parentGoal: destinationNode,
     }))
   );
+
+export const getLearningGoalCreator = (learningGoalId: string): Promise<User> =>
+  getRelatedNode<User>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: UserCreatedLearningGoalLabel,
+      filter: {},
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: UserLabel,
+      filter: {},
+    },
+  });

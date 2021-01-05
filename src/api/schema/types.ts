@@ -814,6 +814,7 @@ export type APIDeleteDomainResponse = {
 export type APILearningGoal = APITopic & {
    __typename?: 'LearningGoal';
   _id: Scalars['String'];
+  createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   domain?: Maybe<APILearningGoalBelongsToDomain>;
   key: Scalars['String'];
@@ -1922,6 +1923,7 @@ export type APIDeleteDomainResponseResolvers<ContextType = APIContext, ParentTyp
 
 export type APILearningGoalResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoal'] = APIResolversParentTypes['LearningGoal']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domain?: Resolver<Maybe<APIResolversTypes['LearningGoalBelongsToDomain']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
