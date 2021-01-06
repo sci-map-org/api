@@ -1,5 +1,5 @@
-import { TopicBelongsToDomain, TopicBelongsToDomainLabel } from './TopicBelongsToDomain';
+import { BaseTopicBelongsToDomain, TopicBelongsToDomainLabel } from './TopicBelongsToDomain';
 
 export const DomainBelongsToDomainLabel = TopicBelongsToDomainLabel;
 
-export interface DomainBelongsToDomain extends TopicBelongsToDomain {}
+export interface DomainBelongsToDomain extends BaseTopicBelongsToDomain {}
