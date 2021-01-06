@@ -63,6 +63,8 @@ export type APIQuery = {
   searchLearningGoals: APISearchLearningGoalsResult;
   searchLearningMaterialTags: Array<APILearningMaterialTagSearchResult>;
   searchResources: APISearchResourcesResult;
+  searchSubTopics: APISearchTopicsResult;
+  searchTopics: APISearchTopicsResult;
 };
 
 
@@ -141,6 +143,17 @@ export type APIQuerySearchLearningMaterialTagsArgs = {
 export type APIQuerySearchResourcesArgs = {
   options: APISearchResourcesOptions;
   query: Scalars['String'];
+};
+
+
+export type APIQuerySearchSubTopicsArgs = {
+  domainId: Scalars['String'];
+  options: APISearchTopicsOptions;
+};
+
+
+export type APIQuerySearchTopicsArgs = {
+  options: APISearchTopicsOptions;
 };
 
 export type APICreateArticlePayload = {
@@ -1223,6 +1236,21 @@ export type APITopic = {
 
 export { TopicType };
 
+export type APISearchTopicsFilterOptions = {
+  topicTypeIn?: Maybe<Array<TopicType>>;
+};
+
+export type APISearchTopicsOptions = {
+  filter?: Maybe<APISearchTopicsFilterOptions>;
+  pagination: APIPaginationOptions;
+  query: Scalars['String'];
+};
+
+export type APISearchTopicsResult = {
+   __typename?: 'SearchTopicsResult';
+  items: Array<APITopic>;
+};
+
 export { UserRole };
 
 export type APIUser = {
@@ -1555,6 +1583,9 @@ export type APIResolversTypes = ResolversObject<{
   SearchResourcesResult: ResolverTypeWrapper<APISearchResourcesResult>,
   Topic: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'],
   TopicType: TopicType,
+  SearchTopicsFilterOptions: APISearchTopicsFilterOptions,
+  SearchTopicsOptions: APISearchTopicsOptions,
+  SearchTopicsResult: ResolverTypeWrapper<APISearchTopicsResult>,
   UserRole: UserRole,
   User: ResolverTypeWrapper<APIUser>,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1692,6 +1723,9 @@ export type APIResolversParentTypes = ResolversObject<{
   SearchResourcesResult: APISearchResourcesResult,
   Topic: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'],
   TopicType: TopicType,
+  SearchTopicsFilterOptions: APISearchTopicsFilterOptions,
+  SearchTopicsOptions: APISearchTopicsOptions,
+  SearchTopicsResult: APISearchTopicsResult,
   UserRole: UserRole,
   User: APIUser,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1748,6 +1782,8 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   searchLearningGoals?: Resolver<APIResolversTypes['SearchLearningGoalsResult'], ParentType, ContextType, RequireFields<APIQuerySearchLearningGoalsArgs, 'options'>>,
   searchLearningMaterialTags?: Resolver<Array<APIResolversTypes['LearningMaterialTagSearchResult']>, ParentType, ContextType, RequireFields<APIQuerySearchLearningMaterialTagsArgs, 'options'>>,
   searchResources?: Resolver<APIResolversTypes['SearchResourcesResult'], ParentType, ContextType, RequireFields<APIQuerySearchResourcesArgs, 'options' | 'query'>>,
+  searchSubTopics?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQuerySearchSubTopicsArgs, 'domainId' | 'options'>>,
+  searchTopics?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQuerySearchTopicsArgs, 'options'>>,
 }>;
 
 export type APIDeleteArticleResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteArticleResponse'] = APIResolversParentTypes['DeleteArticleResponse']> = ResolversObject<{
@@ -2193,6 +2229,11 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
 }>;
 
+export type APISearchTopicsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchTopicsResult'] = APIResolversParentTypes['SearchTopicsResult']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['User'] = APIResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APIUserArticlesArgs, 'options'>>,
@@ -2333,6 +2374,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SubResourceSeriesCreatedResult?: APISubResourceSeriesCreatedResultResolvers<ContextType>,
   SearchResourcesResult?: APISearchResourcesResultResolvers<ContextType>,
   Topic?: APITopicResolvers,
+  SearchTopicsResult?: APISearchTopicsResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   LearningPathStartedItem?: APILearningPathStartedItemResolvers<ContextType>,

@@ -16,3 +16,22 @@ enum TopicType {
   Concept
   LearningGoal
 }
+
+input SearchTopicsFilterOptions {
+  topicTypeIn: [TopicType!]
+}
+
+input SearchTopicsOptions {
+  query: String!
+  pagination: PaginationOptions!
+  filter: SearchTopicsFilterOptions
+}
+
+type SearchTopicsResult {
+  items: [Topic!]!
+}
+
+type Query {
+  searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
+  searchSubTopics(domainId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
+}

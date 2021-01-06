@@ -145,7 +145,7 @@ import {
   detachLearningGoalRequiresSubGoalResolver,
   getLearningGoalCreatedByResolver,
 } from './resolvers/learning_goals.resolvers';
-import { topicResolveType } from './resolvers/topics.resolvers';
+import { searchSubTopicsResolver, searchTopicsResolver, topicResolveType } from './resolvers/topics.resolvers';
 import { TopicType } from '../entities/Topic';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
@@ -229,6 +229,8 @@ const resolvers: APIResolvers<APIContext> = {
     getLearningGoalByKey: getLearningGoalByKeyResolver,
     getDomainLearningGoalByKey: getDomainLearningGoalByKeyResolver,
     searchLearningGoals: searchLearningGoalsResolver,
+    searchTopics: searchTopicsResolver,
+    searchSubTopics: searchSubTopicsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

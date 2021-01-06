@@ -1,6 +1,6 @@
 # import * from "common/PaginationOptions.graphql"
 # import * from "common/SortingDirection.graphql"
-# import * from "Topic.graphql"
+# import Query.* from "Topic.graphql"
 # import Query.*, Mutation.* from "User.graphql"
 # import Query.*, Mutation.* from "Article.graphql"
 # import Query.*, Mutation.* from "Domain.graphql"
