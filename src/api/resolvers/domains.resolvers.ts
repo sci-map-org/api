@@ -14,7 +14,6 @@ import {
   getDomainResources,
   getDomainSubDomains,
   getDomainSubTopics,
-  // getDomainSubTopics,
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';

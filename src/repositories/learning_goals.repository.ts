@@ -171,9 +171,6 @@ function generateLearningGoalKey(name: string) {
   return shortid.generate() + '_' + generateUrlKey(name);
 }
 
-/**
- * TODO Cleanup once there's Topic ?
- */
 export const attachLearningGoalRequiresSubGoal = async (
   learningGoalId: string,
   subGoalId: string,
@@ -189,39 +186,6 @@ export const attachLearningGoalRequiresSubGoal = async (
     destinationNode: { label: TopicLabel, filter: { _id: subGoalId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, subGoal: destinationNode }));
 
-// const attachLearningGoalRequiresLearningGoal = (
-//   learningGoalId: string,
-//   subLearningGoalId: string,
-//   { strength }: { strength?: number }
-// ): Promise<{ subGoal: LearningGoal; learningGoal: LearningGoal }> =>
-//   attachUniqueNodes<LearningGoal, LearningGoalRequiresLearningGoal, LearningGoal>({
-//     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-//     relationship: {
-//       label: LearningGoalRequiresLearningGoalLabel, // assert = to Concept
-//       onCreateProps: { strength: strength || 100 },
-//       onMergeProps: { strength },
-//     },
-//     destinationNode: { label: LearningGoalLabel, filter: { _id: subLearningGoalId } },
-//   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, subGoal: destinationNode }));
-
-// const attachLearningGoalRequiresConcept = (
-//   learningGoalId: string,
-//   conceptId: string,
-//   { strength }: { strength?: number }
-// ): Promise<{ concept: Concept; learningGoal: LearningGoal }> =>
-//   attachUniqueNodes<LearningGoal, LearningGoalRequiresConcept, Concept>({
-//     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-//     relationship: {
-//       label: LearningGoalRequiresConceptLabel,
-//       onCreateProps: { strength: strength || 100 },
-//       onMergeProps: { strength },
-//     },
-//     destinationNode: { label: ConceptLabel, filter: { _id: conceptId } },
-//   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, concept: destinationNode }));
-
-/**
- * TODO Cleanup once there's Topic ?
- */
 export const detachLearningGoalRequiresSubGoal = async (
   learningGoalId: string,
   subGoalId: string
@@ -234,32 +198,6 @@ export const detachLearningGoalRequiresSubGoal = async (
     },
     destinationNode: { label: TopicLabel, filter: { _id: subGoalId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, subGoal: destinationNode }));
-
-// const detachLearningGoalRequiresLearningGoal = (
-//   learningGoalId: string,
-//   subLearningGoalId: string
-// ): Promise<{ subGoal: LearningGoal; learningGoal: LearningGoal }> =>
-//   detachUniqueNodes<LearningGoal, LearningGoalRequiresLearningGoal, LearningGoal>({
-//     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-//     relationship: {
-//       label: LearningGoalRequiresLearningGoalLabel,
-//       filter: {},
-//     },
-//     destinationNode: { label: LearningGoalLabel, filter: { _id: subLearningGoalId } },
-//   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, subGoal: destinationNode }));
-
-// const detachLearningGoalRequiresConcept = (
-//   learningGoalId: string,
-//   conceptId: string
-// ): Promise<{ concept: Concept; learningGoal: LearningGoal }> =>
-//   detachUniqueNodes<LearningGoal, LearningGoalRequiresConcept, Concept>({
-//     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-//     relationship: {
-//       label: LearningGoalRequiresConceptLabel,
-//       filter: {},
-//     },
-//     destinationNode: { label: ConceptLabel, filter: { _id: conceptId } },
-//   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, concept: destinationNode }));
 
 export const getLearningGoalRequiredSubGoals = (
   learningGoalId: string
@@ -305,11 +243,11 @@ export const getLearningGoalRequiredInGoals = (
       direction: 'IN',
     },
     destinationNode: {
-      label: LearningGoalLabel, // TODO: that's not clean, should be explicitely concept or learning goal
+      label: LearningGoalLabel,
     },
   }).then(items =>
     items.map(({ destinationNode, relationship, originNode }) => ({
-      learningGoal: destinationNode,
+      learningGoal: originNode,
       relationship,
       parentGoal: destinationNode,
     }))
