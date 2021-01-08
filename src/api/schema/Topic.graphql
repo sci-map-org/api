@@ -1,0 +1,37 @@
+interface Topic {
+  _id: String!
+  name: String!
+  key: String! # Mandatory in the future ? Could it help searching for instance ?
+  description: String
+  topicType: TopicType! # To remove once there is a difference between the schema. Make a migration to remove it also from db
+  #   domains: [TopicsBelongsToDomainItem!] # parent domains ? or belong to domain ? Cause domain can be one already. parentDomains ?
+  # progress | completion
+  # coveredByLearningMaterials # ? shared recommendation engine ?
+  # social / might be different forms, maybe same in the beginning, e.g. comment or question ?
+  #
+}
+
+enum TopicType {
+  Domain
+  Concept
+  LearningGoal
+}
+
+input SearchTopicsFilterOptions {
+  topicTypeIn: [TopicType!]
+}
+
+input SearchTopicsOptions {
+  query: String!
+  pagination: PaginationOptions!
+  filter: SearchTopicsFilterOptions
+}
+
+type SearchTopicsResult {
+  items: [Topic!]!
+}
+
+type Query {
+  searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
+  searchSubTopics(domainId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
+}

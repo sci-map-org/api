@@ -2,14 +2,18 @@ import { UserInputError } from 'apollo-server-koa';
 import { NotFoundError } from '../../errors/NotFoundError';
 import { findDomain } from '../../repositories/domains.repository';
 import {
+  attachLearningGoalRequiresSubGoal,
   attachLearningGoalToDomain,
   createLearningGoal,
   deleteLearningGoal,
-  detachLearningGoalFromDomain,
+  detachLearningGoalRequiresSubGoal,
   findDomainLearningGoalByKey,
   findLearningGoal,
   findLearningGoalCreatedBy,
+  getLearningGoalCreator,
   getLearningGoalDomain,
+  getLearningGoalRequiredInGoals,
+  getLearningGoalRequiredSubGoals,
   searchLearningGoals,
   updateLearningGoal,
 } from '../../repositories/learning_goals.repository';
@@ -126,6 +130,25 @@ export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByK
   return learningGoal;
 };
 
+export const attachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['attachLearningGoalRequiresSubGoal'] = async (
+  _,
+  { subGoalId, learningGoalId, payload },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  return await attachLearningGoalRequiresSubGoal(learningGoalId, subGoalId, {
+    strength: payload.strength || 100,
+  });
+};
+export const detachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['detachLearningGoalRequiresSubGoal'] = async (
+  _,
+  { subGoalId, learningGoalId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  return await detachLearningGoalRequiresSubGoal(learningGoalId, subGoalId);
+};
+
 export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] = async learningGoal => {
   const result = await getLearningGoalDomain(learningGoal._id);
   if (!result) return null;
@@ -134,4 +157,24 @@ export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] =
     ...result.relationship,
     learningGoal: result.learningGoal,
   };
+};
+
+export const getLearningGoalRequiredSubGoalsResolver: APILearningGoalResolvers['requiredSubGoals'] = async learningGoal => {
+  const results = await getLearningGoalRequiredSubGoals(learningGoal._id);
+  return results.map(({ relationship, subGoal }) => ({
+    subGoal,
+    ...relationship,
+  }));
+};
+
+export const getLearningGoalRequiredInGoalsResolver: APILearningGoalResolvers['requiredInGoals'] = async learningGoal => {
+  const results = await getLearningGoalRequiredInGoals(learningGoal._id);
+  return results.map(({ relationship, parentGoal }) => ({
+    goal: parentGoal,
+    ...relationship,
+  }));
+};
+
+export const getLearningGoalCreatedByResolver: APILearningGoalResolvers['createdBy'] = async learningGoal => {
+  return await getLearningGoalCreator(learningGoal._id);
 };

@@ -1,6 +1,8 @@
-export const LearningGoalBelongsToDomainLabel = 'BELONGS_TO';
+import { BaseTopicBelongsToDomain, TopicBelongsToDomainLabel } from './TopicBelongsToDomain';
 
-export interface LearningGoalBelongsToDomain {
+export const LearningGoalBelongsToDomainLabel = TopicBelongsToDomainLabel;
+
+export interface LearningGoalBelongsToDomain extends BaseTopicBelongsToDomain {
   contextualKey: string;
   contextualName: string;
 }

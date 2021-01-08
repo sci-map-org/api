@@ -9,7 +9,10 @@ import {
   ConceptReferencesConceptLabel,
   STRENGTH_DEFAULT_VALUE,
 } from '../entities/relationships/ConceptReferencesConcept';
-import { LearningMaterialCoversConcept, LearningMaterialCoversConceptLabel } from '../entities/relationships/LearningMaterialCoversConcept';
+import {
+  LearningMaterialCoversConcept,
+  LearningMaterialCoversConceptLabel,
+} from '../entities/relationships/LearningMaterialCoversConcept';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
@@ -30,6 +33,7 @@ import {
   DEFAULT_INDEX_VALUE,
 } from '../entities/relationships/ConceptBelongsToConcept';
 import { UserCreatedConceptLabel, UserCreatedConcept } from '../entities/relationships/UserCreatedConcept';
+import { TopicLabel, TopicType } from '../entities/Topic';
 
 interface CreateConceptData {
   name: string;
@@ -48,11 +52,12 @@ export const createConcept = (user: { _id: string } | { key: string }, data: Cre
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedConceptLabel, props: { createdAt: Date.now() } },
     newNode: {
-      labels: [ConceptLabel],
+      labels: [ConceptLabel, TopicLabel],
       props: {
         ...data,
         key: generateUrlKey(data.key || data.name), // a bit ugly
         _id: shortid.generate(),
+        topicType: TopicType.Concept,
       },
     },
   });
@@ -73,7 +78,7 @@ export const findDomainConceptByKey = (domainKey: string, conceptKey: string): P
       label: ConceptLabel,
       filter: { key: conceptKey },
     },
-  }).then((result) => result ? result.destinationNode : null);;
+  }).then(result => (result ? result.destinationNode : null));
 
 export const updateConcept = updateOne<Concept, { _id: string }, UpdateConceptData>({ label: ConceptLabel });
 
@@ -140,8 +145,7 @@ export const getConceptCoveredByResources = (_id: string): Promise<Resource[]> =
     destinationNode: {
       label: ResourceLabel,
     },
-  })
-    .then(map(prop('destinationNode')));
+  }).then(map(prop('destinationNode')));
 
 export const getUserKnowsConcept = async (userId: string, conceptId: string): Promise<UserKnowsConcept | null> => {
   const item = await getOptionalRelatedNode<User, UserKnowsConcept, Concept>({
@@ -221,7 +225,7 @@ const getConceptReferences = (filter: { _id: string } | { key: string }, directi
     destinationNode: {
       label: ConceptLabel,
     },
-  }).then((items) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
+  }).then(items => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
 
 export const getConceptsReferencedByConcept = (filter: { _id: string } | { key: string }) =>
   getConceptReferences(filter, 'OUT');
@@ -287,7 +291,7 @@ const getConceptBelongsToConcepts = (filter: { _id: string } | { key: string }, 
     destinationNode: {
       label: ConceptLabel,
     },
-  }).then((items) => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
+  }).then(items => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
 
 export const getConceptSubConcepts = (filter: { _id: string } | { key: string }) =>
   getConceptBelongsToConcepts(filter, 'IN');

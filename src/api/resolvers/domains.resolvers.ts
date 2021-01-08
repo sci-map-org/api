@@ -13,6 +13,7 @@ import {
   getDomainPublicLearningPaths,
   getDomainResources,
   getDomainSubDomains,
+  getDomainSubTopics,
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';
@@ -143,5 +144,15 @@ export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals']
     learningGoal,
     ...relationship,
     domain,
+  }));
+};
+
+export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = async domain => {
+  const result = await getDomainSubTopics(domain._id);
+  if (!result) throw new NotFoundError('Domain', domain._id);
+  return result.subTopics.map(({ topic, relationship }) => ({
+    topic,
+    ...relationship,
+    domain: result.domain,
   }));
 };

@@ -59,6 +59,7 @@ import {
   getDomainLearningPathsResolver,
   getDomainLearningMaterialsResolver,
   getDomainLearningGoalsResolver,
+  getDomainSubTopicsResolver,
 } from './resolvers/domains.resolvers';
 import {
   addComplementaryResourceToLearningPathResolver,
@@ -131,16 +132,21 @@ import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
 import {
   addLearningGoalToDomainResolver,
-  // attachLearningGoalToDomainResolver,
   deleteLearningGoalResolver,
-  // detachLearningGoalFromDomainResolver,
   getLearningGoalByKeyResolver,
   updateLearningGoalResolver,
   getLearningGoalDomainResolver,
   getDomainLearningGoalByKeyResolver,
   createLearningGoalResolver,
   searchLearningGoalsResolver,
+  getLearningGoalRequiredSubGoalsResolver,
+  getLearningGoalRequiredInGoalsResolver,
+  attachLearningGoalRequiresSubGoalResolver,
+  detachLearningGoalRequiresSubGoalResolver,
+  getLearningGoalCreatedByResolver,
 } from './resolvers/learning_goals.resolvers';
+import { searchSubTopicsResolver, searchTopicsResolver, topicResolveType } from './resolvers/topics.resolvers';
+import { TopicType } from '../entities/Topic';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -203,6 +209,8 @@ const resolvers: APIResolvers<APIContext> = {
     removeLearningMaterialPrerequisite: removeLearningMaterialPrerequisiteResolver,
     addLearningMaterialOutcome: addLearningMaterialOutcomeResolver,
     removeLearningMaterialOutcome: removeLearningMaterialOutcomeResolver,
+    attachLearningGoalRequiresSubGoal: attachLearningGoalRequiresSubGoalResolver,
+    detachLearningGoalRequiresSubGoal: detachLearningGoalRequiresSubGoalResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -221,6 +229,8 @@ const resolvers: APIResolvers<APIContext> = {
     getLearningGoalByKey: getLearningGoalByKeyResolver,
     getDomainLearningGoalByKey: getDomainLearningGoalByKeyResolver,
     searchLearningGoals: searchLearningGoalsResolver,
+    searchTopics: searchTopicsResolver,
+    searchSubTopics: searchSubTopicsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -241,6 +251,7 @@ const resolvers: APIResolvers<APIContext> = {
     learningPaths: getDomainLearningPathsResolver,
     learningMaterials: getDomainLearningMaterialsResolver,
     learningGoals: getDomainLearningGoalsResolver,
+    subTopics: getDomainSubTopicsResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,
@@ -285,9 +296,22 @@ const resolvers: APIResolvers<APIContext> = {
   },
   LearningGoal: {
     domain: getLearningGoalDomainResolver,
+    requiredSubGoals: getLearningGoalRequiredSubGoalsResolver,
+    requiredInGoals: getLearningGoalRequiredInGoalsResolver,
+    createdBy: getLearningGoalCreatedByResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,
+  },
+  Topic: {
+    __resolveType: topicResolveType,
+  },
+  SubGoal: {
+    __resolveType: obj => {
+      if (obj.topicType === TopicType.Concept) return 'Concept';
+      if (obj.topicType === TopicType.LearningGoal) return 'LearningGoal';
+      throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
+    },
   },
   Date: GraphQLDateTime,
 };

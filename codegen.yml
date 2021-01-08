@@ -17,3 +17,4 @@ generates:
         ResourceType: ../../entities/Resource#ResourceType
         ResourceMediaType: ../../entities/Resource#ResourceMediaType
         SortingDirection: ../../repositories/util/sorting#SortingDirection
+        TopicType: ../../entities/Topic#TopicType

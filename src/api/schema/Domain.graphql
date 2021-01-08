@@ -1,8 +1,9 @@
-type Domain {
+type Domain implements Topic {
   _id: String!
   name: String!
   key: String!
   description: String
+  topicType: TopicType!
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
   resources(options: DomainResourcesOptions!): DomainResourcesResults
   learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
@@ -10,6 +11,7 @@ type Domain {
   subDomains: [DomainBelongsToDomainItem!]
   parentDomains: [DomainBelongsToDomainItem!]
   learningGoals: [LearningGoalBelongsToDomain!]
+  subTopics: [TopicBelongsToDomain!]
 }
 
 # Domain learning paths

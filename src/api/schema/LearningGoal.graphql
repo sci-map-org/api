@@ -1,10 +1,26 @@
-type LearningGoal {
+type LearningGoal implements Topic {
   _id: String!
   key: String!
   name: String!
   description: String
+  topicType: TopicType!
+  createdBy: User
   domain: LearningGoalBelongsToDomain
+  requiredInGoals: [RequiredInGoalItem!]
+  requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?
 }
+
+type RequiredInGoalItem {
+  goal: LearningGoal!
+  strength: Float!
+}
+
+type SubGoalItem {
+  subGoal: SubGoal!
+  strength: Float!
+}
+
+union SubGoal = LearningGoal | Concept
 
 input CreateLearningGoalPayload {
   name: String!
@@ -56,6 +72,18 @@ input SearchLearningGoalsOptions {
 type SearchLearningGoalsResult {
   items: [LearningGoal!]!
 }
+input AttachLearningGoalRequiresSubGoalPayload {
+  strength: Float
+}
+type AttachLearningGoalRequiresSubGoalResult {
+  learningGoal: LearningGoal!
+  subGoal: SubGoal!
+}
+
+type DetachLearningGoalRequiresSubGoalResult {
+  learningGoal: LearningGoal!
+  subGoal: SubGoal!
+}
 
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
@@ -74,4 +102,13 @@ type Mutation {
   # detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
   updateLearningGoal(_id: String!, payload: UpdateLearningGoalPayload!): LearningGoal!
   deleteLearningGoal(_id: String!): DeleteLearningGoalMutationResult!
+  attachLearningGoalRequiresSubGoal(
+    learningGoalId: String!
+    subGoalId: String!
+    payload: AttachLearningGoalRequiresSubGoalPayload!
+  ): AttachLearningGoalRequiresSubGoalResult!
+  detachLearningGoalRequiresSubGoal(
+    learningGoalId: String!
+    subGoalId: String!
+  ): DetachLearningGoalRequiresSubGoalResult!
 }
