@@ -94,6 +94,7 @@ type DomainResourcesResults {
 # learning materials
 enum DomainLearningMaterialsSortingType {
   recommended
+  rating
   newest
 }
 

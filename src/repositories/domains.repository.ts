@@ -24,6 +24,7 @@ import {
   TopicBelongsToDomainLabel,
 } from '../entities/relationships/TopicBelongsToDomain';
 import { UserCreatedDomain, UserCreatedDomainLabel } from '../entities/relationships/UserCreatedDomain';
+import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
 import { Topic, TopicLabel, TopicType } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
@@ -361,6 +362,15 @@ export const getDomainLearningMaterials = async (
       ]);
     }
     q.orderBy('score', 'DESC');
+  } else if (sortingType === APIDomainLearningMaterialsSortingType.Rating) {
+    q.optionalMatch([
+      node('lm'),
+      relation('in', 'ratedLearningMaterial', UserRatedLearningMaterialLabel),
+      node('', 'User'),
+    ]);
+    q.with(['DISTINCT lm', 'avg(ratedLearningMaterial.value) AS rating']);
+    q.return(['lm', 'rating']);
+    q.raw(' ORDER BY rating IS NOT NULL DESC, rating DESC');
   } else {
     q.match([node('lm'), relation('in', 'createdLearningMaterial', 'CREATED'), node('', 'User')]);
     q.return(['lm']);
@@ -368,7 +378,6 @@ export const getDomainLearningMaterials = async (
   }
 
   const r = await q.run();
-  // console.log(r.map(i => ({ name: i.lm.properties.name, score: i.score, isLearningPath: i.isLearningPath })));
   const learningMaterials = r.map(i => i.lm.properties);
   return learningMaterials;
 };
