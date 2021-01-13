@@ -108,6 +108,7 @@ import {
   getResourceCoveredConceptsByDomainResolver,
   searchResourcesResolver,
   getResourceSeriesParentResourceResolver,
+  analyzeResourceUrlResolver,
 } from './resolvers/resources.resolvers';
 import {
   addTagsToLearningMaterialResolver,
@@ -231,6 +232,7 @@ const resolvers: APIResolvers<APIContext> = {
     searchLearningGoals: searchLearningGoalsResolver,
     searchTopics: searchTopicsResolver,
     searchSubTopics: searchSubTopicsResolver,
+    analyzeResourceUrl: analyzeResourceUrlResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

@@ -31,6 +31,7 @@ import {
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
+import { analyzeResourceUrl } from '../../services/url_analyzer.service';
 import { hasAccess } from '../../services/users.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import {
@@ -55,6 +56,10 @@ export const searchResourcesResolver: APIQueryResolvers['searchResources'] = asy
   return {
     items: await searchResources(query, nullToUndefined(options)),
   };
+};
+
+export const analyzeResourceUrlResolver: APIQueryResolvers['analyzeResourceUrl'] = async (_parent, { url }) => {
+  return { resourceData: await analyzeResourceUrl(url) };
 };
 
 export const createResourceResolver: APIMutationResolvers['createResource'] = async (
