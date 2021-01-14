@@ -781,6 +781,7 @@ export type APIDomainResourcesResults = {
 /** learning materials */
 export enum APIDomainLearningMaterialsSortingType {
   Newest = 'newest',
+  Rating = 'rating',
   Recommended = 'recommended'
 }
 
