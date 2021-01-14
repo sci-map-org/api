@@ -1,4 +1,6 @@
-import { CheerioSelector } from '../apify';
+import { load } from 'cheerio';
+
+export type CheerioSelector = ReturnType<typeof load>;
 
 type CrawlerType = 'cheerio' | 'puppeteer';
 

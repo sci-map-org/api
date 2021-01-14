@@ -1,5 +1,5 @@
 import { APIResourceData } from '../api/schema/types';
-import { scrapePage } from '../crawler/apify';
+import { scrapePage } from '../crawler/page_scraper';
 import { CourseraExtractedData, courseraExtractorConfig } from '../crawler/extractors/coursera';
 import { defaultExtractorConfig } from '../crawler/extractors/default';
 import { WebsiteExtractor } from '../crawler/extractors/extractors';
