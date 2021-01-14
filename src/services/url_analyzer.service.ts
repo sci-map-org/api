@@ -1,6 +1,7 @@
 import { APIResourceData } from '../api/schema/types';
 import { scrapePage } from '../crawler/apify';
 import { CourseraExtractedData, courseraExtractorConfig } from '../crawler/extractors/coursera';
+import { defaultExtractorConfig } from '../crawler/extractors/default';
 import { WebsiteExtractor } from '../crawler/extractors/extractors';
 import { MediumExtractedData, mediumExtractorConfig } from '../crawler/extractors/medium';
 import { YoutubeExtractedData, youtubeExtractorConfig } from '../crawler/extractors/youtube';
@@ -37,7 +38,15 @@ const courseraConfig: AnalyzerConfig<CourseraExtractedData> = {
     mediaType: ResourceMediaType.video,
   }),
 };
-const configs = [youtubeConfig, mediumConfig, courseraConfig];
+
+const defaultConfig: AnalyzerConfig<{ title?: string }> = {
+  extractor: defaultExtractorConfig,
+  postProcess: data => ({
+    name: data.title,
+  }),
+};
+
+const configs = [youtubeConfig, mediumConfig, courseraConfig, defaultConfig]; // put default at the end as it catches all urls
 
 const dispatch = async (url: string, configs: AnalyzerConfig<any>[]): Promise<APIResourceData> => {
   const matchingConfig = configs.find(config => !!url.match(config.extractor.urlMatch));
