@@ -6,6 +6,8 @@ ENV PORT 8000
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
+RUN apk --no-cache --virtual add python make g++
+
 # Installing dependencies
 COPY yarn.lock package.json /usr/src/app/
 RUN yarn install --ignore-optional --frozen-lockfile
