@@ -55,6 +55,7 @@ const API = typedEnv.envGroup({
 
 const OTHER = typedEnv.envGroup({
   FRONTEND_BASE_URL: typedEnv.types.NonEmptyString,
+  APIFY_LOCAL_STORAGE_DIR: typedEnv.types.NonEmptyString,
 });
 
 const envSchema = typedEnv.envSchema({

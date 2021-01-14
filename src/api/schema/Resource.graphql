@@ -132,9 +132,21 @@ type SearchResourcesResult {
   items: [Resource!]!
 }
 
+type ResourceData {
+  name: String
+  type: ResourceType
+  mediaType: ResourceMediaType
+  description: String
+}
+
+type AnalyzeResourceUrlResult {
+  resourceData: ResourceData
+}
+
 type Query {
   searchResources(query: String!, options: SearchResourcesOptions!): SearchResourcesResult!
   getResourceById(id: String!): Resource!
+  analyzeResourceUrl(url: String!): AnalyzeResourceUrlResult!
 }
 
 type Mutation {
