@@ -1,27 +1,47 @@
 import { APIResourceData } from '../api/schema/types';
-import { scrapePage } from '../crawler/page_scraper';
 import { CourseraExtractedData, courseraExtractorConfig } from '../crawler/extractors/coursera';
 import { defaultExtractorConfig } from '../crawler/extractors/default';
 import { WebsiteExtractor } from '../crawler/extractors/extractors';
 import { MediumExtractedData, mediumExtractorConfig } from '../crawler/extractors/medium';
-import { YoutubeExtractedData, youtubeExtractorConfig } from '../crawler/extractors/youtube';
+import {
+  YoutubePlaylistData,
+  youtubePlaylistExtractorConfig,
+  YoutubeVideoData,
+  youtubeVideoExtractorConfig,
+} from '../crawler/extractors/youtube';
+import { extractWebsiteData } from '../crawler/website_extractor';
 import { ResourceMediaType, ResourceType } from '../entities/Resource';
 
-type AnalyzerConfig<T> = {
+type ResourceDataExtractor<T> = {
   extractor: WebsiteExtractor<T>;
   postProcess: (data: T) => Promise<APIResourceData> | APIResourceData;
 };
 
-const youtubeConfig: AnalyzerConfig<YoutubeExtractedData> = {
-  extractor: youtubeExtractorConfig,
+const youtubeVideoConfig: ResourceDataExtractor<YoutubeVideoData> = {
+  extractor: youtubeVideoExtractorConfig,
+  postProcess: async data => {
+    return {
+      name: data.title,
+      description: data.description,
+      type: ResourceType.youtube_video,
+      mediaType: ResourceMediaType.video,
+      durationSeconds: data.durationSeconds,
+    };
+  },
+};
+
+const youtubePlaylistConfig: ResourceDataExtractor<YoutubePlaylistData> = {
+  extractor: youtubePlaylistExtractorConfig,
   postProcess: async data => ({
     name: data.title,
-    type: ResourceType.youtube_video,
+    description: data.description,
+    type: ResourceType.youtube_video_series,
     mediaType: ResourceMediaType.video,
+    durationSeconds: data.durationSeconds,
   }),
 };
 
-const mediumConfig: AnalyzerConfig<MediumExtractedData> = {
+const mediumConfig: ResourceDataExtractor<MediumExtractedData> = {
   extractor: mediumExtractorConfig,
   postProcess: async data => ({
     name: data.title,
@@ -30,7 +50,7 @@ const mediumConfig: AnalyzerConfig<MediumExtractedData> = {
   }),
 };
 
-const courseraConfig: AnalyzerConfig<CourseraExtractedData> = {
+const courseraConfig: ResourceDataExtractor<CourseraExtractedData> = {
   extractor: courseraExtractorConfig,
   postProcess: async data => ({
     name: data.title,
@@ -39,19 +59,21 @@ const courseraConfig: AnalyzerConfig<CourseraExtractedData> = {
   }),
 };
 
-const defaultConfig: AnalyzerConfig<{ title?: string }> = {
+const defaultConfig: ResourceDataExtractor<{ title?: string }> = {
   extractor: defaultExtractorConfig,
   postProcess: data => ({
     name: data.title,
   }),
 };
 
-const configs = [youtubeConfig, mediumConfig, courseraConfig, defaultConfig]; // put default at the end as it catches all urls
+const configs = [youtubeVideoConfig, youtubePlaylistConfig, mediumConfig, courseraConfig, defaultConfig]; // put default at the end as it catches all urls
 
-const dispatch = async (url: string, configs: AnalyzerConfig<any>[]): Promise<APIResourceData> => {
+const dispatch = async (url: string, configs: ResourceDataExtractor<any>[]): Promise<APIResourceData> => {
   const matchingConfig = configs.find(config => !!url.match(config.extractor.urlMatch));
   if (!matchingConfig) return {};
-  const data = await scrapePage(url, matchingConfig.extractor);
+
+  const data = await extractWebsiteData(url, matchingConfig.extractor);
+
   return matchingConfig.postProcess(data);
 };
 

@@ -7,7 +7,8 @@ export interface CourseraExtractedData {
 }
 
 export const courseraExtractorConfig: WebsiteExtractor<CourseraExtractedData> = {
-  crawlerType: 'cheerio',
+  type: 'scraper',
+  scraperType: 'cheerio',
   urlMatch: /coursera.org\/learn/,
   fieldExtractors: {
     title: $ => $('#main  h1').text(),

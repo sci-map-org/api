@@ -137,6 +137,7 @@ type ResourceData {
   type: ResourceType
   mediaType: ResourceMediaType
   description: String
+  durationSeconds: Int
 }
 
 type AnalyzeResourceUrlResult {

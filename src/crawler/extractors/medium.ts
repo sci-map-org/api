@@ -5,7 +5,8 @@ export interface MediumExtractedData {
 }
 
 export const mediumExtractorConfig: WebsiteExtractor<MediumExtractedData> = {
-  crawlerType: 'cheerio',
+  type: 'scraper',
+  scraperType: 'cheerio',
   urlMatch: /medium.com/,
   fieldExtractors: {
     title: $ =>

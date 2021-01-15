@@ -6,7 +6,8 @@ export interface DefaultExtractedData {
 }
 
 export const defaultExtractorConfig: WebsiteExtractor<DefaultExtractedData> = {
-  crawlerType: 'cheerio',
+  type: 'scraper',
+  scraperType: 'cheerio',
   urlMatch: urlRegexp,
   fieldExtractors: {
     title: $ => {

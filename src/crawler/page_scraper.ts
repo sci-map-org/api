@@ -2,7 +2,7 @@ import * as Apify from 'apify';
 import * as cheerio from 'cheerio';
 import { generate } from 'shortid';
 import { logger } from '../infra/logger';
-import { FieldExtractors, WebsiteExtractor } from './extractors/extractors';
+import { FieldExtractors, ScraperWebsiteExtractor } from './extractors/extractors';
 
 const { log } = Apify.utils;
 log.setLevel(log.LEVELS.ERROR);
@@ -65,8 +65,8 @@ const scrapePageCheerio = async <T>(url: string, extractors: FieldExtractors<T>)
   });
 };
 
-export const scrapePage = async <T>(url: string, config: WebsiteExtractor<T>): Promise<T | null> => {
-  const scrapeFn = config.crawlerType === 'cheerio' ? scrapePageCheerio : scrapePagePuppeteer;
+export const scrapePage = async <T>(url: string, config: ScraperWebsiteExtractor<T>): Promise<T | null> => {
+  const scrapeFn = config.scraperType === 'cheerio' ? scrapePageCheerio : scrapePagePuppeteer;
   try {
     const data = await scrapeFn(url, config.fieldExtractors);
     return data;

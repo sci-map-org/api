@@ -1236,6 +1236,7 @@ export type APISearchResourcesResult = {
 export type APIResourceData = {
    __typename?: 'ResourceData';
   description?: Maybe<Scalars['String']>;
+  durationSeconds?: Maybe<Scalars['Int']>;
   mediaType?: Maybe<ResourceMediaType>;
   name?: Maybe<Scalars['String']>;
   type?: Maybe<ResourceType>;
@@ -2247,6 +2248,7 @@ export type APISearchResourcesResultResolvers<ContextType = APIContext, ParentTy
 
 export type APIResourceDataResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceData'] = APIResolversParentTypes['ResourceData']> = ResolversObject<{
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<Maybe<APIResolversTypes['ResourceMediaType']>, ParentType, ContextType>,
   name?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   type?: Resolver<Maybe<APIResolversTypes['ResourceType']>, ParentType, ContextType>,
