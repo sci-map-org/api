@@ -124,7 +124,7 @@ export const attachLearningMaterialCoversConcepts = (
       logger.warn(
         'attachLearningMaterialCoversConcepts: some concepts in ' + JSON.stringify(conceptIds) + ' not found'
       );
-    if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId);
+    if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no concepts are passed
     return {
       learningMaterial: items[0].originNode,
       concepts: items.map(({ destinationNode }) => destinationNode),

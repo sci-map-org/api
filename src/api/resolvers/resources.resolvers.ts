@@ -98,17 +98,6 @@ export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = as
   };
 };
 
-export const addResourceToDomainResolver: APIMutationResolvers['addResourceToDomain'] = async (
-  _parent,
-  { domainId, payload },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  const createdResource = await createAndSaveResource(nullToUndefined(payload), user._id);
-  await attachLearningMaterialToDomain(createdResource._id, domainId);
-  return toAPIResource(createdResource);
-};
-
 export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { id }) => {
   const resource = await findResource({ _id: id });
   if (!resource) throw new NotFoundError('Resource', id, '_id');

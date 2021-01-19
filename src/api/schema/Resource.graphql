@@ -75,6 +75,22 @@ type ResourceCoveredConceptsByDomainItem {
   coveredConcepts: [Concept!]!
 }
 
+input DomainAndCoveredConcepts {
+  domainId: String!
+  conceptsIds: [String!]!
+}
+
+input CreateSubResourcePayload {
+  name: String!
+  type: ResourceType!
+  mediaType: ResourceMediaType!
+  url: String!
+  description: String
+  durationSeconds: Int
+  tags: [String!]
+  domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
+}
+
 input CreateResourcePayload {
   name: String!
   type: ResourceType!
@@ -82,7 +98,9 @@ input CreateResourcePayload {
   url: String!
   description: String
   durationSeconds: Int
-  tags: [String!] # ?
+  tags: [String!]
+  domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
+  subResourceSeries: [CreateSubResourcePayload!]
 }
 
 input UpdateResourcePayload {
@@ -132,12 +150,23 @@ type SearchResourcesResult {
   items: [Resource!]!
 }
 
+type SubResourceExtractedData {
+  name: String!
+  type: ResourceType!
+  mediaType: ResourceMediaType!
+  url: String!
+  description: String
+  durationSeconds: Int
+  # tags: [String!]
+  # subResourceSeries: [CreateSubResourcePayload!]
+}
 type ResourceData {
   name: String
   type: ResourceType
   mediaType: ResourceMediaType
   description: String
   durationSeconds: Int
+  subResourceSeries: [SubResourceExtractedData!]
 }
 
 type AnalyzeResourceUrlResult {
@@ -154,7 +183,7 @@ type Mutation {
   createResource(payload: CreateResourcePayload!): Resource!
   updateResource(_id: String!, payload: UpdateResourcePayload!): Resource!
   deleteResource(_id: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
-  addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
+  # addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
   voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
   addSubResource(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!
