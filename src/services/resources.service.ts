@@ -3,6 +3,8 @@ import { APIDomainAndCoveredConcepts, ResourceMediaType, ResourceType } from '..
 import { Resource } from '../entities/Resource';
 import {
   attachLearningMaterialCoversConcepts,
+  attachLearningMaterialHasPrerequisiteLearningGoal,
+  attachLearningMaterialLeadsToLearningGoal,
   attachLearningMaterialToDomain,
 } from '../repositories/learning_materials.repository';
 import {
@@ -19,10 +21,12 @@ interface CreateAndSaveResourceBaseData {
   url: string;
   description?: string;
   tags?: string[];
+  prerequisitesLearningGoalsIds?: string[];
+  outcomesLearningGoalsIds?: string[];
+  domainsAndCoveredConcepts?: APIDomainAndCoveredConcepts[];
 }
 interface CreateAndSaveResourceData extends CreateAndSaveResourceBaseData {
   subResourceSeries?: CreateAndSaveResourceBaseData[];
-  domainsAndCoveredConcepts?: APIDomainAndCoveredConcepts[];
 }
 
 const attachDomainsAndCoveredConcepts = async (
@@ -41,22 +45,65 @@ const attachDomainsAndCoveredConcepts = async (
   );
 };
 
+const attachResourceTags = async (resourceId: string, tags?: string[]): Promise<void> => {
+  if (!tags || !tags.length) return;
+  const resourceTags = await Promise.all(tags.map(t => findOrCreateLearningMaterialTag(t)));
+  await attachTagsToLearningMaterial(
+    resourceId,
+    resourceTags.map(r => r.name)
+  );
+};
+
+const attachPrerequisites = async (
+  resourceId: string,
+  userId: string,
+  prerequisitesLearningGoalsIds?: string[]
+): Promise<void> => {
+  if (!prerequisitesLearningGoalsIds || !prerequisitesLearningGoalsIds.length) return;
+  await Promise.all(
+    prerequisitesLearningGoalsIds.map(async prerequisiteId =>
+      attachLearningMaterialHasPrerequisiteLearningGoal(resourceId, prerequisiteId, {
+        strength: 100,
+        createdBy: userId,
+      })
+    )
+  );
+};
+const attachOutcomes = async (
+  resourceId: string,
+  userId: string,
+  outcomesLearningGoalsIds?: string[]
+): Promise<void> => {
+  if (!outcomesLearningGoalsIds || !outcomesLearningGoalsIds.length) return;
+  await Promise.all(
+    outcomesLearningGoalsIds.map(outcomeId =>
+      attachLearningMaterialLeadsToLearningGoal(resourceId, outcomeId, {
+        strength: 100,
+        createdBy: userId,
+      })
+    )
+  );
+};
+
 export const createAndSaveResource = async (data: CreateAndSaveResourceData, userId: string): Promise<Resource> => {
   const createdResource = await createResource(
     { _id: userId },
-    omit(data, ['tags', 'subResourceSeries', 'domainsAndCoveredConcepts'])
+    omit(data, [
+      'tags',
+      'subResourceSeries',
+      'domainsAndCoveredConcepts',
+      'outcomesLearningGoalsIds',
+      'prerequisitesLearningGoalsIds',
+    ])
   );
-
-  if (data.tags && data.tags.length) {
-    const resourceTags = await Promise.all(data.tags.map(t => findOrCreateLearningMaterialTag(t)));
-    await attachTagsToLearningMaterial(
-      createdResource._id,
-      resourceTags.map(r => r.name)
-    );
-  }
-  if (data.domainsAndCoveredConcepts && data.domainsAndCoveredConcepts.length) {
-    await attachDomainsAndCoveredConcepts(createdResource._id, data.domainsAndCoveredConcepts, userId);
-  }
+  await Promise.all([
+    attachResourceTags(createdResource._id, data.tags),
+    attachPrerequisites(createdResource._id, userId, data.prerequisitesLearningGoalsIds),
+    attachOutcomes(createdResource._id, userId, data.outcomesLearningGoalsIds),
+    data.domainsAndCoveredConcepts &&
+      data.domainsAndCoveredConcepts.length &&
+      attachDomainsAndCoveredConcepts(createdResource._id, data.domainsAndCoveredConcepts, userId),
+  ]);
   if (data.subResourceSeries && data.subResourceSeries.length) {
     const createdSubResources = await Promise.all(
       data.subResourceSeries.map(async subResourceData => createAndSaveResource(subResourceData, userId))

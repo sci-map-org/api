@@ -89,6 +89,8 @@ input CreateSubResourcePayload {
   durationSeconds: Int
   tags: [String!]
   domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
+  prerequisitesLearningGoalsIds: [String!]
+  outcomesLearningGoalsIds: [String!]
 }
 
 input CreateResourcePayload {
@@ -100,6 +102,8 @@ input CreateResourcePayload {
   durationSeconds: Int
   tags: [String!]
   domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
+  prerequisitesLearningGoalsIds: [String!]
+  outcomesLearningGoalsIds: [String!]
   subResourceSeries: [CreateSubResourcePayload!]
 }
 

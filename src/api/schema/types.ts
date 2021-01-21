@@ -1177,6 +1177,8 @@ export type APICreateSubResourcePayload = {
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
+  outcomesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
+  prerequisitesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;
   url: Scalars['String'];
@@ -1188,6 +1190,8 @@ export type APICreateResourcePayload = {
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
+  outcomesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
+  prerequisitesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
   subResourceSeries?: Maybe<Array<APICreateSubResourcePayload>>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;

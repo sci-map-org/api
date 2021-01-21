@@ -213,6 +213,7 @@ export const getLearningMaterialDomains = (_id: string) =>
     },
   }).then(map(prop('destinationNode')));
 
+// TODO: optimize by attaching several learning goals to an lm in one query
 export const attachLearningMaterialHasPrerequisiteLearningGoal = async (
   learningMaterialId: string,
   learningGoalId: string,
@@ -255,6 +256,7 @@ export const detachLearningMaterialHasPrerequisiteLearningGoal = (
     },
   }).then(({ originNode, destinationNode }) => ({ learningMaterial: originNode, learningGoal: destinationNode }));
 
+// TODO: optimize by attaching several learning goals to an lm in one query
 export const attachLearningMaterialLeadsToLearningGoal = async (
   learningMaterialId: string,
   learningGoalId: string,
