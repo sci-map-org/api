@@ -161,8 +161,6 @@ type SubResourceExtractedData {
   url: String!
   description: String
   durationSeconds: Int
-  # tags: [String!]
-  # subResourceSeries: [CreateSubResourcePayload!]
 }
 type ResourceData {
   name: String
@@ -187,7 +185,6 @@ type Mutation {
   createResource(payload: CreateResourcePayload!): Resource!
   updateResource(_id: String!, payload: UpdateResourcePayload!): Resource!
   deleteResource(_id: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
-  # addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource!
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
   voteResource(resourceId: String!, value: ResourceVoteValue!): Resource!
   addSubResource(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!

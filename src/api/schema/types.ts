@@ -226,7 +226,6 @@ export type APIMutation = {
   removeTagsFromLearningMaterial: APILearningMaterial;
   setConceptsKnown: Array<APIConcept>;
   setConceptsUnknown: Array<APIConcept>;
-  /** addResourceToDomain(domainId: String!, payload: CreateResourcePayload!): Resource! */
   setResourcesConsumed: Array<APIResource>;
   startLearningPath: APILearningPathStartedResult;
   updateArticle: APIArticle;
