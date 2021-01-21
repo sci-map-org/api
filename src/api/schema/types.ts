@@ -189,7 +189,6 @@ export type APIMutation = {
   addLearningGoalToDomain: APIDomainAndLearningGoalResult;
   addLearningMaterialOutcome: APILearningMaterial;
   addLearningMaterialPrerequisite: APILearningMaterial;
-  addResourceToDomain: APIResource;
   addSubResource: APISubResourceCreatedResult;
   addSubResourceToSeries: APISubResourceSeriesCreatedResult;
   addTagsToLearningMaterial: APILearningMaterial;
@@ -295,12 +294,6 @@ export type APIMutationAddLearningMaterialOutcomeArgs = {
 export type APIMutationAddLearningMaterialPrerequisiteArgs = {
   learningMaterialId: Scalars['String'];
   prerequisiteLearningGoalId: Scalars['String'];
-};
-
-
-export type APIMutationAddResourceToDomainArgs = {
-  domainId: Scalars['String'];
-  payload: APICreateResourcePayload;
 };
 
 
@@ -1172,11 +1165,33 @@ export type APIResourceCoveredConceptsByDomainItem = {
   coveredConcepts: Array<APIConcept>;
 };
 
-export type APICreateResourcePayload = {
+export type APIDomainAndCoveredConcepts = {
+  conceptsIds: Array<Scalars['String']>;
+  domainId: Scalars['String'];
+};
+
+export type APICreateSubResourcePayload = {
   description?: Maybe<Scalars['String']>;
+  domainsAndCoveredConcepts?: Maybe<Array<APIDomainAndCoveredConcepts>>;
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
+  outcomesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
+  prerequisitesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
+  tags?: Maybe<Array<Scalars['String']>>;
+  type: ResourceType;
+  url: Scalars['String'];
+};
+
+export type APICreateResourcePayload = {
+  description?: Maybe<Scalars['String']>;
+  domainsAndCoveredConcepts?: Maybe<Array<APIDomainAndCoveredConcepts>>;
+  durationSeconds?: Maybe<Scalars['Int']>;
+  mediaType: ResourceMediaType;
+  name: Scalars['String'];
+  outcomesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
+  prerequisitesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
+  subResourceSeries?: Maybe<Array<APICreateSubResourcePayload>>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;
   url: Scalars['String'];
@@ -1233,12 +1248,23 @@ export type APISearchResourcesResult = {
   items: Array<APIResource>;
 };
 
+export type APISubResourceExtractedData = {
+   __typename?: 'SubResourceExtractedData';
+  description?: Maybe<Scalars['String']>;
+  durationSeconds?: Maybe<Scalars['Int']>;
+  mediaType: ResourceMediaType;
+  name: Scalars['String'];
+  type: ResourceType;
+  url: Scalars['String'];
+};
+
 export type APIResourceData = {
    __typename?: 'ResourceData';
   description?: Maybe<Scalars['String']>;
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType?: Maybe<ResourceMediaType>;
   name?: Maybe<Scalars['String']>;
+  subResourceSeries?: Maybe<Array<APISubResourceExtractedData>>;
   type?: Maybe<ResourceType>;
 };
 
@@ -1592,6 +1618,8 @@ export type APIResolversTypes = ResolversObject<{
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
   ResourceCoveredConceptsByDomainItem: ResolverTypeWrapper<APIResourceCoveredConceptsByDomainItem>,
+  DomainAndCoveredConcepts: APIDomainAndCoveredConcepts,
+  CreateSubResourcePayload: APICreateSubResourcePayload,
   CreateResourcePayload: APICreateResourcePayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
   SetResourcesConsumedPayloadResourcesField: APISetResourcesConsumedPayloadResourcesField,
@@ -1602,6 +1630,7 @@ export type APIResolversTypes = ResolversObject<{
   SubResourceSeriesCreatedResult: ResolverTypeWrapper<APISubResourceSeriesCreatedResult>,
   SearchResourcesOptions: APISearchResourcesOptions,
   SearchResourcesResult: ResolverTypeWrapper<APISearchResourcesResult>,
+  SubResourceExtractedData: ResolverTypeWrapper<APISubResourceExtractedData>,
   ResourceData: ResolverTypeWrapper<APIResourceData>,
   AnalyzeResourceUrlResult: ResolverTypeWrapper<APIAnalyzeResourceUrlResult>,
   Topic: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'],
@@ -1734,6 +1763,8 @@ export type APIResolversParentTypes = ResolversObject<{
   ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
   ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
   ResourceCoveredConceptsByDomainItem: APIResourceCoveredConceptsByDomainItem,
+  DomainAndCoveredConcepts: APIDomainAndCoveredConcepts,
+  CreateSubResourcePayload: APICreateSubResourcePayload,
   CreateResourcePayload: APICreateResourcePayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
   SetResourcesConsumedPayloadResourcesField: APISetResourcesConsumedPayloadResourcesField,
@@ -1744,6 +1775,7 @@ export type APIResolversParentTypes = ResolversObject<{
   SubResourceSeriesCreatedResult: APISubResourceSeriesCreatedResult,
   SearchResourcesOptions: APISearchResourcesOptions,
   SearchResourcesResult: APISearchResourcesResult,
+  SubResourceExtractedData: APISubResourceExtractedData,
   ResourceData: APIResourceData,
   AnalyzeResourceUrlResult: APIAnalyzeResourceUrlResult,
   Topic: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'],
@@ -1827,7 +1859,6 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   addLearningGoalToDomain?: Resolver<APIResolversTypes['DomainAndLearningGoalResult'], ParentType, ContextType, RequireFields<APIMutationAddLearningGoalToDomainArgs, 'domainId' | 'payload'>>,
   addLearningMaterialOutcome?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddLearningMaterialOutcomeArgs, 'learningMaterialId' | 'outcomeLearningGoalId'>>,
   addLearningMaterialPrerequisite?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddLearningMaterialPrerequisiteArgs, 'learningMaterialId' | 'prerequisiteLearningGoalId'>>,
-  addResourceToDomain?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationAddResourceToDomainArgs, 'domainId' | 'payload'>>,
   addSubResource?: Resolver<APIResolversTypes['SubResourceCreatedResult'], ParentType, ContextType, RequireFields<APIMutationAddSubResourceArgs, 'parentResourceId' | 'subResourceId'>>,
   addSubResourceToSeries?: Resolver<APIResolversTypes['SubResourceSeriesCreatedResult'], ParentType, ContextType, RequireFields<APIMutationAddSubResourceToSeriesArgs, 'parentResourceId' | 'previousResourceId' | 'subResourceId'>>,
   addTagsToLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddTagsToLearningMaterialArgs, 'learningMaterialId' | 'tags'>>,
@@ -2246,11 +2277,22 @@ export type APISearchResourcesResultResolvers<ContextType = APIContext, ParentTy
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APISubResourceExtractedDataResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SubResourceExtractedData'] = APIResolversParentTypes['SubResourceExtractedData']> = ResolversObject<{
+  description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
+  mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
+  name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  type?: Resolver<APIResolversTypes['ResourceType'], ParentType, ContextType>,
+  url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIResourceDataResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceData'] = APIResolversParentTypes['ResourceData']> = ResolversObject<{
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<Maybe<APIResolversTypes['ResourceMediaType']>, ParentType, ContextType>,
   name?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  subResourceSeries?: Resolver<Maybe<Array<APIResolversTypes['SubResourceExtractedData']>>, ParentType, ContextType>,
   type?: Resolver<Maybe<APIResolversTypes['ResourceType']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2413,6 +2455,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SubResourceCreatedResult?: APISubResourceCreatedResultResolvers<ContextType>,
   SubResourceSeriesCreatedResult?: APISubResourceSeriesCreatedResultResolvers<ContextType>,
   SearchResourcesResult?: APISearchResourcesResultResolvers<ContextType>,
+  SubResourceExtractedData?: APISubResourceExtractedDataResolvers<ContextType>,
   ResourceData?: APIResourceDataResolvers<ContextType>,
   AnalyzeResourceUrlResult?: APIAnalyzeResourceUrlResultResolvers<ContextType>,
   Topic?: APITopicResolvers,

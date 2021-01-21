@@ -24,6 +24,7 @@ export interface YoutubePlaylistItemData {
   videoData: YoutubeVideoData;
 }
 export interface YoutubePlaylistData {
+  youtubeId: string;
   title: string;
   description: string;
   durationSeconds: number;

@@ -98,6 +98,7 @@ export const extractYoutubePlaylistData = async (playlistId: string): Promise<Yo
   if (!title || typeof description !== 'string' || !youtubeId) throw new Error('missing data');
   const durationSeconds = items.reduce((totalDuration, item) => totalDuration + item.videoData.durationSeconds, 0);
   return {
+    youtubeId,
     title,
     description,
     items,

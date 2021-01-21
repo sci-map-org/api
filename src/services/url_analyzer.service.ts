@@ -32,13 +32,23 @@ const youtubeVideoConfig: ResourceDataExtractor<YoutubeVideoData> = {
 
 const youtubePlaylistConfig: ResourceDataExtractor<YoutubePlaylistData> = {
   extractor: youtubePlaylistExtractorConfig,
-  postProcess: async data => ({
-    name: data.title,
-    description: data.description,
-    type: ResourceType.youtube_video_series,
-    mediaType: ResourceMediaType.video,
-    durationSeconds: data.durationSeconds,
-  }),
+  postProcess: async data => {
+    return {
+      name: data.title,
+      description: data.description,
+      type: ResourceType.youtube_video_series,
+      mediaType: ResourceMediaType.video,
+      durationSeconds: data.durationSeconds,
+      subResourceSeries: data.items.map(({ videoData }) => ({
+        name: videoData.title,
+        url: `https://www.youtube.com/watch?v=${videoData.youtubeId}&list=${data.youtubeId}`,
+        description: videoData.description,
+        type: ResourceType.youtube_video,
+        mediaType: ResourceMediaType.video,
+        durationSeconds: videoData.durationSeconds,
+      })),
+    };
+  },
 };
 
 const mediumConfig: ResourceDataExtractor<MediumExtractedData> = {
@@ -73,7 +83,6 @@ const dispatch = async (url: string, configs: ResourceDataExtractor<any>[]): Pro
   if (!matchingConfig) return {};
 
   const data = await extractWebsiteData(url, matchingConfig.extractor);
-
   return matchingConfig.postProcess(data);
 };
 

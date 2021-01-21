@@ -83,7 +83,6 @@ import {
   completeLearningPathResolver,
 } from './resolvers/learning_paths.resolvers';
 import {
-  addResourceToDomainResolver,
   addSubResourceResolver,
   createResourceResolver,
   deleteResourceResolver,
@@ -166,7 +165,6 @@ const resolvers: APIResolvers<APIContext> = {
     updateDomain: updateDomainResolver,
     deleteDomain: deleteDomainResolver,
     createResource: createResourceResolver,
-    addResourceToDomain: addResourceToDomainResolver,
     updateResource: updateResourceResolver,
     deleteResource: deleteResourceResolver,
     attachLearningMaterialToDomain: attachLearningMaterialToDomainResolver,
