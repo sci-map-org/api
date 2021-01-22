@@ -2,7 +2,7 @@ enum ResourceMediaType {
   video
   text
   audio
-  image # new
+  image
   interactive_content
 }
 
@@ -10,15 +10,13 @@ enum ResourceType {
   article
   article_series
   course
-  podcast # migrate
-  podcast_series # to remove
-  podcast_episode # new
+  podcast
+  podcast_episode
   youtube_video
-  youtube_video_series # to remove
-  youtube_playlist # new
-  online_book # new
+  youtube_playlist
+  online_book
   book
-  research_paper # new
+  research_paper
   talk
   documentary
   website

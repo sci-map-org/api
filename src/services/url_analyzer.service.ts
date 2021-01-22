@@ -36,7 +36,7 @@ const youtubePlaylistConfig: ResourceDataExtractor<YoutubePlaylistData> = {
     return {
       name: data.title,
       description: data.description,
-      type: ResourceType.youtube_video_series,
+      type: ResourceType.youtube_playlist,
       mediaType: ResourceMediaType.video,
       durationSeconds: data.durationSeconds,
       subResourceSeries: data.items.map(({ videoData }) => ({
