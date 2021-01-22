@@ -26,7 +26,7 @@ interface CreateAndSaveResourceBaseData {
   domainsAndCoveredConcepts?: APIDomainAndCoveredConcepts[];
 }
 interface CreateAndSaveResourceData extends CreateAndSaveResourceBaseData {
-  subResourceSeries?: CreateAndSaveResourceBaseData[];
+  subResourceSeries?: CreateAndSaveResourceBaseData[]; // limit to one level for now
 }
 
 const attachDomainsAndCoveredConcepts = async (

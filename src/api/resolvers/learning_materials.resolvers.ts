@@ -28,11 +28,7 @@ export const rateLearningMaterialResolver: APIMutationResolvers['rateLearningMat
   { learningMaterialId, value },
   { user }
 ) => {
-  restrictAccess(
-    'contributorOrAdmin',
-    user,
-    'Must be logged in and an admin or a contributor to rate a learning material'
-  );
+  restrictAccess('loggedInUser', user, 'Must be logged in to rate a learning material'); // TODO maybe restrict to users having completed the resource ?
   if (value < 0 || value > 5) throw new UserInputError('Ratings must be >=0 and <=5');
   return await rateLearningMaterial(user!._id, learningMaterialId, value);
 };
