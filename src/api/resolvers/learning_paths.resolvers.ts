@@ -99,7 +99,10 @@ export const addComplementaryResourceToLearningPathResolver: APIMutationResolver
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in');
 
-  const learningPath = await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+  const learningPath =
+    user.role === UserRole.ADMIN
+      ? await findLearningPath({ _id: learningPathId })
+      : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
   if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
   return await attachResourceToLearningPath(learningPathId, resourceId);
@@ -111,7 +114,10 @@ export const removeComplementaryResourceFromLearningPathResolver: APIMutationRes
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in');
 
-  const learningPath = await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+  const learningPath =
+    user.role === UserRole.ADMIN
+      ? await findLearningPath({ _id: learningPathId })
+      : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
   if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
   return await detachResourceFromLearningPath(learningPathId, resourceId);
