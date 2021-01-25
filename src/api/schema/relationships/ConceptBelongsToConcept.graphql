@@ -2,17 +2,21 @@ type ConceptBelongsToConcept {
   index: Float!
 }
 
-input UpdateConceptBelongsToConceptPayload {
-  index: Float
+# input UpdateConceptBelongsToConceptPayload {
+#   index: Float
+# }
+
+type UpdateConceptBelongsToConceptResult {
+  parentConcept: Concept!
+  subConcept: Concept!
 }
 
 type Mutation {
-  addConceptBelongsToConcept(parentConceptId: String!, subConceptId: String!): Concept!
-  removeConceptBelongsToConcept(parentConceptId: String!, subConceptId: String!): Concept!
-  updateConceptBelongsToConcept(
-    parentConceptId: String!
-    subConceptId: String!
-    payload: UpdateConceptBelongsToConceptPayload!
-  ): Concept! # TODO return parent concept
+  addConceptBelongsToConcept(parentConceptId: String!, subConceptId: String!): UpdateConceptBelongsToConceptResult!
+  removeConceptBelongsToConcept(parentConceptId: String!, subConceptId: String!): UpdateConceptBelongsToConceptResult!
+  # updateConceptBelongsToConcept(
+  #   parentConceptId: String!
+  #   subConceptId: String!
+  #   payload: UpdateConceptBelongsToConceptPayload!
+  # ): Concept! # TODO return parent concept
 }
-

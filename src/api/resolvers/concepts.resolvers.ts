@@ -68,10 +68,10 @@ export const updateConceptResolver: APIMutationResolvers['updateConcept'] = asyn
 
 export const deleteConceptResolver: APIMutationResolvers['deleteConcept'] = async (_parent, { _id }, ctx) => {
   restrictAccess('contributorOrAdmin', ctx.user, 'Must be logged in and a contributor or an admin to update a concept');
-
+  const domain = await getConceptDomain(_id);
   const { deletedCount } = await deleteConcept({ _id });
   if (!deletedCount) throw new NotFoundError('Concept', _id, '_id');
-  return { _id, success: true };
+  return { _id, success: true, domain };
 };
 
 export const getConceptDomainResolver: APIConceptResolvers['domain'] = async concept => {
@@ -142,8 +142,11 @@ export const addConceptReferencesConceptResolver: APIMutationResolvers['addConce
     user,
     'Must be logged in and an admin or contributor to modify concept references relationships'
   );
-  const { referencingConcept } = await attachConceptReferencesConcept(referencedConceptId, conceptId);
-  return referencingConcept;
+  const { referencingConcept, referencedConcept } = await attachConceptReferencesConcept(
+    referencedConceptId,
+    conceptId
+  );
+  return { concept: referencingConcept, referencedConcept };
 };
 
 export const removeConceptReferencesConceptResolver: APIMutationResolvers['removeConceptReferencesConcept'] = async (
@@ -156,8 +159,11 @@ export const removeConceptReferencesConceptResolver: APIMutationResolvers['remov
     user,
     'Must be logged in and an admin or contributor to modify concept references relationships'
   );
-  const { referencingConcept } = await detachConceptReferencesConcept(referencedConceptId, conceptId);
-  return referencingConcept;
+  const { referencingConcept, referencedConcept } = await detachConceptReferencesConcept(
+    referencedConceptId,
+    conceptId
+  );
+  return { concept: referencingConcept, referencedConcept };
 };
 
 // ok naming is weird I know, cause we change the subject
@@ -180,8 +186,8 @@ export const addConceptBelongsToConceptResolver: APIMutationResolvers['addConcep
     'Must be logged in and an admin or contributor to modify concept grouping relationships'
   );
 
-  const { parentConcept } = await attachConceptBelongsToConcept(parentConceptId, subConceptId);
-  return parentConcept;
+  const { parentConcept, subConcept } = await attachConceptBelongsToConcept(parentConceptId, subConceptId);
+  return { parentConcept, subConcept };
 };
 export const removeConceptBelongsToConceptResolver: APIMutationResolvers['removeConceptBelongsToConcept'] = async (
   _p,
@@ -193,8 +199,8 @@ export const removeConceptBelongsToConceptResolver: APIMutationResolvers['remove
     user,
     'Must be logged in and an admin or contributor to modify concept grouping relationships'
   );
-  const { parentConcept } = await detachConceptBelongsToConcept(parentConceptId, subConceptId);
-  return parentConcept;
+  const { parentConcept, subConcept } = await detachConceptBelongsToConcept(parentConceptId, subConceptId);
+  return { parentConcept, subConcept };
 };
 
 export const getConceptSubConceptsResolver: APIConceptResolvers['subConcepts'] = async concept => {

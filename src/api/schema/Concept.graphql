@@ -63,6 +63,7 @@ input SetConceptKnownPayload {
 type DeleteConceptResult {
   success: Boolean!
   _id: String!
+  domain: Domain
 }
 
 type Query {
@@ -76,6 +77,4 @@ type Mutation {
   deleteConcept(_id: String!): DeleteConceptResult!
   setConceptsKnown(payload: SetConceptKnownPayload!): [Concept!]!
   setConceptsUnknown(conceptIds: [String!]!): [Concept!]!
-  addConceptReferencesConcept(conceptId: String!, referencedConceptId: String!): Concept!
-  removeConceptReferencesConcept(conceptId: String!, referencedConceptId: String!): Concept!
 }
