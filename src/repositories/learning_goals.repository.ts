@@ -1,6 +1,6 @@
+import { omit } from 'lodash';
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
-import { Concept } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import {
@@ -36,7 +36,7 @@ interface CreateLearningGoalData {
   name: string;
   key?: string;
   description?: string;
-  publishedAt?: number;
+  public?: boolean;
 }
 
 export const createLearningGoal = (
@@ -49,13 +49,21 @@ export const createLearningGoal = (
     newNode: {
       labels: [LearningGoalLabel, TopicLabel],
       props: {
-        ...data,
+        ...omit(data, 'public'),
         _id: shortid.generate(),
         key: data.key ? generateUrlKey(data.key) : generateLearningGoalKey(data.name),
         topicType: TopicType.LearningGoal,
+        publishedAt: data.public ? Date.now() : undefined,
       },
     },
   });
+
+interface UpdateLearningGoalPayload {
+  name?: string;
+  key?: string;
+  description?: string;
+  public?: boolean;
+}
 
 interface UpdateLearningGoalData {
   name?: string;
@@ -64,9 +72,10 @@ interface UpdateLearningGoalData {
   publishedAt?: number;
 }
 
-export const updateLearningGoal = updateOne<LearningGoal, { _id: string } | { key: string }, UpdateLearningGoalData>({
-  label: LearningGoalLabel,
-});
+export const updateLearningGoal = (filter: { _id: string } | { key: string }, data: UpdateLearningGoalPayload) =>
+  updateOne<LearningGoal, { _id: string } | { key: string }, UpdateLearningGoalData>({
+    label: LearningGoalLabel,
+  })(filter, { ...omit(data, 'public'), publishedAt: data.public ? Date.now() : undefined });
 
 export const findLearningGoal = findOne<LearningGoal, { key: string } | { _id: string }>({ label: LearningGoalLabel });
 
