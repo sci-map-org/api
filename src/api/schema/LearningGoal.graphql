@@ -4,6 +4,7 @@ type LearningGoal implements Topic {
   name: String!
   description: String
   topicType: TopicType!
+  publishedAt: Date
   createdBy: User
   domain: LearningGoalBelongsToDomain
   requiredInGoals: [RequiredInGoalItem!]
@@ -26,18 +27,21 @@ input CreateLearningGoalPayload {
   name: String!
   key: String
   description: String
+  public: Boolean
 }
 
 input AddLearningGoalToDomainPayload {
   contextualName: String!
   contextualKey: String
   description: String
+  public: Boolean
 }
 
 input UpdateLearningGoalPayload {
   name: String
   key: String
   description: String
+  public: Boolean
 }
 
 # input AttachLearningGoalToDomainPayload {

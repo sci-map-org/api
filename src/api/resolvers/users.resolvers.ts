@@ -168,7 +168,6 @@ export const getCurrentUserStartedLearningPaths: APICurrentUserResolvers['starte
   const results = await getLearningPathsStartedBy(currentUser._id);
   return results.map(({ learningPath, relationship }) => ({
     learningPath,
-    startedAt: new Date(relationship.startedAt),
-    completedAt: relationship.completedAt ? new Date(relationship.completedAt) : undefined,
+    ...relationship,
   }));
 };

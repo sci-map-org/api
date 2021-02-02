@@ -181,12 +181,7 @@ export const getLearningPathStartedResolver: APILearningPathResolvers['started']
   if (!user) return null;
 
   const started = await getUserStartedLearningPath(user._id, learningPath._id);
-  return started
-    ? {
-        startedAt: new Date(started.startedAt),
-        completedAt: started.completedAt ? new Date(started.completedAt) : undefined,
-      }
-    : null;
+  return started;
 };
 
 export const getLearningPathCreatedByResolver: APILearningPathResolvers['createdBy'] = async learningPath => {
@@ -202,8 +197,7 @@ export const getLearningPathStartedByResolver: APILearningPathResolvers['started
     items: (await getLearningPathStartedBy(learningPath._id, nullToUndefined(options))).map(
       ({ user, relationship }) => ({
         user,
-        startedAt: new Date(relationship.startedAt),
-        completedAt: relationship.completedAt ? new Date(relationship.completedAt) : undefined,
+        ...relationship,
       })
     ),
   };

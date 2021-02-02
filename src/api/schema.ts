@@ -1,6 +1,5 @@
 import { makeExecutableSchema } from 'apollo-server-koa';
 import { importSchema } from 'graphql-import';
-import { GraphQLDateTime } from 'graphql-iso-date';
 import {
   createArticleResolver,
   deleteArticleResolver,
@@ -147,6 +146,7 @@ import {
 } from './resolvers/learning_goals.resolvers';
 import { searchSubTopicsResolver, searchTopicsResolver, topicResolveType } from './resolvers/topics.resolvers';
 import { TopicType } from '../entities/Topic';
+import { GraphQLScalarType } from 'graphql';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -313,7 +313,20 @@ const resolvers: APIResolvers<APIContext> = {
       throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },
-  Date: GraphQLDateTime,
+  Date: new GraphQLScalarType({
+    name: 'Date',
+    description:
+      'Date scalar serialized as ISO UTC string, parsed from JS Date time (ms since Unix epoch, from Date.now() or new Date().getTime()',
+    serialize(value: number) {
+      return new Date(value).toISOString();
+    },
+    parseValue(value: string) {
+      return new Date(value).getTime();
+    },
+    parseLiteral(ast) {
+      ast.kind === 'StringValue' ? new Date(ast.value).getTime() : undefined;
+    },
+  }),
 };
 
 export const schema = makeExecutableSchema({

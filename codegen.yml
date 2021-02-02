@@ -7,7 +7,7 @@ generates:
       - 'typescript-resolvers'
     config:
       scalars:
-        Date: Date
+        Date: number
       typesPrefix: 'API'
       useIndexSignature: true
       contextType: ../server#APIContext

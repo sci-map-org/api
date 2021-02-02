@@ -16,7 +16,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  Date: Date;
+  Date: number;
 };
 
 export { ArticleContentType };
@@ -825,6 +825,7 @@ export type APILearningGoal = APITopic & {
   domain?: Maybe<APILearningGoalBelongsToDomain>;
   key: Scalars['String'];
   name: Scalars['String'];
+  publishedAt?: Maybe<Scalars['Date']>;
   requiredInGoals?: Maybe<Array<APIRequiredInGoalItem>>;
   requiredSubGoals?: Maybe<Array<APISubGoalItem>>;
   topicType: TopicType;
@@ -848,18 +849,21 @@ export type APICreateLearningGoalPayload = {
   description?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   name: Scalars['String'];
+  public?: Maybe<Scalars['Boolean']>;
 };
 
 export type APIAddLearningGoalToDomainPayload = {
   contextualKey?: Maybe<Scalars['String']>;
   contextualName: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+  public?: Maybe<Scalars['Boolean']>;
 };
 
 export type APIUpdateLearningGoalPayload = {
   description?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  public?: Maybe<Scalars['Boolean']>;
 };
 
 export type APIDeleteLearningGoalMutationResult = {
@@ -2024,6 +2028,7 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   domain?: Resolver<Maybe<APIResolversTypes['LearningGoalBelongsToDomain']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  publishedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   requiredInGoals?: Resolver<Maybe<Array<APIResolversTypes['RequiredInGoalItem']>>, ParentType, ContextType>,
   requiredSubGoals?: Resolver<Maybe<Array<APIResolversTypes['SubGoalItem']>>, ParentType, ContextType>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,

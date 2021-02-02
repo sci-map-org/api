@@ -36,7 +36,9 @@ interface CreateLearningGoalData {
   name: string;
   key?: string;
   description?: string;
+  publishedAt?: number;
 }
+
 export const createLearningGoal = (
   userFilter: { _id: string } | { key: string },
   data: CreateLearningGoalData
@@ -59,6 +61,7 @@ interface UpdateLearningGoalData {
   name?: string;
   key?: string;
   description?: string;
+  publishedAt?: number;
 }
 
 export const updateLearningGoal = updateOne<LearningGoal, { _id: string } | { key: string }, UpdateLearningGoalData>({
