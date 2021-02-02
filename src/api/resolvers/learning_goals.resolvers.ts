@@ -17,6 +17,7 @@ import {
   searchLearningGoals,
   updateLearningGoal,
 } from '../../repositories/learning_goals.repository';
+import { findLearningGoalIfAuthorized } from '../../services/learning_goals.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APILearningGoalResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { restrictAccess } from '../util/auth';
@@ -28,7 +29,10 @@ export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLea
   { domainKey, contextualLearningGoalKey }
 ) => {
   const result = await findDomainLearningGoalByKey(domainKey, contextualLearningGoalKey);
-  if (!result) throw new NotFoundError('LearningGoal', contextualLearningGoalKey, 'contextualLearningGoalKey');
+
+  if (!result || !result.learningGoal.publishedAt)
+    throw new NotFoundError('LearningGoal', contextualLearningGoalKey, 'contextualLearningGoalKey');
+  // await findLearningGoalIfAuthorized({ _id: result.learningGoal._id }, user?._id); TODO: check if necessary (then remove other check).
   return result;
 };
 
@@ -85,6 +89,7 @@ export const addLearningGoalToDomainResolver: APIMutationResolvers['addLearningG
       name: `${domain.name} - ${payload.contextualName}`,
       key: `${domain.key}_${contextualKey}`,
       description: payload.description || undefined,
+      public: payload.public || undefined,
     }
   );
 
@@ -124,8 +129,8 @@ export const deleteLearningGoalResolver: APIMutationResolvers['deleteLearningGoa
   if (!deletedCount) throw new NotFoundError('LearningGoal', _id, 'id');
   return { _id, success: true };
 };
-export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByKey'] = async (_, { key }) => {
-  const learningGoal = await findLearningGoal({ key });
+export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByKey'] = async (_, { key }, { user }) => {
+  const learningGoal = await findLearningGoalIfAuthorized({ key }, user?._id);
   if (!learningGoal) throw new NotFoundError('LearningGoal', key, 'key');
   return learningGoal;
 };
