@@ -221,7 +221,7 @@ export const attachUserStartedLearningPath = (
     relationship,
     learningPath: destinationNode,
   }));
-
+// TODO reuse same repo method
 export const updateUserStartedLearningPath = (
   userId: string,
   learningPathId: string,

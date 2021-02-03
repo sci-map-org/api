@@ -6,17 +6,18 @@ import {
   getLearningMaterialRating,
 } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
-import { findLearningPath, updateUserStartedLearningPath } from '../../repositories/learning_paths.repository';
 import {
   attachResourceToLearningPath,
   countLearningPathStartedBy,
   detachResourceFromLearningPath,
+  findLearningPath,
   findLearningPathCreatedBy,
   getLearningPathComplementaryResources,
   getLearningPathCreator,
   getLearningPathResourceItems,
   getLearningPathStartedBy,
   getUserStartedLearningPath,
+  updateUserStartedLearningPath,
 } from '../../repositories/learning_paths.repository';
 import {
   createFullLearningPath,

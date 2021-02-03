@@ -288,6 +288,21 @@ export const getLearningGoalCreator = (learningGoalId: string): Promise<User> =>
     },
   });
 
+export const attachUserStartedLearningGoal = (
+  userId: string,
+  learningGoalId: string,
+  creationData?: UserStartedLearningGoal
+): Promise<{ user: User; relationship: UserStartedLearningGoal; learningGoal: LearningGoal }> =>
+  attachUniqueNodes<User, UserStartedLearningGoal, LearningGoal>({
+    originNode: { label: UserLabel, filter: { _id: userId } },
+    relationship: { label: UserStartedLearningGoalLabel, onCreateProps: creationData },
+    destinationNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+  }).then(({ originNode, relationship, destinationNode }) => ({
+    user: originNode,
+    relationship,
+    learningGoal: destinationNode,
+  }));
+
 export const getUserStartedLearningGoal = (
   userId: string,
   learningGoalId: string

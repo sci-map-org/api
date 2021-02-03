@@ -109,6 +109,11 @@ type DetachLearningGoalRequiresSubGoalResult {
   subGoal: SubGoal!
 }
 
+type LearningGoalStartedResult {
+  user: CurrentUser!
+  learningGoal: LearningGoal!
+}
+
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
@@ -135,4 +140,5 @@ type Mutation {
     learningGoalId: String!
     subGoalId: String!
   ): DetachLearningGoalRequiresSubGoalResult!
+  startLearningGoal(learningGoalId: String!): LearningGoalStartedResult!
 }

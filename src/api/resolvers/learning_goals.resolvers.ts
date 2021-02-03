@@ -20,7 +20,7 @@ import {
   updateLearningGoal,
   getLearningGoalStartedBy,
 } from '../../repositories/learning_goals.repository';
-import { findLearningGoalIfAuthorized } from '../../services/learning_goals.service';
+import { findLearningGoalIfAuthorized, startLearningGoal } from '../../services/learning_goals.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APILearningGoalResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { restrictAccess } from '../util/auth';
@@ -155,6 +155,15 @@ export const detachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['de
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in');
   return await detachLearningGoalRequiresSubGoal(learningGoalId, subGoalId);
+};
+
+export const startLearningGoalResolver: APIMutationResolvers['startLearningGoal'] = async (
+  _,
+  { learningGoalId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  return await startLearningGoal(user._id, learningGoalId);
 };
 
 export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] = async learningGoal => {
