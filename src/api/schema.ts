@@ -118,6 +118,7 @@ import {
   currentUserResolver,
   getCurrentUserCreatedArticlesResolver,
   getCurrentUserCreatedLearningPaths,
+  getCurrentUserStartedLearningGoals,
   getCurrentUserStartedLearningPaths,
   getUserCreatedArticlesResolver,
   getUserResolver,
@@ -246,6 +247,7 @@ const resolvers: APIResolvers<APIContext> = {
     articles: getCurrentUserCreatedArticlesResolver,
     createdLearningPaths: getCurrentUserCreatedLearningPaths,
     startedLearningPaths: getCurrentUserStartedLearningPaths,
+    startedLearningGoals: getCurrentUserStartedLearningGoals,
   },
   Domain: {
     concepts: getDomainConceptsResolver,

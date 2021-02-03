@@ -17,6 +17,10 @@ input UserLearningPathsOptions {
   pagination: PaginationOptions
 }
 
+input UserLearningGoalsOptions {
+  pagination: PaginationOptions
+}
+
 type CurrentUser {
   _id: String!
   email: String!
@@ -27,6 +31,12 @@ type CurrentUser {
   # private stuff here
   createdLearningPaths(options: UserLearningPathsOptions!): [LearningPath!]
   startedLearningPaths(options: UserLearningPathsOptions!): [LearningPathStartedItem!]
+  startedLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalStartedItem!]
+}
+
+type LearningGoalStartedItem {
+  learningGoal: LearningGoal!
+  startedAt: Date!
 }
 
 type LearningPathStartedItem {

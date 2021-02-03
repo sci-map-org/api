@@ -19,6 +19,11 @@ import { neo4jDriver } from '../infra/neo4j';
 import { attachNodes, detachNodes, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
 
 import shortid = require('shortid');
+import {
+  UserStartedLearningGoal,
+  UserStartedLearningGoalLabel,
+} from '../entities/relationships/UserStartedLearningGoal';
+import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 
 interface UpdateUserData {
   displayName?: string;
@@ -151,5 +156,20 @@ export const getLearningPathsStartedBy = (
       user: originNode,
       relationship,
       learningPath: destinationNode,
+    }))
+  );
+
+export const getLearningGoalsStartedBy = (
+  userId: string
+): Promise<{ user: User; relationship: UserStartedLearningGoal; learningGoal: LearningGoal }[]> =>
+  getRelatedNodes<User, UserStartedLearningGoal, LearningGoal>({
+    originNode: { label: UserLabel, filter: { _id: userId } },
+    relationship: { label: UserStartedLearningGoalLabel },
+    destinationNode: { label: LearningGoalLabel },
+  }).then(
+    map(({ originNode, relationship, destinationNode }) => ({
+      user: originNode,
+      relationship,
+      learningGoal: destinationNode,
     }))
   );

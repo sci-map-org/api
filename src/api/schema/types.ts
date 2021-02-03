@@ -1356,6 +1356,10 @@ export type APIUserLearningPathsOptions = {
   pagination?: Maybe<APIPaginationOptions>;
 };
 
+export type APIUserLearningGoalsOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
+};
+
 export type APICurrentUser = {
    __typename?: 'CurrentUser';
   _id: Scalars['String'];
@@ -1366,6 +1370,7 @@ export type APICurrentUser = {
   email: Scalars['String'];
   key: Scalars['String'];
   role: UserRole;
+  startedLearningGoals?: Maybe<Array<APILearningGoalStartedItem>>;
   startedLearningPaths?: Maybe<Array<APILearningPathStartedItem>>;
 };
 
@@ -1380,8 +1385,19 @@ export type APICurrentUserCreatedLearningPathsArgs = {
 };
 
 
+export type APICurrentUserStartedLearningGoalsArgs = {
+  options: APIUserLearningGoalsOptions;
+};
+
+
 export type APICurrentUserStartedLearningPathsArgs = {
   options: APIUserLearningPathsOptions;
+};
+
+export type APILearningGoalStartedItem = {
+   __typename?: 'LearningGoalStartedItem';
+  learningGoal: APILearningGoal;
+  startedAt: Scalars['Date'];
 };
 
 export type APILearningPathStartedItem = {
@@ -1691,7 +1707,9 @@ export type APIResolversTypes = ResolversObject<{
   UserRole: UserRole,
   User: ResolverTypeWrapper<APIUser>,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
+  UserLearningGoalsOptions: APIUserLearningGoalsOptions,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
+  LearningGoalStartedItem: ResolverTypeWrapper<APILearningGoalStartedItem>,
   LearningPathStartedItem: ResolverTypeWrapper<APILearningPathStartedItem>,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
@@ -1842,7 +1860,9 @@ export type APIResolversParentTypes = ResolversObject<{
   UserRole: UserRole,
   User: APIUser,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
+  UserLearningGoalsOptions: APIUserLearningGoalsOptions,
   CurrentUser: APICurrentUser,
+  LearningGoalStartedItem: APILearningGoalStartedItem,
   LearningPathStartedItem: APILearningPathStartedItem,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
@@ -2418,7 +2438,14 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
+  startedLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningGoalsArgs, 'options'>>,
   startedLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPathStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningPathsArgs, 'options'>>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningGoalStartedItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalStartedItem'] = APIResolversParentTypes['LearningGoalStartedItem']> = ResolversObject<{
+  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
+  startedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2562,6 +2589,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SearchTopicsResult?: APISearchTopicsResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
+  LearningGoalStartedItem?: APILearningGoalStartedItemResolvers<ContextType>,
   LearningPathStartedItem?: APILearningPathStartedItemResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,

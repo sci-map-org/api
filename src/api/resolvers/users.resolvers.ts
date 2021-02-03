@@ -3,6 +3,7 @@ import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
 import {
   findUser,
+  getLearningGoalsStartedBy,
   getLearningPathsCreatedBy,
   getLearningPathsStartedBy,
   updateUser,
@@ -168,6 +169,14 @@ export const getCurrentUserStartedLearningPaths: APICurrentUserResolvers['starte
   const results = await getLearningPathsStartedBy(currentUser._id);
   return results.map(({ learningPath, relationship }) => ({
     learningPath,
+    ...relationship,
+  }));
+};
+
+export const getCurrentUserStartedLearningGoals: APICurrentUserResolvers['startedLearningGoals'] = async currentUser => {
+  const results = await getLearningGoalsStartedBy(currentUser._id);
+  return results.map(({ learningGoal, relationship }) => ({
+    learningGoal,
     ...relationship,
   }));
 };
