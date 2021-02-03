@@ -946,8 +946,8 @@ export type APIDetachLearningGoalRequiresSubGoalResult = {
 
 export type APILearningGoalStartedResult = {
    __typename?: 'LearningGoalStartedResult';
+  currentUser: APICurrentUser;
   learningGoal: APILearningGoal;
-  user: APICurrentUser;
 };
 
 export type APILearningMaterial = {
@@ -2177,8 +2177,8 @@ export type APIDetachLearningGoalRequiresSubGoalResultResolvers<ContextType = AP
 }>;
 
 export type APILearningGoalStartedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalStartedResult'] = APIResolversParentTypes['LearningGoalStartedResult']> = ResolversObject<{
+  currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
   learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
-  user?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 

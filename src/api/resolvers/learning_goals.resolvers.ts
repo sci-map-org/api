@@ -163,7 +163,8 @@ export const startLearningGoalResolver: APIMutationResolvers['startLearningGoal'
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in');
-  return await startLearningGoal(user._id, learningGoalId);
+  const { learningGoal, user: currentUser } = await startLearningGoal(user._id, learningGoalId);
+  return { learningGoal, currentUser };
 };
 
 export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] = async learningGoal => {

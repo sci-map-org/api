@@ -110,7 +110,7 @@ type DetachLearningGoalRequiresSubGoalResult {
 }
 
 type LearningGoalStartedResult {
-  user: CurrentUser!
+  currentUser: CurrentUser!
   learningGoal: LearningGoal!
 }
 
