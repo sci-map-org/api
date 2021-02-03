@@ -4,6 +4,7 @@ import { ResourceType } from '../../entities/Resource';
 import { ResourceMediaType } from '../../entities/Resource';
 import { SortingDirection } from '../../repositories/util/sorting';
 import { TopicType } from '../../entities/Topic';
+import { LearningGoalType } from '../../entities/LearningGoal';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -823,6 +824,8 @@ export type APIDeleteDomainResponse = {
   success: Scalars['Boolean'];
 };
 
+export { LearningGoalType };
+
 export type APILearningGoal = APITopic & {
    __typename?: 'LearningGoal';
   _id: Scalars['String'];
@@ -837,6 +840,7 @@ export type APILearningGoal = APITopic & {
   started?: Maybe<APILearningGoalStarted>;
   startedBy?: Maybe<APILearningGoalStartedByResults>;
   topicType: TopicType;
+  type: LearningGoalType;
 };
 
 
@@ -884,6 +888,7 @@ export type APICreateLearningGoalPayload = {
   key?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   public?: Maybe<Scalars['Boolean']>;
+  type: LearningGoalType;
 };
 
 export type APIAddLearningGoalToDomainPayload = {
@@ -891,6 +896,7 @@ export type APIAddLearningGoalToDomainPayload = {
   contextualName: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   public?: Maybe<Scalars['Boolean']>;
+  type: LearningGoalType;
 };
 
 export type APIUpdateLearningGoalPayload = {
@@ -898,6 +904,7 @@ export type APIUpdateLearningGoalPayload = {
   key?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   public?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<LearningGoalType>;
 };
 
 export type APIDeleteLearningGoalMutationResult = {
@@ -1629,6 +1636,7 @@ export type APIResolversTypes = ResolversObject<{
   CreateDomainPayload: APICreateDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
+  LearningGoalType: LearningGoalType,
   LearningGoal: ResolverTypeWrapper<APILearningGoal>,
   LearningGoalStarted: ResolverTypeWrapper<APILearningGoalStarted>,
   LearningGoalStartedByOptions: APILearningGoalStartedByOptions,
@@ -1782,6 +1790,7 @@ export type APIResolversParentTypes = ResolversObject<{
   CreateDomainPayload: APICreateDomainPayload,
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: APIDeleteDomainResponse,
+  LearningGoalType: LearningGoalType,
   LearningGoal: APILearningGoal,
   LearningGoalStarted: APILearningGoalStarted,
   LearningGoalStartedByOptions: APILearningGoalStartedByOptions,
@@ -2105,6 +2114,7 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   started?: Resolver<Maybe<APIResolversTypes['LearningGoalStarted']>, ParentType, ContextType>,
   startedBy?: Resolver<Maybe<APIResolversTypes['LearningGoalStartedByResults']>, ParentType, ContextType, RequireFields<APILearningGoalStartedByArgs, 'options'>>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
+  type?: Resolver<APIResolversTypes['LearningGoalType'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 

@@ -93,6 +93,7 @@ export const addLearningGoalToDomainResolver: APIMutationResolvers['addLearningG
       key: `${domain.key}_${contextualKey}`,
       description: payload.description || undefined,
       public: payload.public || undefined,
+      type: payload.type,
     }
   );
 

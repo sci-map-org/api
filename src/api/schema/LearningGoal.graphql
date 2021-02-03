@@ -1,6 +1,12 @@
+enum LearningGoalType {
+  Roadmap
+  SubGoal
+}
+
 type LearningGoal implements Topic {
   _id: String!
   key: String!
+  type: LearningGoalType!
   name: String!
   description: String
   topicType: TopicType!
@@ -45,6 +51,7 @@ union SubGoal = LearningGoal | Concept
 
 input CreateLearningGoalPayload {
   name: String!
+  type: LearningGoalType!
   key: String
   description: String
   public: Boolean
@@ -53,6 +60,7 @@ input CreateLearningGoalPayload {
 input AddLearningGoalToDomainPayload {
   contextualName: String!
   contextualKey: String
+  type: LearningGoalType!
   description: String
   public: Boolean
 }
@@ -60,6 +68,7 @@ input AddLearningGoalToDomainPayload {
 input UpdateLearningGoalPayload {
   name: String
   key: String
+  type: LearningGoalType
   description: String
   public: Boolean
 }

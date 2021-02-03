@@ -2,7 +2,7 @@ import { omit } from 'lodash';
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
 import { Domain, DomainLabel } from '../entities/Domain';
-import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
+import { LearningGoal, LearningGoalLabel, LearningGoalType } from '../entities/LearningGoal';
 import {
   LearningGoalBelongsToDomain,
   LearningGoalBelongsToDomainLabel,
@@ -40,6 +40,7 @@ import { PaginationOptions } from './util/pagination';
 
 interface CreateLearningGoalData {
   name: string;
+  type: LearningGoalType;
   key?: string;
   description?: string;
   public?: boolean;
@@ -67,6 +68,7 @@ export const createLearningGoal = (
 interface UpdateLearningGoalPayload {
   name?: string;
   key?: string;
+  type?: LearningGoalType;
   description?: string;
   public?: boolean;
 }
@@ -74,6 +76,7 @@ interface UpdateLearningGoalPayload {
 interface UpdateLearningGoalData {
   name?: string;
   key?: string;
+  type?: LearningGoalType;
   description?: string;
   publishedAt?: number;
 }
@@ -88,7 +91,7 @@ export const findLearningGoal = findOne<LearningGoal, { key: string } | { _id: s
 export const searchLearningGoals = async (
   { query }: { query?: string },
   pagination: { offset?: number; limit?: number }
-): Promise<Domain[]> => {
+): Promise<LearningGoal[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
     `MATCH (node:${LearningGoalLabel}) ${
@@ -238,7 +241,7 @@ export const getLearningGoalRequiredSubGoals = (
     },
   }).then(items =>
     items.map(({ destinationNode, relationship, originNode }) => ({
-      learningGoal: destinationNode,
+      learningGoal: originNode,
       relationship,
       subGoal: destinationNode,
     }))
