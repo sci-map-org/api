@@ -4,6 +4,7 @@ import { findDomain } from '../../repositories/domains.repository';
 import {
   attachLearningGoalRequiresSubGoal,
   attachLearningGoalToDomain,
+  countLearningGoalStartedBy,
   createLearningGoal,
   deleteLearningGoal,
   detachLearningGoalRequiresSubGoal,
@@ -14,8 +15,10 @@ import {
   getLearningGoalDomain,
   getLearningGoalRequiredInGoals,
   getLearningGoalRequiredSubGoals,
+  getUserStartedLearningGoal,
   searchLearningGoals,
   updateLearningGoal,
+  getLearningGoalStartedBy,
 } from '../../repositories/learning_goals.repository';
 import { findLearningGoalIfAuthorized } from '../../services/learning_goals.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
@@ -64,9 +67,9 @@ export const updateLearningGoalResolver: APIMutationResolvers['updateLearningGoa
   if (!user) throw new UnauthenticatedError('Must be logged in');
   if (user.role === UserRole.USER && !!payload.key)
     throw new UserInputError('can not set the key if not an admin or contributor');
-  const learningPath =
+  const learningGoal =
     user.role === UserRole.ADMIN ? await findLearningGoal({ _id }) : await findLearningGoalCreatedBy(user._id, { _id });
-  if (!learningPath) throw new NotFoundError('LearningPath', _id);
+  if (!learningGoal) throw new NotFoundError('LearningGoal', _id);
 
   const updatedLearningGoal = await updateLearningGoal({ _id }, nullToUndefined(payload));
   if (!updatedLearningGoal) throw new Error('updateLearningGoalResolver: Should never happen');
@@ -182,4 +185,28 @@ export const getLearningGoalRequiredInGoalsResolver: APILearningGoalResolvers['r
 
 export const getLearningGoalCreatedByResolver: APILearningGoalResolvers['createdBy'] = async learningGoal => {
   return await getLearningGoalCreator(learningGoal._id);
+};
+
+export const getLearningGoalStartedResolver: APILearningGoalResolvers['started'] = async (
+  learningGoal,
+  _,
+  { user }
+) => {
+  if (!user) return null;
+  return await getUserStartedLearningGoal(user._id, learningGoal._id);
+};
+
+export const getLearningGoalStartedByResolver: APILearningGoalResolvers['startedBy'] = async (
+  learningGoal,
+  { options }
+) => {
+  return {
+    count: await countLearningGoalStartedBy(learningGoal._id),
+    items: (await getLearningGoalStartedBy(learningGoal._id, nullToUndefined(options))).map(
+      ({ user, relationship }) => ({
+        user,
+        ...relationship,
+      })
+    ),
+  };
 };

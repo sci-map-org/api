@@ -16,12 +16,17 @@ import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
+import {
+  UserStartedLearningGoal,
+  UserStartedLearningGoalLabel,
+} from '../entities/relationships/UserStartedLearningGoal';
 import { SubGoal } from '../entities/SubGoal';
 import { TopicLabel, TopicType } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import {
   attachUniqueNodes,
+  countRelatedNodes,
   createRelatedNode,
   deleteOne,
   detachUniqueNodes,
@@ -31,6 +36,7 @@ import {
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
+import { PaginationOptions } from './util/pagination';
 
 interface CreateLearningGoalData {
   name: string;
@@ -279,5 +285,63 @@ export const getLearningGoalCreator = (learningGoalId: string): Promise<User> =>
     destinationNode: {
       label: UserLabel,
       filter: {},
+    },
+  });
+
+export const getUserStartedLearningGoal = (
+  userId: string,
+  learningGoalId: string
+): Promise<UserStartedLearningGoal | null> =>
+  getOptionalRelatedNode<User, UserStartedLearningGoal, LearningGoal>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserStartedLearningGoalLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+  }).then(result => (result ? result.relationship : null));
+
+export const getLearningGoalStartedBy = (
+  learningGoalId: string,
+  { pagination }: { pagination?: PaginationOptions }
+): Promise<{ user: User; relationship: UserStartedLearningGoal }[]> =>
+  getRelatedNodes<LearningGoal, UserStartedLearningGoal, User>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: UserStartedLearningGoalLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: UserLabel,
+    },
+    pagination,
+  }).then(items =>
+    items.map(({ relationship, destinationNode }) => ({
+      relationship,
+      user: destinationNode,
+    }))
+  );
+
+export const countLearningGoalStartedBy = (learningGoalId: string): Promise<number> =>
+  countRelatedNodes<LearningGoal, UserStartedLearningGoal, User>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: UserStartedLearningGoalLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: UserLabel,
     },
   });

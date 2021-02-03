@@ -828,7 +828,35 @@ export type APILearningGoal = APITopic & {
   publishedAt?: Maybe<Scalars['Date']>;
   requiredInGoals?: Maybe<Array<APIRequiredInGoalItem>>;
   requiredSubGoals?: Maybe<Array<APISubGoalItem>>;
+  started?: Maybe<APILearningGoalStarted>;
+  startedBy?: Maybe<APILearningGoalStartedByResults>;
   topicType: TopicType;
+};
+
+
+export type APILearningGoalStartedByArgs = {
+  options: APILearningGoalStartedByOptions;
+};
+
+export type APILearningGoalStarted = {
+   __typename?: 'LearningGoalStarted';
+  startedAt: Scalars['Date'];
+};
+
+export type APILearningGoalStartedByOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
+};
+
+export type APILearningGoalStartedByResults = {
+   __typename?: 'LearningGoalStartedByResults';
+  count: Scalars['Int'];
+  items: Array<APILearningGoalStartedByItem>;
+};
+
+export type APILearningGoalStartedByItem = {
+   __typename?: 'LearningGoalStartedByItem';
+  startedAt: Scalars['Date'];
+  user: APIUser;
 };
 
 export type APIRequiredInGoalItem = {
@@ -1574,6 +1602,11 @@ export type APIResolversTypes = ResolversObject<{
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
   LearningGoal: ResolverTypeWrapper<APILearningGoal>,
+  LearningGoalStarted: ResolverTypeWrapper<APILearningGoalStarted>,
+  LearningGoalStartedByOptions: APILearningGoalStartedByOptions,
+  LearningGoalStartedByResults: ResolverTypeWrapper<APILearningGoalStartedByResults>,
+  Int: ResolverTypeWrapper<Scalars['Int']>,
+  LearningGoalStartedByItem: ResolverTypeWrapper<APILearningGoalStartedByItem>,
   RequiredInGoalItem: ResolverTypeWrapper<APIRequiredInGoalItem>,
   SubGoalItem: ResolverTypeWrapper<Omit<APISubGoalItem, 'subGoal'> & { subGoal: APIResolversTypes['SubGoal'] }>,
   SubGoal: APIResolversTypes['Concept'] | APIResolversTypes['LearningGoal'],
@@ -1599,7 +1632,6 @@ export type APIResolversTypes = ResolversObject<{
   LearningMaterialOutcomeItem: ResolverTypeWrapper<APILearningMaterialOutcomeItem>,
   LearningMaterialTag: ResolverTypeWrapper<APILearningMaterialTag>,
   LearningMaterialTagSearchResult: ResolverTypeWrapper<APILearningMaterialTagSearchResult>,
-  Int: ResolverTypeWrapper<Scalars['Int']>,
   SearchLearningMaterialTagsOptions: APISearchLearningMaterialTagsOptions,
   LearningPath: ResolverTypeWrapper<APILearningPath>,
   LearningPathStartedByOptions: APILearningPathStartedByOptions,
@@ -1720,6 +1752,11 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateDomainPayload: APIUpdateDomainPayload,
   DeleteDomainResponse: APIDeleteDomainResponse,
   LearningGoal: APILearningGoal,
+  LearningGoalStarted: APILearningGoalStarted,
+  LearningGoalStartedByOptions: APILearningGoalStartedByOptions,
+  LearningGoalStartedByResults: APILearningGoalStartedByResults,
+  Int: Scalars['Int'],
+  LearningGoalStartedByItem: APILearningGoalStartedByItem,
   RequiredInGoalItem: APIRequiredInGoalItem,
   SubGoalItem: Omit<APISubGoalItem, 'subGoal'> & { subGoal: APIResolversParentTypes['SubGoal'] },
   SubGoal: APIResolversParentTypes['Concept'] | APIResolversParentTypes['LearningGoal'],
@@ -1745,7 +1782,6 @@ export type APIResolversParentTypes = ResolversObject<{
   LearningMaterialOutcomeItem: APILearningMaterialOutcomeItem,
   LearningMaterialTag: APILearningMaterialTag,
   LearningMaterialTagSearchResult: APILearningMaterialTagSearchResult,
-  Int: Scalars['Int'],
   SearchLearningMaterialTagsOptions: APISearchLearningMaterialTagsOptions,
   LearningPath: APILearningPath,
   LearningPathStartedByOptions: APILearningPathStartedByOptions,
@@ -2031,7 +2067,26 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   publishedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   requiredInGoals?: Resolver<Maybe<Array<APIResolversTypes['RequiredInGoalItem']>>, ParentType, ContextType>,
   requiredSubGoals?: Resolver<Maybe<Array<APIResolversTypes['SubGoalItem']>>, ParentType, ContextType>,
+  started?: Resolver<Maybe<APIResolversTypes['LearningGoalStarted']>, ParentType, ContextType>,
+  startedBy?: Resolver<Maybe<APIResolversTypes['LearningGoalStartedByResults']>, ParentType, ContextType, RequireFields<APILearningGoalStartedByArgs, 'options'>>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningGoalStartedResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalStarted'] = APIResolversParentTypes['LearningGoalStarted']> = ResolversObject<{
+  startedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningGoalStartedByResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalStartedByResults'] = APIResolversParentTypes['LearningGoalStartedByResults']> = ResolversObject<{
+  count?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>,
+  items?: Resolver<Array<APIResolversTypes['LearningGoalStartedByItem']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningGoalStartedByItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalStartedByItem'] = APIResolversParentTypes['LearningGoalStartedByItem']> = ResolversObject<{
+  startedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
+  user?: Resolver<APIResolversTypes['User'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2440,6 +2495,9 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   LearningGoal?: APILearningGoalResolvers<ContextType>,
+  LearningGoalStarted?: APILearningGoalStartedResolvers<ContextType>,
+  LearningGoalStartedByResults?: APILearningGoalStartedByResultsResolvers<ContextType>,
+  LearningGoalStartedByItem?: APILearningGoalStartedByItemResolvers<ContextType>,
   RequiredInGoalItem?: APIRequiredInGoalItemResolvers<ContextType>,
   SubGoalItem?: APISubGoalItemResolvers<ContextType>,
   SubGoal?: APISubGoalResolvers,
