@@ -1,6 +1,8 @@
+import { node, Query, relation } from 'cypher-query-builder';
 import { omit } from 'lodash';
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
+import { ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel, LearningGoalType } from '../entities/LearningGoal';
 import {
@@ -16,6 +18,7 @@ import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
+import { UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import {
   UserStartedLearningGoal,
   UserStartedLearningGoalLabel,
@@ -23,7 +26,7 @@ import {
 import { SubGoal } from '../entities/SubGoal';
 import { TopicLabel, TopicType } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
-import { neo4jDriver } from '../infra/neo4j';
+import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachUniqueNodes,
   countRelatedNodes,
@@ -363,3 +366,23 @@ export const countLearningGoalStartedBy = (learningGoalId: string): Promise<numb
       label: UserLabel,
     },
   });
+
+export const getLearningGoalProgress = async (learningGoalId: string, userId: string): Promise<number> => {
+  const q = new Query(neo4jQb);
+
+  q.match([
+    node('n', LearningGoalLabel, { _id: learningGoalId }),
+    relation('out', 'r', LearningGoalRequiresSubGoalLabel, undefined, [1, 5]),
+    node('c', ConceptLabel),
+  ]);
+  q.optionalMatch([node('c'), relation('in', 'k', UserKnowsConceptLabel), node('u', UserLabel, { _id: userId })]);
+
+  q.raw('WITH DISTINCT c, k WITH size(collect(c)) as lenC, sum(k.level) as lenK ');
+  q.return('CASE WHEN lenC > 0 THEN lenK/lenC ELSE 0 END  as progress');
+
+  const r = await q.run();
+
+  const [progress] = r.map(i => i.progress);
+
+  return progress;
+};

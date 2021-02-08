@@ -19,6 +19,7 @@ import {
   searchLearningGoals,
   updateLearningGoal,
   getLearningGoalStartedBy,
+  getLearningGoalProgress,
 } from '../../repositories/learning_goals.repository';
 import { findLearningGoalIfAuthorized, startLearningGoal } from '../../services/learning_goals.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
@@ -29,13 +30,13 @@ import { generateUrlKey } from '../util/urlKey';
 
 export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLearningGoalByKey'] = async (
   _parent,
-  { domainKey, contextualLearningGoalKey }
+  { domainKey, contextualLearningGoalKey },
+  { user }
 ) => {
   const result = await findDomainLearningGoalByKey(domainKey, contextualLearningGoalKey);
 
-  if (!result || !result.learningGoal.publishedAt)
-    throw new NotFoundError('LearningGoal', contextualLearningGoalKey, 'contextualLearningGoalKey');
-  // await findLearningGoalIfAuthorized({ _id: result.learningGoal._id }, user?._id); TODO: check if necessary (then remove other check).
+  if (!result) throw new NotFoundError('LearningGoal', contextualLearningGoalKey, 'contextualLearningGoalKey');
+  await findLearningGoalIfAuthorized({ _id: result.learningGoal._id }, user?._id); // TODO: check if necessary (then remove other check).
   return result;
 };
 
@@ -220,4 +221,13 @@ export const getLearningGoalStartedByResolver: APILearningGoalResolvers['started
       })
     ),
   };
+};
+
+export const getLearningGoalProgressResolver: APILearningGoalResolvers['progress'] = async (
+  learningGoal,
+  _,
+  { user }
+) => {
+  if (!user) return null;
+  return { level: await getLearningGoalProgress(learningGoal._id, user._id) };
 };

@@ -834,6 +834,7 @@ export type APILearningGoal = APITopic & {
   domain?: Maybe<APILearningGoalBelongsToDomain>;
   key: Scalars['String'];
   name: Scalars['String'];
+  progress?: Maybe<APILearningGoalProgress>;
   publishedAt?: Maybe<Scalars['Date']>;
   requiredInGoals?: Maybe<Array<APIRequiredInGoalItem>>;
   requiredSubGoals?: Maybe<Array<APISubGoalItem>>;
@@ -846,6 +847,11 @@ export type APILearningGoal = APITopic & {
 
 export type APILearningGoalStartedByArgs = {
   options: APILearningGoalStartedByOptions;
+};
+
+export type APILearningGoalProgress = {
+   __typename?: 'LearningGoalProgress';
+  level: Scalars['Float'];
 };
 
 export type APILearningGoalStarted = {
@@ -1638,6 +1644,7 @@ export type APIResolversTypes = ResolversObject<{
   DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
   LearningGoalType: LearningGoalType,
   LearningGoal: ResolverTypeWrapper<APILearningGoal>,
+  LearningGoalProgress: ResolverTypeWrapper<APILearningGoalProgress>,
   LearningGoalStarted: ResolverTypeWrapper<APILearningGoalStarted>,
   LearningGoalStartedByOptions: APILearningGoalStartedByOptions,
   LearningGoalStartedByResults: ResolverTypeWrapper<APILearningGoalStartedByResults>,
@@ -1792,6 +1799,7 @@ export type APIResolversParentTypes = ResolversObject<{
   DeleteDomainResponse: APIDeleteDomainResponse,
   LearningGoalType: LearningGoalType,
   LearningGoal: APILearningGoal,
+  LearningGoalProgress: APILearningGoalProgress,
   LearningGoalStarted: APILearningGoalStarted,
   LearningGoalStartedByOptions: APILearningGoalStartedByOptions,
   LearningGoalStartedByResults: APILearningGoalStartedByResults,
@@ -2108,6 +2116,7 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   domain?: Resolver<Maybe<APIResolversTypes['LearningGoalBelongsToDomain']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  progress?: Resolver<Maybe<APIResolversTypes['LearningGoalProgress']>, ParentType, ContextType>,
   publishedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   requiredInGoals?: Resolver<Maybe<Array<APIResolversTypes['RequiredInGoalItem']>>, ParentType, ContextType>,
   requiredSubGoals?: Resolver<Maybe<Array<APIResolversTypes['SubGoalItem']>>, ParentType, ContextType>,
@@ -2115,6 +2124,11 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   startedBy?: Resolver<Maybe<APIResolversTypes['LearningGoalStartedByResults']>, ParentType, ContextType, RequireFields<APILearningGoalStartedByArgs, 'options'>>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
   type?: Resolver<APIResolversTypes['LearningGoalType'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningGoalProgressResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalProgress'] = APIResolversParentTypes['LearningGoalProgress']> = ResolversObject<{
+  level?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2553,6 +2567,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
   DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   LearningGoal?: APILearningGoalResolvers<ContextType>,
+  LearningGoalProgress?: APILearningGoalProgressResolvers<ContextType>,
   LearningGoalStarted?: APILearningGoalStartedResolvers<ContextType>,
   LearningGoalStartedByResults?: APILearningGoalStartedByResultsResolvers<ContextType>,
   LearningGoalStartedByItem?: APILearningGoalStartedByItemResolvers<ContextType>,

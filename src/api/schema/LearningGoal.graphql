@@ -11,6 +11,7 @@ type LearningGoal implements Topic {
   description: String
   topicType: TopicType!
   publishedAt: Date
+  progress: LearningGoalProgress
   createdBy: User
   domain: LearningGoalBelongsToDomain
   requiredInGoals: [RequiredInGoalItem!]
@@ -19,6 +20,9 @@ type LearningGoal implements Topic {
   startedBy(options: LearningGoalStartedByOptions!): LearningGoalStartedByResults
 }
 
+type LearningGoalProgress {
+  level: Float!
+}
 type LearningGoalStarted {
   startedAt: Date!
 }
