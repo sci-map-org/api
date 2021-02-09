@@ -228,6 +228,6 @@ export const getLearningGoalProgressResolver: APILearningGoalResolvers['progress
   _,
   { user }
 ) => {
-  if (!user) return null;
+  if (!user || !(await getUserStartedLearningGoal(user._id, learningGoal._id))) return null;
   return { level: await getLearningGoalProgress(learningGoal._id, user._id) };
 };
