@@ -97,9 +97,9 @@ export const searchLearningGoals = async (
 ): Promise<LearningGoal[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${LearningGoalLabel}) ${
+    `MATCH (node:${LearningGoalLabel}) WHERE node.hidden = false ${
       query
-        ? 'WHERE toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)'
+        ? ' AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query))'
         : ''
     }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''

@@ -9,9 +9,9 @@ export const searchTopics = async (
 ): Promise<Topic[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${TopicLabel}) ${
+    `MATCH (node:${TopicLabel}) WHERE (NOT node:LearningGoal OR node.hidden = false) ${
       query
-        ? 'WHERE toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)'
+        ? 'AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query))'
         : ''
     }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
@@ -34,8 +34,8 @@ export const searchSubTopics = async (
 
   const { records } = await session.run(
     `MATCH (d:${DomainLabel}) WHERE d._id = $domainId
-    MATCH (d)<-[:${TopicBelongsToDomainLabel}*1..20]-(node:${TopicLabel}) WHERE 
-    (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)) ${
+    MATCH (d)<-[:${TopicBelongsToDomainLabel}*1..20]-(node:${TopicLabel}) WHERE (NOT (node:LearningGoal) OR node.hidden = false)
+    AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)) ${
       topicTypeIn ? ' AND (node.topicType IN $topicTypeIn)' : ''
     }
      RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
