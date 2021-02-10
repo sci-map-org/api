@@ -1,4 +1,4 @@
-import { node, Query, relation } from 'cypher-query-builder';
+import { isNull, node, not, Query, relation } from 'cypher-query-builder';
 import { omit } from 'lodash';
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
@@ -46,7 +46,8 @@ interface CreateLearningGoalData {
   type: LearningGoalType;
   key?: string;
   description?: string;
-  public?: boolean;
+  publishedAt?: number;
+  hidden: boolean;
 }
 
 export const createLearningGoal = (
@@ -59,11 +60,10 @@ export const createLearningGoal = (
     newNode: {
       labels: [LearningGoalLabel, TopicLabel],
       props: {
-        ...omit(data, 'public'),
+        ...data,
         _id: shortid.generate(),
         key: data.key ? generateUrlKey(data.key) : generateLearningGoalKey(data.name),
         topicType: TopicType.LearningGoal,
-        publishedAt: data.public ? Date.now() : undefined,
       },
     },
   });
@@ -268,6 +268,7 @@ export const getLearningGoalRequiredInGoals = (
     },
     destinationNode: {
       label: LearningGoalLabel,
+      filter: { hidden: false },
     },
   }).then(items =>
     items.map(({ destinationNode, relationship, originNode }) => ({
@@ -385,4 +386,30 @@ export const getLearningGoalProgress = async (learningGoalId: string, userId: st
   const [progress] = r.map(i => i.progress);
 
   return progress;
+};
+
+export const publishLearningGoal = async (learningGoalId: string): Promise<{ learningGoal: LearningGoal }> => {
+  const q = new Query(neo4jQb);
+
+  q.match([node('goal', LearningGoalLabel, { _id: learningGoalId })]);
+  q.optionalMatch([
+    node('goal'),
+    relation('out', 'r', LearningGoalRequiresSubGoalLabel, undefined, [1, 5]),
+    node('subGoal', LearningGoalLabel),
+  ]);
+  q.where({ 'subGoal.publishedAt': isNull() });
+  q.set(
+    {
+      values: {
+        goal: { publishedAt: Date.now(), hidden: false },
+        subGoal: { publishedAt: Date.now() },
+      },
+    },
+    { merge: true }
+  );
+
+  q.return('properties(goal) as goal');
+  const r = await q.run();
+  const [goal] = r.map(i => i.goal);
+  return { learningGoal: goal };
 };

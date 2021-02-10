@@ -11,6 +11,7 @@ type LearningGoal implements Topic {
   description: String
   topicType: TopicType!
   publishedAt: Date
+  hidden: Boolean
   progress: LearningGoalProgress
   createdBy: User
   domain: LearningGoalBelongsToDomain
@@ -58,6 +59,8 @@ input CreateLearningGoalPayload {
   type: LearningGoalType!
   key: String
   description: String
+}
+input CreateLearningGoalOptions {
   public: Boolean
 }
 
@@ -66,15 +69,15 @@ input AddLearningGoalToDomainPayload {
   contextualKey: String
   type: LearningGoalType!
   description: String
+}
+input AddLearningGoalToDomainOptions {
   public: Boolean
 }
-
 input UpdateLearningGoalPayload {
   name: String
   key: String
   type: LearningGoalType
   description: String
-  public: Boolean
 }
 
 # input AttachLearningGoalToDomainPayload {
@@ -127,6 +130,10 @@ type LearningGoalStartedResult {
   learningGoal: LearningGoal!
 }
 
+type LearningGoalPublishedResult {
+  learningGoal: LearningGoal!
+}
+
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
@@ -134,8 +141,12 @@ type Query {
 }
 
 type Mutation {
-  addLearningGoalToDomain(domainId: String!, payload: AddLearningGoalToDomainPayload!): DomainAndLearningGoalResult!
-  createLearningGoal(payload: CreateLearningGoalPayload!): LearningGoal!
+  addLearningGoalToDomain(
+    domainId: String!
+    payload: AddLearningGoalToDomainPayload!
+    options: AddLearningGoalToDomainOptions
+  ): DomainAndLearningGoalResult!
+  createLearningGoal(payload: CreateLearningGoalPayload!, options: CreateLearningGoalOptions): LearningGoal!
   # attachLearningGoalToDomain(
   #   learningGoalId: String!
   #   domainId: String!
@@ -154,4 +165,5 @@ type Mutation {
     subGoalId: String!
   ): DetachLearningGoalRequiresSubGoalResult!
   startLearningGoal(learningGoalId: String!): LearningGoalStartedResult!
+  publishLearningGoal(learningGoalId: String!): LearningGoalPublishedResult!
 }

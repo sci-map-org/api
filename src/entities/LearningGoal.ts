@@ -4,6 +4,7 @@ export const LearningGoalLabel = 'LearningGoal';
 
 export interface LearningGoal extends BaseTopic {
   type: LearningGoalType;
+  hidden: boolean;
   publishedAt?: number;
 }
 

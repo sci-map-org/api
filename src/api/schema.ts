@@ -148,6 +148,7 @@ import {
   getLearningGoalStartedByResolver,
   startLearningGoalResolver,
   getLearningGoalProgressResolver,
+  publishLearningGoalResolver,
 } from './resolvers/learning_goals.resolvers';
 import { searchSubTopicsResolver, searchTopicsResolver, topicResolveType } from './resolvers/topics.resolvers';
 import { TopicType } from '../entities/Topic';
@@ -216,6 +217,7 @@ const resolvers: APIResolvers<APIContext> = {
     attachLearningGoalRequiresSubGoal: attachLearningGoalRequiresSubGoalResolver,
     detachLearningGoalRequiresSubGoal: detachLearningGoalRequiresSubGoalResolver,
     startLearningGoal: startLearningGoalResolver,
+    publishLearningGoal: publishLearningGoalResolver,
   },
   Query: {
     currentUser: currentUserResolver,
