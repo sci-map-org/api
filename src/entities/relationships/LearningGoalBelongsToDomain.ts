@@ -2,7 +2,4 @@ import { BaseTopicBelongsToDomain, TopicBelongsToDomainLabel } from './TopicBelo
 
 export const LearningGoalBelongsToDomainLabel = TopicBelongsToDomainLabel;
 
-export interface LearningGoalBelongsToDomain extends BaseTopicBelongsToDomain {
-  contextualKey: string;
-  contextualName: string;
-}
+export interface LearningGoalBelongsToDomain extends BaseTopicBelongsToDomain {}

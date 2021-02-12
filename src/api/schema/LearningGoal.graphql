@@ -62,17 +62,9 @@ input CreateLearningGoalPayload {
 }
 input CreateLearningGoalOptions {
   public: Boolean
+  domainId: String
 }
 
-input AddLearningGoalToDomainPayload {
-  contextualName: String!
-  contextualKey: String
-  type: LearningGoalType!
-  description: String
-}
-input AddLearningGoalToDomainOptions {
-  public: Boolean
-}
 input UpdateLearningGoalPayload {
   name: String
   key: String
@@ -80,24 +72,14 @@ input UpdateLearningGoalPayload {
   description: String
 }
 
-# input AttachLearningGoalToDomainPayload {
-#   contextualKey: String
-# }
+input AttachLearningGoalToDomainPayload {
+  index: Float
+}
 
 type DeleteLearningGoalMutationResult {
   _id: String!
   success: Boolean!
 }
-
-type AttachLearningGoalToDomainResult {
-  domain: Domain!
-  learningGoal: LearningGoal!
-}
-
-# type DetachLearningGoalFromDomainResult {
-#   domain: Domain!
-#   learningGoal: LearningGoal!
-# }
 
 type DomainAndLearningGoalResult {
   domain: Domain!
@@ -137,22 +119,17 @@ type LearningGoalPublishedResult {
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
-  getDomainLearningGoalByKey(domainKey: String!, contextualLearningGoalKey: String!): DomainAndLearningGoalResult!
+  getDomainLearningGoalByKey(domainKey: String!, learningGoalKey: String!): DomainAndLearningGoalResult!
 }
 
 type Mutation {
-  addLearningGoalToDomain(
-    domainId: String!
-    payload: AddLearningGoalToDomainPayload!
-    options: AddLearningGoalToDomainOptions
-  ): DomainAndLearningGoalResult!
   createLearningGoal(payload: CreateLearningGoalPayload!, options: CreateLearningGoalOptions): LearningGoal!
-  # attachLearningGoalToDomain(
-  #   learningGoalId: String!
-  #   domainId: String!
-  #   payload: AttachLearningGoalToDomainPayload!
-  # ): DomainAndLearningGoalResult!
-  # detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
+  attachLearningGoalToDomain(
+    learningGoalId: String!
+    domainId: String!
+    payload: AttachLearningGoalToDomainPayload!
+  ): DomainAndLearningGoalResult!
+  detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
   updateLearningGoal(_id: String!, payload: UpdateLearningGoalPayload!): LearningGoal!
   deleteLearningGoal(_id: String!): DeleteLearningGoalMutationResult!
   attachLearningGoalRequiresSubGoal(

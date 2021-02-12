@@ -128,13 +128,14 @@ export const deleteLearningGoal = deleteOne<LearningGoal, { _id: string } | { ke
 export const attachLearningGoalToDomain = (
   learningGoalId: string,
   domainId: string,
-  { contextualKey, contextualName }: { contextualKey: string; contextualName: string }
+  { index }: { index?: number }
 ): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
   attachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
     relationship: {
       label: LearningGoalBelongsToDomainLabel,
-      onCreateProps: { index: DEFAULT_INDEX_VALUE, contextualKey, contextualName },
+      onCreateProps: { index: index || DEFAULT_INDEX_VALUE },
+      onMergeProps: { index },
     },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
@@ -173,7 +174,7 @@ export const getLearningGoalDomain = (
 
 export const findDomainLearningGoalByKey = (
   domainKey: string,
-  contextualLearningGoalKey: string
+  learningGoalkey: string
 ): Promise<{ learningGoal: LearningGoal; domain: Domain } | null> =>
   getOptionalRelatedNode<Domain, LearningGoalBelongsToDomain, LearningGoal>({
     originNode: {
@@ -183,11 +184,10 @@ export const findDomainLearningGoalByKey = (
     relationship: {
       label: LearningGoalBelongsToDomainLabel,
       direction: 'IN',
-      filter: { contextualKey: contextualLearningGoalKey },
     },
     destinationNode: {
       label: LearningGoalLabel,
-      filter: {},
+      filter: { key: learningGoalkey },
     },
   }).then(result => (result ? { learningGoal: result.destinationNode, domain: result.originNode } : null));
 

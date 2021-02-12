@@ -131,7 +131,6 @@ import {
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
 import {
-  addLearningGoalToDomainResolver,
   deleteLearningGoalResolver,
   getLearningGoalByKeyResolver,
   updateLearningGoalResolver,
@@ -149,6 +148,8 @@ import {
   startLearningGoalResolver,
   getLearningGoalProgressResolver,
   publishLearningGoalResolver,
+  attachLearningGoalToDomainResolver,
+  detachLearningGoalFromDomainResolver,
 } from './resolvers/learning_goals.resolvers';
 import { searchSubTopicsResolver, searchTopicsResolver, topicResolveType } from './resolvers/topics.resolvers';
 import { TopicType } from '../entities/Topic';
@@ -207,9 +208,8 @@ const resolvers: APIResolvers<APIContext> = {
     createLearningGoal: createLearningGoalResolver,
     updateLearningGoal: updateLearningGoalResolver,
     deleteLearningGoal: deleteLearningGoalResolver,
-    addLearningGoalToDomain: addLearningGoalToDomainResolver,
-    // attachLearningGoalToDomain: attachLearningGoalToDomainResolver,
-    // detachLearningGoalFromDomain: detachLearningGoalFromDomainResolver,
+    attachLearningGoalToDomain: attachLearningGoalToDomainResolver,
+    detachLearningGoalFromDomain: detachLearningGoalFromDomainResolver,
     addLearningMaterialPrerequisite: addLearningMaterialPrerequisiteResolver,
     removeLearningMaterialPrerequisite: removeLearningMaterialPrerequisiteResolver,
     addLearningMaterialOutcome: addLearningMaterialOutcomeResolver,
