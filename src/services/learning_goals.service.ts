@@ -15,6 +15,7 @@ export const findLearningGoalIfAuthorized = async (
   userId?: string
 ): Promise<LearningGoal> => {
   const learningGoal = await findLearningGoal(learningGoalFilter);
+
   if (!learningGoal) throw new NotFoundError('LearningGoal', JSON.stringify(learningGoalFilter));
 
   if (!learningGoal.publishedAt) {

@@ -1397,6 +1397,7 @@ export type APICurrentUser = {
    __typename?: 'CurrentUser';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
+  createdLearningGoals?: Maybe<Array<APILearningGoalCreatedItem>>;
   /** private stuff here */
   createdLearningPaths?: Maybe<Array<APILearningPath>>;
   displayName: Scalars['String'];
@@ -1413,6 +1414,11 @@ export type APICurrentUserArticlesArgs = {
 };
 
 
+export type APICurrentUserCreatedLearningGoalsArgs = {
+  options: APIUserLearningGoalsOptions;
+};
+
+
 export type APICurrentUserCreatedLearningPathsArgs = {
   options: APIUserLearningPathsOptions;
 };
@@ -1425,6 +1431,12 @@ export type APICurrentUserStartedLearningGoalsArgs = {
 
 export type APICurrentUserStartedLearningPathsArgs = {
   options: APIUserLearningPathsOptions;
+};
+
+export type APILearningGoalCreatedItem = {
+   __typename?: 'LearningGoalCreatedItem';
+  createdAt: Scalars['Date'];
+  learningGoal: APILearningGoal;
 };
 
 export type APILearningGoalStartedItem = {
@@ -1743,6 +1755,7 @@ export type APIResolversTypes = ResolversObject<{
   UserLearningPathsOptions: APIUserLearningPathsOptions,
   UserLearningGoalsOptions: APIUserLearningGoalsOptions,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
+  LearningGoalCreatedItem: ResolverTypeWrapper<APILearningGoalCreatedItem>,
   LearningGoalStartedItem: ResolverTypeWrapper<APILearningGoalStartedItem>,
   LearningPathStartedItem: ResolverTypeWrapper<APILearningPathStartedItem>,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
@@ -1900,6 +1913,7 @@ export type APIResolversParentTypes = ResolversObject<{
   UserLearningPathsOptions: APIUserLearningPathsOptions,
   UserLearningGoalsOptions: APIUserLearningGoalsOptions,
   CurrentUser: APICurrentUser,
+  LearningGoalCreatedItem: APILearningGoalCreatedItem,
   LearningGoalStartedItem: APILearningGoalStartedItem,
   LearningPathStartedItem: APILearningPathStartedItem,
   LoginResponse: APILoginResponse,
@@ -2487,6 +2501,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
+  createdLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalCreatedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningGoalsArgs, 'options'>>,
   createdLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningPathsArgs, 'options'>>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -2494,6 +2509,12 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
   startedLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningGoalsArgs, 'options'>>,
   startedLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPathStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningPathsArgs, 'options'>>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningGoalCreatedItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalCreatedItem'] = APIResolversParentTypes['LearningGoalCreatedItem']> = ResolversObject<{
+  createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
+  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2642,6 +2663,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   CheckTopicKeyAvailabilityResult?: APICheckTopicKeyAvailabilityResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
+  LearningGoalCreatedItem?: APILearningGoalCreatedItemResolvers<ContextType>,
   LearningGoalStartedItem?: APILearningGoalStartedItemResolvers<ContextType>,
   LearningPathStartedItem?: APILearningPathStartedItemResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,

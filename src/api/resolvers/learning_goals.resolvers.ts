@@ -90,7 +90,7 @@ export const attachLearningGoalToDomainResolver: APIMutationResolvers['attachLea
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to attach a learning goal to a domain');
-  await findLearningGoalIfAuthorized({ _id: learningGoalId });
+  await findLearningGoalIfAuthorized({ _id: learningGoalId }, user._id);
   const result = await getLearningGoalDomain(learningGoalId);
   if (!!result && !!result.domain)
     throw new UserInputError(
