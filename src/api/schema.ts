@@ -151,7 +151,12 @@ import {
   attachLearningGoalToDomainResolver,
   detachLearningGoalFromDomainResolver,
 } from './resolvers/learning_goals.resolvers';
-import { searchSubTopicsResolver, searchTopicsResolver, topicResolveType } from './resolvers/topics.resolvers';
+import {
+  checkTopicKeyAvailabilityResolver,
+  searchSubTopicsResolver,
+  searchTopicsResolver,
+  topicResolveType,
+} from './resolvers/topics.resolvers';
 import { TopicType } from '../entities/Topic';
 import { GraphQLScalarType } from 'graphql';
 
@@ -238,6 +243,7 @@ const resolvers: APIResolvers<APIContext> = {
     searchLearningGoals: searchLearningGoalsResolver,
     searchTopics: searchTopicsResolver,
     searchSubTopics: searchSubTopicsResolver,
+    checkTopicKeyAvailability: checkTopicKeyAvailabilityResolver,
     analyzeResourceUrl: analyzeResourceUrlResolver,
   },
   Article: {

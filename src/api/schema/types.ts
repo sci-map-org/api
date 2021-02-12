@@ -49,6 +49,7 @@ export type APIListArticlesResult = {
 export type APIQuery = {
    __typename?: 'Query';
   analyzeResourceUrl: APIAnalyzeResourceUrlResult;
+  checkTopicKeyAvailability: APICheckTopicKeyAvailabilityResult;
   currentUser?: Maybe<APICurrentUser>;
   getArticleByKey: APIArticle;
   getConcept: APIConcept;
@@ -72,6 +73,13 @@ export type APIQuery = {
 
 export type APIQueryAnalyzeResourceUrlArgs = {
   url: Scalars['String'];
+};
+
+
+export type APIQueryCheckTopicKeyAvailabilityArgs = {
+  domainKey?: Maybe<Scalars['String']>;
+  key: Scalars['String'];
+  topicType: TopicType;
 };
 
 
@@ -1354,6 +1362,12 @@ export type APISearchTopicsResult = {
   items: Array<APITopic>;
 };
 
+export type APICheckTopicKeyAvailabilityResult = {
+   __typename?: 'CheckTopicKeyAvailabilityResult';
+  available: Scalars['Boolean'];
+  existingTopic?: Maybe<APITopic>;
+};
+
 export { UserRole };
 
 export type APIUser = {
@@ -1723,6 +1737,7 @@ export type APIResolversTypes = ResolversObject<{
   SearchTopicsFilterOptions: APISearchTopicsFilterOptions,
   SearchTopicsOptions: APISearchTopicsOptions,
   SearchTopicsResult: ResolverTypeWrapper<APISearchTopicsResult>,
+  CheckTopicKeyAvailabilityResult: ResolverTypeWrapper<APICheckTopicKeyAvailabilityResult>,
   UserRole: UserRole,
   User: ResolverTypeWrapper<APIUser>,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1879,6 +1894,7 @@ export type APIResolversParentTypes = ResolversObject<{
   SearchTopicsFilterOptions: APISearchTopicsFilterOptions,
   SearchTopicsOptions: APISearchTopicsOptions,
   SearchTopicsResult: APISearchTopicsResult,
+  CheckTopicKeyAvailabilityResult: APICheckTopicKeyAvailabilityResult,
   UserRole: UserRole,
   User: APIUser,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1923,6 +1939,7 @@ export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType 
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
   analyzeResourceUrl?: Resolver<APIResolversTypes['AnalyzeResourceUrlResult'], ParentType, ContextType, RequireFields<APIQueryAnalyzeResourceUrlArgs, 'url'>>,
+  checkTopicKeyAvailability?: Resolver<APIResolversTypes['CheckTopicKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckTopicKeyAvailabilityArgs, 'key' | 'topicType'>>,
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>,
   getConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetConceptArgs, '_id'>>,
@@ -2451,6 +2468,12 @@ export type APISearchTopicsResultResolvers<ContextType = APIContext, ParentType 
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APICheckTopicKeyAvailabilityResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CheckTopicKeyAvailabilityResult'] = APIResolversParentTypes['CheckTopicKeyAvailabilityResult']> = ResolversObject<{
+  available?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
+  existingTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['User'] = APIResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APIUserArticlesArgs, 'options'>>,
@@ -2616,6 +2639,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   AnalyzeResourceUrlResult?: APIAnalyzeResourceUrlResultResolvers<ContextType>,
   Topic?: APITopicResolvers,
   SearchTopicsResult?: APISearchTopicsResultResolvers<ContextType>,
+  CheckTopicKeyAvailabilityResult?: APICheckTopicKeyAvailabilityResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   LearningGoalStartedItem?: APILearningGoalStartedItemResolvers<ContextType>,
