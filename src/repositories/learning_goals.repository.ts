@@ -74,6 +74,7 @@ interface UpdateLearningGoalPayload {
   type?: LearningGoalType;
   description?: string;
   public?: boolean;
+  hidden?: boolean;
 }
 
 interface UpdateLearningGoalData {
@@ -82,6 +83,7 @@ interface UpdateLearningGoalData {
   type?: LearningGoalType;
   description?: string;
   publishedAt?: number;
+  hidden?: boolean;
 }
 
 export const updateLearningGoal = (filter: { _id: string } | { key: string }, data: UpdateLearningGoalPayload) =>

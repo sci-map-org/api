@@ -151,6 +151,7 @@ import {
   publishLearningGoalResolver,
   attachLearningGoalToDomainResolver,
   detachLearningGoalFromDomainResolver,
+  indexLearningGoalResolver,
 } from './resolvers/learning_goals.resolvers';
 import {
   checkTopicKeyAvailabilityResolver,
@@ -224,6 +225,7 @@ const resolvers: APIResolvers<APIContext> = {
     detachLearningGoalRequiresSubGoal: detachLearningGoalRequiresSubGoalResolver,
     startLearningGoal: startLearningGoalResolver,
     publishLearningGoal: publishLearningGoalResolver,
+    indexLearningGoal: indexLearningGoalResolver,
   },
   Query: {
     currentUser: currentUserResolver,

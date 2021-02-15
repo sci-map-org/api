@@ -11,7 +11,7 @@ type LearningGoal implements Topic {
   description: String
   topicType: TopicType!
   publishedAt: Date
-  hidden: Boolean
+  hidden: Boolean!
   progress: LearningGoalProgress
   createdBy: User
   domain: LearningGoalBelongsToDomain
@@ -116,6 +116,10 @@ type LearningGoalPublishedResult {
   learningGoal: LearningGoal!
 }
 
+type LearningGoalIndexedResult {
+  learningGoal: LearningGoal!
+}
+
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
@@ -143,4 +147,5 @@ type Mutation {
   ): DetachLearningGoalRequiresSubGoalResult!
   startLearningGoal(learningGoalId: String!): LearningGoalStartedResult!
   publishLearningGoal(learningGoalId: String!): LearningGoalPublishedResult!
+  indexLearningGoal(learningGoalId: String!): LearningGoalIndexedResult!
 }

@@ -222,6 +222,7 @@ export type APIMutation = {
   detachLearningGoalRequiresSubGoal: APIDetachLearningGoalRequiresSubGoalResult;
   detachLearningMaterialCoversConcepts: APILearningMaterial;
   detachLearningMaterialFromDomain: APILearningMaterial;
+  indexLearningGoal: APILearningGoalIndexedResult;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
   publishLearningGoal: APILearningGoalPublishedResult;
@@ -434,6 +435,11 @@ export type APIMutationDetachLearningMaterialCoversConceptsArgs = {
 export type APIMutationDetachLearningMaterialFromDomainArgs = {
   domainId: Scalars['String'];
   learningMaterialId: Scalars['String'];
+};
+
+
+export type APIMutationIndexLearningGoalArgs = {
+  learningGoalId: Scalars['String'];
 };
 
 
@@ -847,7 +853,7 @@ export type APILearningGoal = APITopic & {
   createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   domain?: Maybe<APILearningGoalBelongsToDomain>;
-  hidden?: Maybe<Scalars['Boolean']>;
+  hidden: Scalars['Boolean'];
   key: Scalars['String'];
   name: Scalars['String'];
   progress?: Maybe<APILearningGoalProgress>;
@@ -974,6 +980,11 @@ export type APILearningGoalStartedResult = {
 
 export type APILearningGoalPublishedResult = {
    __typename?: 'LearningGoalPublishedResult';
+  learningGoal: APILearningGoal;
+};
+
+export type APILearningGoalIndexedResult = {
+   __typename?: 'LearningGoalIndexedResult';
   learningGoal: APILearningGoal;
 };
 
@@ -1695,6 +1706,7 @@ export type APIResolversTypes = ResolversObject<{
   DetachLearningGoalRequiresSubGoalResult: ResolverTypeWrapper<Omit<APIDetachLearningGoalRequiresSubGoalResult, 'subGoal'> & { subGoal: APIResolversTypes['SubGoal'] }>,
   LearningGoalStartedResult: ResolverTypeWrapper<APILearningGoalStartedResult>,
   LearningGoalPublishedResult: ResolverTypeWrapper<APILearningGoalPublishedResult>,
+  LearningGoalIndexedResult: ResolverTypeWrapper<APILearningGoalIndexedResult>,
   LearningMaterial: APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
   LearningMaterialType: APILearningMaterialType,
   LearningMaterialCoveredConceptsOptions: APILearningMaterialCoveredConceptsOptions,
@@ -1853,6 +1865,7 @@ export type APIResolversParentTypes = ResolversObject<{
   DetachLearningGoalRequiresSubGoalResult: Omit<APIDetachLearningGoalRequiresSubGoalResult, 'subGoal'> & { subGoal: APIResolversParentTypes['SubGoal'] },
   LearningGoalStartedResult: APILearningGoalStartedResult,
   LearningGoalPublishedResult: APILearningGoalPublishedResult,
+  LearningGoalIndexedResult: APILearningGoalIndexedResult,
   LearningMaterial: APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
   LearningMaterialType: APILearningMaterialType,
   LearningMaterialCoveredConceptsOptions: APILearningMaterialCoveredConceptsOptions,
@@ -2013,6 +2026,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   detachLearningGoalRequiresSubGoal?: Resolver<APIResolversTypes['DetachLearningGoalRequiresSubGoalResult'], ParentType, ContextType, RequireFields<APIMutationDetachLearningGoalRequiresSubGoalArgs, 'learningGoalId' | 'subGoalId'>>,
   detachLearningMaterialCoversConcepts?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialCoversConceptsArgs, 'conceptIds' | 'learningMaterialId'>>,
   detachLearningMaterialFromDomain?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialFromDomainArgs, 'domainId' | 'learningMaterialId'>>,
+  indexLearningGoal?: Resolver<APIResolversTypes['LearningGoalIndexedResult'], ParentType, ContextType, RequireFields<APIMutationIndexLearningGoalArgs, 'learningGoalId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
   publishLearningGoal?: Resolver<APIResolversTypes['LearningGoalPublishedResult'], ParentType, ContextType, RequireFields<APIMutationPublishLearningGoalArgs, 'learningGoalId'>>,
@@ -2152,7 +2166,7 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domain?: Resolver<Maybe<APIResolversTypes['LearningGoalBelongsToDomain']>, ParentType, ContextType>,
-  hidden?: Resolver<Maybe<APIResolversTypes['Boolean']>, ParentType, ContextType>,
+  hidden?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   progress?: Resolver<Maybe<APIResolversTypes['LearningGoalProgress']>, ParentType, ContextType>,
@@ -2240,6 +2254,11 @@ export type APILearningGoalStartedResultResolvers<ContextType = APIContext, Pare
 }>;
 
 export type APILearningGoalPublishedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalPublishedResult'] = APIResolversParentTypes['LearningGoalPublishedResult']> = ResolversObject<{
+  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APILearningGoalIndexedResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalIndexedResult'] = APIResolversParentTypes['LearningGoalIndexedResult']> = ResolversObject<{
   learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2629,6 +2648,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DetachLearningGoalRequiresSubGoalResult?: APIDetachLearningGoalRequiresSubGoalResultResolvers<ContextType>,
   LearningGoalStartedResult?: APILearningGoalStartedResultResolvers<ContextType>,
   LearningGoalPublishedResult?: APILearningGoalPublishedResultResolvers<ContextType>,
+  LearningGoalIndexedResult?: APILearningGoalIndexedResultResolvers<ContextType>,
   LearningMaterial?: APILearningMaterialResolvers,
   LearningMaterialCoveredConceptsResults?: APILearningMaterialCoveredConceptsResultsResolvers<ContextType>,
   LearningMaterialCoveredConceptsByDomainItem?: APILearningMaterialCoveredConceptsByDomainItemResolvers<ContextType>,

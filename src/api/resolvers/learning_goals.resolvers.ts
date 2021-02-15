@@ -1,4 +1,5 @@
 import { UserInputError } from 'apollo-server-koa';
+import { LearningGoalLabel } from '../../entities/LearningGoal';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachLearningGoalRequiresSubGoal,
@@ -164,6 +165,19 @@ export const publishLearningGoalResolver: APIMutationResolvers['publishLearningG
   if (!(user.role === UserRole.ADMIN || user._id === (await (await getLearningGoalCreator(learningGoalId))._id)))
     throw new UnauthorizedError('Must own this learning goal in order to publish it');
   const { learningGoal } = await publishLearningGoal(learningGoalId);
+  return { learningGoal };
+};
+
+export const indexLearningGoalResolver: APIMutationResolvers['indexLearningGoal'] = async (
+  _,
+  { learningGoalId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in');
+  if (!(user.role === UserRole.ADMIN || user._id === (await (await getLearningGoalCreator(learningGoalId))._id)))
+    throw new UnauthorizedError('Must own this learning goal in order to publish it');
+  const learningGoal = await updateLearningGoal({ _id: learningGoalId }, { hidden: false });
+  if (!learningGoal) throw new NotFoundError(LearningGoalLabel, learningGoalId);
   return { learningGoal };
 };
 
