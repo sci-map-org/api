@@ -80,7 +80,10 @@ export const updateLearningGoalResolver: APIMutationResolvers['updateLearningGoa
     user.role === UserRole.ADMIN ? await findLearningGoal({ _id }) : await findLearningGoalCreatedBy(user._id, { _id });
   if (!learningGoal) throw new NotFoundError('LearningGoal', _id);
 
-  const updatedLearningGoal = await updateLearningGoal({ _id }, nullToUndefined(payload));
+  const updatedLearningGoal = await updateLearningGoal(
+    { _id },
+    { ...nullToUndefined(payload), description: payload.description }
+  );
   if (!updatedLearningGoal) throw new Error('updateLearningGoalResolver: Should never happen');
   return updatedLearningGoal;
 };

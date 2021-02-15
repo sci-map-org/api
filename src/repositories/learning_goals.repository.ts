@@ -72,7 +72,7 @@ interface UpdateLearningGoalPayload {
   name?: string;
   key?: string;
   type?: LearningGoalType;
-  description?: string;
+  description?: string | null;
   public?: boolean;
   hidden?: boolean;
 }
@@ -81,7 +81,7 @@ interface UpdateLearningGoalData {
   name?: string;
   key?: string;
   type?: LearningGoalType;
-  description?: string;
+  description?: string | null;
   publishedAt?: number;
   hidden?: boolean;
 }
