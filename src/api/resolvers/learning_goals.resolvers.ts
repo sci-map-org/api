@@ -37,7 +37,7 @@ export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLea
   const result = await findDomainLearningGoalByKey(domainKey, learningGoalKey);
 
   if (!result) throw new NotFoundError('LearningGoal', learningGoalKey, 'key');
-  await findLearningGoalIfAuthorized({ _id: result.learningGoal._id }, user?._id); // TODO: check if necessary (then remove other check).
+  await findLearningGoalIfAuthorized({ _id: result.learningGoal._id }, user?._id);
   return result;
 };
 
