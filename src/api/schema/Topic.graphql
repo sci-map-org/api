@@ -31,7 +31,13 @@ type SearchTopicsResult {
   items: [Topic!]!
 }
 
+type CheckTopicKeyAvailabilityResult {
+  available: Boolean!
+  existingTopic: Topic
+}
+
 type Query {
   searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
   searchSubTopics(domainId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
+  checkTopicKeyAvailability(key: String!, topicType: TopicType!, domainKey: String): CheckTopicKeyAvailabilityResult!
 }

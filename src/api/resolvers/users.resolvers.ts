@@ -3,6 +3,8 @@ import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
 import {
   findUser,
+  getLearningGoalsCreatedBy,
+  getLearningGoalsStartedBy,
   getLearningPathsCreatedBy,
   getLearningPathsStartedBy,
   updateUser,
@@ -160,15 +162,30 @@ export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = 
   return toAPIUser(updatedUser);
 };
 
-export const getCurrentUserCreatedLearningPaths: APICurrentUserResolvers['createdLearningPaths'] = async currentUser => {
+export const getCurrentUserCreatedLearningPathsResolver: APICurrentUserResolvers['createdLearningPaths'] = async currentUser => {
   return await getLearningPathsCreatedBy(currentUser._id);
 };
 
-export const getCurrentUserStartedLearningPaths: APICurrentUserResolvers['startedLearningPaths'] = async currentUser => {
+export const getCurrentUserStartedLearningPathsResolver: APICurrentUserResolvers['startedLearningPaths'] = async currentUser => {
   const results = await getLearningPathsStartedBy(currentUser._id);
   return results.map(({ learningPath, relationship }) => ({
     learningPath,
-    startedAt: new Date(relationship.startedAt),
-    completedAt: relationship.completedAt ? new Date(relationship.completedAt) : undefined,
+    ...relationship,
+  }));
+};
+
+export const getCurrentUserCreatedLearningGoalsResolver: APICurrentUserResolvers['createdLearningGoals'] = async currentUser => {
+  const results = await getLearningGoalsCreatedBy(currentUser._id);
+  return results.map(({ learningGoal, relationship }) => ({
+    learningGoal,
+    ...relationship,
+  }));
+};
+
+export const getCurrentUserStartedLearningGoalsResolver: APICurrentUserResolvers['startedLearningGoals'] = async currentUser => {
+  const results = await getLearningGoalsStartedBy(currentUser._id);
+  return results.map(({ learningGoal, relationship }) => ({
+    learningGoal,
+    ...relationship,
   }));
 };

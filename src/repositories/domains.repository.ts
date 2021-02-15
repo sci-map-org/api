@@ -462,6 +462,7 @@ export const getDomainLearningGoals = (
     },
     destinationNode: {
       label: LearningGoalLabel,
+      filter: { hidden: false },
     },
   }).then(items =>
     items.map(({ destinationNode, relationship, originNode }) => ({
@@ -485,6 +486,7 @@ export const getDomainSubTopics = (
     },
     destinationNode: {
       label: TopicLabel,
+      filter: { hidden: false },
     },
   }).then(items => {
     if (items.length) {

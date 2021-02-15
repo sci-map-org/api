@@ -1,13 +1,45 @@
+enum LearningGoalType {
+  Roadmap
+  SubGoal
+}
+
 type LearningGoal implements Topic {
   _id: String!
   key: String!
+  type: LearningGoalType!
   name: String!
   description: String
   topicType: TopicType!
+  publishedAt: Date
+  hidden: Boolean!
+  progress: LearningGoalProgress
   createdBy: User
   domain: LearningGoalBelongsToDomain
   requiredInGoals: [RequiredInGoalItem!]
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?
+  started: LearningGoalStarted
+  startedBy(options: LearningGoalStartedByOptions!): LearningGoalStartedByResults
+}
+
+type LearningGoalProgress {
+  level: Float!
+}
+type LearningGoalStarted {
+  startedAt: Date!
+}
+
+input LearningGoalStartedByOptions {
+  pagination: PaginationOptions
+}
+
+type LearningGoalStartedByResults {
+  items: [LearningGoalStartedByItem!]!
+  count: Int!
+}
+
+type LearningGoalStartedByItem {
+  startedAt: Date!
+  user: User!
 }
 
 type RequiredInGoalItem {
@@ -24,40 +56,30 @@ union SubGoal = LearningGoal | Concept
 
 input CreateLearningGoalPayload {
   name: String!
+  type: LearningGoalType!
   key: String
   description: String
 }
-
-input AddLearningGoalToDomainPayload {
-  contextualName: String!
-  contextualKey: String
-  description: String
+input CreateLearningGoalOptions {
+  public: Boolean
+  domainId: String
 }
 
 input UpdateLearningGoalPayload {
   name: String
   key: String
+  type: LearningGoalType
   description: String
 }
 
-# input AttachLearningGoalToDomainPayload {
-#   contextualKey: String
-# }
+input AttachLearningGoalToDomainPayload {
+  index: Float
+}
 
 type DeleteLearningGoalMutationResult {
   _id: String!
   success: Boolean!
 }
-
-type AttachLearningGoalToDomainResult {
-  domain: Domain!
-  learningGoal: LearningGoal!
-}
-
-# type DetachLearningGoalFromDomainResult {
-#   domain: Domain!
-#   learningGoal: LearningGoal!
-# }
 
 type DomainAndLearningGoalResult {
   domain: Domain!
@@ -85,21 +107,33 @@ type DetachLearningGoalRequiresSubGoalResult {
   subGoal: SubGoal!
 }
 
+type LearningGoalStartedResult {
+  currentUser: CurrentUser!
+  learningGoal: LearningGoal!
+}
+
+type LearningGoalPublishedResult {
+  learningGoal: LearningGoal!
+}
+
+type LearningGoalIndexedResult {
+  learningGoal: LearningGoal!
+}
+
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
-  getDomainLearningGoalByKey(domainKey: String!, contextualLearningGoalKey: String!): DomainAndLearningGoalResult!
+  getDomainLearningGoalByKey(domainKey: String!, learningGoalKey: String!): DomainAndLearningGoalResult!
 }
 
 type Mutation {
-  addLearningGoalToDomain(domainId: String!, payload: AddLearningGoalToDomainPayload!): DomainAndLearningGoalResult!
-  createLearningGoal(payload: CreateLearningGoalPayload!): LearningGoal!
-  # attachLearningGoalToDomain(
-  #   learningGoalId: String!
-  #   domainId: String!
-  #   payload: AttachLearningGoalToDomainPayload!
-  # ): DomainAndLearningGoalResult!
-  # detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
+  createLearningGoal(payload: CreateLearningGoalPayload!, options: CreateLearningGoalOptions): LearningGoal!
+  attachLearningGoalToDomain(
+    learningGoalId: String!
+    domainId: String!
+    payload: AttachLearningGoalToDomainPayload!
+  ): DomainAndLearningGoalResult!
+  detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
   updateLearningGoal(_id: String!, payload: UpdateLearningGoalPayload!): LearningGoal!
   deleteLearningGoal(_id: String!): DeleteLearningGoalMutationResult!
   attachLearningGoalRequiresSubGoal(
@@ -111,4 +145,7 @@ type Mutation {
     learningGoalId: String!
     subGoalId: String!
   ): DetachLearningGoalRequiresSubGoalResult!
+  startLearningGoal(learningGoalId: String!): LearningGoalStartedResult!
+  publishLearningGoal(learningGoalId: String!): LearningGoalPublishedResult!
+  indexLearningGoal(learningGoalId: String!): LearningGoalIndexedResult!
 }

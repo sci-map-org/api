@@ -1,6 +1,5 @@
 import { makeExecutableSchema } from 'apollo-server-koa';
 import { importSchema } from 'graphql-import';
-import { GraphQLDateTime } from 'graphql-iso-date';
 import {
   createArticleResolver,
   deleteArticleResolver,
@@ -118,8 +117,10 @@ import {
   adminUpdateUserResolver,
   currentUserResolver,
   getCurrentUserCreatedArticlesResolver,
-  getCurrentUserCreatedLearningPaths,
-  getCurrentUserStartedLearningPaths,
+  getCurrentUserCreatedLearningGoalsResolver,
+  getCurrentUserCreatedLearningPathsResolver,
+  getCurrentUserStartedLearningGoalsResolver,
+  getCurrentUserStartedLearningPathsResolver,
   getUserCreatedArticlesResolver,
   getUserResolver,
   loginGoogleResolver,
@@ -131,7 +132,6 @@ import {
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
 import {
-  addLearningGoalToDomainResolver,
   deleteLearningGoalResolver,
   getLearningGoalByKeyResolver,
   updateLearningGoalResolver,
@@ -144,9 +144,23 @@ import {
   attachLearningGoalRequiresSubGoalResolver,
   detachLearningGoalRequiresSubGoalResolver,
   getLearningGoalCreatedByResolver,
+  getLearningGoalStartedResolver,
+  getLearningGoalStartedByResolver,
+  startLearningGoalResolver,
+  getLearningGoalProgressResolver,
+  publishLearningGoalResolver,
+  attachLearningGoalToDomainResolver,
+  detachLearningGoalFromDomainResolver,
+  indexLearningGoalResolver,
 } from './resolvers/learning_goals.resolvers';
-import { searchSubTopicsResolver, searchTopicsResolver, topicResolveType } from './resolvers/topics.resolvers';
+import {
+  checkTopicKeyAvailabilityResolver,
+  searchSubTopicsResolver,
+  searchTopicsResolver,
+  topicResolveType,
+} from './resolvers/topics.resolvers';
 import { TopicType } from '../entities/Topic';
+import { GraphQLScalarType } from 'graphql';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -201,15 +215,17 @@ const resolvers: APIResolvers<APIContext> = {
     createLearningGoal: createLearningGoalResolver,
     updateLearningGoal: updateLearningGoalResolver,
     deleteLearningGoal: deleteLearningGoalResolver,
-    addLearningGoalToDomain: addLearningGoalToDomainResolver,
-    // attachLearningGoalToDomain: attachLearningGoalToDomainResolver,
-    // detachLearningGoalFromDomain: detachLearningGoalFromDomainResolver,
+    attachLearningGoalToDomain: attachLearningGoalToDomainResolver,
+    detachLearningGoalFromDomain: detachLearningGoalFromDomainResolver,
     addLearningMaterialPrerequisite: addLearningMaterialPrerequisiteResolver,
     removeLearningMaterialPrerequisite: removeLearningMaterialPrerequisiteResolver,
     addLearningMaterialOutcome: addLearningMaterialOutcomeResolver,
     removeLearningMaterialOutcome: removeLearningMaterialOutcomeResolver,
     attachLearningGoalRequiresSubGoal: attachLearningGoalRequiresSubGoalResolver,
     detachLearningGoalRequiresSubGoal: detachLearningGoalRequiresSubGoalResolver,
+    startLearningGoal: startLearningGoalResolver,
+    publishLearningGoal: publishLearningGoalResolver,
+    indexLearningGoal: indexLearningGoalResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -230,6 +246,7 @@ const resolvers: APIResolvers<APIContext> = {
     searchLearningGoals: searchLearningGoalsResolver,
     searchTopics: searchTopicsResolver,
     searchSubTopics: searchSubTopicsResolver,
+    checkTopicKeyAvailability: checkTopicKeyAvailabilityResolver,
     analyzeResourceUrl: analyzeResourceUrlResolver,
   },
   Article: {
@@ -240,8 +257,10 @@ const resolvers: APIResolvers<APIContext> = {
   },
   CurrentUser: {
     articles: getCurrentUserCreatedArticlesResolver,
-    createdLearningPaths: getCurrentUserCreatedLearningPaths,
-    startedLearningPaths: getCurrentUserStartedLearningPaths,
+    createdLearningPaths: getCurrentUserCreatedLearningPathsResolver,
+    startedLearningPaths: getCurrentUserStartedLearningPathsResolver,
+    createdLearningGoals: getCurrentUserCreatedLearningGoalsResolver,
+    startedLearningGoals: getCurrentUserStartedLearningGoalsResolver,
   },
   Domain: {
     concepts: getDomainConceptsResolver,
@@ -299,6 +318,9 @@ const resolvers: APIResolvers<APIContext> = {
     requiredSubGoals: getLearningGoalRequiredSubGoalsResolver,
     requiredInGoals: getLearningGoalRequiredInGoalsResolver,
     createdBy: getLearningGoalCreatedByResolver,
+    started: getLearningGoalStartedResolver,
+    startedBy: getLearningGoalStartedByResolver,
+    progress: getLearningGoalProgressResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,
@@ -313,7 +335,20 @@ const resolvers: APIResolvers<APIContext> = {
       throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },
-  Date: GraphQLDateTime,
+  Date: new GraphQLScalarType({
+    name: 'Date',
+    description:
+      'Date scalar serialized as ISO UTC string, parsed from JS Date time (ms since Unix epoch, from Date.now() or new Date().getTime()',
+    serialize(value: number) {
+      return new Date(value).toISOString();
+    },
+    parseValue(value: string) {
+      return new Date(value).getTime();
+    },
+    parseLiteral(ast) {
+      ast.kind === 'StringValue' ? new Date(ast.value).getTime() : undefined;
+    },
+  }),
 };
 
 export const schema = makeExecutableSchema({

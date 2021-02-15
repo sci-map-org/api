@@ -138,7 +138,6 @@ export const getLearningMaterialPrerequisitesResolver: APILearningMaterialResolv
   return (await getLearningMaterialPrerequisites(learningMaterial._id)).map(({ relationship, learningGoal }) => ({
     learningGoal,
     ...relationship,
-    createdAt: new Date(relationship.createdAt),
   }));
 };
 
@@ -146,6 +145,5 @@ export const getLearningMaterialOutcomesResolver: APILearningMaterialResolvers['
   return (await getLearningMaterialOutcomes(learningMaterial._id)).map(({ relationship, learningGoal }) => ({
     learningGoal,
     ...relationship,
-    createdAt: new Date(relationship.createdAt),
   }));
 };

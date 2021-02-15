@@ -7,7 +7,7 @@ generates:
       - 'typescript-resolvers'
     config:
       scalars:
-        Date: Date
+        Date: number
       typesPrefix: 'API'
       useIndexSignature: true
       contextType: ../server#APIContext
@@ -18,3 +18,4 @@ generates:
         ResourceMediaType: ../../entities/Resource#ResourceMediaType
         SortingDirection: ../../repositories/util/sorting#SortingDirection
         TopicType: ../../entities/Topic#TopicType
+        LearningGoalType: ../../entities/LearningGoal#LearningGoalType

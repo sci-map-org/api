@@ -312,6 +312,7 @@ export const getLearningMaterialPrerequisites = (
     },
     destinationNode: {
       label: LearningGoalLabel,
+      filter: { hidden: false },
     },
   }).then(items => items.map(({ destinationNode, relationship }) => ({ relationship, learningGoal: destinationNode })));
 
@@ -328,5 +329,6 @@ export const getLearningMaterialOutcomes = (
     },
     destinationNode: {
       label: LearningGoalLabel,
+      filter: { hidden: false },
     },
   }).then(items => items.map(({ destinationNode, relationship }) => ({ relationship, learningGoal: destinationNode })));

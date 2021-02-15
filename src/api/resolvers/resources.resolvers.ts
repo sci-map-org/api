@@ -150,12 +150,7 @@ export const setResourcesConsumedResolver: APIMutationResolvers['setResourcesCon
 
 export const getResourceConsumedResolver: APIResourceResolvers['consumed'] = async (resource, _args, { user }) => {
   if (!user) return null;
-  const consumed = await getUserConsumedResource(user._id, resource._id);
-  if (!consumed) return null;
-  return {
-    openedAt: consumed.openedAt ? new Date(consumed.openedAt) : null,
-    consumedAt: consumed.consumedAt ? new Date(consumed.consumedAt) : null,
-  };
+  return await getUserConsumedResource(user._id, resource._id);
 };
 
 export const voteResourceResolver: APIMutationResolvers['voteResource'] = async (

@@ -6,17 +6,18 @@ import {
   getLearningMaterialRating,
 } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
-import { findLearningPath, updateUserStartedLearningPath } from '../../repositories/learning_paths.repository';
 import {
   attachResourceToLearningPath,
   countLearningPathStartedBy,
   detachResourceFromLearningPath,
+  findLearningPath,
   findLearningPathCreatedBy,
   getLearningPathComplementaryResources,
   getLearningPathCreator,
   getLearningPathResourceItems,
   getLearningPathStartedBy,
   getUserStartedLearningPath,
+  updateUserStartedLearningPath,
 } from '../../repositories/learning_paths.repository';
 import {
   createFullLearningPath,
@@ -181,12 +182,7 @@ export const getLearningPathStartedResolver: APILearningPathResolvers['started']
   if (!user) return null;
 
   const started = await getUserStartedLearningPath(user._id, learningPath._id);
-  return started
-    ? {
-        startedAt: new Date(started.startedAt),
-        completedAt: started.completedAt ? new Date(started.completedAt) : undefined,
-      }
-    : null;
+  return started;
 };
 
 export const getLearningPathCreatedByResolver: APILearningPathResolvers['createdBy'] = async learningPath => {
@@ -202,8 +198,7 @@ export const getLearningPathStartedByResolver: APILearningPathResolvers['started
     items: (await getLearningPathStartedBy(learningPath._id, nullToUndefined(options))).map(
       ({ user, relationship }) => ({
         user,
-        startedAt: new Date(relationship.startedAt),
-        completedAt: relationship.completedAt ? new Date(relationship.completedAt) : undefined,
+        ...relationship,
       })
     ),
   };

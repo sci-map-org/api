@@ -1,8 +1,10 @@
+import { isNull, node, not, Query, relation } from 'cypher-query-builder';
+import { omit } from 'lodash';
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
-import { Concept } from '../entities/Concept';
+import { ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
-import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
+import { LearningGoal, LearningGoalLabel, LearningGoalType } from '../entities/LearningGoal';
 import {
   LearningGoalBelongsToDomain,
   LearningGoalBelongsToDomainLabel,
@@ -16,12 +18,18 @@ import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
+import { UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
+import {
+  UserStartedLearningGoal,
+  UserStartedLearningGoalLabel,
+} from '../entities/relationships/UserStartedLearningGoal';
 import { SubGoal } from '../entities/SubGoal';
 import { TopicLabel, TopicType } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
-import { neo4jDriver } from '../infra/neo4j';
+import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachUniqueNodes,
+  countRelatedNodes,
   createRelatedNode,
   deleteOne,
   detachUniqueNodes,
@@ -31,12 +39,17 @@ import {
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
+import { PaginationOptions } from './util/pagination';
 
 interface CreateLearningGoalData {
   name: string;
+  type: LearningGoalType;
   key?: string;
   description?: string;
+  publishedAt?: number;
+  hidden: boolean;
 }
+
 export const createLearningGoal = (
   userFilter: { _id: string } | { key: string },
   data: CreateLearningGoalData
@@ -55,27 +68,40 @@ export const createLearningGoal = (
     },
   });
 
+interface UpdateLearningGoalPayload {
+  name?: string;
+  key?: string;
+  type?: LearningGoalType;
+  description?: string | null;
+  public?: boolean;
+  hidden?: boolean;
+}
+
 interface UpdateLearningGoalData {
   name?: string;
   key?: string;
-  description?: string;
+  type?: LearningGoalType;
+  description?: string | null;
+  publishedAt?: number;
+  hidden?: boolean;
 }
 
-export const updateLearningGoal = updateOne<LearningGoal, { _id: string } | { key: string }, UpdateLearningGoalData>({
-  label: LearningGoalLabel,
-});
+export const updateLearningGoal = (filter: { _id: string } | { key: string }, data: UpdateLearningGoalPayload) =>
+  updateOne<LearningGoal, { _id: string } | { key: string }, UpdateLearningGoalData>({
+    label: LearningGoalLabel,
+  })(filter, { ...omit(data, 'public'), publishedAt: data.public ? Date.now() : undefined });
 
 export const findLearningGoal = findOne<LearningGoal, { key: string } | { _id: string }>({ label: LearningGoalLabel });
 
 export const searchLearningGoals = async (
   { query }: { query?: string },
   pagination: { offset?: number; limit?: number }
-): Promise<Domain[]> => {
+): Promise<LearningGoal[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${LearningGoalLabel}) ${
+    `MATCH (node:${LearningGoalLabel}) WHERE node.hidden = false ${
       query
-        ? 'WHERE toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)'
+        ? ' AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query))'
         : ''
     }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
@@ -104,13 +130,14 @@ export const deleteLearningGoal = deleteOne<LearningGoal, { _id: string } | { ke
 export const attachLearningGoalToDomain = (
   learningGoalId: string,
   domainId: string,
-  { contextualKey, contextualName }: { contextualKey: string; contextualName: string }
+  { index }: { index?: number }
 ): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
   attachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
     relationship: {
       label: LearningGoalBelongsToDomainLabel,
-      onCreateProps: { index: DEFAULT_INDEX_VALUE, contextualKey, contextualName },
+      onCreateProps: { index: index || DEFAULT_INDEX_VALUE },
+      onMergeProps: { index },
     },
     destinationNode: { label: DomainLabel, filter: { _id: domainId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
@@ -149,7 +176,7 @@ export const getLearningGoalDomain = (
 
 export const findDomainLearningGoalByKey = (
   domainKey: string,
-  contextualLearningGoalKey: string
+  learningGoalkey: string
 ): Promise<{ learningGoal: LearningGoal; domain: Domain } | null> =>
   getOptionalRelatedNode<Domain, LearningGoalBelongsToDomain, LearningGoal>({
     originNode: {
@@ -159,11 +186,10 @@ export const findDomainLearningGoalByKey = (
     relationship: {
       label: LearningGoalBelongsToDomainLabel,
       direction: 'IN',
-      filter: { contextualKey: contextualLearningGoalKey },
     },
     destinationNode: {
       label: LearningGoalLabel,
-      filter: {},
+      filter: { key: learningGoalkey },
     },
   }).then(result => (result ? { learningGoal: result.destinationNode, domain: result.originNode } : null));
 
@@ -220,7 +246,7 @@ export const getLearningGoalRequiredSubGoals = (
     },
   }).then(items =>
     items.map(({ destinationNode, relationship, originNode }) => ({
-      learningGoal: destinationNode,
+      learningGoal: originNode,
       relationship,
       subGoal: destinationNode,
     }))
@@ -244,6 +270,7 @@ export const getLearningGoalRequiredInGoals = (
     },
     destinationNode: {
       label: LearningGoalLabel,
+      filter: { hidden: false },
     },
   }).then(items =>
     items.map(({ destinationNode, relationship, originNode }) => ({
@@ -269,3 +296,122 @@ export const getLearningGoalCreator = (learningGoalId: string): Promise<User> =>
       filter: {},
     },
   });
+
+export const attachUserStartedLearningGoal = (
+  userId: string,
+  learningGoalId: string,
+  creationData?: UserStartedLearningGoal
+): Promise<{ user: User; relationship: UserStartedLearningGoal; learningGoal: LearningGoal }> =>
+  attachUniqueNodes<User, UserStartedLearningGoal, LearningGoal>({
+    originNode: { label: UserLabel, filter: { _id: userId } },
+    relationship: { label: UserStartedLearningGoalLabel, onCreateProps: creationData },
+    destinationNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+  }).then(({ originNode, relationship, destinationNode }) => ({
+    user: originNode,
+    relationship,
+    learningGoal: destinationNode,
+  }));
+
+export const getUserStartedLearningGoal = (
+  userId: string,
+  learningGoalId: string
+): Promise<UserStartedLearningGoal | null> =>
+  getOptionalRelatedNode<User, UserStartedLearningGoal, LearningGoal>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserStartedLearningGoalLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+  }).then(result => (result ? result.relationship : null));
+
+export const getLearningGoalStartedBy = (
+  learningGoalId: string,
+  { pagination }: { pagination?: PaginationOptions }
+): Promise<{ user: User; relationship: UserStartedLearningGoal }[]> =>
+  getRelatedNodes<LearningGoal, UserStartedLearningGoal, User>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: UserStartedLearningGoalLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: UserLabel,
+    },
+    pagination,
+  }).then(items =>
+    items.map(({ relationship, destinationNode }) => ({
+      relationship,
+      user: destinationNode,
+    }))
+  );
+
+export const countLearningGoalStartedBy = (learningGoalId: string): Promise<number> =>
+  countRelatedNodes<LearningGoal, UserStartedLearningGoal, User>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: UserStartedLearningGoalLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: UserLabel,
+    },
+  });
+
+export const getLearningGoalProgress = async (learningGoalId: string, userId: string): Promise<number> => {
+  const q = new Query(neo4jQb);
+
+  q.match([
+    node('n', LearningGoalLabel, { _id: learningGoalId }),
+    relation('out', 'r', LearningGoalRequiresSubGoalLabel, undefined, [1, 5]),
+    node('c', ConceptLabel),
+  ]);
+  q.optionalMatch([node('c'), relation('in', 'k', UserKnowsConceptLabel), node('u', UserLabel, { _id: userId })]);
+
+  q.raw('WITH DISTINCT c, k WITH size(collect(c)) as lenC, sum(k.level) as lenK ');
+  q.return('CASE WHEN lenC > 0 THEN lenK/lenC ELSE 0 END  as progress');
+
+  const r = await q.run();
+
+  const [progress] = r.map(i => i.progress);
+
+  return progress;
+};
+
+export const publishLearningGoal = async (learningGoalId: string): Promise<{ learningGoal: LearningGoal }> => {
+  const q = new Query(neo4jQb);
+
+  q.match([node('goal', LearningGoalLabel, { _id: learningGoalId })]);
+  q.optionalMatch([
+    node('goal'),
+    relation('out', 'r', LearningGoalRequiresSubGoalLabel, undefined, [1, 5]),
+    node('subGoal', LearningGoalLabel),
+  ]);
+  q.where({ 'subGoal.publishedAt': isNull() });
+  q.set(
+    {
+      values: {
+        goal: { publishedAt: Date.now(), hidden: false },
+        subGoal: { publishedAt: Date.now() },
+      },
+    },
+    { merge: true }
+  );
+
+  q.return('properties(goal) as goal');
+  const r = await q.run();
+  const [goal] = r.map(i => i.goal);
+  return { learningGoal: goal };
+};
