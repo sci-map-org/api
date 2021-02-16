@@ -152,6 +152,7 @@ import {
   attachLearningGoalToDomainResolver,
   detachLearningGoalFromDomainResolver,
   indexLearningGoalResolver,
+  getLearningGoalRelevantLearningMaterialsResolver,
 } from './resolvers/learning_goals.resolvers';
 import {
   checkTopicKeyAvailabilityResolver,
@@ -321,6 +322,7 @@ const resolvers: APIResolvers<APIContext> = {
     started: getLearningGoalStartedResolver,
     startedBy: getLearningGoalStartedByResolver,
     progress: getLearningGoalProgressResolver,
+    relevantLearningMaterials: getLearningGoalRelevantLearningMaterialsResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,

@@ -19,6 +19,23 @@ type LearningGoal implements Topic {
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?
   started: LearningGoalStarted
   startedBy(options: LearningGoalStartedByOptions!): LearningGoalStartedByResults
+  relevantLearningMaterials(
+    options: LearningGoalRelevantLearningMaterialsOptions!
+  ): LearningGoalRelevantLearningMaterialsResults
+}
+
+input LearningGoalRelevantLearningMaterialsOptions {
+  pagination: PaginationOptions
+}
+
+type LearningGoalRelevantLearningMaterialsItem {
+  learningMaterial: LearningMaterial!
+  coverage: Float
+}
+
+type LearningGoalRelevantLearningMaterialsResults {
+  items: [LearningGoalRelevantLearningMaterialsItem!]!
+  count: Int!
 }
 
 type LearningGoalProgress {

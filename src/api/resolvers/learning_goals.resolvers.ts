@@ -15,6 +15,7 @@ import {
   getLearningGoalCreator,
   getLearningGoalDomain,
   getLearningGoalProgress,
+  getLearningGoalRelevantLearningMaterials,
   getLearningGoalRequiredInGoals,
   getLearningGoalRequiredSubGoals,
   getLearningGoalStartedBy,
@@ -245,4 +246,16 @@ export const getLearningGoalProgressResolver: APILearningGoalResolvers['progress
 ) => {
   if (!user) return null;
   return { level: await getLearningGoalProgress(learningGoal._id, user._id) };
+};
+
+export const getLearningGoalRelevantLearningMaterialsResolver: APILearningGoalResolvers['relevantLearningMaterials'] = async (
+  learningGoal,
+  { options },
+  { user }
+) => {
+  const items = await getLearningGoalRelevantLearningMaterials(learningGoal._id);
+  return {
+    items,
+    count: items.length,
+  };
 };
