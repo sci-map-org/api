@@ -17,11 +17,18 @@ type LearningGoal implements Topic {
   domain: LearningGoalBelongsToDomain
   requiredInGoals: [RequiredInGoalItem!]
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?
+  dependsOnLearningGoals(parentLearningGoalIdIn: [String!]): [DependsOnGoalItem!]
+  dependedUponByLearningGoals(parentLearningGoalIdIn: [String!]): [DependsOnGoalItem!]
   started: LearningGoalStarted
   startedBy(options: LearningGoalStartedByOptions!): LearningGoalStartedByResults
   relevantLearningMaterials(
     options: LearningGoalRelevantLearningMaterialsOptions!
   ): LearningGoalRelevantLearningMaterialsResults
+}
+
+type DependsOnGoalItem {
+  learningGoal: LearningGoal!
+  parentLearningGoalId: String!
 }
 
 input LearningGoalRelevantLearningMaterialsOptions {
@@ -137,6 +144,12 @@ type LearningGoalIndexedResult {
   learningGoal: LearningGoal!
 }
 
+type UpdateLearningGoalDependenciesResult {
+  parentLearningGoal: LearningGoal!
+  learningGoal: LearningGoal!
+  learningGoalDependency: LearningGoal!
+}
+
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
@@ -162,6 +175,16 @@ type Mutation {
     learningGoalId: String!
     subGoalId: String!
   ): DetachLearningGoalRequiresSubGoalResult!
+  attachLearningGoalDependency(
+    parentLearningGoalId: String!
+    learningGoalId: String!
+    learningGoalDependencyId: String!
+  ): UpdateLearningGoalDependenciesResult!
+  detachLearningGoalDependency(
+    parentLearningGoalId: String!
+    learningGoalId: String!
+    learningGoalDependencyId: String!
+  ): UpdateLearningGoalDependenciesResult!
   startLearningGoal(learningGoalId: String!): LearningGoalStartedResult!
   publishLearningGoal(learningGoalId: String!): LearningGoalPublishedResult!
   indexLearningGoal(learningGoalId: String!): LearningGoalIndexedResult!

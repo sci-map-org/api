@@ -11,6 +11,10 @@ import {
   LearningGoalBelongsToDomainLabel,
 } from '../entities/relationships/LearningGoalBelongsToDomain';
 import {
+  LearningGoalDependsOnLearningGoalInLearningGoal,
+  LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+} from '../entities/relationships/LearningGoalDependsOnLearningGoalInLearningGoal';
+import {
   LearningGoalRequiresSubGoal,
   LearningGoalRequiresSubGoalLabel,
 } from '../entities/relationships/LearningGoalRequiresSubGoal';
@@ -522,3 +526,30 @@ export const getLearningGoalRelevantLearningMaterials = async (
 
   return items;
 };
+
+export const attachLearningGoalDependsOnLearningGoal = async (
+  learningGoalId: string,
+  learningGoalDependencyId: string,
+  { parentLearningGoalId }: { parentLearningGoalId: string }
+): Promise<{ learningGoalDependency: LearningGoal; learningGoal: LearningGoal }> =>
+  attachUniqueNodes<LearningGoal, LearningGoalDependsOnLearningGoalInLearningGoal, LearningGoal>({
+    originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+    relationship: {
+      label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+      onCreateProps: { parentLearningGoalId },
+    },
+    destinationNode: { label: LearningGoalLabel, filter: { _id: learningGoalDependencyId } },
+  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, learningGoalDependency: destinationNode }));
+
+export const detachLearningGoalDependsOnLearningGoal = async (
+  learningGoalId: string,
+  learningGoalDependencyId: string
+): Promise<{ learningGoalDependency: LearningGoal; learningGoal: LearningGoal }> =>
+  detachUniqueNodes<LearningGoal, LearningGoalDependsOnLearningGoalInLearningGoal, LearningGoal>({
+    originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+    relationship: {
+      label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+      filter: {},
+    },
+    destinationNode: { label: LearningGoalLabel, filter: { _id: learningGoalDependencyId } },
+  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, learningGoalDependency: destinationNode }));
