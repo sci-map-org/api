@@ -18,7 +18,7 @@ type LearningGoal implements Topic {
   requiredInGoals: [RequiredInGoalItem!]
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?
   dependsOnLearningGoals(parentLearningGoalIdIn: [String!]): [DependsOnGoalItem!]
-  dependedUponByLearningGoals(parentLearningGoalIdIn: [String!]): [DependsOnGoalItem!]
+  dependantLearningGoals(parentLearningGoalIdIn: [String!]): [DependsOnGoalItem!]
   started: LearningGoalStarted
   startedBy(options: LearningGoalStartedByOptions!): LearningGoalStartedByResults
   relevantLearningMaterials(

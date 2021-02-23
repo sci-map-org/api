@@ -26,6 +26,8 @@ import {
   publishLearningGoal,
   searchLearningGoals,
   updateLearningGoal,
+  getLearningGoalDependants,
+  getLearningGoalDependencies,
 } from '../../repositories/learning_goals.repository';
 import { JWTPayload } from '../../services/auth/jwt';
 import { UnauthenticatedError, UnauthorizedError } from '../errors/UnauthenticatedError';
@@ -312,4 +314,20 @@ export const getLearningGoalRelevantLearningMaterialsResolver: APILearningGoalRe
     items,
     count: items.length,
   };
+};
+
+export const getLearningGoalDependsOnLearningGoalsResolver: APILearningGoalResolvers['dependsOnLearningGoals'] = async learningGoal => {
+  const results = await getLearningGoalDependencies(learningGoal._id);
+  return results.map(({ relationship, learningGoalDependency }) => ({
+    learningGoal: learningGoalDependency,
+    ...relationship,
+  }));
+};
+
+export const getLearningGoalDependantsLearningGoalsResolver: APILearningGoalResolvers['dependantLearningGoals'] = async learningGoal => {
+  const results = await getLearningGoalDependants(learningGoal._id);
+  return results.map(({ relationship, dependantLearningGoal }) => ({
+    learningGoal: dependantLearningGoal,
+    ...relationship,
+  }));
 };

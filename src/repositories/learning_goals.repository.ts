@@ -553,3 +553,57 @@ export const detachLearningGoalDependsOnLearningGoal = async (
     },
     destinationNode: { label: LearningGoalLabel, filter: { _id: learningGoalDependencyId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, learningGoalDependency: destinationNode }));
+
+export const getLearningGoalDependencies = (
+  learningGoalId: string
+): Promise<{
+  learningGoal: LearningGoal;
+  relationship: LearningGoalDependsOnLearningGoalInLearningGoal;
+  learningGoalDependency: LearningGoal;
+}[]> =>
+  getRelatedNodes<LearningGoal, LearningGoalDependsOnLearningGoalInLearningGoal, LearningGoal>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: LearningGoalLabel,
+    },
+  }).then(items =>
+    items.map(({ destinationNode, relationship, originNode }) => ({
+      learningGoal: originNode,
+      relationship,
+      learningGoalDependency: destinationNode,
+    }))
+  );
+
+export const getLearningGoalDependants = (
+  learningGoalId: string
+): Promise<{
+  learningGoal: LearningGoal;
+  relationship: LearningGoalDependsOnLearningGoalInLearningGoal;
+  dependantLearningGoal: LearningGoal;
+}[]> =>
+  getRelatedNodes<LearningGoal, LearningGoalDependsOnLearningGoalInLearningGoal, LearningGoal>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: LearningGoalLabel,
+    },
+  }).then(items =>
+    items.map(({ destinationNode, relationship, originNode }) => ({
+      learningGoal: originNode,
+      relationship,
+      dependantLearningGoal: destinationNode,
+    }))
+  );

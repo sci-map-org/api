@@ -867,7 +867,7 @@ export type APILearningGoal = APITopic & {
    __typename?: 'LearningGoal';
   _id: Scalars['String'];
   createdBy?: Maybe<APIUser>;
-  dependedUponByLearningGoals?: Maybe<Array<APIDependsOnGoalItem>>;
+  dependantLearningGoals?: Maybe<Array<APIDependsOnGoalItem>>;
   dependsOnLearningGoals?: Maybe<Array<APIDependsOnGoalItem>>;
   description?: Maybe<Scalars['String']>;
   domain?: Maybe<APILearningGoalBelongsToDomain>;
@@ -886,7 +886,7 @@ export type APILearningGoal = APITopic & {
 };
 
 
-export type APILearningGoalDependedUponByLearningGoalsArgs = {
+export type APILearningGoalDependantLearningGoalsArgs = {
   parentLearningGoalIdIn?: Maybe<Array<Scalars['String']>>;
 };
 
@@ -2239,7 +2239,7 @@ export type APIDeleteDomainResponseResolvers<ContextType = APIContext, ParentTyp
 export type APILearningGoalResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoal'] = APIResolversParentTypes['LearningGoal']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
-  dependedUponByLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['DependsOnGoalItem']>>, ParentType, ContextType, RequireFields<APILearningGoalDependedUponByLearningGoalsArgs, never>>,
+  dependantLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['DependsOnGoalItem']>>, ParentType, ContextType, RequireFields<APILearningGoalDependantLearningGoalsArgs, never>>,
   dependsOnLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['DependsOnGoalItem']>>, ParentType, ContextType, RequireFields<APILearningGoalDependsOnLearningGoalsArgs, never>>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   domain?: Resolver<Maybe<APIResolversTypes['LearningGoalBelongsToDomain']>, ParentType, ContextType>,

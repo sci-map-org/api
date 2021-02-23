@@ -60,6 +60,8 @@ import {
   getDomainLearningGoalByKeyResolver,
   getLearningGoalByKeyResolver,
   getLearningGoalCreatedByResolver,
+  getLearningGoalDependantsLearningGoalsResolver,
+  getLearningGoalDependsOnLearningGoalsResolver,
   getLearningGoalDomainResolver,
   getLearningGoalProgressResolver,
   getLearningGoalRelevantLearningMaterialsResolver,
@@ -327,6 +329,8 @@ const resolvers: APIResolvers<APIContext> = {
     startedBy: getLearningGoalStartedByResolver,
     progress: getLearningGoalProgressResolver,
     relevantLearningMaterials: getLearningGoalRelevantLearningMaterialsResolver,
+    dependsOnLearningGoals: getLearningGoalDependsOnLearningGoalsResolver,
+    dependantLearningGoals: getLearningGoalDependantsLearningGoalsResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,
