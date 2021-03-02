@@ -179,6 +179,20 @@ export const detachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['de
   { user }
 ) => {
   await findLearningGoalIfAuthorized({ _id: learningGoalId }, 'UPDATE', user);
+  const dependencies = await getLearningGoalDependencies(subGoalId);
+  const dependants = await getLearningGoalDependants(subGoalId);
+  await Promise.all(
+    dependencies
+      .filter(({ relationship }) => relationship.parentLearningGoalId === learningGoalId)
+      .map(({ learningGoalDependency }) =>
+        detachLearningGoalDependsOnLearningGoal(subGoalId, learningGoalDependency._id)
+      )
+  );
+  await Promise.all(
+    dependants
+      .filter(({ relationship }) => relationship.parentLearningGoalId === learningGoalId)
+      .map(({ dependantLearningGoal }) => detachLearningGoalDependsOnLearningGoal(dependantLearningGoal._id, subGoalId))
+  );
   return await detachLearningGoalRequiresSubGoal(learningGoalId, subGoalId);
 };
 
