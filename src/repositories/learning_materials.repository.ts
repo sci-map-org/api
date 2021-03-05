@@ -37,55 +37,17 @@ import {
   detachNodes,
   getRelatedNodes,
 } from './util/abstract_graph_repo';
+import { generateGetRatingMethod, generateRateEntityMethod } from './util/rating';
 
 export const findLearningMaterial = (learningMaterialId: string) =>
   findOne<LearningMaterial, { _id: string }>({ label: LearningMaterialLabel })({ _id: learningMaterialId });
 
-export const rateLearningMaterial = async (
-  userId: string,
-  learningMaterialId: string,
-  value: number
-): Promise<LearningMaterial> =>
-  attachUniqueNodes<User, UserRatedLearningMaterial, LearningMaterial>({
-    originNode: {
-      label: UserLabel,
-      filter: { _id: userId },
-    },
-    relationship: {
-      label: UserRatedLearningMaterialLabel,
-      onCreateProps: {
-        value,
-      },
-      onMergeProps: {
-        value,
-      },
-    },
-    destinationNode: {
-      label: LearningMaterialLabel,
-      filter: {
-        _id: learningMaterialId,
-      },
-    },
-  }).then(({ destinationNode }) => {
-    return destinationNode;
-  });
+export const rateLearningMaterial = generateRateEntityMethod<LearningMaterial, UserRatedLearningMaterial>(
+  LearningMaterialLabel,
+  UserRatedLearningMaterialLabel
+);
 
-export const getLearningMaterialRating = async (learningMaterialId: string): Promise<number | null> => {
-  const q = new Query(neo4jQb);
-  q.match([
-    node('lm', LearningMaterialLabel),
-    relation('in', 'rel', UserRatedLearningMaterialLabel),
-    node(undefined, UserLabel),
-  ]);
-  q.where({ lm: { _id: learningMaterialId } });
-  q.with(['avg(rel.value) AS rating']);
-  q.return('rating');
-  const results = await q.run();
-
-  const result = results.pop();
-  if (!result) throw new Error('Unable to compute rating');
-  return result.rating ? Number(result.rating.toString()) : null;
-};
+export const getLearningMaterialRating = generateGetRatingMethod(LearningMaterialLabel, UserRatedLearningMaterialLabel);
 
 export const attachLearningMaterialToDomain = (learningMaterialId: string, domainId: string) =>
   attachUniqueNodes<LearningMaterial, LearningMaterialBelongsToDomain, Domain>({

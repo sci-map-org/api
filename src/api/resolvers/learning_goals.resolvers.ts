@@ -1,20 +1,24 @@
 import { UserInputError } from 'apollo-server-koa';
-import { LearningGoalLabel } from '../../entities/LearningGoal';
+import { LearningGoal, LearningGoalLabel } from '../../entities/LearningGoal';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  attachLearningGoalDependsOnLearningGoal,
   attachLearningGoalRequiresSubGoal,
   attachLearningGoalToDomain,
+  attachUserStartedLearningGoal,
   countLearningGoalStartedBy,
   createLearningGoal,
   deleteLearningGoal,
   detachLearningGoalFromDomain,
   detachLearningGoalRequiresSubGoal,
+  detachLearningGoalDependsOnLearningGoal,
   findDomainLearningGoalByKey,
   findLearningGoal,
   findLearningGoalCreatedBy,
   getLearningGoalCreator,
   getLearningGoalDomain,
   getLearningGoalProgress,
+  getLearningGoalRelevantLearningMaterials,
   getLearningGoalRequiredInGoals,
   getLearningGoalRequiredSubGoals,
   getLearningGoalStartedBy,
@@ -22,12 +26,45 @@ import {
   publishLearningGoal,
   searchLearningGoals,
   updateLearningGoal,
+  getLearningGoalDependants,
+  getLearningGoalDependencies,
+  getLearningGoalRating,
+  rateLearningGoal,
 } from '../../repositories/learning_goals.repository';
-import { findLearningGoalIfAuthorized, startLearningGoal } from '../../services/learning_goals.service';
+import { JWTPayload } from '../../services/auth/jwt';
 import { UnauthenticatedError, UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APILearningGoalResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
+
+const canUpdateLearningGoal = async (learningGoalId: string, user: JWTPayload): Promise<boolean> => {
+  if (user.role === UserRole.ADMIN) return true;
+
+  const learningGoal = await findLearningGoalCreatedBy(user._id, { _id: learningGoalId });
+  return !!learningGoal;
+};
+
+const findLearningGoalIfAuthorized = async (
+  learningGoalFilter: { _id: string } | { key: string },
+  operation: 'READ' | 'UPDATE',
+  user?: JWTPayload
+): Promise<LearningGoal> => {
+  const learningGoal = await findLearningGoal(learningGoalFilter);
+
+  if (!learningGoal) throw new NotFoundError('LearningGoal', JSON.stringify(learningGoalFilter));
+
+  if (operation === 'READ') {
+    if (!learningGoal.publishedAt) {
+      if (!user || !(await canUpdateLearningGoal(learningGoal._id, user)))
+        throw new NotFoundError('LearningGoal', JSON.stringify(learningGoalFilter));
+    }
+    return learningGoal;
+  } else {
+    if (!user || !(await canUpdateLearningGoal(learningGoal._id, user)))
+      throw new UnauthorizedError('You can not update this learning goal');
+    return learningGoal;
+  }
+};
 
 export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLearningGoalByKey'] = async (
   _parent,
@@ -37,7 +74,7 @@ export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLea
   const result = await findDomainLearningGoalByKey(domainKey, learningGoalKey);
 
   if (!result) throw new NotFoundError('LearningGoal', learningGoalKey, 'key');
-  await findLearningGoalIfAuthorized({ _id: result.learningGoal._id }, user?._id);
+  await findLearningGoalIfAuthorized({ _id: result.learningGoal._id }, 'READ', user);
   return result;
 };
 
@@ -76,9 +113,7 @@ export const updateLearningGoalResolver: APIMutationResolvers['updateLearningGoa
   if (!user) throw new UnauthenticatedError('Must be logged in');
   if (user.role === UserRole.USER && !!payload.key)
     throw new UserInputError('can not set the key if not an admin or contributor');
-  const learningGoal =
-    user.role === UserRole.ADMIN ? await findLearningGoal({ _id }) : await findLearningGoalCreatedBy(user._id, { _id });
-  if (!learningGoal) throw new NotFoundError('LearningGoal', _id);
+  await findLearningGoalIfAuthorized({ _id }, 'UPDATE', user);
 
   const updatedLearningGoal = await updateLearningGoal(
     { _id },
@@ -93,8 +128,7 @@ export const attachLearningGoalToDomainResolver: APIMutationResolvers['attachLea
   { domainId, learningGoalId, payload },
   { user }
 ) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to attach a learning goal to a domain');
-  await findLearningGoalIfAuthorized({ _id: learningGoalId }, user._id);
+  await findLearningGoalIfAuthorized({ _id: learningGoalId }, 'UPDATE', user);
   const result = await getLearningGoalDomain(learningGoalId);
   if (!!result && !!result.domain)
     throw new UserInputError(
@@ -110,7 +144,7 @@ export const detachLearningGoalFromDomainResolver: APIMutationResolvers['detachL
   { domainId, learningGoalId },
   { user }
 ) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to detach a learning goal from a domain');
+  await findLearningGoalIfAuthorized({ _id: learningGoalId }, 'UPDATE', user);
   return await detachLearningGoalFromDomain(learningGoalId, domainId);
 };
 
@@ -119,13 +153,14 @@ export const deleteLearningGoalResolver: APIMutationResolvers['deleteLearningGoa
   { _id },
   { user }
 ) => {
-  restrictAccess('admin', user, 'Must be logged in and an admin to delete a learning goal');
+  await findLearningGoalIfAuthorized({ _id }, 'UPDATE', user);
   const { deletedCount } = await deleteLearningGoal({ _id });
   if (!deletedCount) throw new NotFoundError('LearningGoal', _id, 'id');
   return { _id, success: true };
 };
+
 export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByKey'] = async (_, { key }, { user }) => {
-  const learningGoal = await findLearningGoalIfAuthorized({ key }, user?._id);
+  const learningGoal = await findLearningGoalIfAuthorized({ key }, 'READ', user);
   if (!learningGoal) throw new NotFoundError('LearningGoal', key, 'key');
   return learningGoal;
 };
@@ -135,7 +170,7 @@ export const attachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['at
   { subGoalId, learningGoalId, payload },
   { user }
 ) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in');
+  await findLearningGoalIfAuthorized({ _id: learningGoalId }, 'UPDATE', user);
   return await attachLearningGoalRequiresSubGoal(learningGoalId, subGoalId, {
     strength: payload.strength || 100,
   });
@@ -145,8 +180,46 @@ export const detachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['de
   { subGoalId, learningGoalId },
   { user }
 ) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in');
+  await findLearningGoalIfAuthorized({ _id: learningGoalId }, 'UPDATE', user);
+  const dependencies = await getLearningGoalDependencies(subGoalId, [learningGoalId]);
+  const dependants = await getLearningGoalDependants(subGoalId, [learningGoalId]);
+  await Promise.all(
+    dependencies.map(({ learningGoalDependency }) =>
+      detachLearningGoalDependsOnLearningGoal(subGoalId, learningGoalDependency._id)
+    )
+  );
+  await Promise.all(
+    dependants.map(({ dependantLearningGoal }) =>
+      detachLearningGoalDependsOnLearningGoal(dependantLearningGoal._id, subGoalId)
+    )
+  );
   return await detachLearningGoalRequiresSubGoal(learningGoalId, subGoalId);
+};
+
+export const attachLearningGoalDependencyResolver: APIMutationResolvers['attachLearningGoalDependency'] = async (
+  _,
+  { parentLearningGoalId, learningGoalId, learningGoalDependencyId },
+  { user }
+) => {
+  const parentLearningGoal = await findLearningGoalIfAuthorized({ _id: parentLearningGoalId }, 'UPDATE', user);
+  return {
+    ...(await attachLearningGoalDependsOnLearningGoal(learningGoalId, learningGoalDependencyId, {
+      parentLearningGoalId,
+    })),
+    parentLearningGoal,
+  };
+};
+
+export const detachLearningGoalDependencyResolver: APIMutationResolvers['detachLearningGoalDependency'] = async (
+  _,
+  { parentLearningGoalId, learningGoalId, learningGoalDependencyId },
+  { user }
+) => {
+  const parentLearningGoal = await findLearningGoalIfAuthorized({ _id: parentLearningGoalId }, 'UPDATE', user);
+  return {
+    ...(await detachLearningGoalDependsOnLearningGoal(learningGoalId, learningGoalDependencyId)),
+    parentLearningGoal,
+  };
 };
 
 export const startLearningGoalResolver: APIMutationResolvers['startLearningGoal'] = async (
@@ -155,7 +228,9 @@ export const startLearningGoalResolver: APIMutationResolvers['startLearningGoal'
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in');
-  const { learningGoal, user: currentUser } = await startLearningGoal(user._id, learningGoalId);
+  const { user: currentUser, learningGoal } = await attachUserStartedLearningGoal(user._id, learningGoalId, {
+    startedAt: Date.now(),
+  });
   return { learningGoal, currentUser };
 };
 
@@ -164,9 +239,7 @@ export const publishLearningGoalResolver: APIMutationResolvers['publishLearningG
   { learningGoalId },
   { user }
 ) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in');
-  if (!(user.role === UserRole.ADMIN || user._id === (await (await getLearningGoalCreator(learningGoalId))._id)))
-    throw new UnauthorizedError('Must own this learning goal in order to publish it');
+  await findLearningGoalIfAuthorized({ _id: learningGoalId }, 'UPDATE', user);
   const { learningGoal } = await publishLearningGoal(learningGoalId);
   return { learningGoal };
 };
@@ -176,12 +249,20 @@ export const indexLearningGoalResolver: APIMutationResolvers['indexLearningGoal'
   { learningGoalId },
   { user }
 ) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in');
-  if (!(user.role === UserRole.ADMIN || user._id === (await (await getLearningGoalCreator(learningGoalId))._id)))
-    throw new UnauthorizedError('Must own this learning goal in order to publish it');
+  await findLearningGoalIfAuthorized({ _id: learningGoalId }, 'UPDATE', user);
   const learningGoal = await updateLearningGoal({ _id: learningGoalId }, { hidden: false });
   if (!learningGoal) throw new NotFoundError(LearningGoalLabel, learningGoalId);
   return { learningGoal };
+};
+
+export const rateLearningGoalResolver: APIMutationResolvers['rateLearningGoal'] = async (
+  _parent,
+  { learningGoalId, value },
+  { user }
+) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in to rate a learning goal'); // TODO maybe restrict to users having completed the resource ?
+  if (value < 0 || value > 5) throw new UserInputError('Ratings must be >=0 and <=5');
+  return await rateLearningGoal(user!._id, learningGoalId, value);
 };
 
 export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] = async learningGoal => {
@@ -246,3 +327,40 @@ export const getLearningGoalProgressResolver: APILearningGoalResolvers['progress
   if (!user) return null;
   return { level: await getLearningGoalProgress(learningGoal._id, user._id) };
 };
+
+export const getLearningGoalRelevantLearningMaterialsResolver: APILearningGoalResolvers['relevantLearningMaterials'] = async (
+  learningGoal,
+  { options },
+  { user }
+) => {
+  const items = await getLearningGoalRelevantLearningMaterials(learningGoal._id);
+  return {
+    items,
+    count: items.length,
+  };
+};
+
+export const getLearningGoalDependsOnLearningGoalsResolver: APILearningGoalResolvers['dependsOnLearningGoals'] = async (
+  learningGoal,
+  { parentLearningGoalIdIn }
+) => {
+  const results = await getLearningGoalDependencies(learningGoal._id, parentLearningGoalIdIn || undefined);
+  return results.map(({ relationship, learningGoalDependency }) => ({
+    learningGoal: learningGoalDependency,
+    ...relationship,
+  }));
+};
+
+export const getLearningGoalDependantsLearningGoalsResolver: APILearningGoalResolvers['dependantLearningGoals'] = async (
+  learningGoal,
+  { parentLearningGoalIdIn }
+) => {
+  const results = await getLearningGoalDependants(learningGoal._id, parentLearningGoalIdIn || undefined);
+  return results.map(({ relationship, dependantLearningGoal }) => ({
+    learningGoal: dependantLearningGoal,
+    ...relationship,
+  }));
+};
+
+export const getLearningGoalRatingResolver: APILearningGoalResolvers['rating'] = learningGoal =>
+  getLearningGoalRating(learningGoal._id);

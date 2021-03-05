@@ -5,20 +5,33 @@ import { generateUrlKey } from '../api/util/urlKey';
 import { ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel, LearningGoalType } from '../entities/LearningGoal';
+import { LearningMaterial, LearningMaterialLabel } from '../entities/LearningMaterial';
 import {
   LearningGoalBelongsToDomain,
   LearningGoalBelongsToDomainLabel,
 } from '../entities/relationships/LearningGoalBelongsToDomain';
 import {
+  LearningGoalDependsOnLearningGoalInLearningGoal,
+  LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+} from '../entities/relationships/LearningGoalDependsOnLearningGoalInLearningGoal';
+import {
   LearningGoalRequiresSubGoal,
   LearningGoalRequiresSubGoalLabel,
 } from '../entities/relationships/LearningGoalRequiresSubGoal';
+import { LearningMaterialCoversConceptLabel } from '../entities/relationships/LearningMaterialCoversConcept';
+import {
+  LearningMaterialLeadsToLearningGoal,
+  LearningMaterialLeadsToLearningGoalLabel,
+} from '../entities/relationships/LearningMaterialLeadsToLearningGoal';
 import { DEFAULT_INDEX_VALUE } from '../entities/relationships/TopicBelongsToDomain';
 import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
+import { UserCreatedLearningMaterialLabel } from '../entities/relationships/UserCreatedLearningMaterial';
 import { UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
+import { UserRatedLearningGoal, UserRatedLearningGoalLabel } from '../entities/relationships/UserRatedLearningGoal';
+import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import {
   UserStartedLearningGoal,
   UserStartedLearningGoalLabel,
@@ -40,6 +53,7 @@ import {
   updateOne,
 } from './util/abstract_graph_repo';
 import { PaginationOptions } from './util/pagination';
+import { generateGetRatingMethod, generateRateEntityMethod } from './util/rating';
 
 interface CreateLearningGoalData {
   name: string;
@@ -415,3 +429,196 @@ export const publishLearningGoal = async (learningGoalId: string): Promise<{ lea
   const [goal] = r.map(i => i.goal);
   return { learningGoal: goal };
 };
+
+export const getLearningMaterialsLeadingToOutcome = async (
+  learningGoalId: string
+): Promise<{ learningMaterial: LearningMaterial; relationship: LearningMaterialLeadsToLearningGoal }[]> =>
+  getRelatedNodes<LearningGoal, LearningMaterialLeadsToLearningGoal, LearningMaterial>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: LearningMaterialLeadsToLearningGoalLabel,
+    },
+    destinationNode: {
+      label: LearningMaterialLabel,
+    },
+  }).then(items =>
+    items.map(({ destinationNode, relationship }) => ({ relationship, learningMaterial: destinationNode }))
+  );
+
+const averageRating = 4; // rating over 4: score is boosted, below is reduced
+const cboBoost = 0.2; // if a learning material is created by the creator of the learning goal, score gains *(1+cboBoost)
+export const getLearningGoalRelevantLearningMaterials = async (
+  learningGoalId: string
+): Promise<{ learningMaterial: LearningMaterial; score: number; coverage: number }[]> => {
+  const q = new Query(neo4jQb);
+
+  // match (own:User)-[:CREATED]->(n:LearningGoal {key: '-U1HbvROmV_lg'})-[:REQUIRES*0..5]->(req)
+  // WHERE req:LearningGoal or req:Concept
+  q.match([
+    node('owner', UserLabel),
+    relation('out', undefined, UserCreatedLearningGoalLabel),
+    node('n', LearningGoalLabel, { _id: learningGoalId }),
+    relation('out', undefined, LearningGoalRequiresSubGoalLabel, undefined, [0, 5]),
+    node('req'),
+  ]);
+  q.raw(` WHERE req:${LearningGoalLabel} OR req:${ConceptLabel} `);
+
+  // WITH collect(req.name) as req, own
+  q.with(['collect(req._id) as req, owner']);
+
+  // MATCH (cov)<-[:COVERS|LEADS_TO|REQUIRES*0..5]-(lm:LearningMaterial)<-[:CREATED]-(crea:User)
+  // WHERE cov.name IN req
+  q.raw(`
+  MATCH (cov)<-[:${LearningMaterialCoversConceptLabel}|${LearningMaterialLeadsToLearningGoalLabel}|${LearningGoalRequiresSubGoalLabel}*0..5]-(lm:${LearningMaterialLabel})
+  <-[:${UserCreatedLearningMaterialLabel}]-(crea:${UserLabel}) 
+  WHERE cov._id IN req
+  `);
+  //  OPTIONAL match (lm)<-[rel:RATED]-(u:User)
+  q.optionalMatch([node('lm'), relation('in', 'rel', UserRatedLearningMaterialLabel), node('u', UserLabel)]);
+
+  // WITH DISTINCT lm, collect(DISTINCT cov.name) as cov, req, CASE crea._id WHEN own._id THEN 1.0 ELSE 0.0 END as cbo, avg(rel.value) as rating
+  q.with([
+    'lm',
+    'collect(DISTINCT cov._id) as cov',
+    'req',
+    'CASE crea._id WHEN owner._id THEN 1.0 ELSE 0.0 END as cbo',
+    'avg(rel.value) as rating',
+  ]);
+
+  // match (lm)-[:COVERS|LEADS_TO|REQUIRES*0..5]->(off:Topic)
+  q.raw(
+    ` match (lm)-[:${LearningMaterialCoversConceptLabel}|${LearningMaterialLeadsToLearningGoalLabel}|${LearningGoalRequiresSubGoalLabel}*0..5]->(off:${TopicLabel}) `
+  );
+
+  // WITH DISTINCT lm, req, cov, collect(DISTINCT off.name) as off, cbo, rating
+  q.with(['DISTINCT lm', 'req', 'cov', 'collect(DISTINCT off._id) as off', 'cbo', 'rating']);
+
+  // with lm,cov, req, off,  toFloat(size(cov))/toFloat(size(req)) as coverage, toFloat(size(off))/toFloat(size(cov)) as specificity, 1+cbo*0.2 as cboBoost, CASE WHEN rating IS NUll THEN 1 ELSE rating/4.0 END as ratingBoost
+  q.with([
+    'lm',
+    'cov',
+    'req',
+    'off',
+    'toFloat(size(cov))/toFloat(size(req)) as coverage',
+    'toFloat(size(off))/toFloat(size(cov)) as specificity',
+    `1+cbo*${cboBoost} as cboBoost`,
+    `CASE WHEN rating IS NUll THEN 1 ELSE rating/${averageRating} END as ratingBoost`,
+  ]);
+
+  // return lm.name as lm, req, off, cov,  coverage, specificity, coverage/specificity as fit, cboBoost, ratingBoost,  (coverage/specificity)*cboBoost*ratingBoost as score
+  q.return([
+    'lm',
+    'req',
+    'off',
+    'cov',
+    'coverage',
+    'specificity',
+    'coverage/specificity as fit',
+    'cboBoost',
+    'ratingBoost',
+    '(coverage/specificity)*cboBoost*ratingBoost as score',
+  ]);
+  q.orderBy('score', 'DESC');
+
+  const r = await q.run();
+  const items = r.map(i => ({ learningMaterial: i.lm.properties, coverage: i.coverage, score: i.score }));
+
+  return items;
+};
+
+export const attachLearningGoalDependsOnLearningGoal = async (
+  learningGoalId: string,
+  learningGoalDependencyId: string,
+  { parentLearningGoalId }: { parentLearningGoalId: string }
+): Promise<{ learningGoalDependency: LearningGoal; learningGoal: LearningGoal }> =>
+  attachUniqueNodes<LearningGoal, LearningGoalDependsOnLearningGoalInLearningGoal, LearningGoal>({
+    originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+    relationship: {
+      label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+      onCreateProps: { parentLearningGoalId },
+    },
+    destinationNode: { label: LearningGoalLabel, filter: { _id: learningGoalDependencyId } },
+  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, learningGoalDependency: destinationNode }));
+
+export const detachLearningGoalDependsOnLearningGoal = async (
+  learningGoalId: string,
+  learningGoalDependencyId: string
+): Promise<{ learningGoalDependency: LearningGoal; learningGoal: LearningGoal }> =>
+  detachUniqueNodes<LearningGoal, LearningGoalDependsOnLearningGoalInLearningGoal, LearningGoal>({
+    originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
+    relationship: {
+      label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+      filter: {},
+    },
+    destinationNode: { label: LearningGoalLabel, filter: { _id: learningGoalDependencyId } },
+  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, learningGoalDependency: destinationNode }));
+
+export const getLearningGoalDependencies = (
+  learningGoalId: string,
+  parentLearningGoalIds?: string[]
+): Promise<{
+  learningGoal: LearningGoal;
+  relationship: LearningGoalDependsOnLearningGoalInLearningGoal;
+  learningGoalDependency: LearningGoal;
+}[]> =>
+  getRelatedNodes<LearningGoal, LearningGoalDependsOnLearningGoalInLearningGoal, LearningGoal>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+      direction: 'OUT',
+      ...(!!parentLearningGoalIds &&
+        parentLearningGoalIds.length && { filter: { parentLearningGoalId: { $in: parentLearningGoalIds } } }),
+    },
+    destinationNode: {
+      label: LearningGoalLabel,
+    },
+  }).then(items =>
+    items.map(({ destinationNode, relationship, originNode }) => ({
+      learningGoal: originNode,
+      relationship,
+      learningGoalDependency: destinationNode,
+    }))
+  );
+
+export const getLearningGoalDependants = (
+  learningGoalId: string,
+  parentLearningGoalIds?: string[]
+): Promise<{
+  learningGoal: LearningGoal;
+  relationship: LearningGoalDependsOnLearningGoalInLearningGoal;
+  dependantLearningGoal: LearningGoal;
+}[]> =>
+  getRelatedNodes<LearningGoal, LearningGoalDependsOnLearningGoalInLearningGoal, LearningGoal>({
+    originNode: {
+      label: LearningGoalLabel,
+      filter: { _id: learningGoalId },
+    },
+    relationship: {
+      label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
+      direction: 'IN',
+      ...(!!parentLearningGoalIds &&
+        parentLearningGoalIds.length && { filter: { parentLearningGoalId: { $in: parentLearningGoalIds } } }),
+    },
+    destinationNode: {
+      label: LearningGoalLabel,
+    },
+  }).then(items =>
+    items.map(({ destinationNode, relationship, originNode }) => ({
+      learningGoal: originNode,
+      relationship,
+      dependantLearningGoal: destinationNode,
+    }))
+  );
+
+export const rateLearningGoal = generateRateEntityMethod<LearningGoal, UserRatedLearningGoal>(
+  LearningGoalLabel,
+  UserRatedLearningGoalLabel
+);
+
+export const getLearningGoalRating = generateGetRatingMethod(LearningGoalLabel, UserRatedLearningGoalLabel);
