@@ -2,6 +2,7 @@ import { makeExecutableSchema } from 'apollo-server-koa';
 import { GraphQLScalarType } from 'graphql';
 import { importSchema } from 'graphql-import';
 import { TopicType } from '../entities/Topic';
+import { getLearningGoalRating } from '../repositories/learning_goals.repository';
 import {
   createArticleResolver,
   deleteArticleResolver,
@@ -64,6 +65,7 @@ import {
   getLearningGoalDependsOnLearningGoalsResolver,
   getLearningGoalDomainResolver,
   getLearningGoalProgressResolver,
+  getLearningGoalRatingResolver,
   getLearningGoalRelevantLearningMaterialsResolver,
   getLearningGoalRequiredInGoalsResolver,
   getLearningGoalRequiredSubGoalsResolver,
@@ -71,6 +73,7 @@ import {
   getLearningGoalStartedResolver,
   indexLearningGoalResolver,
   publishLearningGoalResolver,
+  rateLearningGoalResolver,
   searchLearningGoalsResolver,
   startLearningGoalResolver,
   updateLearningGoalResolver,
@@ -231,6 +234,7 @@ const resolvers: APIResolvers<APIContext> = {
     startLearningGoal: startLearningGoalResolver,
     publishLearningGoal: publishLearningGoalResolver,
     indexLearningGoal: indexLearningGoalResolver,
+    rateLearningGoal: rateLearningGoalResolver,
     attachLearningGoalDependency: attachLearningGoalDependencyResolver,
     detachLearningGoalDependency: detachLearningGoalDependencyResolver,
   },
@@ -328,6 +332,7 @@ const resolvers: APIResolvers<APIContext> = {
     started: getLearningGoalStartedResolver,
     startedBy: getLearningGoalStartedByResolver,
     progress: getLearningGoalProgressResolver,
+    rating: getLearningGoalRatingResolver,
     relevantLearningMaterials: getLearningGoalRelevantLearningMaterialsResolver,
     dependsOnLearningGoals: getLearningGoalDependsOnLearningGoalsResolver,
     dependantLearningGoals: getLearningGoalDependantsLearningGoalsResolver,

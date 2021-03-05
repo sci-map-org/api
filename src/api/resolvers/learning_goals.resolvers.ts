@@ -28,6 +28,8 @@ import {
   updateLearningGoal,
   getLearningGoalDependants,
   getLearningGoalDependencies,
+  getLearningGoalRating,
+  rateLearningGoal,
 } from '../../repositories/learning_goals.repository';
 import { JWTPayload } from '../../services/auth/jwt';
 import { UnauthenticatedError, UnauthorizedError } from '../errors/UnauthenticatedError';
@@ -255,6 +257,16 @@ export const indexLearningGoalResolver: APIMutationResolvers['indexLearningGoal'
   return { learningGoal };
 };
 
+export const rateLearningGoalResolver: APIMutationResolvers['rateLearningGoal'] = async (
+  _parent,
+  { learningGoalId, value },
+  { user }
+) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in to rate a learning goal'); // TODO maybe restrict to users having completed the resource ?
+  if (value < 0 || value > 5) throw new UserInputError('Ratings must be >=0 and <=5');
+  return await rateLearningGoal(user!._id, learningGoalId, value);
+};
+
 export const getLearningGoalDomainResolver: APILearningGoalResolvers['domain'] = async learningGoal => {
   const result = await getLearningGoalDomain(learningGoal._id);
   if (!result) return null;
@@ -345,3 +357,6 @@ export const getLearningGoalDependantsLearningGoalsResolver: APILearningGoalReso
     ...relationship,
   }));
 };
+
+export const getLearningGoalRatingResolver: APILearningGoalResolvers['rating'] = learningGoal =>
+  getLearningGoalRating(learningGoal._id);

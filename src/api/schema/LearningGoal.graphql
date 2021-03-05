@@ -12,6 +12,7 @@ type LearningGoal implements Topic {
   topicType: TopicType!
   publishedAt: Date
   hidden: Boolean!
+  rating: Float
   progress: LearningGoalProgress
   createdBy: User
   domain: LearningGoalBelongsToDomain
@@ -188,4 +189,5 @@ type Mutation {
   startLearningGoal(learningGoalId: String!): LearningGoalStartedResult!
   publishLearningGoal(learningGoalId: String!): LearningGoalPublishedResult!
   indexLearningGoal(learningGoalId: String!): LearningGoalIndexedResult!
+  rateLearningGoal(learningGoalId: String!, value: Float!): LearningGoal!
 }

@@ -30,6 +30,7 @@ import {
 } from '../entities/relationships/UserCreatedLearningGoal';
 import { UserCreatedLearningMaterialLabel } from '../entities/relationships/UserCreatedLearningMaterial';
 import { UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
+import { UserRatedLearningGoal, UserRatedLearningGoalLabel } from '../entities/relationships/UserRatedLearningGoal';
 import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import {
   UserStartedLearningGoal,
@@ -52,6 +53,7 @@ import {
   updateOne,
 } from './util/abstract_graph_repo';
 import { PaginationOptions } from './util/pagination';
+import { generateGetRatingMethod, generateRateEntityMethod } from './util/rating';
 
 interface CreateLearningGoalData {
   name: string;
@@ -607,3 +609,10 @@ export const getLearningGoalDependants = (
       dependantLearningGoal: destinationNode,
     }))
   );
+
+export const rateLearningGoal = generateRateEntityMethod<LearningGoal, UserRatedLearningGoal>(
+  LearningGoalLabel,
+  UserRatedLearningGoalLabel
+);
+
+export const getLearningGoalRating = generateGetRatingMethod(LearningGoalLabel, UserRatedLearningGoalLabel);

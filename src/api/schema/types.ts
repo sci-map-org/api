@@ -228,6 +228,7 @@ export type APIMutation = {
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
   publishLearningGoal: APILearningGoalPublishedResult;
+  rateLearningGoal: APILearningGoal;
   rateLearningMaterial: APILearningMaterial;
   register: APICurrentUser;
   registerGoogle: APICurrentUser;
@@ -474,6 +475,12 @@ export type APIMutationLoginGoogleArgs = {
 
 export type APIMutationPublishLearningGoalArgs = {
   learningGoalId: Scalars['String'];
+};
+
+
+export type APIMutationRateLearningGoalArgs = {
+  learningGoalId: Scalars['String'];
+  value: Scalars['Float'];
 };
 
 
@@ -876,6 +883,7 @@ export type APILearningGoal = APITopic & {
   name: Scalars['String'];
   progress?: Maybe<APILearningGoalProgress>;
   publishedAt?: Maybe<Scalars['Date']>;
+  rating?: Maybe<Scalars['Float']>;
   relevantLearningMaterials?: Maybe<APILearningGoalRelevantLearningMaterialsResults>;
   requiredInGoals?: Maybe<Array<APIRequiredInGoalItem>>;
   requiredSubGoals?: Maybe<Array<APISubGoalItem>>;
@@ -2105,6 +2113,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
   publishLearningGoal?: Resolver<APIResolversTypes['LearningGoalPublishedResult'], ParentType, ContextType, RequireFields<APIMutationPublishLearningGoalArgs, 'learningGoalId'>>,
+  rateLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationRateLearningGoalArgs, 'learningGoalId' | 'value'>>,
   rateLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRateLearningMaterialArgs, 'learningMaterialId' | 'value'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>,
@@ -2248,6 +2257,7 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   progress?: Resolver<Maybe<APIResolversTypes['LearningGoalProgress']>, ParentType, ContextType>,
   publishedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
+  rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   relevantLearningMaterials?: Resolver<Maybe<APIResolversTypes['LearningGoalRelevantLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APILearningGoalRelevantLearningMaterialsArgs, 'options'>>,
   requiredInGoals?: Resolver<Maybe<Array<APIResolversTypes['RequiredInGoalItem']>>, ParentType, ContextType>,
   requiredSubGoals?: Resolver<Maybe<Array<APIResolversTypes['SubGoalItem']>>, ParentType, ContextType>,
