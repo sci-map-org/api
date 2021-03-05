@@ -181,8 +181,8 @@ export const detachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['de
   { user }
 ) => {
   await findLearningGoalIfAuthorized({ _id: learningGoalId }, 'UPDATE', user);
-  const dependencies = await getLearningGoalDependencies(subGoalId, learningGoalId);
-  const dependants = await getLearningGoalDependants(subGoalId, learningGoalId);
+  const dependencies = await getLearningGoalDependencies(subGoalId, [learningGoalId]);
+  const dependants = await getLearningGoalDependants(subGoalId, [learningGoalId]);
   await Promise.all(
     dependencies.map(({ learningGoalDependency }) =>
       detachLearningGoalDependsOnLearningGoal(subGoalId, learningGoalDependency._id)
@@ -340,16 +340,22 @@ export const getLearningGoalRelevantLearningMaterialsResolver: APILearningGoalRe
   };
 };
 
-export const getLearningGoalDependsOnLearningGoalsResolver: APILearningGoalResolvers['dependsOnLearningGoals'] = async learningGoal => {
-  const results = await getLearningGoalDependencies(learningGoal._id);
+export const getLearningGoalDependsOnLearningGoalsResolver: APILearningGoalResolvers['dependsOnLearningGoals'] = async (
+  learningGoal,
+  { parentLearningGoalIdIn }
+) => {
+  const results = await getLearningGoalDependencies(learningGoal._id, parentLearningGoalIdIn || undefined);
   return results.map(({ relationship, learningGoalDependency }) => ({
     learningGoal: learningGoalDependency,
     ...relationship,
   }));
 };
 
-export const getLearningGoalDependantsLearningGoalsResolver: APILearningGoalResolvers['dependantLearningGoals'] = async learningGoal => {
-  const results = await getLearningGoalDependants(learningGoal._id);
+export const getLearningGoalDependantsLearningGoalsResolver: APILearningGoalResolvers['dependantLearningGoals'] = async (
+  learningGoal,
+  { parentLearningGoalIdIn }
+) => {
+  const results = await getLearningGoalDependants(learningGoal._id, parentLearningGoalIdIn || undefined);
   return results.map(({ relationship, dependantLearningGoal }) => ({
     learningGoal: dependantLearningGoal,
     ...relationship,

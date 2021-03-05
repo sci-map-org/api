@@ -558,7 +558,7 @@ export const detachLearningGoalDependsOnLearningGoal = async (
 
 export const getLearningGoalDependencies = (
   learningGoalId: string,
-  parentLearningGoalId?: string
+  parentLearningGoalIds?: string[]
 ): Promise<{
   learningGoal: LearningGoal;
   relationship: LearningGoalDependsOnLearningGoalInLearningGoal;
@@ -572,7 +572,8 @@ export const getLearningGoalDependencies = (
     relationship: {
       label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
       direction: 'OUT',
-      ...(parentLearningGoalId && { filter: { parentLearningGoalId } }),
+      ...(!!parentLearningGoalIds &&
+        parentLearningGoalIds.length && { filter: { parentLearningGoalId: { $in: parentLearningGoalIds } } }),
     },
     destinationNode: {
       label: LearningGoalLabel,
@@ -587,7 +588,7 @@ export const getLearningGoalDependencies = (
 
 export const getLearningGoalDependants = (
   learningGoalId: string,
-  parentLearningGoalId?: string
+  parentLearningGoalIds?: string[]
 ): Promise<{
   learningGoal: LearningGoal;
   relationship: LearningGoalDependsOnLearningGoalInLearningGoal;
@@ -601,7 +602,8 @@ export const getLearningGoalDependants = (
     relationship: {
       label: LearningGoalDependsOnLearningGoalInLearningGoalLabel,
       direction: 'IN',
-      ...(parentLearningGoalId && { filter: { parentLearningGoalId } }),
+      ...(!!parentLearningGoalIds &&
+        parentLearningGoalIds.length && { filter: { parentLearningGoalId: { $in: parentLearningGoalIds } } }),
     },
     destinationNode: {
       label: LearningGoalLabel,
