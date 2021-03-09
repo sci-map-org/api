@@ -1,0 +1,9 @@
+type GetHomePageDataResults {
+  currentUser: CurrentUser
+  recommendedLearningGoals: [LearningGoal!]!
+  recommendedLearningPaths: [LearningPath!]!
+}
+
+type Query {
+  getHomePageData: GetHomePageDataResults!
+}

@@ -118,6 +118,7 @@ import {
   startLearningPathResolver,
   updateLearningPathResolver,
 } from './resolvers/learning_paths.resolvers';
+import { getHomePageDataResolver } from './resolvers/misc.resolvers';
 import {
   addSubResourceResolver,
   addSubResourceToSeriesResolver,
@@ -259,6 +260,7 @@ const resolvers: APIResolvers<APIContext> = {
     searchSubTopics: searchSubTopicsResolver,
     checkTopicKeyAvailability: checkTopicKeyAvailabilityResolver,
     analyzeResourceUrl: analyzeResourceUrlResolver,
+    getHomePageData: getHomePageDataResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

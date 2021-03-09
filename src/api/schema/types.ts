@@ -56,6 +56,7 @@ export type APIQuery = {
   getDomainByKey: APIDomain;
   getDomainConceptByKey: APIConcept;
   getDomainLearningGoalByKey: APIDomainAndLearningGoalResult;
+  getHomePageData: APIGetHomePageDataResults;
   getLearningGoalByKey: APILearningGoal;
   getLearningPath: APILearningPath;
   getLearningPathByKey: APILearningPath;
@@ -1572,6 +1573,14 @@ export type APIVerifyEmailResponse = {
   email: Scalars['String'];
 };
 
+export type APIGetHomePageDataResults = {
+   __typename?: 'GetHomePageDataResults';
+  currentUser?: Maybe<APICurrentUser>;
+  /** recommendedTopics: [Topic!]! */
+  recommendedLearningGoals: Array<APILearningGoal>;
+  recommendedLearningPaths: Array<APILearningPath>;
+};
+
 
 export type APIUpdateConceptBelongsToConceptResult = {
    __typename?: 'UpdateConceptBelongsToConceptResult';
@@ -1852,6 +1861,7 @@ export type APIResolversTypes = ResolversObject<{
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
   DiscourseSSO: APIDiscourseSso,
   VerifyEmailResponse: ResolverTypeWrapper<APIVerifyEmailResponse>,
+  GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>,
   Date: ResolverTypeWrapper<Scalars['Date']>,
   UpdateConceptBelongsToConceptResult: ResolverTypeWrapper<APIUpdateConceptBelongsToConceptResult>,
   UpdateConceptReferencesConceptResult: ResolverTypeWrapper<APIUpdateConceptReferencesConceptResult>,
@@ -2016,6 +2026,7 @@ export type APIResolversParentTypes = ResolversObject<{
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
   DiscourseSSO: APIDiscourseSso,
   VerifyEmailResponse: APIVerifyEmailResponse,
+  GetHomePageDataResults: APIGetHomePageDataResults,
   Date: Scalars['Date'],
   UpdateConceptBelongsToConceptResult: APIUpdateConceptBelongsToConceptResult,
   UpdateConceptReferencesConceptResult: APIUpdateConceptReferencesConceptResult,
@@ -2054,6 +2065,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getDomainByKey?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIQueryGetDomainByKeyArgs, 'key'>>,
   getDomainConceptByKey?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIQueryGetDomainConceptByKeyArgs, 'conceptKey' | 'domainKey'>>,
   getDomainLearningGoalByKey?: Resolver<APIResolversTypes['DomainAndLearningGoalResult'], ParentType, ContextType, RequireFields<APIQueryGetDomainLearningGoalByKeyArgs, 'domainKey' | 'learningGoalKey'>>,
+  getHomePageData?: Resolver<APIResolversTypes['GetHomePageDataResults'], ParentType, ContextType>,
   getLearningGoalByKey?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIQueryGetLearningGoalByKeyArgs, 'key'>>,
   getLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathArgs, '_id'>>,
   getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'key'>>,
@@ -2675,6 +2687,13 @@ export type APIVerifyEmailResponseResolvers<ContextType = APIContext, ParentType
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APIGetHomePageDataResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetHomePageDataResults'] = APIResolversParentTypes['GetHomePageDataResults']> = ResolversObject<{
+  currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,
+  recommendedLearningGoals?: Resolver<Array<APIResolversTypes['LearningGoal']>, ParentType, ContextType>,
+  recommendedLearningPaths?: Resolver<Array<APIResolversTypes['LearningPath']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export interface APIDateScalarConfig extends GraphQLScalarTypeConfig<APIResolversTypes['Date'], any> {
   name: 'Date'
 }
@@ -2805,6 +2824,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningPathStartedItem?: APILearningPathStartedItemResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,
+  GetHomePageDataResults?: APIGetHomePageDataResultsResolvers<ContextType>,
   Date?: GraphQLScalarType,
   UpdateConceptBelongsToConceptResult?: APIUpdateConceptBelongsToConceptResultResolvers<ContextType>,
   UpdateConceptReferencesConceptResult?: APIUpdateConceptReferencesConceptResultResolvers<ContextType>,
