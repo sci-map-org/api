@@ -44,6 +44,7 @@ type UserConsumedResourcesResult {
 type UserConsumedResourceItem {
   resource: Resource!
   openedAt: Date
+  lastOpenedAt: Date
   consumedAt: Date
 }
 

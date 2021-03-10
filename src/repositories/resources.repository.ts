@@ -330,6 +330,7 @@ export const getUserConsumedResources = async (
       label: UserConsumedResourceLabel,
       filter: {
         openedAt: { $isNull: false },
+        lastOpenedAt: { $isNull: false },
         ...(filter?.completed && { consumedAt: { $isNull: false } }),
         ...(filter?.completed === false && { consumedAt: { $isNull: true } }),
       },
@@ -341,7 +342,7 @@ export const getUserConsumedResources = async (
     ...(sorting === APIUserConsumedResourcesSortingType.LastOpened && {
       sorting: {
         entity: 'relationship',
-        field: 'openedAt',
+        field: 'lastOpenedAt',
         direction: 'DESC',
       },
     }),
@@ -362,6 +363,7 @@ export const countUserConsumedResources = async (
       label: UserConsumedResourceLabel,
       filter: {
         openedAt: { $isNull: false },
+        lastOpenedAt: { $isNull: false },
         ...(filter?.completed && { consumedAt: { $isNull: false } }),
         ...(filter?.completed === false && { consumedAt: { $isNull: true } }),
       },
@@ -370,11 +372,4 @@ export const countUserConsumedResources = async (
       label: ResourceLabel,
       filter: {},
     },
-    ...(sorting === APIUserConsumedResourcesSortingType.LastOpened && {
-      sorting: {
-        entity: 'relationship',
-        field: 'openedAt',
-        direction: 'DESC',
-      },
-    }),
   });
