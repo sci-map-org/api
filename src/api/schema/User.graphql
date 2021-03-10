@@ -33,6 +33,32 @@ type CurrentUser {
   startedLearningPaths(options: UserLearningPathsOptions!): [LearningPathStartedItem!]
   createdLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalCreatedItem!]
   startedLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalStartedItem!]
+  consumedResources(options: UserConsumedResourcesOptions!): UserConsumedResourcesResult
+}
+
+type UserConsumedResourcesResult {
+  items: [UserConsumedResourceItem!]!
+  count: Int!
+}
+
+type UserConsumedResourceItem {
+  resource: Resource!
+  openedAt: Date
+  consumedAt: Date
+}
+
+input UserConsumedResourcesFilter {
+  completed: Boolean
+}
+
+enum UserConsumedResourcesSortingType {
+  lastOpened
+}
+
+input UserConsumedResourcesOptions {
+  filter: UserConsumedResourcesFilter
+  sorting: UserConsumedResourcesSortingType!
+  pagination: PaginationOptions
 }
 
 type LearningGoalCreatedItem {

@@ -1,6 +1,7 @@
 import { node, Query, relation } from 'cypher-query-builder';
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
+import { APIUserConsumedResourcesSortingType } from '../api/schema/types';
 import { LearningMaterialLabel } from '../entities/LearningMaterial';
 import {
   ResourceBelongsToResource,
@@ -25,6 +26,7 @@ import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachUniqueNodes,
+  countRelatedNodes,
   createRelatedNode,
   deleteOne,
   deleteRelatedNode,
@@ -312,3 +314,67 @@ export const addSubResourceToSeries = (parentResourceId: string, previousResourc
     previousResource: originNode,
     subResource: destinationNode,
   }));
+
+export const getUserConsumedResources = async (
+  userId: string,
+  sorting: APIUserConsumedResourcesSortingType,
+  paginationOptions: Required<PaginationOptions>,
+  filter?: { completed?: boolean }
+): Promise<{ relationship: UserConsumedResource; resource: Resource }[]> =>
+  getRelatedNodes<User, UserConsumedResource, Resource>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserConsumedResourceLabel,
+      filter: {
+        openedAt: { $isNull: false },
+        ...(filter?.completed && { consumedAt: { $isNull: false } }),
+        ...(filter?.completed === false && { consumedAt: { $isNull: true } }),
+      },
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: {},
+    },
+    ...(sorting === APIUserConsumedResourcesSortingType.LastOpened && {
+      sorting: {
+        entity: 'relationship',
+        field: 'openedAt',
+        direction: 'DESC',
+      },
+    }),
+    pagination: paginationOptions,
+  }).then(results => results.map(({ destinationNode, relationship }) => ({ relationship, resource: destinationNode })));
+
+export const countUserConsumedResources = async (
+  userId: string,
+  sorting: APIUserConsumedResourcesSortingType,
+  filter?: { completed?: boolean }
+): Promise<number> =>
+  countRelatedNodes<User, UserConsumedResource, Resource>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserConsumedResourceLabel,
+      filter: {
+        openedAt: { $isNull: false },
+        ...(filter?.completed && { consumedAt: { $isNull: false } }),
+        ...(filter?.completed === false && { consumedAt: { $isNull: true } }),
+      },
+    },
+    destinationNode: {
+      label: ResourceLabel,
+      filter: {},
+    },
+    ...(sorting === APIUserConsumedResourcesSortingType.LastOpened && {
+      sorting: {
+        entity: 'relationship',
+        field: 'openedAt',
+        direction: 'DESC',
+      },
+    }),
+  });
