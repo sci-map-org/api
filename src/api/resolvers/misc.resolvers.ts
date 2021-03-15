@@ -8,6 +8,7 @@ import { APIQueryResolvers } from '../schema/types';
 
 const splitArray = (s?: string) => (!s ? [] : s.split(','));
 
+// TODO: optimize queries made
 export const getHomePageDataResolver: APIQueryResolvers['getHomePageData'] = async (_, _2, { user }) => {
   return {
     currentUser: user ? await findUser({ key: user.key }) : undefined,

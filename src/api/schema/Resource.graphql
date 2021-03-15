@@ -23,6 +23,9 @@ enum ResourceType {
   video_game
   infographic
   tweet
+  exercise
+  quizz
+  project
   other
 }
 

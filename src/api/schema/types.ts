@@ -1253,6 +1253,7 @@ export { ResourceType };
 export type APIConsumedResource = {
    __typename?: 'ConsumedResource';
   consumedAt?: Maybe<Scalars['Date']>;
+  lastOpenedAt?: Maybe<Scalars['Date']>;
   openedAt?: Maybe<Scalars['Date']>;
 };
 
@@ -1531,6 +1532,7 @@ export type APIUserConsumedResourcesResult = {
 export type APIUserConsumedResourceItem = {
    __typename?: 'UserConsumedResourceItem';
   consumedAt?: Maybe<Scalars['Date']>;
+  lastOpenedAt?: Maybe<Scalars['Date']>;
   openedAt?: Maybe<Scalars['Date']>;
   resource: APIResource;
 };
@@ -2559,6 +2561,7 @@ export type APILearningPathCompletedResultResolvers<ContextType = APIContext, Pa
 
 export type APIConsumedResourceResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConsumedResource'] = APIResolversParentTypes['ConsumedResource']> = ResolversObject<{
   consumedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
+  lastOpenedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   openedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2707,6 +2710,7 @@ export type APIUserConsumedResourcesResultResolvers<ContextType = APIContext, Pa
 
 export type APIUserConsumedResourceItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['UserConsumedResourceItem'] = APIResolversParentTypes['UserConsumedResourceItem']> = ResolversObject<{
   consumedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
+  lastOpenedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   openedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   resource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,

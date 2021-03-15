@@ -27,6 +27,9 @@ export enum ResourceType {
   video_game = 'video_game',
   infographic = 'infographic',
   tweet = 'tweet',
+  exercise = 'exercise',
+  quizz = 'quizz',
+  project = 'project',
   other = 'other',
 }
 

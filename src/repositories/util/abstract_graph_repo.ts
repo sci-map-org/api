@@ -394,7 +394,6 @@ export const updateRelationships = async <OriginNodeEntity, RelationshipEntity, 
   relationship: RelationshipEntity;
   destinationNode: DestinationNodeEntity;
 }[]> => {
-  console.log(relationship.updateProps);
   const session = neo4jDriver.session();
   const { records } = await session.run(
     `MATCH (originNode:${originNode.label}) WHERE ${buildFilter(
