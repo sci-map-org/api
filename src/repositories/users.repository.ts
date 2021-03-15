@@ -115,7 +115,12 @@ export const detachUserKnowsConcepts = (userId: string, conceptIds: string[]) =>
 
 export const attachUserConsumedResources = (
   userId: string,
-  resourcesToConsume: Array<{ resourceId: string; consumedAt?: number | null; openedAt?: number | null }>
+  resourcesToConsume: Array<{
+    resourceId: string;
+    consumedAt?: number | null;
+    openedAt?: number;
+    lastOpenedAt?: number;
+  }>
 ) =>
   Promise.all(
     resourcesToConsume.map(resourceToConsume =>

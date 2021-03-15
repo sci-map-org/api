@@ -1,6 +1,7 @@
 import { User, UserRole } from '../../entities/User';
 import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
+import { countUserConsumedResources, getUserConsumedResources } from '../../repositories/resources.repository';
 import {
   findUser,
   getLearningGoalsCreatedBy,
@@ -9,6 +10,7 @@ import {
   getLearningPathsStartedBy,
   updateUser,
 } from '../../repositories/users.repository';
+import { PaginationOptions } from '../../repositories/util/pagination';
 import {
   DiscourseSSOInputPayload,
   generateDiscourseSSORedirectUrl,
@@ -188,4 +190,24 @@ export const getCurrentUserStartedLearningGoalsResolver: APICurrentUserResolvers
     learningGoal,
     ...relationship,
   }));
+};
+
+export const getCurrentUserConsumedResourcesResolver: APICurrentUserResolvers['consumedResources'] = async (
+  currentUser,
+  { options }
+) => {
+  const sorting = options.sorting;
+  const paginationOptions: PaginationOptions = options.pagination ? nullToUndefined(options.pagination) : {};
+  const pagination: Required<PaginationOptions> = { limit: 10, offset: 0, ...paginationOptions };
+  const filter = options.filter ? nullToUndefined(options.filter) : {};
+
+  return {
+    items: (await getUserConsumedResources(currentUser._id, sorting, pagination, filter)).map(
+      ({ resource, relationship }) => ({
+        resource,
+        ...relationship,
+      })
+    ),
+    count: await countUserConsumedResources(currentUser._id, sorting, filter),
+  };
 };

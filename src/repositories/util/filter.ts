@@ -1,17 +1,21 @@
 export type FilterObject<Entity> =
   | Partial<Entity>
   | {
-      [key in keyof Entity]?: { $in: Array<Entity[key]> };
+      [key in keyof Entity]?: { $in?: Array<Entity[key]>; $isNull?: boolean }; //| {$isNull: boolean};
     };
 
 const toFilterClause = (
-  filter: { $in: Array<any> },
+  filter: { $in?: Array<any>; $isNull?: boolean },
   property: string,
   filterName: string,
   nodeVariableName: string
 ) => {
   if (filter.$in) {
     return `${nodeVariableName}.${property} IN $${filterName}.${property}.\`$in\``;
+  }
+  if (filter.$isNull !== undefined) {
+    if (filter.$isNull === true) return `${nodeVariableName}.${property} IS NULL`;
+    return `${nodeVariableName}.${property} IS NOT NULL`;
   }
   return `${nodeVariableName}.${property} = $${filterName}.${property}`;
 };

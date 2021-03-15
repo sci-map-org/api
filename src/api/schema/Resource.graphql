@@ -28,6 +28,7 @@ enum ResourceType {
 
 type ConsumedResource {
   openedAt: Date
+  lastOpenedAt: Date
   consumedAt: Date
 }
 

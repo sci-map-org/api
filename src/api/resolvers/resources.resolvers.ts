@@ -2,7 +2,6 @@ import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
-  attachLearningMaterialToDomain,
   getLearningMaterialCoveredConcepts,
   getLearningMaterialCoveredConceptsByDomain,
   getLearningMaterialDomains,
@@ -135,16 +134,21 @@ export const setResourcesConsumedResolver: APIMutationResolvers['setResourcesCon
       return foundResource;
     })
   );
-  await attachUserConsumedResources(
-    user._id,
-    payload.resources.map(r => {
+
+  const resourcesToConsumeData = await Promise.all(
+    payload.resources.map(async resourcePayload => {
+      const relationship = await getUserConsumedResource(user._id, resourcePayload.resourceId);
       return {
-        resourceId: r.resourceId,
-        ...(r.opened !== undefined && { openedAt: r.opened ? Date.now() : null }),
-        ...(r.consumed !== undefined && { consumedAt: r.consumed ? Date.now() : null }),
+        resourceId: resourcePayload.resourceId,
+        ...(resourcePayload.opened === true && {
+          openedAt: relationship && relationship.openedAt ? undefined : Date.now(),
+          lastOpenedAt: Date.now(),
+        }),
+        ...(resourcePayload.consumed !== undefined && { consumedAt: resourcePayload.consumed ? Date.now() : null }),
       };
     })
   );
+  await attachUserConsumedResources(user._id, resourcesToConsumeData);
   return resources;
 };
 

@@ -118,6 +118,7 @@ import {
   startLearningPathResolver,
   updateLearningPathResolver,
 } from './resolvers/learning_paths.resolvers';
+import { getHomePageDataResolver } from './resolvers/misc.resolvers';
 import {
   addSubResourceResolver,
   addSubResourceToSeriesResolver,
@@ -154,6 +155,7 @@ import {
 import {
   adminUpdateUserResolver,
   currentUserResolver,
+  getCurrentUserConsumedResourcesResolver,
   getCurrentUserCreatedArticlesResolver,
   getCurrentUserCreatedLearningGoalsResolver,
   getCurrentUserCreatedLearningPathsResolver,
@@ -259,6 +261,7 @@ const resolvers: APIResolvers<APIContext> = {
     searchSubTopics: searchSubTopicsResolver,
     checkTopicKeyAvailability: checkTopicKeyAvailabilityResolver,
     analyzeResourceUrl: analyzeResourceUrlResolver,
+    getHomePageData: getHomePageDataResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -272,6 +275,7 @@ const resolvers: APIResolvers<APIContext> = {
     startedLearningPaths: getCurrentUserStartedLearningPathsResolver,
     createdLearningGoals: getCurrentUserCreatedLearningGoalsResolver,
     startedLearningGoals: getCurrentUserStartedLearningGoalsResolver,
+    consumedResources: getCurrentUserConsumedResourcesResolver,
   },
   Domain: {
     concepts: getDomainConceptsResolver,

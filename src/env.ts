@@ -48,6 +48,14 @@ const DISCORD = typedEnv.envGroup(
   'DISCORD'
 );
 
+const HOME = typedEnv.envGroup(
+  {
+    RECOMMENDED_LEARNING_GOALS_IDS: typedEnv.types.OptionalString,
+    RECOMMENDED_LEARNING_PATHS_IDS: typedEnv.types.OptionalString,
+  },
+  'HOME'
+);
+
 const API = typedEnv.envGroup({
   PORT: typedEnv.types.PortNumber,
   GRAPHQL_MOCK_ENABLED: typedEnv.types.Boolean,
@@ -65,6 +73,7 @@ const envSchema = typedEnv.envSchema({
   AUTH,
   EMAIL,
   DISCORD,
+  HOME,
   API,
   OTHER,
 });
