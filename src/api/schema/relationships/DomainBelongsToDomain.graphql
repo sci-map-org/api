@@ -2,7 +2,11 @@ type DomainBelongsToDomain {
   index: Float!
 }
 
+type UpdateDomainBelongsToDomainResults {
+  parentDomain: Domain!
+  subDomain: Domain!
+}
 type Mutation {
-  addDomainBelongsToDomain(parentDomainId: String!, subDomainId: String!): Domain!
-  removeDomainBelongsToDomain(parentDomainId: String!, subDomainId: String!): Domain!
+  addDomainBelongsToDomain(parentDomainId: String!, subDomainId: String!): UpdateDomainBelongsToDomainResults!
+  removeDomainBelongsToDomain(parentDomainId: String!, subDomainId: String!): UpdateDomainBelongsToDomainResults!
 }

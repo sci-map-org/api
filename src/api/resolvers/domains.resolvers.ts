@@ -115,8 +115,8 @@ export const addDomainBelongsToDomainResolver: APIMutationResolvers['addDomainBe
     'Must be logged in and an admin or contributor to modify Domain grouping relationships'
   );
 
-  const { parentDomain } = await attachDomainBelongsToDomain(parentDomainId, subDomainId);
-  return parentDomain;
+  const { parentDomain, subDomain } = await attachDomainBelongsToDomain(parentDomainId, subDomainId);
+  return { parentDomain, subDomain };
 };
 export const removeDomainBelongsToDomainResolver: APIMutationResolvers['removeDomainBelongsToDomain'] = async (
   _p,
@@ -128,8 +128,8 @@ export const removeDomainBelongsToDomainResolver: APIMutationResolvers['removeDo
     user,
     'Must be logged in and an admin or contributor to modify Domain grouping relationships'
   );
-  const { parentDomain } = await detachDomainBelongsToDomain(parentDomainId, subDomainId);
-  return parentDomain;
+  const { parentDomain, subDomain } = await detachDomainBelongsToDomain(parentDomainId, subDomainId);
+  return { parentDomain, subDomain };
 };
 
 export const getDomainSubDomainsResolver: APIDomainResolvers['subDomains'] = async domain => {
