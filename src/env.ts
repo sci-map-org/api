@@ -6,6 +6,7 @@ const NEO4J = typedEnv.envGroup(
     DATABASE_URL: typedEnv.types.NonEmptyString,
     USER: typedEnv.types.NonEmptyString,
     PASSWORD: typedEnv.types.NonEmptyString,
+    FULL_TEXT_SEARCH_INDEX_NAME: typedEnv.types.NonEmptyString,
   },
   'NEO4J'
 );

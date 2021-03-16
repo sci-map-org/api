@@ -4,7 +4,9 @@ import { env } from '../../env';
 import { findLearningGoal } from '../../repositories/learning_goals.repository';
 import { findLearningPath } from '../../repositories/learning_paths.repository';
 import { findUser } from '../../repositories/users.repository';
+import { searchEntities } from '../../services/search.service';
 import { APIQueryResolvers } from '../schema/types';
+import { nullToUndefined } from '../util/nullToUndefined';
 
 const splitArray = (s?: string) => (!s ? [] : s.split(','));
 
@@ -18,5 +20,12 @@ export const getHomePageDataResolver: APIQueryResolvers['getHomePageData'] = asy
     recommendedLearningPaths: await Promise.all(
       splitArray(env.HOME.RECOMMENDED_LEARNING_PATHS_IDS || '').map(lpId => findLearningPath({ _id: lpId }))
     ).then(results => results.filter(lp => !!lp) as LearningPath[]),
+  };
+};
+
+export const globalSearchResolver: APIQueryResolvers['globalSearch'] = async (_, { query, options }) => {
+  const results = await searchEntities(query, !!options?.pagination ? nullToUndefined(options.pagination) : undefined);
+  return {
+    results,
   };
 };

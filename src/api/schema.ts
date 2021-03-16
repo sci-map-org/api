@@ -118,7 +118,7 @@ import {
   startLearningPathResolver,
   updateLearningPathResolver,
 } from './resolvers/learning_paths.resolvers';
-import { getHomePageDataResolver } from './resolvers/misc.resolvers';
+import { getHomePageDataResolver, globalSearchResolver } from './resolvers/misc.resolvers';
 import {
   addSubResourceResolver,
   addSubResourceToSeriesResolver,
@@ -262,6 +262,7 @@ const resolvers: APIResolvers<APIContext> = {
     checkTopicKeyAvailability: checkTopicKeyAvailabilityResolver,
     analyzeResourceUrl: analyzeResourceUrlResolver,
     getHomePageData: getHomePageDataResolver,
+    globalSearch: globalSearchResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -351,6 +352,21 @@ const resolvers: APIResolvers<APIContext> = {
     __resolveType: obj => {
       if (obj.topicType === TopicType.Concept) return 'Concept';
       if (obj.topicType === TopicType.LearningGoal) return 'LearningGoal';
+      throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
+    },
+  },
+  SearchResultEntity: {
+    __resolveType: obj => {
+      //@ts-ignore
+      if (!obj.type && !obj.topicType) return 'LearningPath';
+      //@ts-ignore
+      if (!obj.topicType) return 'Resource';
+      //@ts-ignore
+      if (obj.topicType === TopicType.Concept) return 'Concept';
+      //@ts-ignore
+      if (obj.topicType === TopicType.LearningGoal) return 'LearningGoal';
+      //@ts-ignore
+      if (obj.topicType === TopicType.Domain) return 'Domain';
       throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },

@@ -62,6 +62,7 @@ export type APIQuery = {
   getLearningPathByKey: APILearningPath;
   getResourceById: APIResource;
   getUser: APIUser;
+  globalSearch: APIGlobalSearchResults;
   listArticles: APIListArticlesResult;
   searchDomains: APISearchDomainsResult;
   searchLearningGoals: APISearchLearningGoalsResult;
@@ -133,6 +134,12 @@ export type APIQueryGetResourceByIdArgs = {
 
 export type APIQueryGetUserArgs = {
   key: Scalars['String'];
+};
+
+
+export type APIQueryGlobalSearchArgs = {
+  options?: Maybe<APIGlobalSearchOptions>;
+  query: Scalars['String'];
 };
 
 
@@ -1615,6 +1622,23 @@ export type APIGetHomePageDataResults = {
   recommendedLearningPaths: Array<APILearningPath>;
 };
 
+export type APIGlobalSearchOptions = {
+  pagination?: Maybe<APIPaginationOptions>;
+};
+
+export type APISearchResultEntity = APIConcept | APIDomain | APILearningGoal | APILearningPath | APIResource;
+
+export type APISearchResult = {
+   __typename?: 'SearchResult';
+  entity: APISearchResultEntity;
+  score: Scalars['Float'];
+};
+
+export type APIGlobalSearchResults = {
+   __typename?: 'GlobalSearchResults';
+  results: Array<APISearchResult>;
+};
+
 
 export type APIUpdateConceptBelongsToConceptResult = {
    __typename?: 'UpdateConceptBelongsToConceptResult';
@@ -1907,6 +1931,10 @@ export type APIResolversTypes = ResolversObject<{
   DiscourseSSO: APIDiscourseSso,
   VerifyEmailResponse: ResolverTypeWrapper<APIVerifyEmailResponse>,
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>,
+  GlobalSearchOptions: APIGlobalSearchOptions,
+  SearchResultEntity: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
+  SearchResult: ResolverTypeWrapper<Omit<APISearchResult, 'entity'> & { entity: APIResolversTypes['SearchResultEntity'] }>,
+  GlobalSearchResults: ResolverTypeWrapper<APIGlobalSearchResults>,
   Date: ResolverTypeWrapper<Scalars['Date']>,
   UpdateConceptBelongsToConceptResult: ResolverTypeWrapper<APIUpdateConceptBelongsToConceptResult>,
   UpdateConceptReferencesConceptResult: ResolverTypeWrapper<APIUpdateConceptReferencesConceptResult>,
@@ -2078,6 +2106,10 @@ export type APIResolversParentTypes = ResolversObject<{
   DiscourseSSO: APIDiscourseSso,
   VerifyEmailResponse: APIVerifyEmailResponse,
   GetHomePageDataResults: APIGetHomePageDataResults,
+  GlobalSearchOptions: APIGlobalSearchOptions,
+  SearchResultEntity: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
+  SearchResult: Omit<APISearchResult, 'entity'> & { entity: APIResolversParentTypes['SearchResultEntity'] },
+  GlobalSearchResults: APIGlobalSearchResults,
   Date: Scalars['Date'],
   UpdateConceptBelongsToConceptResult: APIUpdateConceptBelongsToConceptResult,
   UpdateConceptReferencesConceptResult: APIUpdateConceptReferencesConceptResult,
@@ -2123,6 +2155,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'key'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
+  globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
   searchDomains?: Resolver<APIResolversTypes['SearchDomainsResult'], ParentType, ContextType, RequireFields<APIQuerySearchDomainsArgs, 'options'>>,
   searchLearningGoals?: Resolver<APIResolversTypes['SearchLearningGoalsResult'], ParentType, ContextType, RequireFields<APIQuerySearchLearningGoalsArgs, 'options'>>,
@@ -2762,6 +2795,21 @@ export type APIGetHomePageDataResultsResolvers<ContextType = APIContext, ParentT
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APISearchResultEntityResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchResultEntity'] = APIResolversParentTypes['SearchResultEntity']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'Concept' | 'Domain' | 'LearningGoal' | 'LearningPath' | 'Resource', ParentType, ContextType>
+}>;
+
+export type APISearchResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchResult'] = APIResolversParentTypes['SearchResult']> = ResolversObject<{
+  entity?: Resolver<APIResolversTypes['SearchResultEntity'], ParentType, ContextType>,
+  score?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIGlobalSearchResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GlobalSearchResults'] = APIResolversParentTypes['GlobalSearchResults']> = ResolversObject<{
+  results?: Resolver<Array<APIResolversTypes['SearchResult']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export interface APIDateScalarConfig extends GraphQLScalarTypeConfig<APIResolversTypes['Date'], any> {
   name: 'Date'
 }
@@ -2901,6 +2949,9 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,
   GetHomePageDataResults?: APIGetHomePageDataResultsResolvers<ContextType>,
+  SearchResultEntity?: APISearchResultEntityResolvers,
+  SearchResult?: APISearchResultResolvers<ContextType>,
+  GlobalSearchResults?: APIGlobalSearchResultsResolvers<ContextType>,
   Date?: GraphQLScalarType,
   UpdateConceptBelongsToConceptResult?: APIUpdateConceptBelongsToConceptResultResolvers<ContextType>,
   UpdateConceptReferencesConceptResult?: APIUpdateConceptReferencesConceptResultResolvers<ContextType>,
