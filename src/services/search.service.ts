@@ -10,8 +10,16 @@ export const searchEntities = async (
 ): Promise<{ entity: Topic | LearningMaterial; score: number }[]> => {
   const { offset, limit } = { offset: 0, limit: 20, ...paginationOptions };
   const session = neo4jDriver.session();
-  // name:${queryString}~0.7^3
-  const query = `name:"${queryString}"*^3 name:"${queryString}"~0.8^3 topicType:Domain^3 topicType:LearningGoal^2  key:"${queryString}"~0.8^2 description:"${queryString}"~0.8`;
+  const hasTrailingSpace = queryString[queryString.length - 1] === ' ';
+  const queryWords = queryString.trim().split(' ');
+  const query = queryWords.reduce((query, word, idx) => {
+    return (
+      query +
+      (idx === queryWords.length - 1 && !hasTrailingSpace
+        ? `name:${word}* key:${word}* description:${word}* `
+        : `name:${word}~ key:${word}~ description:${word}~ `)
+    );
+  }, `"${queryString}"^2`);
 
   const { records } = await session.run(
     `CALL db.index.fulltext.queryNodes("${env.NEO4J.FULL_TEXT_SEARCH_INDEX_NAME}", $query) YIELD node, score
