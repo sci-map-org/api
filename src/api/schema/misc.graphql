@@ -4,6 +4,21 @@ type GetHomePageDataResults {
   recommendedLearningPaths: [LearningPath!]!
 }
 
+input GlobalSearchOptions {
+  pagination: PaginationOptions
+}
+
+union SearchResultEntity = Domain | Concept | LearningGoal | Resource | LearningPath
+
+type SearchResult {
+  entity: SearchResultEntity!
+  score: Float!
+}
+type GlobalSearchResults {
+  results: [SearchResult!]!
+}
+
 type Query {
   getHomePageData: GetHomePageDataResults!
+  globalSearch(query: String!, options: GlobalSearchOptions): GlobalSearchResults!
 }

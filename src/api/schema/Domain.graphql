@@ -5,9 +5,11 @@ type Domain implements Topic {
   description: String
   topicType: TopicType!
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
+  conceptTotalCount: Int
   resources(options: DomainResourcesOptions!): DomainResourcesResults
   learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
   learningMaterials(options: DomainLearningMaterialsOptions!): DomainLearningMaterialsResults
+  learningMaterialsTotalCount: Int
   subDomains: [DomainBelongsToDomainItem!]
   parentDomains: [DomainBelongsToDomainItem!]
   learningGoals: [LearningGoalBelongsToDomain!]

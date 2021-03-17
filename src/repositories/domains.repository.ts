@@ -6,7 +6,7 @@ import { recommendationEngineConfig } from '../config';
 import { Concept, ConceptLabel } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
-import { LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
+import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import { DomainBelongsToDomain, DomainBelongsToDomainLabel } from '../entities/relationships/DomainBelongsToDomain';
@@ -31,6 +31,7 @@ import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachUniqueNodes,
+  countRelatedNodes,
   createRelatedNode,
   deleteOne,
   detachUniqueNodes,
@@ -117,6 +118,20 @@ export const getDomainConcepts = (
       concept: item.destinationNode,
     }))
   );
+
+export const countDomainConcepts = (domainFilter: { key: string } | { _id: string }): Promise<number> =>
+  countRelatedNodes<Domain, ConceptBelongsToDomain, Concept>({
+    originNode: {
+      label: DomainLabel,
+      filter: domainFilter,
+    },
+    relationship: {
+      label: ConceptBelongsToDomainLabel,
+    },
+    destinationNode: {
+      label: ConceptLabel,
+    },
+  });
 
 export const getDomainPublicLearningPaths = (
   domainFilter: { key: string } | { _id: string },
@@ -381,6 +396,20 @@ export const getDomainLearningMaterials = async (
   const learningMaterials = r.map(i => i.lm.properties);
   return learningMaterials;
 };
+
+export const countDomainLearningMaterials = (domainId: string): Promise<number> =>
+  countRelatedNodes<Domain, LearningMaterialBelongsToDomain, LearningMaterial>({
+    originNode: {
+      label: DomainLabel,
+      filter: { _id: domainId },
+    },
+    relationship: {
+      label: LearningMaterialBelongsToDomainLabel,
+    },
+    destinationNode: {
+      label: LearningMaterialLabel,
+    },
+  });
 
 export const attachDomainBelongsToDomain = (
   parentDomainId: string,
