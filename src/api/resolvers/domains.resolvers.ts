@@ -2,6 +2,8 @@ import { UserInputError } from 'apollo-server-koa';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachDomainBelongsToDomain,
+  countDomainConcepts,
+  countDomainLearningMaterials,
   createDomain,
   deleteDomain,
   detachDomainBelongsToDomain,
@@ -18,6 +20,7 @@ import {
   updateDomain,
 } from '../../repositories/domains.repository';
 import {
+  APIDomainConceptsResultsResolvers,
   APIDomainLearningMaterialsSortingType,
   APIDomainResolvers,
   APIMutationResolvers,
@@ -66,7 +69,13 @@ export const deleteDomainResolver: APIMutationResolvers['deleteDomain'] = async 
 
 export const getDomainConceptsResolver: APIDomainResolvers['concepts'] = async (domain, { options }, ctx) => {
   const { sorting } = options;
-  return { items: await getDomainConcepts({ _id: domain._id }, sorting || undefined) };
+  return {
+    items: await getDomainConcepts({ _id: domain._id }, sorting || undefined),
+  };
+};
+
+export const getDomainConceptTotalCountResolver: APIDomainResolvers['conceptTotalCount'] = async (domain, _, ctx) => {
+  return countDomainConcepts({ _id: domain._id });
 };
 
 export const getDomainResourcesResolver: APIDomainResolvers['resources'] = async (domain, { options }, { user }) => {
@@ -102,6 +111,10 @@ export const getDomainLearningMaterialsResolver: APIDomainResolvers['learningMat
   return {
     items: (await getDomainLearningMaterials(domain._id, user?._id, nullToUndefined(options))).map(toAPIResource),
   };
+};
+
+export const getDomainLearningMaterialsTotalCountResolver: APIDomainResolvers['learningMaterialsTotalCount'] = async domain => {
+  return await countDomainLearningMaterials(domain._id);
 };
 
 export const addDomainBelongsToDomainResolver: APIMutationResolvers['addDomainBelongsToDomain'] = async (
