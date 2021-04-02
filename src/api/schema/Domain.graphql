@@ -4,6 +4,7 @@ type Domain implements Topic {
   key: String!
   description: String
   topicType: TopicType!
+  size: Float
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
   conceptTotalCount: Int
   resources(options: DomainResourcesOptions!): DomainResourcesResults

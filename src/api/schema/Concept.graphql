@@ -9,6 +9,7 @@ type Concept implements Topic {
   description: String
   topicType: TopicType!
   domain: Domain
+  size: Float
   coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
   known: KnownConcept
   referencingConcepts: [ConceptReferencesConceptItem!]

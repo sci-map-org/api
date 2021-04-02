@@ -640,6 +640,7 @@ export type APIConcept = APITopic & {
   parentConcepts?: Maybe<Array<APIConceptBelongsToConceptItem>>;
   referencedByConcepts?: Maybe<Array<APIConceptReferencesConceptItem>>;
   referencingConcepts?: Maybe<Array<APIConceptReferencesConceptItem>>;
+  size?: Maybe<Scalars['Float']>;
   subConcepts?: Maybe<Array<APIConceptBelongsToConceptItem>>;
   topicType: TopicType;
 };
@@ -718,6 +719,7 @@ export type APIDomain = APITopic & {
   name: Scalars['String'];
   parentDomains?: Maybe<Array<APIDomainBelongsToDomainItem>>;
   resources?: Maybe<APIDomainResourcesResults>;
+  size?: Maybe<Scalars['Float']>;
   subDomains?: Maybe<Array<APIDomainBelongsToDomainItem>>;
   subTopics?: Maybe<Array<APITopicBelongsToDomain>>;
   topicType: TopicType;
@@ -897,6 +899,7 @@ export type APILearningGoal = APITopic & {
   relevantLearningMaterials?: Maybe<APILearningGoalRelevantLearningMaterialsResults>;
   requiredInGoals?: Maybe<Array<APIRequiredInGoalItem>>;
   requiredSubGoals?: Maybe<Array<APISubGoalItem>>;
+  size?: Maybe<Scalars['Float']>;
   started?: Maybe<APILearningGoalStarted>;
   startedBy?: Maybe<APILearningGoalStartedByResults>;
   topicType: TopicType;
@@ -1435,6 +1438,7 @@ export type APITopic = {
   description?: Maybe<Scalars['String']>;
   key: Scalars['String'];
   name: Scalars['String'];
+  size?: Maybe<Scalars['Float']>;
   topicType: TopicType;
 };
 
@@ -2250,6 +2254,7 @@ export type APIConceptResolvers<ContextType = APIContext, ParentType extends API
   parentConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptBelongsToConceptItem']>>, ParentType, ContextType>,
   referencedByConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptReferencesConceptItem']>>, ParentType, ContextType>,
   referencingConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptReferencesConceptItem']>>, ParentType, ContextType>,
+  size?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   subConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptBelongsToConceptItem']>>, ParentType, ContextType>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
@@ -2297,6 +2302,7 @@ export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIR
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   parentDomains?: Resolver<Maybe<Array<APIResolversTypes['DomainBelongsToDomainItem']>>, ParentType, ContextType>,
   resources?: Resolver<Maybe<APIResolversTypes['DomainResourcesResults']>, ParentType, ContextType, RequireFields<APIDomainResourcesArgs, 'options'>>,
+  size?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   subDomains?: Resolver<Maybe<Array<APIResolversTypes['DomainBelongsToDomainItem']>>, ParentType, ContextType>,
   subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicBelongsToDomain']>>, ParentType, ContextType>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
@@ -2362,6 +2368,7 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   relevantLearningMaterials?: Resolver<Maybe<APIResolversTypes['LearningGoalRelevantLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APILearningGoalRelevantLearningMaterialsArgs, 'options'>>,
   requiredInGoals?: Resolver<Maybe<Array<APIResolversTypes['RequiredInGoalItem']>>, ParentType, ContextType>,
   requiredSubGoals?: Resolver<Maybe<Array<APIResolversTypes['SubGoalItem']>>, ParentType, ContextType>,
+  size?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   started?: Resolver<Maybe<APIResolversTypes['LearningGoalStarted']>, ParentType, ContextType>,
   startedBy?: Resolver<Maybe<APIResolversTypes['LearningGoalStartedByResults']>, ParentType, ContextType, RequireFields<APILearningGoalStartedByArgs, 'options'>>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
@@ -2708,6 +2715,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  size?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
 }>;
 

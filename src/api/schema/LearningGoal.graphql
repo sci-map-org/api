@@ -16,6 +16,7 @@ type LearningGoal implements Topic {
   progress: LearningGoalProgress
   createdBy: User
   domain: LearningGoalBelongsToDomain
+  size: Float
   requiredInGoals: [RequiredInGoalItem!]
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?
   dependsOnLearningGoals(parentLearningGoalIdIn: [String!]): [DependsOnGoalItem!]

@@ -4,6 +4,7 @@ interface Topic {
   key: String! # Mandatory in the future ? Could it help searching for instance ?
   description: String
   topicType: TopicType! # To remove once there is a difference between the schema. Make a migration to remove it also from db
+  size: Float
   #   domains: [TopicsBelongsToDomainItem!] # parent domains ? or belong to domain ? Cause domain can be one already. parentDomains ?
   # progress | completion
   # coveredByLearningMaterials # ? shared recommendation engine ?
