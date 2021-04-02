@@ -21,6 +21,7 @@ import {
   updateConcept,
   updateConceptBelongsToDomain,
 } from '../../repositories/concepts.repository';
+import { getTopicSize } from '../../repositories/topics.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
 import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
 import { restrictAccess } from '../util/auth';
@@ -208,4 +209,8 @@ export const getConceptSubConceptsResolver: APIConceptResolvers['subConcepts'] =
 };
 export const getConceptParentConceptsResolver: APIConceptResolvers['parentConcepts'] = async concept => {
   return getConceptParentConcepts({ _id: concept._id });
+};
+
+export const getConceptSizeResolver: APIConceptResolvers['size'] = async concept => {
+  return getTopicSize(concept._id);
 };

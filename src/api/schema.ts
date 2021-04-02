@@ -23,6 +23,7 @@ import {
   getConceptReferencedByConceptsResolver,
   getConceptReferencingConceptsResolver,
   getConceptResolver,
+  getConceptSizeResolver,
   getConceptSubConceptsResolver,
   getDomainConceptByKeyResolver,
   removeConceptBelongsToConceptResolver,
@@ -45,6 +46,7 @@ import {
   getDomainLearningPathsResolver,
   getDomainParentDomainsResolver,
   getDomainResourcesResolver,
+  getDomainSizeResolver,
   getDomainSubDomainsResolver,
   getDomainSubTopicsResolver,
   removeDomainBelongsToDomainResolver,
@@ -71,6 +73,7 @@ import {
   getLearningGoalRelevantLearningMaterialsResolver,
   getLearningGoalRequiredInGoalsResolver,
   getLearningGoalRequiredSubGoalsResolver,
+  getLearningGoalSizeResolver,
   getLearningGoalStartedByResolver,
   getLearningGoalStartedResolver,
   indexLearningGoalResolver,
@@ -291,6 +294,7 @@ const resolvers: APIResolvers<APIContext> = {
     learningMaterialsTotalCount: getDomainLearningMaterialsTotalCountResolver,
     learningGoals: getDomainLearningGoalsResolver,
     subTopics: getDomainSubTopicsResolver,
+    size: getDomainSizeResolver,
   },
   Concept: {
     domain: getConceptDomainResolver,
@@ -300,6 +304,7 @@ const resolvers: APIResolvers<APIContext> = {
     referencedByConcepts: getConceptReferencedByConceptsResolver,
     subConcepts: getConceptSubConceptsResolver,
     parentConcepts: getConceptParentConceptsResolver,
+    size: getConceptSizeResolver,
   },
   Resource: {
     coveredConcepts: getResourceCoveredConceptsResolver,
@@ -345,6 +350,7 @@ const resolvers: APIResolvers<APIContext> = {
     relevantLearningMaterials: getLearningGoalRelevantLearningMaterialsResolver,
     dependsOnLearningGoals: getLearningGoalDependsOnLearningGoalsResolver,
     dependantLearningGoals: getLearningGoalDependantsLearningGoalsResolver,
+    size: getLearningGoalSizeResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,

@@ -19,6 +19,7 @@ import {
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';
+import { getTopicSize } from '../../repositories/topics.repository';
 import {
   APIDomainConceptsResultsResolvers,
   APIDomainLearningMaterialsSortingType,
@@ -168,4 +169,8 @@ export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = async
     ...relationship,
     domain: result.domain,
   }));
+};
+
+export const getDomainSizeResolver: APIDomainResolvers['size'] = async domain => {
+  return getTopicSize(domain._id);
 };
