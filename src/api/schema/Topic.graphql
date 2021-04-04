@@ -62,18 +62,19 @@ type CheckTopicKeyAvailabilityResult {
   existingTopic: ITopic
 }
 
-# input AddSubTopicPayload {
-#   name: String!
-# }
+input AddSubTopicPayload {
+  index: Float
+  name: String!
+}
 
-# type AddSubTopicResult {
-#   parentTopic: ITopic!
-#   subTopic: ITopic!
-# }
+type AddSubTopicResult {
+  parentTopic: ITopic!
+  subTopic: ITopic!
+}
 
-# type Mutation {
-#   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
-# }
+type Mutation {
+  addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
+}
 type Query {
   searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
   searchSubTopics(domainId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
