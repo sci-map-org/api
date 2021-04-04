@@ -2,20 +2,22 @@
 # Represents an atomic knowledge, something that can be understood
 # learning content cover one or several concepts
 
-type Concept implements Topic {
+type Concept implements ITopic {
   _id: String!
   key: String!
   name: String!
   description: String
   topicType: TopicType!
   domain: Domain
+  parentTopic: TopicIsSubTopicOfTopic
+  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
   size: Float
   coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
   known: KnownConcept
   referencingConcepts: [ConceptReferencesConceptItem!]
   referencedByConcepts: [ConceptReferencesConceptItem!]
-  subConcepts: [ConceptBelongsToConceptItem!]
-  parentConcepts: [ConceptBelongsToConceptItem!]
+  # subConcepts: [ConceptBelongsToConceptItem!]
+  # parentConcepts: [ConceptBelongsToConceptItem!]
 }
 
 type KnownConcept {

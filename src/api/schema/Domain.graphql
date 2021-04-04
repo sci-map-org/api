@@ -1,10 +1,12 @@
-type Domain implements Topic {
+type Domain implements ITopic {
   _id: String!
   name: String!
   key: String!
   description: String
   topicType: TopicType!
   size: Float
+  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+  parentTopics: [TopicIsSubTopicOfTopic!]
   concepts(options: DomainConceptsOptions!): DomainConceptsResults
   conceptTotalCount: Int
   resources(options: DomainResourcesOptions!): DomainResourcesResults
@@ -14,7 +16,7 @@ type Domain implements Topic {
   subDomains: [DomainBelongsToDomainItem!]
   parentDomains: [DomainBelongsToDomainItem!]
   learningGoals: [LearningGoalBelongsToDomain!]
-  subTopics: [TopicBelongsToDomain!]
+  # subTopics: [TopicBelongsToDomain!]
 }
 
 # Domain learning paths

@@ -1,0 +1,19 @@
+type TopicIsSubTopicOfTopic {
+  index: Float!
+  subTopic: ITopic!
+  parentTopic: ITopic!
+}
+
+input UpdateTopicIsSubTopicOfTopicPayload {
+  index: Float
+  # created at ?
+  # strength
+}
+
+type Mutation {
+  updateTopicIsSubTopicOfTopic(
+    parentTopicId: String!
+    subTopicId: String!
+    payload: UpdateTopicIsSubTopicOfTopicPayload!
+  ): TopicIsSubTopicOfTopic!
+}

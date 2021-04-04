@@ -1,15 +1,40 @@
-interface Topic {
+interface ITopic {
   _id: String!
   name: String!
   key: String! # Mandatory in the future ? Could it help searching for instance ?
   description: String
   topicType: TopicType! # To remove once there is a difference between the schema. Make a migration to remove it also from db
   size: Float
+  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
   #   domains: [TopicsBelongsToDomainItem!] # parent domains ? or belong to domain ? Cause domain can be one already. parentDomains ?
   # progress | completion
   # coveredByLearningMaterials # ? shared recommendation engine ?
   # social / might be different forms, maybe same in the beginning, e.g. comment or question ?
   #
+}
+
+type Topic implements ITopic {
+  _id: String!
+  name: String!
+  key: String!
+  description: String
+  topicType: TopicType!
+  size: Float
+  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+}
+
+enum TopicSubTopicsSortingType {
+  index
+}
+
+input TopicSubTopicsSortingOptions {
+  type: TopicSubTopicsSortingType!
+  direction: SortingDirection!
+}
+
+input TopicSubTopicsOptions {
+  sorting: TopicSubTopicsSortingOptions!
+  topicsIn: [TopicType!]
 }
 
 enum TopicType {
@@ -29,12 +54,12 @@ input SearchTopicsOptions {
 }
 
 type SearchTopicsResult {
-  items: [Topic!]!
+  items: [ITopic!]!
 }
 
 type CheckTopicKeyAvailabilityResult {
   available: Boolean!
-  existingTopic: Topic
+  existingTopic: ITopic
 }
 
 type Query {

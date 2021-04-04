@@ -1,5 +1,5 @@
 type TopicBelongsToDomain {
   index: Float!
-  topic: Topic!
+  topic: ITopic!
   domain: Domain!
 }
