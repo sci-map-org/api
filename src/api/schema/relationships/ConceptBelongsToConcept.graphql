@@ -1,6 +1,6 @@
-type ConceptBelongsToConcept {
-  index: Float!
-}
+# type ConceptBelongsToConcept {
+#   index: Float!
+# }
 
 # input UpdateConceptBelongsToConceptPayload {
 #   index: Float
