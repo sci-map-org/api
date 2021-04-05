@@ -9,7 +9,6 @@ import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import { DomainBelongsToDomain, DomainBelongsToDomainLabel } from '../entities/relationships/DomainBelongsToDomain';
 import {
   LearningGoalBelongsToDomain,
   LearningGoalBelongsToDomainLabel,
@@ -411,71 +410,71 @@ export const countDomainLearningMaterials = (domainId: string): Promise<number> 
     },
   });
 
-export const attachDomainBelongsToDomain = (
-  parentDomainId: string,
-  subDomainId: string,
-  index?: number
-): Promise<{ subDomain: Domain; relationship: DomainBelongsToDomain; parentDomain: Domain }> =>
-  attachUniqueNodes<Concept, DomainBelongsToDomain, Domain>({
-    originNode: { label: DomainLabel, filter: { _id: subDomainId } },
-    relationship: {
-      label: DomainBelongsToDomainLabel,
-      onCreateProps: { index: index || DEFAULT_INDEX_VALUE },
-      onMergeProps: { index },
-    },
-    destinationNode: { label: DomainLabel, filter: { _id: parentDomainId } },
-  }).then(({ originNode, relationship, destinationNode }) => {
-    return {
-      subDomain: originNode,
-      relationship,
-      parentDomain: destinationNode,
-    };
-  });
+// export const attachDomainBelongsToDomain = (
+//   parentDomainId: string,
+//   subDomainId: string,
+//   index?: number
+// ): Promise<{ subDomain: Domain; relationship: DomainBelongsToDomain; parentDomain: Domain }> =>
+//   attachUniqueNodes<Concept, DomainBelongsToDomain, Domain>({
+//     originNode: { label: DomainLabel, filter: { _id: subDomainId } },
+//     relationship: {
+//       label: DomainBelongsToDomainLabel,
+//       onCreateProps: { index: index || DEFAULT_INDEX_VALUE },
+//       onMergeProps: { index },
+//     },
+//     destinationNode: { label: DomainLabel, filter: { _id: parentDomainId } },
+//   }).then(({ originNode, relationship, destinationNode }) => {
+//     return {
+//       subDomain: originNode,
+//       relationship,
+//       parentDomain: destinationNode,
+//     };
+//   });
 
-export const detachDomainBelongsToDomain = (
-  parentDomainId: string,
-  subDomainId: string
-): Promise<{ subDomain: Domain; parentDomain: Domain }> =>
-  detachUniqueNodes<Domain, DomainBelongsToDomain, Domain>({
-    originNode: {
-      label: DomainLabel,
-      filter: { _id: subDomainId },
-    },
-    relationship: {
-      label: DomainBelongsToDomainLabel,
-      filter: {},
-    },
-    destinationNode: {
-      label: DomainLabel,
-      filter: { _id: parentDomainId },
-    },
-  }).then(({ originNode, destinationNode }) => {
-    return {
-      subDomain: originNode,
-      parentDomain: destinationNode,
-    };
-  });
+// export const detachDomainBelongsToDomain = (
+//   parentDomainId: string,
+//   subDomainId: string
+// ): Promise<{ subDomain: Domain; parentDomain: Domain }> =>
+//   detachUniqueNodes<Domain, DomainBelongsToDomain, Domain>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: { _id: subDomainId },
+//     },
+//     relationship: {
+//       label: DomainBelongsToDomainLabel,
+//       filter: {},
+//     },
+//     destinationNode: {
+//       label: DomainLabel,
+//       filter: { _id: parentDomainId },
+//     },
+//   }).then(({ originNode, destinationNode }) => {
+//     return {
+//       subDomain: originNode,
+//       parentDomain: destinationNode,
+//     };
+//   });
 
-const getDomainBelongsToDomains = (filter: { _id: string } | { key: string }, direction: 'IN' | 'OUT') =>
-  getRelatedNodes<Domain, DomainBelongsToDomain, Domain>({
-    originNode: {
-      label: DomainLabel,
-      filter,
-    },
-    relationship: {
-      label: DomainBelongsToDomainLabel,
-      direction,
-    },
-    destinationNode: {
-      label: DomainLabel,
-    },
-  }).then(items => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
+// const getDomainBelongsToDomains = (filter: { _id: string } | { key: string }, direction: 'IN' | 'OUT') =>
+//   getRelatedNodes<Domain, DomainBelongsToDomain, Domain>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter,
+//     },
+//     relationship: {
+//       label: DomainBelongsToDomainLabel,
+//       direction,
+//     },
+//     destinationNode: {
+//       label: DomainLabel,
+//     },
+//   }).then(items => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
 
-export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =>
-  getDomainBelongsToDomains(filter, 'IN');
+// export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =>
+//   getDomainBelongsToDomains(filter, 'IN');
 
-export const getDomainParentDomains = (filter: { _id: string } | { key: string }) =>
-  getDomainBelongsToDomains(filter, 'OUT');
+// export const getDomainParentDomains = (filter: { _id: string } | { key: string }) =>
+//   getDomainBelongsToDomains(filter, 'OUT');
 
 export const getDomainLearningGoals = (
   domainId: string
@@ -501,28 +500,28 @@ export const getDomainLearningGoals = (
     }))
   );
 
-export const getDomainSubTopics = (
-  domainId: string
-): Promise<{ domain: Domain; subTopics: { relationship: TopicBelongsToDomain; topic: Topic }[] } | null> =>
-  getRelatedNodes<Domain, TopicBelongsToDomain, Topic>({
-    originNode: {
-      label: DomainLabel,
-      filter: { _id: domainId },
-    },
-    relationship: {
-      label: TopicBelongsToDomainLabel,
-      direction: 'IN',
-    },
-    destinationNode: {
-      label: TopicLabel,
-      filter: { hidden: false },
-    },
-  }).then(items => {
-    if (items.length) {
-      return {
-        domain: items[0].originNode,
-        subTopics: items.map(({ relationship, destinationNode }) => ({ relationship, topic: destinationNode })),
-      };
-    }
-    return null;
-  });
+// export const getDomainSubTopics = (
+//   domainId: string
+// ): Promise<{ domain: Domain; subTopics: { relationship: TopicBelongsToDomain; topic: Topic }[] } | null> =>
+//   getRelatedNodes<Domain, TopicBelongsToDomain, Topic>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: { _id: domainId },
+//     },
+//     relationship: {
+//       label: TopicBelongsToDomainLabel,
+//       direction: 'IN',
+//     },
+//     destinationNode: {
+//       label: TopicLabel,
+//       filter: { hidden: false },
+//     },
+//   }).then(items => {
+//     if (items.length) {
+//       return {
+//         domain: items[0].originNode,
+//         subTopics: items.map(({ relationship, destinationNode }) => ({ relationship, topic: destinationNode })),
+//       };
+//     }
+//     return null;
+//   });

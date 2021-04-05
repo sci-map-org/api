@@ -1,21 +1,21 @@
 import { UserInputError } from 'apollo-server-koa';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
-  attachDomainBelongsToDomain,
+  // attachDomainBelongsToDomain,
   countDomainConcepts,
   countDomainLearningMaterials,
   createDomain,
   deleteDomain,
-  detachDomainBelongsToDomain,
+  // detachDomainBelongsToDomain,
   findDomain,
   getDomainConcepts,
   getDomainLearningGoals,
   getDomainLearningMaterials,
-  getDomainParentDomains,
+  // getDomainParentDomains,
   getDomainPublicLearningPaths,
   getDomainResources,
-  getDomainSubDomains,
-  getDomainSubTopics,
+  // getDomainSubDomains,
+  // getDomainSubTopics,
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';
@@ -163,7 +163,6 @@ export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals']
 
 export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = async domain => {
   const result = await getTopicSubTopics(domain._id);
-  console.log(result);
   return result.map(({ parentTopic, subTopic, relationship }) => ({
     subTopic,
     ...relationship,

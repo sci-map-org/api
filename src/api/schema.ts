@@ -31,6 +31,7 @@ import {
   setConceptsUnKnownResolver,
   updateConceptBelongsToDomainResolver,
   updateConceptResolver,
+  getConceptSubTopicsResolver,
 } from './resolvers/concepts.resolvers';
 import {
   // addDomainBelongsToDomainResolver,
@@ -301,6 +302,7 @@ const resolvers: APIResolvers<APIContext> = {
     known: getConceptKnownResolver,
     referencingConcepts: getConceptReferencingConceptsResolver,
     referencedByConcepts: getConceptReferencedByConceptsResolver,
+    subTopics: getConceptSubTopicsResolver,
     // subConcepts: getConceptSubConceptsResolver,
     // parentConcepts: getConceptParentConceptsResolver,
     size: getConceptSizeResolver,
