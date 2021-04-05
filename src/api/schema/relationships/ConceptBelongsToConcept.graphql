@@ -6,17 +6,17 @@
 #   index: Float
 # }
 
-type UpdateConceptBelongsToConceptResult {
-  parentConcept: Concept!
-  subConcept: Concept!
-}
+# type UpdateConceptBelongsToConceptResult {
+#   parentConcept: Concept!
+#   subConcept: Concept!
+# }
 
-type Mutation {
-  addConceptBelongsToConcept(parentConceptId: String!, subConceptId: String!): UpdateConceptBelongsToConceptResult!
-  removeConceptBelongsToConcept(parentConceptId: String!, subConceptId: String!): UpdateConceptBelongsToConceptResult!
+# type Mutation {
+  # addConceptBelongsToConcept(parentConceptId: String!, subConceptId: String!): UpdateConceptBelongsToConceptResult!
+  # removeConceptBelongsToConcept(parentConceptId: String!, subConceptId: String!): UpdateConceptBelongsToConceptResult!
   # updateConceptBelongsToConcept(
   #   parentConceptId: String!
   #   subConceptId: String!
   #   payload: UpdateConceptBelongsToConceptPayload!
   # ): Concept! # TODO return parent concept
-}
+# }

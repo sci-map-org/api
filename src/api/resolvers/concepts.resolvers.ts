@@ -2,21 +2,17 @@ import { omit } from 'lodash';
 import { Concept } from '../../entities/Concept';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
-  attachConceptBelongsToConcept,
   attachConceptReferencesConcept,
   attachConceptToDomain,
   createConcept,
   deleteConcept,
-  detachConceptBelongsToConcept,
   detachConceptReferencesConcept,
   findConcept,
   findDomainConceptByKey,
   getConceptCoveredByResources,
   getConceptDomain,
-  getConceptParentConcepts,
   getConceptsReferencedByConcept,
   getConceptsReferencingConcept,
-  getConceptSubConcepts,
   getUserKnowsConcept,
   updateConcept,
   updateConceptBelongsToDomain,
@@ -47,17 +43,17 @@ export const getDomainConceptByKeyResolver: APIQueryResolvers['getDomainConceptB
   return toAPIConcept(concept);
 };
 
-export const addConceptToDomainResolver: APIMutationResolvers['addConceptToDomain'] = async (
-  _parent,
-  { payload, domainId },
-  ctx
-) => {
-  restrictAccess('contributorOrAdmin', ctx.user, 'Must be logged in and a contributor or an admin to create a concept');
-  const index = payload.index || 10000000;
-  const createdConcept = await createConcept({ _id: ctx.user!._id }, nullToUndefined(omit(payload, 'index')));
-  await attachConceptToDomain(createdConcept._id, domainId, { index });
-  return toAPIConcept(createdConcept);
-};
+// export const addConceptToDomainResolver: APIMutationResolvers['addConceptToDomain'] = async (
+//   _parent,
+//   { payload, domainId },
+//   ctx
+// ) => {
+//   restrictAccess('contributorOrAdmin', ctx.user, 'Must be logged in and a contributor or an admin to create a concept');
+//   const index = payload.index || 10000000;
+//   const createdConcept = await createConcept({ _id: ctx.user!._id }, nullToUndefined(omit(payload, 'index')));
+//   await attachConceptToDomain(createdConcept._id, domainId, { index });
+//   return toAPIConcept(createdConcept);
+// };
 
 export const updateConceptResolver: APIMutationResolvers['updateConcept'] = async (_parent, { _id, payload }, ctx) => {
   restrictAccess('contributorOrAdmin', ctx.user, 'Must be logged in and a contributor or an admin to update a concept');
@@ -176,40 +172,40 @@ export const getConceptReferencedByConceptsResolver: APIConceptResolvers['refere
   return getConceptsReferencingConcept({ _id: concept._id });
 };
 
-export const addConceptBelongsToConceptResolver: APIMutationResolvers['addConceptBelongsToConcept'] = async (
-  _p,
-  { parentConceptId, subConceptId },
-  { user }
-) => {
-  restrictAccess(
-    'contributorOrAdmin',
-    user,
-    'Must be logged in and an admin or contributor to modify concept grouping relationships'
-  );
+// export const addConceptBelongsToConceptResolver: APIMutationResolvers['addConceptBelongsToConcept'] = async (
+//   _p,
+//   { parentConceptId, subConceptId },
+//   { user }
+// ) => {
+//   restrictAccess(
+//     'contributorOrAdmin',
+//     user,
+//     'Must be logged in and an admin or contributor to modify concept grouping relationships'
+//   );
 
-  const { parentConcept, subConcept } = await attachConceptBelongsToConcept(parentConceptId, subConceptId);
-  return { parentConcept, subConcept };
-};
-export const removeConceptBelongsToConceptResolver: APIMutationResolvers['removeConceptBelongsToConcept'] = async (
-  _p,
-  { parentConceptId, subConceptId },
-  { user }
-) => {
-  restrictAccess(
-    'contributorOrAdmin',
-    user,
-    'Must be logged in and an admin or contributor to modify concept grouping relationships'
-  );
-  const { parentConcept, subConcept } = await detachConceptBelongsToConcept(parentConceptId, subConceptId);
-  return { parentConcept, subConcept };
-};
+//   const { parentConcept, subConcept } = await attachConceptBelongsToConcept(parentConceptId, subConceptId);
+//   return { parentConcept, subConcept };
+// };
+// export const removeConceptBelongsToConceptResolver: APIMutationResolvers['removeConceptBelongsToConcept'] = async (
+//   _p,
+//   { parentConceptId, subConceptId },
+//   { user }
+// ) => {
+//   restrictAccess(
+//     'contributorOrAdmin',
+//     user,
+//     'Must be logged in and an admin or contributor to modify concept grouping relationships'
+//   );
+//   const { parentConcept, subConcept } = await detachConceptBelongsToConcept(parentConceptId, subConceptId);
+//   return { parentConcept, subConcept };
+// };
 
-export const getConceptSubConceptsResolver: APIConceptResolvers['subConcepts'] = async concept => {
-  return getConceptSubConcepts({ _id: concept._id });
-};
-export const getConceptParentConceptsResolver: APIConceptResolvers['parentConcepts'] = async concept => {
-  return getConceptParentConcepts({ _id: concept._id });
-};
+// export const getConceptSubConceptsResolver: APIConceptResolvers['subConcepts'] = async concept => {
+//   return getConceptSubConcepts({ _id: concept._id });
+// };
+// export const getConceptParentConceptsResolver: APIConceptResolvers['parentConcepts'] = async concept => {
+//   return getConceptParentConcepts({ _id: concept._id });
+// };
 
 export const getConceptSizeResolver: APIConceptResolvers['size'] = async concept => {
   return getTopicSize(concept._id);

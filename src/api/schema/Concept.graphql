@@ -71,7 +71,7 @@ type Query {
 }
 
 type Mutation {
-  addConceptToDomain(domainId: String!, payload: AddConceptToDomainPayload!): Concept!
+  # addConceptToDomain(domainId: String!, payload: AddConceptToDomainPayload!): Concept!
   updateConcept(_id: String!, payload: UpdateConceptPayload!): Concept!
   deleteConcept(_id: String!): DeleteConceptResult!
   setConceptsKnown(payload: SetConceptKnownPayload!): [Concept!]!

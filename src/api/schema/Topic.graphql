@@ -13,15 +13,16 @@ interface ITopic {
   #
 }
 
-# type Topic implements ITopic {
-#   _id: String!
-#   name: String!
-#   key: String!
-#   description: String
-#   topicType: TopicType!
-#   size: Float
-#   subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-# }
+type Topic implements ITopic {
+  _id: String!
+  name: String!
+  key: String!
+  description: String
+  topicType: TopicType!
+  size: Float
+  parentTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+}
 
 enum TopicSubTopicsSortingType {
   index

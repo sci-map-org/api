@@ -19,7 +19,7 @@ import {
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';
-import { getTopicSize } from '../../repositories/topics.repository';
+import { getTopicSize, getTopicSubTopics } from '../../repositories/topics.repository';
 import {
   APIDomainConceptsResultsResolvers,
   APIDomainLearningMaterialsSortingType,
@@ -118,40 +118,40 @@ export const getDomainLearningMaterialsTotalCountResolver: APIDomainResolvers['l
   return await countDomainLearningMaterials(domain._id);
 };
 
-export const addDomainBelongsToDomainResolver: APIMutationResolvers['addDomainBelongsToDomain'] = async (
-  _p,
-  { parentDomainId, subDomainId },
-  { user }
-) => {
-  restrictAccess(
-    'contributorOrAdmin',
-    user,
-    'Must be logged in and an admin or contributor to modify Domain grouping relationships'
-  );
+// export const addDomainBelongsToDomainResolver: APIMutationResolvers['addDomainBelongsToDomain'] = async (
+//   _p,
+//   { parentDomainId, subDomainId },
+//   { user }
+// ) => {
+//   restrictAccess(
+//     'contributorOrAdmin',
+//     user,
+//     'Must be logged in and an admin or contributor to modify Domain grouping relationships'
+//   );
 
-  const { parentDomain, subDomain } = await attachDomainBelongsToDomain(parentDomainId, subDomainId);
-  return { parentDomain, subDomain };
-};
-export const removeDomainBelongsToDomainResolver: APIMutationResolvers['removeDomainBelongsToDomain'] = async (
-  _p,
-  { parentDomainId, subDomainId },
-  { user }
-) => {
-  restrictAccess(
-    'contributorOrAdmin',
-    user,
-    'Must be logged in and an admin or contributor to modify Domain grouping relationships'
-  );
-  const { parentDomain, subDomain } = await detachDomainBelongsToDomain(parentDomainId, subDomainId);
-  return { parentDomain, subDomain };
-};
+//   const { parentDomain, subDomain } = await attachDomainBelongsToDomain(parentDomainId, subDomainId);
+//   return { parentDomain, subDomain };
+// };
+// export const removeDomainBelongsToDomainResolver: APIMutationResolvers['removeDomainBelongsToDomain'] = async (
+//   _p,
+//   { parentDomainId, subDomainId },
+//   { user }
+// ) => {
+//   restrictAccess(
+//     'contributorOrAdmin',
+//     user,
+//     'Must be logged in and an admin or contributor to modify Domain grouping relationships'
+//   );
+//   const { parentDomain, subDomain } = await detachDomainBelongsToDomain(parentDomainId, subDomainId);
+//   return { parentDomain, subDomain };
+// };
 
-export const getDomainSubDomainsResolver: APIDomainResolvers['subDomains'] = async domain => {
-  return getDomainSubDomains({ _id: domain._id });
-};
-export const getDomainParentDomainsResolver: APIDomainResolvers['parentDomains'] = async domain => {
-  return getDomainParentDomains({ _id: domain._id });
-};
+// export const getDomainSubDomainsResolver: APIDomainResolvers['subDomains'] = async domain => {
+//   return getDomainSubDomains({ _id: domain._id });
+// };
+// export const getDomainParentDomainsResolver: APIDomainResolvers['parentDomains'] = async domain => {
+//   return getDomainParentDomains({ _id: domain._id });
+// };
 
 export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals'] = async domain => {
   return (await getDomainLearningGoals(domain._id)).map(({ learningGoal, relationship, domain }) => ({
@@ -162,12 +162,12 @@ export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals']
 };
 
 export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = async domain => {
-  const result = await getDomainSubTopics(domain._id);
-  if (!result) throw new NotFoundError('Domain', domain._id);
-  return result.subTopics.map(({ topic, relationship }) => ({
-    topic,
+  const result = await getTopicSubTopics(domain._id);
+  console.log(result);
+  return result.map(({ parentTopic, subTopic, relationship }) => ({
+    subTopic,
     ...relationship,
-    domain: result.domain,
+    parentTopic,
   }));
 };
 

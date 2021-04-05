@@ -2,7 +2,6 @@ import { makeExecutableSchema } from 'apollo-server-koa';
 import { GraphQLScalarType } from 'graphql';
 import { importSchema } from 'graphql-import';
 import { TopicType } from '../entities/Topic';
-import { getLearningGoalRating } from '../repositories/learning_goals.repository';
 import {
   createArticleResolver,
   deleteArticleResolver,
@@ -12,21 +11,21 @@ import {
   updateArticleResolver,
 } from './resolvers/articles.resolvers';
 import {
-  addConceptBelongsToConceptResolver,
+  // addConceptBelongsToConceptResolver,
   addConceptReferencesConceptResolver,
-  addConceptToDomainResolver,
+  // addConceptToDomainResolver,
   deleteConceptResolver,
   getConceptCoveredByResourcesResolver,
   getConceptDomainResolver,
   getConceptKnownResolver,
-  getConceptParentConceptsResolver,
+  // getConceptParentConceptsResolver,
   getConceptReferencedByConceptsResolver,
   getConceptReferencingConceptsResolver,
   getConceptResolver,
   getConceptSizeResolver,
-  getConceptSubConceptsResolver,
+  // getConceptSubConceptsResolver,
   getDomainConceptByKeyResolver,
-  removeConceptBelongsToConceptResolver,
+  // removeConceptBelongsToConceptResolver,
   removeConceptReferencesConceptResolver,
   setConceptsKnownResolver,
   setConceptsUnKnownResolver,
@@ -34,7 +33,7 @@ import {
   updateConceptResolver,
 } from './resolvers/concepts.resolvers';
 import {
-  addDomainBelongsToDomainResolver,
+  // addDomainBelongsToDomainResolver,
   createDomainResolver,
   deleteDomainResolver,
   getDomainByKeyResolver,
@@ -44,12 +43,12 @@ import {
   getDomainLearningMaterialsResolver,
   getDomainLearningMaterialsTotalCountResolver,
   getDomainLearningPathsResolver,
-  getDomainParentDomainsResolver,
+  // getDomainParentDomainsResolver,
   getDomainResourcesResolver,
   getDomainSizeResolver,
-  getDomainSubDomainsResolver,
+  // getDomainSubDomainsResolver,
   getDomainSubTopicsResolver,
-  removeDomainBelongsToDomainResolver,
+  // removeDomainBelongsToDomainResolver,
   searchDomainsResolver,
   updateDomainResolver,
 } from './resolvers/domains.resolvers';
@@ -198,7 +197,7 @@ const resolvers: APIResolvers<APIContext> = {
     deleteResource: deleteResourceResolver,
     attachLearningMaterialToDomain: attachLearningMaterialToDomainResolver,
     detachLearningMaterialFromDomain: detachLearningMaterialFromDomainResolver,
-    addConceptToDomain: addConceptToDomainResolver,
+    // addConceptToDomain: addConceptToDomainResolver,
     updateConceptBelongsToDomain: updateConceptBelongsToDomainResolver,
     updateConcept: updateConceptResolver,
     deleteConcept: deleteConceptResolver,
@@ -212,10 +211,10 @@ const resolvers: APIResolvers<APIContext> = {
     voteResource: voteResourceResolver,
     addConceptReferencesConcept: addConceptReferencesConceptResolver,
     removeConceptReferencesConcept: removeConceptReferencesConceptResolver,
-    addConceptBelongsToConcept: addConceptBelongsToConceptResolver,
-    removeConceptBelongsToConcept: removeConceptBelongsToConceptResolver,
-    addDomainBelongsToDomain: addDomainBelongsToDomainResolver,
-    removeDomainBelongsToDomain: removeDomainBelongsToDomainResolver,
+    // addConceptBelongsToConcept: addConceptBelongsToConceptResolver,
+    // removeConceptBelongsToConcept: removeConceptBelongsToConceptResolver,
+    // addDomainBelongsToDomain: addDomainBelongsToDomainResolver,
+    // removeDomainBelongsToDomain: removeDomainBelongsToDomainResolver,
     addSubResource: addSubResourceResolver,
     createSubResourceSeries: createSubResourceSeriesResolver,
     addSubResourceToSeries: addSubResourceToSeriesResolver,
@@ -287,8 +286,8 @@ const resolvers: APIResolvers<APIContext> = {
     concepts: getDomainConceptsResolver,
     conceptTotalCount: getDomainConceptTotalCountResolver,
     resources: getDomainResourcesResolver,
-    subDomains: getDomainSubDomainsResolver,
-    parentDomains: getDomainParentDomainsResolver,
+    // subDomains: getDomainSubDomainsResolver,
+    // parentDomains: getDomainParentDomainsResolver,
     learningPaths: getDomainLearningPathsResolver,
     learningMaterials: getDomainLearningMaterialsResolver,
     learningMaterialsTotalCount: getDomainLearningMaterialsTotalCountResolver,
@@ -302,8 +301,8 @@ const resolvers: APIResolvers<APIContext> = {
     known: getConceptKnownResolver,
     referencingConcepts: getConceptReferencingConceptsResolver,
     referencedByConcepts: getConceptReferencedByConceptsResolver,
-    subConcepts: getConceptSubConceptsResolver,
-    parentConcepts: getConceptParentConceptsResolver,
+    // subConcepts: getConceptSubConceptsResolver,
+    // parentConcepts: getConceptParentConceptsResolver,
     size: getConceptSizeResolver,
   },
   Resource: {
@@ -355,7 +354,7 @@ const resolvers: APIResolvers<APIContext> = {
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,
   },
-  Topic: {
+  ITopic: {
     __resolveType: topicResolveType,
   },
   SubGoal: {
