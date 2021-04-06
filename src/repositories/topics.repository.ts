@@ -4,7 +4,7 @@ import { TopicBelongsToDomainLabel } from '../entities/relationships/TopicBelong
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
 import { Topic, TopicLabel, TopicType } from '../entities/Topic';
 import { neo4jQb, neo4jDriver } from '../infra/neo4j';
-import { attachUniqueNodes, getRelatedNodes } from './util/abstract_graph_repo';
+import { attachUniqueNodes, detachUniqueNodes, getRelatedNodes } from './util/abstract_graph_repo';
 import { SortingDirection } from './util/sorting';
 
 export const searchTopics = async (
@@ -182,5 +182,29 @@ export const updateTopicIsSubTopicOfTopic = (
       parentTopic: destinationNode,
       relationship,
       subTopic: originNode,
+    };
+  });
+
+export const detachTopicIsSubTopicOfTopic = (
+  parentTopicId: string,
+  subTopicId: string
+): Promise<{ subTopic: Topic; parentTopic: Topic }> =>
+  detachUniqueNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: subTopicId },
+    },
+    relationship: {
+      label: TopicIsSubTopicOfTopicLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: TopicLabel,
+      filter: { _id: parentTopicId },
+    },
+  }).then(({ originNode, destinationNode }) => {
+    return {
+      subTopic: originNode,
+      parentTopic: destinationNode,
     };
   });

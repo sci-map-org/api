@@ -14,6 +14,10 @@ input UpdateTopicIsSubTopicOfTopicPayload {
   index: Float
   # strength
 }
+type DetachTopicIsSubTopicOfTopicResult {
+  parentTopic: ITopic!
+  subTopic: ITopic!
+}
 
 type Mutation {
   attachTopicIsSubTopicOfTopic(
@@ -26,5 +30,5 @@ type Mutation {
     subTopicId: String!
     payload: UpdateTopicIsSubTopicOfTopicPayload!
   ): TopicIsSubTopicOfTopic!
-  detachTopicIsSubTopicOfTopic(parentTopicId: String!, subTopicId: String!): TopicIsSubTopicOfTopic!
+  detachTopicIsSubTopicOfTopic(parentTopicId: String!, subTopicId: String!): DetachTopicIsSubTopicOfTopicResult!
 }

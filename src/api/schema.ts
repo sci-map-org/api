@@ -157,6 +157,7 @@ import {
   getTopicSubTopicsResolver,
   attachTopicIsSubTopicOfTopicResolver,
   updateTopicIsSubTopicOfTopicResolver,
+  detachTopicIsSubTopicOfTopicResolver,
 } from './resolvers/topics.resolvers';
 import {
   adminUpdateUserResolver,
@@ -243,6 +244,7 @@ const resolvers: APIResolvers<APIContext> = {
     detachLearningGoalDependency: detachLearningGoalDependencyResolver,
     attachTopicIsSubTopicOfTopic: attachTopicIsSubTopicOfTopicResolver,
     updateTopicIsSubTopicOfTopic: updateTopicIsSubTopicOfTopicResolver,
+    detachTopicIsSubTopicOfTopic: detachTopicIsSubTopicOfTopicResolver,
   },
   Query: {
     currentUser: currentUserResolver,

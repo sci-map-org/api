@@ -336,7 +336,7 @@ export type APIMutation = {
   detachLearningGoalRequiresSubGoal: APIDetachLearningGoalRequiresSubGoalResult;
   detachLearningMaterialCoversConcepts: APILearningMaterial;
   detachLearningMaterialFromDomain: APILearningMaterial;
-  detachTopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic;
+  detachTopicIsSubTopicOfTopic: APIDetachTopicIsSubTopicOfTopicResult;
   indexLearningGoal: APILearningGoalIndexedResult;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
@@ -1812,6 +1812,12 @@ export type APIAttachTopicIsSubTopicOfTopicPayload = {
   index?: Maybe<Scalars['Float']>;
 };
 
+export type APIDetachTopicIsSubTopicOfTopicResult = {
+   __typename?: 'DetachTopicIsSubTopicOfTopicResult';
+  parentTopic: APIITopic;
+  subTopic: APIITopic;
+};
+
 export type APIConceptBelongsToDomain = {
    __typename?: 'ConceptBelongsToDomain';
   index: Scalars['Float'];
@@ -2083,6 +2089,7 @@ export type APIResolversTypes = ResolversObject<{
   UpdateConceptReferencesConceptResult: ResolverTypeWrapper<APIUpdateConceptReferencesConceptResult>,
   TopicIsSubTopicOfTopic: ResolverTypeWrapper<APITopicIsSubTopicOfTopic>,
   AttachTopicIsSubTopicOfTopicPayload: APIAttachTopicIsSubTopicOfTopicPayload,
+  DetachTopicIsSubTopicOfTopicResult: ResolverTypeWrapper<APIDetachTopicIsSubTopicOfTopicResult>,
   ConceptBelongsToDomain: ResolverTypeWrapper<APIConceptBelongsToDomain>,
   UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
   UpdateTopicIsSubTopicOfTopicPayload: APIUpdateTopicIsSubTopicOfTopicPayload,
@@ -2259,6 +2266,7 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateConceptReferencesConceptResult: APIUpdateConceptReferencesConceptResult,
   TopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic,
   AttachTopicIsSubTopicOfTopicPayload: APIAttachTopicIsSubTopicOfTopicPayload,
+  DetachTopicIsSubTopicOfTopicResult: APIDetachTopicIsSubTopicOfTopicResult,
   ConceptBelongsToDomain: APIConceptBelongsToDomain,
   UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
   UpdateTopicIsSubTopicOfTopicPayload: APIUpdateTopicIsSubTopicOfTopicPayload,
@@ -2348,7 +2356,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   detachLearningGoalRequiresSubGoal?: Resolver<APIResolversTypes['DetachLearningGoalRequiresSubGoalResult'], ParentType, ContextType, RequireFields<APIMutationDetachLearningGoalRequiresSubGoalArgs, 'learningGoalId' | 'subGoalId'>>,
   detachLearningMaterialCoversConcepts?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialCoversConceptsArgs, 'conceptIds' | 'learningMaterialId'>>,
   detachLearningMaterialFromDomain?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialFromDomainArgs, 'domainId' | 'learningMaterialId'>>,
-  detachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['TopicIsSubTopicOfTopic'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId'>>,
+  detachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['DetachTopicIsSubTopicOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId'>>,
   indexLearningGoal?: Resolver<APIResolversTypes['LearningGoalIndexedResult'], ParentType, ContextType, RequireFields<APIMutationIndexLearningGoalArgs, 'learningGoalId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
@@ -2974,6 +2982,12 @@ export type APITopicIsSubTopicOfTopicResolvers<ContextType = APIContext, ParentT
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APIDetachTopicIsSubTopicOfTopicResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DetachTopicIsSubTopicOfTopicResult'] = APIResolversParentTypes['DetachTopicIsSubTopicOfTopicResult']> = ResolversObject<{
+  parentTopic?: Resolver<APIResolversTypes['ITopic'], ParentType, ContextType>,
+  subTopic?: Resolver<APIResolversTypes['ITopic'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIConceptBelongsToDomainResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptBelongsToDomain'] = APIResolversParentTypes['ConceptBelongsToDomain']> = ResolversObject<{
   index?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
@@ -3079,6 +3093,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Date?: GraphQLScalarType,
   UpdateConceptReferencesConceptResult?: APIUpdateConceptReferencesConceptResultResolvers<ContextType>,
   TopicIsSubTopicOfTopic?: APITopicIsSubTopicOfTopicResolvers<ContextType>,
+  DetachTopicIsSubTopicOfTopicResult?: APIDetachTopicIsSubTopicOfTopicResultResolvers<ContextType>,
   ConceptBelongsToDomain?: APIConceptBelongsToDomainResolvers<ContextType>,
   LearningGoalBelongsToDomain?: APILearningGoalBelongsToDomainResolvers<ContextType>,
   ConceptReferencesConcept?: APIConceptReferencesConceptResolvers<ContextType>,

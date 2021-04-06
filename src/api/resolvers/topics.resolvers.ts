@@ -5,6 +5,7 @@ import { findDomain } from '../../repositories/domains.repository';
 import { findLearningGoal } from '../../repositories/learning_goals.repository';
 import {
   attachTopicIsSubTopicOfTopic,
+  detachTopicIsSubTopicOfTopic,
   getTopicSubTopics,
   searchSubTopics,
   searchTopics,
@@ -74,6 +75,16 @@ export const updateTopicIsSubTopicOfTopicResolver: APIMutationResolvers['updateT
     index: payload.index || undefined,
   });
   return { parentTopic, subTopic, ...relationship };
+};
+
+export const detachTopicIsSubTopicOfTopicResolver: APIMutationResolvers['detachTopicIsSubTopicOfTopic'] = async (
+  _,
+  { parentTopicId, subTopicId },
+  { user }
+) => {
+  restrictAccess('contributorOrAdmin', user, 'Must be logged in');
+
+  return await detachTopicIsSubTopicOfTopic(parentTopicId, subTopicId);
 };
 
 export const getTopicSubTopicsResolver: APIITopicResolvers['subTopics'] = async (topic, { options }) => {
