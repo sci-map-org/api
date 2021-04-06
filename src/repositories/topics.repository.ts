@@ -4,7 +4,7 @@ import { TopicBelongsToDomainLabel } from '../entities/relationships/TopicBelong
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
 import { Topic, TopicLabel, TopicType } from '../entities/Topic';
 import { neo4jQb, neo4jDriver } from '../infra/neo4j';
-import { getRelatedNodes } from './util/abstract_graph_repo';
+import { attachUniqueNodes, getRelatedNodes } from './util/abstract_graph_repo';
 import { SortingDirection } from './util/sorting';
 
 export const searchTopics = async (
@@ -139,3 +139,48 @@ export const getTopicParentTopics = (
       subTopic: originNode,
     }))
   );
+
+export const attachTopicIsSubTopicOfTopic = (
+  parentTopicId: string,
+  subTopicId: string,
+  { index, createdByUserId }: { index: number; createdByUserId?: string }
+): Promise<{
+  parentTopic: Topic;
+  relationship: TopicIsSubTopicOfTopic;
+  subTopic: Topic;
+}> =>
+  attachUniqueNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: subTopicId } },
+    relationship: {
+      label: TopicIsSubTopicOfTopicLabel,
+      onCreateProps: { index, createdAt: Date.now(), createdByUserId },
+    },
+    destinationNode: { label: TopicLabel, filter: { _id: parentTopicId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      parentTopic: destinationNode,
+      relationship,
+      subTopic: originNode,
+    };
+  });
+
+export const updateTopicIsSubTopicOfTopic = (
+  parentTopicId: string,
+  subTopicId: string,
+  { index }: { index?: number }
+): Promise<{
+  parentTopic: Topic;
+  relationship: TopicIsSubTopicOfTopic;
+  subTopic: Topic;
+}> =>
+  attachUniqueNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: subTopicId } },
+    relationship: { label: TopicIsSubTopicOfTopicLabel, onMergeProps: { ...(!!index && { index }) } },
+    destinationNode: { label: TopicLabel, filter: { _id: parentTopicId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      parentTopic: destinationNode,
+      relationship,
+      subTopic: originNode,
+    };
+  });

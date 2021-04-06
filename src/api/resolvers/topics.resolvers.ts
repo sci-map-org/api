@@ -1,12 +1,20 @@
+import { SUBTOPIC_DEFAULT_INDEX_VALUE } from '../../entities/relationships/TopicIsSubTopicOfTopic';
 import { Topic } from '../../entities/Topic';
 import { findDomainConceptByKey } from '../../repositories/concepts.repository';
 import { findDomain } from '../../repositories/domains.repository';
 import { findLearningGoal } from '../../repositories/learning_goals.repository';
-import { getTopicSubTopics, searchSubTopics, searchTopics } from '../../repositories/topics.repository';
-import { APIITopicResolvers, APIQueryResolvers, APITopicResolvers, TopicType } from '../schema/types';
+import {
+  attachTopicIsSubTopicOfTopic,
+  getTopicSubTopics,
+  searchSubTopics,
+  searchTopics,
+  updateTopicIsSubTopicOfTopic,
+} from '../../repositories/topics.repository';
+import { APIITopicResolvers, APIMutationResolvers, APIQueryResolvers, TopicType } from '../schema/types';
+import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 
-export const topicResolveType: APITopicResolvers['__resolveType'] = (obj, ctx, info) => {
+export const topicResolveType: APIITopicResolvers['__resolveType'] = (obj, ctx, info) => {
   return obj.topicType;
 };
 
@@ -39,6 +47,33 @@ export const checkTopicKeyAvailabilityResolver: APIQueryResolvers['checkTopicKey
     available: !existingTopic,
     existingTopic,
   };
+};
+
+export const attachTopicIsSubTopicOfTopicResolver: APIMutationResolvers['attachTopicIsSubTopicOfTopic'] = async (
+  _,
+  { parentTopicId, subTopicId, payload },
+  { user }
+) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in');
+
+  const { parentTopic, subTopic, relationship } = await attachTopicIsSubTopicOfTopic(parentTopicId, subTopicId, {
+    index: payload.index || SUBTOPIC_DEFAULT_INDEX_VALUE,
+    createdByUserId: user?._id,
+  });
+  return { parentTopic, subTopic, ...relationship };
+};
+
+export const updateTopicIsSubTopicOfTopicResolver: APIMutationResolvers['updateTopicIsSubTopicOfTopic'] = async (
+  _,
+  { parentTopicId, subTopicId, payload },
+  { user }
+) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in');
+
+  const { parentTopic, subTopic, relationship } = await updateTopicIsSubTopicOfTopic(parentTopicId, subTopicId, {
+    index: payload.index || undefined,
+  });
+  return { parentTopic, subTopic, ...relationship };
 };
 
 export const getTopicSubTopicsResolver: APIITopicResolvers['subTopics'] = async (topic, { options }) => {

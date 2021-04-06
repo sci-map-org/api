@@ -13,16 +13,16 @@ interface ITopic {
   #
 }
 
-type Topic implements ITopic {
-  _id: String!
-  name: String!
-  key: String!
-  description: String
-  topicType: TopicType!
-  size: Float
-  parentTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-}
+# type Topic implements ITopic {
+#   _id: String!
+#   name: String!
+#   key: String!
+#   description: String
+#   topicType: TopicType!
+#   size: Float
+#   parentTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+#   subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+# }
 
 enum TopicSubTopicsSortingType {
   index
@@ -63,19 +63,27 @@ type CheckTopicKeyAvailabilityResult {
   existingTopic: ITopic
 }
 
-input AddSubTopicPayload {
-  index: Float
-  name: String!
-}
+# input NewTopicData {
+#   topicType: TopicType! # can be Concept / LearningGoal / Domain(only for contributors though) / null (for other stuff) ?
+#   name: String!
+#   key: String!
+#   description: String
+# }
+# input AddSubTopicPayload {
+#   index: Float
+#   parentTopicId: String!
+#   domainId: String!
+#   topicData: NewTopicData!
+# }
 
-type AddSubTopicResult {
-  parentTopic: ITopic!
-  subTopic: ITopic!
-}
+# type AddSubTopicResult {
+#   parentTopic: ITopic!
+#   subTopic: ITopic!
+# }
 
-type Mutation {
-  addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
-}
+# type Mutation {
+#   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
+# }
 type Query {
   searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
   searchSubTopics(domainId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
