@@ -45,7 +45,7 @@ export const getTopicSubTopicsResolver: APIITopicResolvers['subTopics'] = async 
   const result = await getTopicSubTopics(
     topic._id,
     options.sorting,
-    options.topicsIn ? { topicTypeIn: options.topicsIn } : undefined
+    options.topicTypeIn ? { topicTypeIn: options.topicTypeIn } : undefined
   );
   return result.map(({ parentTopic, subTopic, relationship }) => ({
     subTopic,

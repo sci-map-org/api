@@ -105,3 +105,37 @@ export const getTopicSubTopics = (
       subTopic: destinationNode,
     }))
   );
+
+export const getTopicParentTopics = (
+  topicId: string,
+  sortingOptions: { type: 'index'; direction: SortingDirection },
+  filter?: { topicTypeIn?: TopicType[] }
+): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> =>
+  getRelatedNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: topicId },
+    },
+    relationship: {
+      label: TopicIsSubTopicOfTopicLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: TopicLabel,
+      ...(!!filter &&
+        filter.topicTypeIn && {
+          filter: { topicType: { $in: filter.topicTypeIn } },
+        }),
+    },
+    sorting: {
+      entity: 'relationship',
+      field: sortingOptions.type,
+      direction: sortingOptions.direction,
+    },
+  }).then(items =>
+    items.map(({ relationship, destinationNode, originNode }) => ({
+      parentTopic: destinationNode,
+      relationship,
+      subTopic: originNode,
+    }))
+  );

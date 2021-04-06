@@ -19,9 +19,8 @@ import {
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';
-import { getTopicSize, getTopicSubTopics } from '../../repositories/topics.repository';
+import { getTopicParentTopics, getTopicSize } from '../../repositories/topics.repository';
 import {
-  APIDomainConceptsResultsResolvers,
   APIDomainLearningMaterialsSortingType,
   APIDomainResolvers,
   APIMutationResolvers,
@@ -164,9 +163,18 @@ export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals']
 
 export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = getTopicSubTopicsResolver;
 
-// export const getDomainParentTopicsResolver: APIDomainResolvers['parentTopics'] = async domain => {
-
-// }
+export const getDomainParentTopicsResolver: APIDomainResolvers['parentTopics'] = async (topic, { options }) => {
+  const result = await getTopicParentTopics(
+    topic._id,
+    options.sorting,
+    options.topicTypeIn ? { topicTypeIn: options.topicTypeIn } : undefined
+  );
+  return result.map(({ parentTopic, subTopic, relationship }) => ({
+    subTopic,
+    ...relationship,
+    parentTopic,
+  }));
+};
 
 export const getDomainSizeResolver: APIDomainResolvers['size'] = async domain => {
   return getTopicSize(domain._id);

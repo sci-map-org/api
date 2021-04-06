@@ -1491,7 +1491,7 @@ export type APITopicSubTopicsSortingOptions = {
 
 export type APITopicSubTopicsOptions = {
   sorting: APITopicSubTopicsSortingOptions;
-  topicsIn?: Maybe<Array<TopicType>>;
+  topicTypeIn?: Maybe<Array<TopicType>>;
 };
 
 export { TopicType };

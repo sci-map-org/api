@@ -35,7 +35,7 @@ input TopicSubTopicsSortingOptions {
 
 input TopicSubTopicsOptions {
   sorting: TopicSubTopicsSortingOptions!
-  topicsIn: [TopicType!]
+  topicTypeIn: [TopicType!]
 }
 
 enum TopicType {

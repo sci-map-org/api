@@ -44,6 +44,7 @@ import {
   getDomainLearningMaterialsResolver,
   getDomainLearningMaterialsTotalCountResolver,
   getDomainLearningPathsResolver,
+  getDomainParentTopicsResolver,
   // getDomainParentDomainsResolver,
   getDomainResourcesResolver,
   getDomainSizeResolver,
@@ -296,6 +297,7 @@ const resolvers: APIResolvers<APIContext> = {
     learningMaterialsTotalCount: getDomainLearningMaterialsTotalCountResolver,
     learningGoals: getDomainLearningGoalsResolver,
     subTopics: getDomainSubTopicsResolver,
+    parentTopics: getDomainParentTopicsResolver,
     size: getDomainSizeResolver,
   },
   Concept: {
