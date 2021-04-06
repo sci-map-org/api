@@ -23,6 +23,7 @@ import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolver
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
+import { getTopicSubTopicsResolver } from './topics.resolvers';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;
@@ -211,11 +212,4 @@ export const getConceptSizeResolver: APIConceptResolvers['size'] = async concept
   return getTopicSize(concept._id);
 };
 
-export const getConceptSubTopicsResolver: APIConceptResolvers['subTopics'] = async concept => {
-  const result = await getTopicSubTopics(concept._id);
-  return result.map(({ parentTopic, subTopic, relationship }) => ({
-    subTopic,
-    ...relationship,
-    parentTopic,
-  }));
-};
+export const getConceptSubTopicsResolver: APIConceptResolvers['subTopics'] = getTopicSubTopicsResolver;

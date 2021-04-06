@@ -37,6 +37,7 @@ import { UnauthenticatedError, UnauthorizedError } from '../errors/Unauthenticat
 import { APILearningGoalResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
+import { getTopicSubTopicsResolver } from './topics.resolvers';
 
 const canUpdateLearningGoal = async (learningGoalId: string, user: JWTPayload): Promise<boolean> => {
   if (user.role === UserRole.ADMIN) return true;
@@ -365,6 +366,8 @@ export const getLearningGoalDependantsLearningGoalsResolver: APILearningGoalReso
 
 export const getLearningGoalRatingResolver: APILearningGoalResolvers['rating'] = learningGoal =>
   getLearningGoalRating(learningGoal._id);
+
+export const getLearningGoalSubTopicsResolver: APILearningGoalResolvers['subTopics'] = getTopicSubTopicsResolver;
 
 export const getLearningGoalSizeResolver: APILearningGoalResolvers['size'] = async learningGoal => {
   return getTopicSize(learningGoal._id);

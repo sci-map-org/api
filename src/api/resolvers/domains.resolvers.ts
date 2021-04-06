@@ -30,6 +30,7 @@ import {
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
+import { getTopicSubTopicsResolver } from './topics.resolvers';
 
 export const searchDomainsResolver: APIQueryResolvers['searchDomains'] = async (
   _parent,
@@ -161,14 +162,11 @@ export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals']
   }));
 };
 
-export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = async domain => {
-  const result = await getTopicSubTopics(domain._id);
-  return result.map(({ parentTopic, subTopic, relationship }) => ({
-    subTopic,
-    ...relationship,
-    parentTopic,
-  }));
-};
+export const getDomainSubTopicsResolver: APIDomainResolvers['subTopics'] = getTopicSubTopicsResolver;
+
+// export const getDomainParentTopicsResolver: APIDomainResolvers['parentTopics'] = async domain => {
+
+// }
 
 export const getDomainSizeResolver: APIDomainResolvers['size'] = async domain => {
   return getTopicSize(domain._id);

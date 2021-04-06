@@ -5,6 +5,7 @@ import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities
 import { Topic, TopicLabel, TopicType } from '../entities/Topic';
 import { neo4jQb, neo4jDriver } from '../infra/neo4j';
 import { getRelatedNodes } from './util/abstract_graph_repo';
+import { SortingDirection } from './util/sorting';
 
 export const searchTopics = async (
   query: string,
@@ -71,7 +72,9 @@ export const getTopicSize = async (_id: string): Promise<number> => {
 };
 
 export const getTopicSubTopics = (
-  topicId: string
+  topicId: string,
+  sortingOptions: { type: 'index'; direction: SortingDirection },
+  filter?: { topicTypeIn?: TopicType[] }
 ): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> =>
   getRelatedNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
     originNode: {
@@ -84,7 +87,16 @@ export const getTopicSubTopics = (
     },
     destinationNode: {
       label: TopicLabel,
-      // filter: { hidden: false },
+      ...(!!filter &&
+        filter.topicTypeIn && {
+          filter: { topicType: { $in: filter.topicTypeIn } },
+        }),
+      // filter: { hidden: false }, TODO
+    },
+    sorting: {
+      entity: 'relationship',
+      field: sortingOptions.type,
+      direction: sortingOptions.direction,
     },
   }).then(items =>
     items.map(({ relationship, destinationNode, originNode }) => ({

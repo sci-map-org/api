@@ -76,6 +76,7 @@ import {
   getLearningGoalSizeResolver,
   getLearningGoalStartedByResolver,
   getLearningGoalStartedResolver,
+  getLearningGoalSubTopicsResolver,
   indexLearningGoalResolver,
   publishLearningGoalResolver,
   rateLearningGoalResolver,
@@ -156,6 +157,7 @@ import {
   searchSubTopicsResolver,
   searchTopicsResolver,
   topicResolveType,
+  getTopicSubTopicsResolver,
 } from './resolvers/topics.resolvers';
 import {
   adminUpdateUserResolver,
@@ -352,6 +354,7 @@ const resolvers: APIResolvers<APIContext> = {
     dependsOnLearningGoals: getLearningGoalDependsOnLearningGoalsResolver,
     dependantLearningGoals: getLearningGoalDependantsLearningGoalsResolver,
     size: getLearningGoalSizeResolver,
+    subTopics: getLearningGoalSubTopicsResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,

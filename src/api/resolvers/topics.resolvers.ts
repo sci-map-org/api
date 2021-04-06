@@ -2,8 +2,8 @@ import { Topic } from '../../entities/Topic';
 import { findDomainConceptByKey } from '../../repositories/concepts.repository';
 import { findDomain } from '../../repositories/domains.repository';
 import { findLearningGoal } from '../../repositories/learning_goals.repository';
-import { searchSubTopics, searchTopics } from '../../repositories/topics.repository';
-import { APIQueryResolvers, APITopicResolvers, TopicType } from '../schema/types';
+import { getTopicSubTopics, searchSubTopics, searchTopics } from '../../repositories/topics.repository';
+import { APIITopicResolvers, APIQueryResolvers, APITopicResolvers, TopicType } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 
 export const topicResolveType: APITopicResolvers['__resolveType'] = (obj, ctx, info) => {
@@ -39,4 +39,17 @@ export const checkTopicKeyAvailabilityResolver: APIQueryResolvers['checkTopicKey
     available: !existingTopic,
     existingTopic,
   };
+};
+
+export const getTopicSubTopicsResolver: APIITopicResolvers['subTopics'] = async (topic, { options }) => {
+  const result = await getTopicSubTopics(
+    topic._id,
+    options.sorting,
+    options.topicsIn ? { topicTypeIn: options.topicsIn } : undefined
+  );
+  return result.map(({ parentTopic, subTopic, relationship }) => ({
+    subTopic,
+    ...relationship,
+    parentTopic,
+  }));
 };
