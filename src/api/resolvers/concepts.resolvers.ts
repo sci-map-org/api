@@ -1,6 +1,7 @@
 import { omit } from 'lodash';
 import { Concept } from '../../entities/Concept';
 import { NotFoundError } from '../../errors/NotFoundError';
+import { logger } from '../../infra/logger';
 import {
   attachConceptReferencesConcept,
   attachConceptToDomain,
@@ -17,9 +18,20 @@ import {
   updateConcept,
   updateConceptBelongsToDomain,
 } from '../../repositories/concepts.repository';
-import { attachTopicIsSubTopicOfTopic, getTopicSize, getTopicSubTopics } from '../../repositories/topics.repository';
+import {
+  attachTopicIsSubTopicOfTopic,
+  getTopicParentTopics,
+  getTopicSize,
+  getTopicSubTopics,
+} from '../../repositories/topics.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
-import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
+import {
+  APIConcept,
+  APIConceptResolvers,
+  APIMutationResolvers,
+  APIQueryResolvers,
+  SortingDirection,
+} from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
@@ -179,3 +191,17 @@ export const getConceptSizeResolver: APIConceptResolvers['size'] = async concept
 };
 
 export const getConceptSubTopicsResolver: APIConceptResolvers['subTopics'] = getTopicSubTopicsResolver;
+
+export const getConceptParentTopicResolver: APIConceptResolvers['parentTopic'] = async concept => {
+  try {
+    const results = await getTopicParentTopics(concept._id, { type: 'index', direction: SortingDirection.ASC });
+    if (results.length > 1) {
+      throw new Error(`Concept ${concept._id} has more than one parent topic`);
+    }
+    const { relationship, parentTopic, subTopic } = results[0];
+    return { ...relationship, parentTopic, subTopic };
+  } catch (e) {
+    logger.error(e);
+    return null;
+  }
+};

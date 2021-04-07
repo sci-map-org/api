@@ -5,6 +5,7 @@ import { ResourceMediaType } from '../../entities/Resource';
 import { SortingDirection } from '../../repositories/util/sorting';
 import { TopicType } from '../../entities/Topic';
 import { LearningGoalType } from '../../entities/LearningGoal';
+import { ConceptType } from '../../entities/Concept';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -733,7 +734,6 @@ export type APIConcept = APIITopic & {
    __typename?: 'Concept';
   _id: Scalars['String'];
   coveredByResources?: Maybe<APIConceptCoveredByResourcesResults>;
-  /** type: ConceptType! */
   description?: Maybe<Scalars['String']>;
   domain?: Maybe<APIDomain>;
   key: Scalars['String'];
@@ -745,6 +745,7 @@ export type APIConcept = APIITopic & {
   size?: Maybe<Scalars['Float']>;
   subTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
   topicType: TopicType;
+  types: Array<ConceptType>;
 };
 
 
@@ -757,14 +758,7 @@ export type APIConceptSubTopicsArgs = {
   options: APITopicSubTopicsOptions;
 };
 
-export enum APIConceptType {
-  Concept = 'concept',
-  Question = 'question',
-  ConceptGroup = 'concept_group',
-  Topic = 'topic',
-  Idea = 'idea',
-  Theory = 'theory'
-}
+export { ConceptType };
 
 export type APIKnownConcept = {
    __typename?: 'KnownConcept';
@@ -791,12 +785,14 @@ export type APIAddConceptToDomainPayload = {
   index?: Maybe<Scalars['Float']>;
   key?: Maybe<Scalars['String']>;
   name: Scalars['String'];
+  types: Array<ConceptType>;
 };
 
 export type APIUpdateConceptPayload = {
   description?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  types?: Maybe<Array<ConceptType>>;
 };
 
 export type APISetConceptKnownPayloadConceptsField = {
@@ -1938,7 +1934,7 @@ export type APIResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>,
   Float: ResolverTypeWrapper<Scalars['Float']>,
   Concept: ResolverTypeWrapper<APIConcept>,
-  ConceptType: APIConceptType,
+  ConceptType: ConceptType,
   KnownConcept: ResolverTypeWrapper<APIKnownConcept>,
   ConceptReferencesConceptItem: ResolverTypeWrapper<APIConceptReferencesConceptItem>,
   ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
@@ -2115,7 +2111,7 @@ export type APIResolversParentTypes = ResolversObject<{
   Mutation: {},
   Float: Scalars['Float'],
   Concept: APIConcept,
-  ConceptType: APIConceptType,
+  ConceptType: ConceptType,
   KnownConcept: APIKnownConcept,
   ConceptReferencesConceptItem: APIConceptReferencesConceptItem,
   ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
@@ -2401,6 +2397,7 @@ export type APIConceptResolvers<ContextType = APIContext, ParentType extends API
   size?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType, RequireFields<APIConceptSubTopicsArgs, 'options'>>,
   topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
+  types?: Resolver<Array<APIResolversTypes['ConceptType']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 

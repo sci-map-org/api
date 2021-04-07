@@ -19,3 +19,4 @@ generates:
         SortingDirection: ../../repositories/util/sorting#SortingDirection
         TopicType: ../../entities/Topic#TopicType
         LearningGoalType: ../../entities/LearningGoal#LearningGoalType
+        ConceptType: ../../entities/Concept#ConceptType

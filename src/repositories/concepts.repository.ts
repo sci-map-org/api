@@ -1,7 +1,7 @@
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
-import { Concept, ConceptLabel } from '../entities/Concept';
+import { Concept, ConceptLabel, ConceptType } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
@@ -37,6 +37,7 @@ import { TopicLabel, TopicType } from '../entities/Topic';
 
 interface CreateConceptData {
   name: string;
+  types: ConceptType[];
   key?: string;
   description?: string;
 }
@@ -44,6 +45,7 @@ interface CreateConceptData {
 interface UpdateConceptData {
   key?: string;
   name?: string;
+  types?: ConceptType[];
   description?: string;
 }
 

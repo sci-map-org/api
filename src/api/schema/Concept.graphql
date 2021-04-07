@@ -2,7 +2,7 @@ type Concept implements ITopic {
   _id: String!
   key: String!
   name: String!
-  # type: ConceptType!
+  types: [ConceptType!]!
   description: String
   topicType: TopicType!
   domain: Domain
@@ -13,17 +13,18 @@ type Concept implements ITopic {
   known: KnownConcept
   referencingConcepts: [ConceptReferencesConceptItem!]
   referencedByConcepts: [ConceptReferencesConceptItem!]
-  # subConcepts: [ConceptBelongsToConceptItem!]
-  # parentConcepts: [ConceptBelongsToConceptItem!]
 }
 
 enum ConceptType {
   concept
   question
-  concept_group # subAreas ?
-  topic # other ?
-  idea #
-  theory #
+  problem
+  theory
+  method
+  technic
+  person
+  fact
+  event
 }
 
 type KnownConcept {
@@ -51,6 +52,7 @@ type ConceptCoveredByResourcesResults {
 input AddConceptToDomainPayload {
   key: String
   name: String!
+  types: [ConceptType!]!
   description: String
   index: Float
 }
@@ -58,6 +60,7 @@ input AddConceptToDomainPayload {
 input UpdateConceptPayload {
   key: String
   name: String
+  types: [ConceptType!]
   description: String
 }
 
