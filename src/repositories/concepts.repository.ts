@@ -27,11 +27,6 @@ import {
   updateOne,
   getOptionalRelatedNode,
 } from './util/abstract_graph_repo';
-// import {
-//   ConceptBelongsToConcept,
-//   ConceptBelongsToConceptLabel,
-//   DEFAULT_INDEX_VALUE,
-// } from '../entities/relationships/ConceptBelongsToConcept';
 import { UserCreatedConceptLabel, UserCreatedConcept } from '../entities/relationships/UserCreatedConcept';
 import { TopicLabel, TopicType } from '../entities/Topic';
 
