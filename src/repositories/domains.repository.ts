@@ -1,4 +1,4 @@
-import { hasLabel, inArray, node, not, Query, relation } from 'cypher-query-builder';
+import { inArray, node, Query, relation } from 'cypher-query-builder';
 import { map } from 'ramda';
 import * as shortid from 'shortid';
 import { APIDomainLearningMaterialsSortingType, APIDomainResourcesSortingType } from '../api/schema/types';
@@ -9,7 +9,6 @@ import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import { DomainBelongsToDomain, DomainBelongsToDomainLabel } from '../entities/relationships/DomainBelongsToDomain';
 import {
   LearningGoalBelongsToDomain,
   LearningGoalBelongsToDomainLabel,
@@ -18,23 +17,16 @@ import {
   LearningMaterialBelongsToDomain,
   LearningMaterialBelongsToDomainLabel,
 } from '../entities/relationships/LearningMaterialBelongsToDomain';
-import {
-  DEFAULT_INDEX_VALUE,
-  TopicBelongsToDomain,
-  TopicBelongsToDomainLabel,
-} from '../entities/relationships/TopicBelongsToDomain';
 import { UserCreatedDomain, UserCreatedDomainLabel } from '../entities/relationships/UserCreatedDomain';
 import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
-import { Topic, TopicLabel, TopicType } from '../entities/Topic';
+import { TopicLabel, TopicType } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
-  attachUniqueNodes,
   countRelatedNodes,
   createRelatedNode,
   deleteOne,
-  detachUniqueNodes,
   findOne,
   getRelatedNodes,
   updateOne,
@@ -411,72 +403,6 @@ export const countDomainLearningMaterials = (domainId: string): Promise<number> 
     },
   });
 
-export const attachDomainBelongsToDomain = (
-  parentDomainId: string,
-  subDomainId: string,
-  index?: number
-): Promise<{ subDomain: Domain; relationship: DomainBelongsToDomain; parentDomain: Domain }> =>
-  attachUniqueNodes<Concept, DomainBelongsToDomain, Domain>({
-    originNode: { label: DomainLabel, filter: { _id: subDomainId } },
-    relationship: {
-      label: DomainBelongsToDomainLabel,
-      onCreateProps: { index: index || DEFAULT_INDEX_VALUE },
-      onMergeProps: { index },
-    },
-    destinationNode: { label: DomainLabel, filter: { _id: parentDomainId } },
-  }).then(({ originNode, relationship, destinationNode }) => {
-    return {
-      subDomain: originNode,
-      relationship,
-      parentDomain: destinationNode,
-    };
-  });
-
-export const detachDomainBelongsToDomain = (
-  parentDomainId: string,
-  subDomainId: string
-): Promise<{ subDomain: Domain; parentDomain: Domain }> =>
-  detachUniqueNodes<Domain, DomainBelongsToDomain, Domain>({
-    originNode: {
-      label: DomainLabel,
-      filter: { _id: subDomainId },
-    },
-    relationship: {
-      label: DomainBelongsToDomainLabel,
-      filter: {},
-    },
-    destinationNode: {
-      label: DomainLabel,
-      filter: { _id: parentDomainId },
-    },
-  }).then(({ originNode, destinationNode }) => {
-    return {
-      subDomain: originNode,
-      parentDomain: destinationNode,
-    };
-  });
-
-const getDomainBelongsToDomains = (filter: { _id: string } | { key: string }, direction: 'IN' | 'OUT') =>
-  getRelatedNodes<Domain, DomainBelongsToDomain, Domain>({
-    originNode: {
-      label: DomainLabel,
-      filter,
-    },
-    relationship: {
-      label: DomainBelongsToDomainLabel,
-      direction,
-    },
-    destinationNode: {
-      label: DomainLabel,
-    },
-  }).then(items => items.map(item => ({ domain: item.destinationNode, relationship: item.relationship })));
-
-export const getDomainSubDomains = (filter: { _id: string } | { key: string }) =>
-  getDomainBelongsToDomains(filter, 'IN');
-
-export const getDomainParentDomains = (filter: { _id: string } | { key: string }) =>
-  getDomainBelongsToDomains(filter, 'OUT');
-
 export const getDomainLearningGoals = (
   domainId: string
 ): Promise<{ learningGoal: LearningGoal; relationship: LearningGoalBelongsToDomain; domain: Domain }[]> =>
@@ -500,29 +426,3 @@ export const getDomainLearningGoals = (
       domain: originNode,
     }))
   );
-
-export const getDomainSubTopics = (
-  domainId: string
-): Promise<{ domain: Domain; subTopics: { relationship: TopicBelongsToDomain; topic: Topic }[] } | null> =>
-  getRelatedNodes<Domain, TopicBelongsToDomain, Topic>({
-    originNode: {
-      label: DomainLabel,
-      filter: { _id: domainId },
-    },
-    relationship: {
-      label: TopicBelongsToDomainLabel,
-      direction: 'IN',
-    },
-    destinationNode: {
-      label: TopicLabel,
-      filter: { hidden: false },
-    },
-  }).then(items => {
-    if (items.length) {
-      return {
-        domain: items[0].originNode,
-        subTopics: items.map(({ relationship, destinationNode }) => ({ relationship, topic: destinationNode })),
-      };
-    }
-    return null;
-  });

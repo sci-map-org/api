@@ -1,21 +1,30 @@
-# Has dependencies + is depended upon with/by other concepts
-# Represents an atomic knowledge, something that can be understood
-# learning content cover one or several concepts
-
-type Concept implements Topic {
+type Concept implements ITopic {
   _id: String!
   key: String!
   name: String!
+  types: [ConceptType!]!
   description: String
   topicType: TopicType!
   domain: Domain
+  parentTopic: TopicIsSubTopicOfTopic
+  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
   size: Float
   coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
   known: KnownConcept
   referencingConcepts: [ConceptReferencesConceptItem!]
   referencedByConcepts: [ConceptReferencesConceptItem!]
-  subConcepts: [ConceptBelongsToConceptItem!]
-  parentConcepts: [ConceptBelongsToConceptItem!]
+}
+
+enum ConceptType {
+  concept
+  question
+  problem
+  theory
+  method
+  technic
+  person
+  fact
+  event
 }
 
 type KnownConcept {
@@ -25,11 +34,6 @@ type KnownConcept {
 type ConceptReferencesConceptItem {
   concept: Concept!
   relationship: ConceptReferencesConcept!
-}
-
-type ConceptBelongsToConceptItem {
-  concept: Concept!
-  relationship: ConceptBelongsToConcept!
 }
 
 input ConceptCoveredByResourcesOptions {
@@ -43,6 +47,7 @@ type ConceptCoveredByResourcesResults {
 input AddConceptToDomainPayload {
   key: String
   name: String!
+  types: [ConceptType!]!
   description: String
   index: Float
 }
@@ -50,6 +55,7 @@ input AddConceptToDomainPayload {
 input UpdateConceptPayload {
   key: String
   name: String
+  types: [ConceptType!]
   description: String
 }
 
@@ -59,6 +65,12 @@ input SetConceptKnownPayloadConceptsField {
 }
 input SetConceptKnownPayload {
   concepts: [SetConceptKnownPayloadConceptsField!]!
+}
+
+type AddConceptToDomainResult {
+  concept: Concept!
+  domain: Domain!
+  parentTopic: ITopic!
 }
 
 type DeleteConceptResult {
@@ -73,7 +85,11 @@ type Query {
 }
 
 type Mutation {
-  addConceptToDomain(domainId: String!, payload: AddConceptToDomainPayload!): Concept!
+  addConceptToDomain(
+    domainId: String!
+    parentTopicId: String!
+    payload: AddConceptToDomainPayload!
+  ): AddConceptToDomainResult!
   updateConcept(_id: String!, payload: UpdateConceptPayload!): Concept!
   deleteConcept(_id: String!): DeleteConceptResult!
   setConceptsKnown(payload: SetConceptKnownPayload!): [Concept!]!

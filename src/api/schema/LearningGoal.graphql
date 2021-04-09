@@ -3,7 +3,7 @@ enum LearningGoalType {
   SubGoal
 }
 
-type LearningGoal implements Topic {
+type LearningGoal implements ITopic {
   _id: String!
   key: String!
   type: LearningGoalType!
@@ -16,6 +16,8 @@ type LearningGoal implements Topic {
   progress: LearningGoalProgress
   createdBy: User
   domain: LearningGoalBelongsToDomain
+  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+  parentTopic: TopicIsSubTopicOfTopic
   size: Float
   requiredInGoals: [RequiredInGoalItem!]
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?

@@ -1,32 +1,41 @@
 import { omit } from 'lodash';
 import { Concept } from '../../entities/Concept';
 import { NotFoundError } from '../../errors/NotFoundError';
+import { logger } from '../../infra/logger';
 import {
-  attachConceptBelongsToConcept,
   attachConceptReferencesConcept,
   attachConceptToDomain,
   createConcept,
   deleteConcept,
-  detachConceptBelongsToConcept,
   detachConceptReferencesConcept,
   findConcept,
   findDomainConceptByKey,
   getConceptCoveredByResources,
   getConceptDomain,
-  getConceptParentConcepts,
   getConceptsReferencedByConcept,
   getConceptsReferencingConcept,
-  getConceptSubConcepts,
   getUserKnowsConcept,
   updateConcept,
   updateConceptBelongsToDomain,
 } from '../../repositories/concepts.repository';
-import { getTopicSize } from '../../repositories/topics.repository';
+import {
+  attachTopicIsSubTopicOfTopic,
+  getTopicParentTopics,
+  getTopicSize,
+  getTopicSubTopics,
+} from '../../repositories/topics.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
-import { APIConcept, APIConceptResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
+import {
+  APIConcept,
+  APIConceptResolvers,
+  APIMutationResolvers,
+  APIQueryResolvers,
+  SortingDirection,
+} from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIResource } from './resources.resolvers';
+import { getTopicSubTopicsResolver } from './topics.resolvers';
 
 function toAPIConcept(concept: Concept): APIConcept {
   return concept;
@@ -49,14 +58,15 @@ export const getDomainConceptByKeyResolver: APIQueryResolvers['getDomainConceptB
 
 export const addConceptToDomainResolver: APIMutationResolvers['addConceptToDomain'] = async (
   _parent,
-  { payload, domainId },
+  { payload, parentTopicId, domainId },
   ctx
 ) => {
-  restrictAccess('contributorOrAdmin', ctx.user, 'Must be logged in and a contributor or an admin to create a concept');
+  restrictAccess('loggedInUser', ctx.user, 'Must be logged in to create a concept');
   const index = payload.index || 10000000;
   const createdConcept = await createConcept({ _id: ctx.user!._id }, nullToUndefined(omit(payload, 'index')));
-  await attachConceptToDomain(createdConcept._id, domainId, { index });
-  return toAPIConcept(createdConcept);
+  const { domain } = await attachConceptToDomain(createdConcept._id, domainId, { index });
+  const { parentTopic } = await attachTopicIsSubTopicOfTopic(parentTopicId, createdConcept._id, { index });
+  return { domain, parentTopic, concept: toAPIConcept(createdConcept) };
 };
 
 export const updateConceptResolver: APIMutationResolvers['updateConcept'] = async (_parent, { _id, payload }, ctx) => {
@@ -176,41 +186,22 @@ export const getConceptReferencedByConceptsResolver: APIConceptResolvers['refere
   return getConceptsReferencingConcept({ _id: concept._id });
 };
 
-export const addConceptBelongsToConceptResolver: APIMutationResolvers['addConceptBelongsToConcept'] = async (
-  _p,
-  { parentConceptId, subConceptId },
-  { user }
-) => {
-  restrictAccess(
-    'contributorOrAdmin',
-    user,
-    'Must be logged in and an admin or contributor to modify concept grouping relationships'
-  );
-
-  const { parentConcept, subConcept } = await attachConceptBelongsToConcept(parentConceptId, subConceptId);
-  return { parentConcept, subConcept };
-};
-export const removeConceptBelongsToConceptResolver: APIMutationResolvers['removeConceptBelongsToConcept'] = async (
-  _p,
-  { parentConceptId, subConceptId },
-  { user }
-) => {
-  restrictAccess(
-    'contributorOrAdmin',
-    user,
-    'Must be logged in and an admin or contributor to modify concept grouping relationships'
-  );
-  const { parentConcept, subConcept } = await detachConceptBelongsToConcept(parentConceptId, subConceptId);
-  return { parentConcept, subConcept };
-};
-
-export const getConceptSubConceptsResolver: APIConceptResolvers['subConcepts'] = async concept => {
-  return getConceptSubConcepts({ _id: concept._id });
-};
-export const getConceptParentConceptsResolver: APIConceptResolvers['parentConcepts'] = async concept => {
-  return getConceptParentConcepts({ _id: concept._id });
-};
-
 export const getConceptSizeResolver: APIConceptResolvers['size'] = async concept => {
   return getTopicSize(concept._id);
+};
+
+export const getConceptSubTopicsResolver: APIConceptResolvers['subTopics'] = getTopicSubTopicsResolver;
+
+export const getConceptParentTopicResolver: APIConceptResolvers['parentTopic'] = async concept => {
+  try {
+    const results = await getTopicParentTopics(concept._id, { type: 'index', direction: SortingDirection.ASC });
+    if (results.length > 1) {
+      throw new Error(`Concept ${concept._id} has more than one parent topic`);
+    }
+    const { relationship, parentTopic, subTopic } = results[0];
+    return { ...relationship, parentTopic, subTopic };
+  } catch (e) {
+    logger.error(e);
+    return null;
+  }
 };

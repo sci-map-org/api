@@ -1,7 +1,7 @@
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
-import { Concept, ConceptLabel } from '../entities/Concept';
+import { Concept, ConceptLabel, ConceptType } from '../entities/Concept';
 import { Domain, DomainLabel } from '../entities/Domain';
 import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
 import {
@@ -13,8 +13,10 @@ import {
   LearningMaterialCoversConcept,
   LearningMaterialCoversConceptLabel,
 } from '../entities/relationships/LearningMaterialCoversConcept';
+import { UserCreatedConcept, UserCreatedConceptLabel } from '../entities/relationships/UserCreatedConcept';
 import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import { Resource, ResourceLabel } from '../entities/Resource';
+import { TopicLabel, TopicType } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import {
   attachUniqueNodes,
@@ -22,21 +24,15 @@ import {
   deleteOne,
   detachUniqueNodes,
   findOne,
+  getOptionalRelatedNode,
   getRelatedNode,
   getRelatedNodes,
   updateOne,
-  getOptionalRelatedNode,
 } from './util/abstract_graph_repo';
-import {
-  ConceptBelongsToConcept,
-  ConceptBelongsToConceptLabel,
-  DEFAULT_INDEX_VALUE,
-} from '../entities/relationships/ConceptBelongsToConcept';
-import { UserCreatedConceptLabel, UserCreatedConcept } from '../entities/relationships/UserCreatedConcept';
-import { TopicLabel, TopicType } from '../entities/Topic';
 
 interface CreateConceptData {
   name: string;
+  types: ConceptType[];
   key?: string;
   description?: string;
 }
@@ -44,6 +40,7 @@ interface CreateConceptData {
 interface UpdateConceptData {
   key?: string;
   name?: string;
+  types?: ConceptType[];
   description?: string;
 }
 
@@ -232,69 +229,3 @@ export const getConceptsReferencedByConcept = (filter: { _id: string } | { key: 
 
 export const getConceptsReferencingConcept = (filter: { _id: string } | { key: string }) =>
   getConceptReferences(filter, 'IN');
-
-export const attachConceptBelongsToConcept = (
-  parentConceptId: string,
-  subConceptId: string,
-  index?: number
-): Promise<{ subConcept: Concept; relationship: ConceptBelongsToConcept; parentConcept: Concept }> =>
-  attachUniqueNodes<Concept, ConceptBelongsToConcept, Concept>({
-    originNode: { label: ConceptLabel, filter: { _id: subConceptId } },
-    relationship: {
-      label: ConceptBelongsToConceptLabel,
-      onCreateProps: { index: index || DEFAULT_INDEX_VALUE },
-      onMergeProps: { index },
-    },
-    destinationNode: { label: ConceptLabel, filter: { _id: parentConceptId } },
-  }).then(({ originNode, relationship, destinationNode }) => {
-    return {
-      subConcept: originNode,
-      relationship,
-      parentConcept: destinationNode,
-    };
-  });
-
-export const detachConceptBelongsToConcept = (
-  parentConceptId: string,
-  subConceptId: string
-): Promise<{ subConcept: Concept; parentConcept: Concept }> =>
-  detachUniqueNodes<Concept, ConceptBelongsToConcept, Concept>({
-    originNode: {
-      label: ConceptLabel,
-      filter: { _id: subConceptId },
-    },
-    relationship: {
-      label: ConceptBelongsToConceptLabel,
-      filter: {},
-    },
-    destinationNode: {
-      label: ConceptLabel,
-      filter: { _id: parentConceptId },
-    },
-  }).then(({ originNode, destinationNode }) => {
-    return {
-      subConcept: originNode,
-      parentConcept: destinationNode,
-    };
-  });
-
-const getConceptBelongsToConcepts = (filter: { _id: string } | { key: string }, direction: 'IN' | 'OUT') =>
-  getRelatedNodes<Concept, ConceptBelongsToConcept, Concept>({
-    originNode: {
-      label: ConceptLabel,
-      filter,
-    },
-    relationship: {
-      label: ConceptBelongsToConceptLabel,
-      direction,
-    },
-    destinationNode: {
-      label: ConceptLabel,
-    },
-  }).then(items => items.map(item => ({ concept: item.destinationNode, relationship: item.relationship })));
-
-export const getConceptSubConcepts = (filter: { _id: string } | { key: string }) =>
-  getConceptBelongsToConcepts(filter, 'IN');
-
-export const getConceptParentConcepts = (filter: { _id: string } | { key: string }) =>
-  getConceptBelongsToConcepts(filter, 'OUT');

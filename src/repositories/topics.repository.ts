@@ -1,8 +1,11 @@
 import { Query } from 'cypher-query-builder';
 import { DomainLabel } from '../entities/Domain';
 import { TopicBelongsToDomainLabel } from '../entities/relationships/TopicBelongsToDomain';
+import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
 import { Topic, TopicLabel, TopicType } from '../entities/Topic';
 import { neo4jQb, neo4jDriver } from '../infra/neo4j';
+import { attachUniqueNodes, detachUniqueNodes, getRelatedNodes } from './util/abstract_graph_repo';
+import { SortingDirection } from './util/sorting';
 
 export const searchTopics = async (
   query: string,
@@ -57,10 +60,151 @@ export const getTopicSize = async (_id: string): Promise<number> => {
   // Sub Domains and concepts only for now, wether topic is concept or domain
   // => add the REQUIRE relationship later (for now it's wrong order)
   const q = new Query(neo4jQb);
-  q.raw(`match (n:Topic {_id: $topicId})<-[:BELONGS_TO*0..5]-(c:Topic)  return count(DISTINCT c) as size`, {
-    topicId: _id,
-  });
+  q.raw(
+    `match (n:${TopicLabel} {_id: $topicId})<-[:${TopicIsSubTopicOfTopicLabel}*0..5]-(c:${TopicLabel})  return count(DISTINCT c) as size`,
+    {
+      topicId: _id,
+    }
+  );
   const r = await q.run();
   const [size] = r.map(i => i.size);
   return size;
 };
+
+export const getTopicSubTopics = (
+  topicId: string,
+  sortingOptions: { type: 'index'; direction: SortingDirection },
+  filter?: { topicTypeIn?: TopicType[] }
+): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> =>
+  getRelatedNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: topicId },
+    },
+    relationship: {
+      label: TopicIsSubTopicOfTopicLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: TopicLabel,
+      ...(!!filter &&
+        filter.topicTypeIn && {
+          filter: { topicType: { $in: filter.topicTypeIn } },
+        }),
+      // filter: { hidden: false }, TODO
+    },
+    sorting: {
+      entity: 'relationship',
+      field: sortingOptions.type,
+      direction: sortingOptions.direction,
+    },
+  }).then(items =>
+    items.map(({ relationship, destinationNode, originNode }) => ({
+      parentTopic: originNode,
+      relationship,
+      subTopic: destinationNode,
+    }))
+  );
+
+export const getTopicParentTopics = (
+  topicId: string,
+  sortingOptions: { type: 'index'; direction: SortingDirection },
+  filter?: { topicTypeIn?: TopicType[] }
+): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> =>
+  getRelatedNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: topicId },
+    },
+    relationship: {
+      label: TopicIsSubTopicOfTopicLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: TopicLabel,
+      ...(!!filter &&
+        filter.topicTypeIn && {
+          filter: { topicType: { $in: filter.topicTypeIn } },
+        }),
+    },
+    sorting: {
+      entity: 'relationship',
+      field: sortingOptions.type,
+      direction: sortingOptions.direction,
+    },
+  }).then(items =>
+    items.map(({ relationship, destinationNode, originNode }) => ({
+      parentTopic: destinationNode,
+      relationship,
+      subTopic: originNode,
+    }))
+  );
+
+export const attachTopicIsSubTopicOfTopic = (
+  parentTopicId: string,
+  subTopicId: string,
+  { index, createdByUserId }: { index: number; createdByUserId?: string }
+): Promise<{
+  parentTopic: Topic;
+  relationship: TopicIsSubTopicOfTopic;
+  subTopic: Topic;
+}> =>
+  attachUniqueNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: subTopicId } },
+    relationship: {
+      label: TopicIsSubTopicOfTopicLabel,
+      onCreateProps: { index, createdAt: Date.now(), createdByUserId },
+    },
+    destinationNode: { label: TopicLabel, filter: { _id: parentTopicId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      parentTopic: destinationNode,
+      relationship,
+      subTopic: originNode,
+    };
+  });
+
+export const updateTopicIsSubTopicOfTopic = (
+  parentTopicId: string,
+  subTopicId: string,
+  { index }: { index?: number }
+): Promise<{
+  parentTopic: Topic;
+  relationship: TopicIsSubTopicOfTopic;
+  subTopic: Topic;
+}> =>
+  attachUniqueNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: subTopicId } },
+    relationship: { label: TopicIsSubTopicOfTopicLabel, onMergeProps: { ...(!!index && { index }) } },
+    destinationNode: { label: TopicLabel, filter: { _id: parentTopicId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      parentTopic: destinationNode,
+      relationship,
+      subTopic: originNode,
+    };
+  });
+
+export const detachTopicIsSubTopicOfTopic = (
+  parentTopicId: string,
+  subTopicId: string
+): Promise<{ subTopic: Topic; parentTopic: Topic }> =>
+  detachUniqueNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: subTopicId },
+    },
+    relationship: {
+      label: TopicIsSubTopicOfTopicLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: TopicLabel,
+      filter: { _id: parentTopicId },
+    },
+  }).then(({ originNode, destinationNode }) => {
+    return {
+      subTopic: originNode,
+      parentTopic: destinationNode,
+    };
+  });
