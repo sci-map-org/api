@@ -36,11 +36,6 @@ type ConceptReferencesConceptItem {
   relationship: ConceptReferencesConcept!
 }
 
-# type ConceptBelongsToConceptItem {
-#   concept: Concept!
-#   relationship: ConceptBelongsToConcept!
-# }
-
 input ConceptCoveredByResourcesOptions {
   pagination: PaginationOptions
 }

@@ -1,21 +1,16 @@
 import { UserInputError } from 'apollo-server-koa';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
-  // attachDomainBelongsToDomain,
   countDomainConcepts,
   countDomainLearningMaterials,
   createDomain,
   deleteDomain,
-  // detachDomainBelongsToDomain,
   findDomain,
   getDomainConcepts,
   getDomainLearningGoals,
   getDomainLearningMaterials,
-  // getDomainParentDomains,
   getDomainPublicLearningPaths,
   getDomainResources,
-  // getDomainSubDomains,
-  // getDomainSubTopics,
   searchDomains,
   updateDomain,
 } from '../../repositories/domains.repository';
@@ -117,41 +112,6 @@ export const getDomainLearningMaterialsResolver: APIDomainResolvers['learningMat
 export const getDomainLearningMaterialsTotalCountResolver: APIDomainResolvers['learningMaterialsTotalCount'] = async domain => {
   return await countDomainLearningMaterials(domain._id);
 };
-
-// export const addDomainBelongsToDomainResolver: APIMutationResolvers['addDomainBelongsToDomain'] = async (
-//   _p,
-//   { parentDomainId, subDomainId },
-//   { user }
-// ) => {
-//   restrictAccess(
-//     'contributorOrAdmin',
-//     user,
-//     'Must be logged in and an admin or contributor to modify Domain grouping relationships'
-//   );
-
-//   const { parentDomain, subDomain } = await attachDomainBelongsToDomain(parentDomainId, subDomainId);
-//   return { parentDomain, subDomain };
-// };
-// export const removeDomainBelongsToDomainResolver: APIMutationResolvers['removeDomainBelongsToDomain'] = async (
-//   _p,
-//   { parentDomainId, subDomainId },
-//   { user }
-// ) => {
-//   restrictAccess(
-//     'contributorOrAdmin',
-//     user,
-//     'Must be logged in and an admin or contributor to modify Domain grouping relationships'
-//   );
-//   const { parentDomain, subDomain } = await detachDomainBelongsToDomain(parentDomainId, subDomainId);
-//   return { parentDomain, subDomain };
-// };
-
-// export const getDomainSubDomainsResolver: APIDomainResolvers['subDomains'] = async domain => {
-//   return getDomainSubDomains({ _id: domain._id });
-// };
-// export const getDomainParentDomainsResolver: APIDomainResolvers['parentDomains'] = async domain => {
-//   return getDomainParentDomains({ _id: domain._id });
-// };
 
 export const getDomainLearningGoalsResolver: APIDomainResolvers['learningGoals'] = async domain => {
   return (await getDomainLearningGoals(domain._id)).map(({ learningGoal, relationship, domain }) => ({

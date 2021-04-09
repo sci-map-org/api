@@ -66,11 +66,6 @@ type DomainConceptsResults {
   items: [DomainConceptsItem!]!
 }
 
-# type DomainBelongsToDomainItem {
-#   domain: Domain!
-#   relationship: DomainBelongsToDomain!
-# }
-
 # Domain resources
 enum DomainResourcesSortingType {
   recommended

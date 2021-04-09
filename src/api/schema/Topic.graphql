@@ -1,7 +1,7 @@
 interface ITopic {
   _id: String!
   name: String!
-  key: String! # Mandatory in the future ? Could it help searching for instance ?
+  key: String!
   description: String
   topicType: TopicType! # To remove once there is a difference between the schema. Make a migration to remove it also from db
   size: Float
@@ -12,17 +12,6 @@ interface ITopic {
   # social / might be different forms, maybe same in the beginning, e.g. comment or question ?
   #
 }
-
-# type Topic implements ITopic {
-#   _id: String!
-#   name: String!
-#   key: String!
-#   description: String
-#   topicType: TopicType!
-#   size: Float
-#   parentTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-#   subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-# }
 
 enum TopicSubTopicsSortingType {
   index
@@ -63,27 +52,6 @@ type CheckTopicKeyAvailabilityResult {
   existingTopic: ITopic
 }
 
-# input NewTopicData {
-#   topicType: TopicType! # can be Concept / LearningGoal / Domain(only for contributors though) / null (for other stuff) ?
-#   name: String!
-#   key: String!
-#   description: String
-# }
-# input AddSubTopicPayload {
-#   index: Float
-#   parentTopicId: String!
-#   domainId: String!
-#   topicData: NewTopicData!
-# }
-
-# type AddSubTopicResult {
-#   parentTopic: ITopic!
-#   subTopic: ITopic!
-# }
-
-# type Mutation {
-#   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
-# }
 type Query {
   searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
   searchSubTopics(domainId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
