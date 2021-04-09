@@ -12,7 +12,7 @@ export interface BaseTopic {
   topicType: TopicType;
 }
 
-export type Topic = Domain | Concept | LearningGoal | BaseTopic;
+export type Topic = Domain | Concept | LearningGoal;
 
 export enum TopicType {
   Domain = 'Domain',
