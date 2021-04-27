@@ -19,7 +19,12 @@ import {
 import { identifyGoogleIdToken } from '../../services/auth/google_sign_in';
 import { getJWT, verifyAndDecodeEmailVerificationToken } from '../../services/auth/jwt';
 import { passwordsMatch } from '../../services/auth/password_hashing';
-import { registerUser, registerUserGoogleAuth } from '../../services/users.service';
+import {
+  registerUser,
+  registerUserGoogleAuth,
+  resetUserPassword,
+  sendResetPasswordEmail,
+} from '../../services/users.service';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import {
   APICurrentUser,
@@ -122,6 +127,33 @@ export const verifyEmailAddressResolver: APIMutationResolvers['verifyEmailAddres
   };
 };
 
+export const triggerResetPasswordResolver: APIMutationResolvers['triggerResetPassword'] = async (_, { email }) => {
+  const user = await findUser({ email });
+  if (!user)
+    return {
+      errorMessage: `No user found with email "${email}"`,
+      success: false,
+    };
+
+  if (!user.password_hash) {
+    if (user.googleUserId)
+      return {
+        errorMessage: 'No password saved for this account, please login using Google Auth',
+        success: false,
+      };
+    throw new Error(`No authentication method saved for user with email ${email}`);
+  }
+
+  await sendResetPasswordEmail(user, Date.now());
+  return {
+    success: true,
+  };
+};
+
+export const resetPasswordResolver: APIMutationResolvers['resetPassword'] = async (_, { payload }) => {
+  const user = await resetUserPassword(payload.token, payload.password);
+  return { currentUser: user };
+};
 export const currentUserResolver: APIQueryResolvers['currentUser'] = async (_parent, _payload, { user }) => {
   if (!user) return null;
   const foundUser = await findUser({ email: user.email });

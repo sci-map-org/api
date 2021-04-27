@@ -118,11 +118,27 @@ type VerifyEmailResponse {
   email: String!
 }
 
+type TriggerResetPasswordResponse {
+  errorMessage: String
+  success: Boolean!
+}
+
+input ResetPasswordPayload {
+  token: String!
+  password: String!
+}
+
+type ResetPasswordResponse {
+  currentUser: CurrentUser!
+}
+
 type Mutation {
   login(email: String!, password: String!, discourseSSO: DiscourseSSO): LoginResponse!
   loginGoogle(idToken: String!, discourseSSO: DiscourseSSO): LoginResponse!
   register(payload: RegisterPayload!): CurrentUser!
   registerGoogle(payload: RegisterGooglePayload!): CurrentUser!
   verifyEmailAddress(token: String!): VerifyEmailResponse!
+  triggerResetPassword(email: String!): TriggerResetPasswordResponse!
+  resetPassword(payload: ResetPasswordPayload!): ResetPasswordResponse!
   adminUpdateUser(id: String!, payload: AdminUpdateUserPayload!): User!
 }
