@@ -47,11 +47,6 @@ export type APIListArticlesResult = {
   items: Array<APIArticle>;
 };
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQuery = {
    __typename?: 'Query';
   analyzeResourceUrl: APIAnalyzeResourceUrlResult;
@@ -67,6 +62,7 @@ export type APIQuery = {
   getLearningPath: APILearningPath;
   getLearningPathByKey: APILearningPath;
   getResourceById: APIResource;
+  getTopLevelDomains: APIGetTopLevelDomainsResults;
   getUser: APIUser;
   globalSearch: APIGlobalSearchResults;
   listArticles: APIListArticlesResult;
@@ -79,21 +75,11 @@ export type APIQuery = {
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryAnalyzeResourceUrlArgs = {
   url: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryCheckTopicKeyAvailabilityArgs = {
   domainKey?: Maybe<Scalars['String']>;
   key: Scalars['String'];
@@ -101,186 +87,96 @@ export type APIQueryCheckTopicKeyAvailabilityArgs = {
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetArticleByKeyArgs = {
   key: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetConceptArgs = {
   _id: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetDomainByKeyArgs = {
   key: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetDomainConceptByKeyArgs = {
   conceptKey: Scalars['String'];
   domainKey: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetDomainLearningGoalByKeyArgs = {
   domainKey: Scalars['String'];
   learningGoalKey: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetLearningGoalByKeyArgs = {
   key: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetLearningPathArgs = {
   _id: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetLearningPathByKeyArgs = {
   key: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetResourceByIdArgs = {
   id: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGetUserArgs = {
   key: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryGlobalSearchArgs = {
   options?: Maybe<APIGlobalSearchOptions>;
   query: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQueryListArticlesArgs = {
   options: APIListArticlesOptions;
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQuerySearchDomainsArgs = {
   options: APISearchDomainsOptions;
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQuerySearchLearningGoalsArgs = {
   options: APISearchLearningGoalsOptions;
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQuerySearchLearningMaterialTagsArgs = {
   options: APISearchLearningMaterialTagsOptions;
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQuerySearchResourcesArgs = {
   options: APISearchResourcesOptions;
   query: Scalars['String'];
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQuerySearchSubTopicsArgs = {
   domainId: Scalars['String'];
   options: APISearchTopicsOptions;
 };
 
 
-/**
- * type Mutation {
- *   addSubTopic(parentTopicId: String!, payload: AddSubTopicPayload!): AddSubTopicResult!
- * }
- */
 export type APIQuerySearchTopicsArgs = {
   options: APISearchTopicsOptions;
 };
@@ -1788,6 +1684,11 @@ export type APIGlobalSearchResults = {
   results: Array<APISearchResult>;
 };
 
+export type APIGetTopLevelDomainsResults = {
+   __typename?: 'GetTopLevelDomainsResults';
+  items: Array<APIDomain>;
+};
+
 
 export type APIUpdateConceptReferencesConceptResult = {
    __typename?: 'UpdateConceptReferencesConceptResult';
@@ -2081,6 +1982,7 @@ export type APIResolversTypes = ResolversObject<{
   SearchResultEntity: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
   SearchResult: ResolverTypeWrapper<Omit<APISearchResult, 'entity'> & { entity: APIResolversTypes['SearchResultEntity'] }>,
   GlobalSearchResults: ResolverTypeWrapper<APIGlobalSearchResults>,
+  GetTopLevelDomainsResults: ResolverTypeWrapper<APIGetTopLevelDomainsResults>,
   Date: ResolverTypeWrapper<Scalars['Date']>,
   UpdateConceptReferencesConceptResult: ResolverTypeWrapper<APIUpdateConceptReferencesConceptResult>,
   TopicIsSubTopicOfTopic: ResolverTypeWrapper<APITopicIsSubTopicOfTopic>,
@@ -2258,6 +2160,7 @@ export type APIResolversParentTypes = ResolversObject<{
   SearchResultEntity: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
   SearchResult: Omit<APISearchResult, 'entity'> & { entity: APIResolversParentTypes['SearchResultEntity'] },
   GlobalSearchResults: APIGlobalSearchResults,
+  GetTopLevelDomainsResults: APIGetTopLevelDomainsResults,
   Date: Scalars['Date'],
   UpdateConceptReferencesConceptResult: APIUpdateConceptReferencesConceptResult,
   TopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic,
@@ -2301,6 +2204,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathArgs, '_id'>>,
   getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'key'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
+  getTopLevelDomains?: Resolver<APIResolversTypes['GetTopLevelDomainsResults'], ParentType, ContextType>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
   globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
@@ -2960,6 +2864,11 @@ export type APIGlobalSearchResultsResolvers<ContextType = APIContext, ParentType
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APIGetTopLevelDomainsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopLevelDomainsResults'] = APIResolversParentTypes['GetTopLevelDomainsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export interface APIDateScalarConfig extends GraphQLScalarTypeConfig<APIResolversTypes['Date'], any> {
   name: 'Date'
 }
@@ -3087,6 +2996,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SearchResultEntity?: APISearchResultEntityResolvers,
   SearchResult?: APISearchResultResolvers<ContextType>,
   GlobalSearchResults?: APIGlobalSearchResultsResolvers<ContextType>,
+  GetTopLevelDomainsResults?: APIGetTopLevelDomainsResultsResolvers<ContextType>,
   Date?: GraphQLScalarType,
   UpdateConceptReferencesConceptResult?: APIUpdateConceptReferencesConceptResultResolvers<ContextType>,
   TopicIsSubTopicOfTopic?: APITopicIsSubTopicOfTopicResolvers<ContextType>,

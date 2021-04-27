@@ -118,7 +118,7 @@ import {
   startLearningPathResolver,
   updateLearningPathResolver,
 } from './resolvers/learning_paths.resolvers';
-import { getHomePageDataResolver, globalSearchResolver } from './resolvers/misc.resolvers';
+import { getHomePageDataResolver, globalSearchResolver, getTopLevelDomainsResolver } from './resolvers/misc.resolvers';
 import {
   addSubResourceResolver,
   addSubResourceToSeriesResolver,
@@ -265,6 +265,7 @@ const resolvers: APIResolvers<APIContext> = {
     analyzeResourceUrl: analyzeResourceUrlResolver,
     getHomePageData: getHomePageDataResolver,
     globalSearch: globalSearchResolver,
+    getTopLevelDomains: getTopLevelDomainsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
