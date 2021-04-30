@@ -35,6 +35,7 @@ interface UpdateUserData {
   email?: string;
   role?: UserRole;
   active?: boolean;
+  password_hash?: string;
 }
 
 class NonUniqueUserEmail extends Error {

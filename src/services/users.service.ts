@@ -1,8 +1,8 @@
 import { User, UserRole } from '../entities/User';
 import { env } from '../env';
-import { createUser } from '../repositories/users.repository';
+import { createUser, findUser, updateUser } from '../repositories/users.repository';
 import { identifyGoogleIdToken } from './auth/google_sign_in';
-import { createEmailVerificationToken } from './auth/jwt';
+import { createEmailVerificationToken, verifyAndDecodeEmailVerificationToken } from './auth/jwt';
 import { encryptPassword } from './auth/password_hashing';
 import { sendDiscordNotification } from './discord/discord_webhooks.service';
 import { sendEmail } from './email/email.client';
@@ -84,3 +84,25 @@ function sendNewUserDiscordNotification(user: User) {
     `OMGGGG !!! Like, we have a new user: ${user.displayName} (${user.email}, @${user.key}). I literally can't even !`
   );
 }
+
+export const resetUserPassword = async (token: string, newPassword: string): Promise<User> => {
+  const { email, timestamp } = await verifyAndDecodeEmailVerificationToken(token);
+
+  if (timestamp + 1000 * 60 * 60 < Date.now()) {
+    throw new Error('Token not valid anymore ¯_(ツ)_/¯');
+  }
+  const user = await findUser({ email });
+  if (!user) throw new Error(`User with email: "${email}" (from token) not found`);
+  await updateUser({ _id: user._id }, { password_hash: await encryptPassword(newPassword) });
+  return user;
+};
+
+export const sendResetPasswordEmail = async (user: User, timestamp: number): Promise<void> => {
+  const token: string = await createEmailVerificationToken(user, timestamp);
+  await sendEmail({
+    from: 'Sci-map.org <no_reply@sci-map.org>',
+    to: user.email,
+    subject: 'Password Reset',
+    html: `<p>Hello ${user.displayName},</p><p>Click here to reset your password: ${env.OTHER.FRONTEND_BASE_URL}/reset_pwd?token=${token}</p>`,
+  });
+};

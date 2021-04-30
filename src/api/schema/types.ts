@@ -247,11 +247,13 @@ export type APIMutation = {
   removeLearningMaterialOutcome: APILearningMaterial;
   removeLearningMaterialPrerequisite: APILearningMaterial;
   removeTagsFromLearningMaterial: APILearningMaterial;
+  resetPassword: APIResetPasswordResponse;
   setConceptsKnown: Array<APIConcept>;
   setConceptsUnknown: Array<APIConcept>;
   setResourcesConsumed: Array<APIResource>;
   startLearningGoal: APILearningGoalStartedResult;
   startLearningPath: APILearningPathStartedResult;
+  triggerResetPassword: APITriggerResetPasswordResponse;
   updateArticle: APIArticle;
   updateConcept: APIConcept;
   updateConceptBelongsToDomain: APIConceptBelongsToDomain;
@@ -541,6 +543,11 @@ export type APIMutationRemoveTagsFromLearningMaterialArgs = {
 };
 
 
+export type APIMutationResetPasswordArgs = {
+  payload: APIResetPasswordPayload;
+};
+
+
 export type APIMutationSetConceptsKnownArgs = {
   payload: APISetConceptKnownPayload;
 };
@@ -563,6 +570,11 @@ export type APIMutationStartLearningGoalArgs = {
 
 export type APIMutationStartLearningPathArgs = {
   learningPathId: Scalars['String'];
+};
+
+
+export type APIMutationTriggerResetPasswordArgs = {
+  email: Scalars['String'];
 };
 
 
@@ -1660,6 +1672,22 @@ export type APIVerifyEmailResponse = {
   email: Scalars['String'];
 };
 
+export type APITriggerResetPasswordResponse = {
+   __typename?: 'TriggerResetPasswordResponse';
+  errorMessage?: Maybe<Scalars['String']>;
+  success: Scalars['Boolean'];
+};
+
+export type APIResetPasswordPayload = {
+  password: Scalars['String'];
+  token: Scalars['String'];
+};
+
+export type APIResetPasswordResponse = {
+   __typename?: 'ResetPasswordResponse';
+  currentUser: APICurrentUser;
+};
+
 export type APIGetHomePageDataResults = {
    __typename?: 'GetHomePageDataResults';
   currentUser?: Maybe<APICurrentUser>;
@@ -1977,6 +2005,9 @@ export type APIResolversTypes = ResolversObject<{
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
   DiscourseSSO: APIDiscourseSso,
   VerifyEmailResponse: ResolverTypeWrapper<APIVerifyEmailResponse>,
+  TriggerResetPasswordResponse: ResolverTypeWrapper<APITriggerResetPasswordResponse>,
+  ResetPasswordPayload: APIResetPasswordPayload,
+  ResetPasswordResponse: ResolverTypeWrapper<APIResetPasswordResponse>,
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>,
   GlobalSearchOptions: APIGlobalSearchOptions,
   SearchResultEntity: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
@@ -2155,6 +2186,9 @@ export type APIResolversParentTypes = ResolversObject<{
   AdminUpdateUserPayload: APIAdminUpdateUserPayload,
   DiscourseSSO: APIDiscourseSso,
   VerifyEmailResponse: APIVerifyEmailResponse,
+  TriggerResetPasswordResponse: APITriggerResetPasswordResponse,
+  ResetPasswordPayload: APIResetPasswordPayload,
+  ResetPasswordResponse: APIResetPasswordResponse,
   GetHomePageDataResults: APIGetHomePageDataResults,
   GlobalSearchOptions: APIGlobalSearchOptions,
   SearchResultEntity: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
@@ -2270,11 +2304,13 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   removeLearningMaterialOutcome?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialOutcomeArgs, 'learningMaterialId' | 'outcomeLearningGoalId'>>,
   removeLearningMaterialPrerequisite?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialPrerequisiteArgs, 'learningMaterialId' | 'prerequisiteLearningGoalId'>>,
   removeTagsFromLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveTagsFromLearningMaterialArgs, 'learningMaterialId' | 'tags'>>,
+  resetPassword?: Resolver<APIResolversTypes['ResetPasswordResponse'], ParentType, ContextType, RequireFields<APIMutationResetPasswordArgs, 'payload'>>,
   setConceptsKnown?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType, RequireFields<APIMutationSetConceptsKnownArgs, 'payload'>>,
   setConceptsUnknown?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType, RequireFields<APIMutationSetConceptsUnknownArgs, 'conceptIds'>>,
   setResourcesConsumed?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType, RequireFields<APIMutationSetResourcesConsumedArgs, 'payload'>>,
   startLearningGoal?: Resolver<APIResolversTypes['LearningGoalStartedResult'], ParentType, ContextType, RequireFields<APIMutationStartLearningGoalArgs, 'learningGoalId'>>,
   startLearningPath?: Resolver<APIResolversTypes['LearningPathStartedResult'], ParentType, ContextType, RequireFields<APIMutationStartLearningPathArgs, 'learningPathId'>>,
+  triggerResetPassword?: Resolver<APIResolversTypes['TriggerResetPasswordResponse'], ParentType, ContextType, RequireFields<APIMutationTriggerResetPasswordArgs, 'email'>>,
   updateArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationUpdateArticleArgs, 'id' | 'payload'>>,
   updateConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptArgs, '_id' | 'payload'>>,
   updateConceptBelongsToDomain?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptBelongsToDomainArgs, 'conceptId' | 'domainId' | 'payload'>>,
@@ -2842,6 +2878,17 @@ export type APIVerifyEmailResponseResolvers<ContextType = APIContext, ParentType
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APITriggerResetPasswordResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TriggerResetPasswordResponse'] = APIResolversParentTypes['TriggerResetPasswordResponse']> = ResolversObject<{
+  errorMessage?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIResetPasswordResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResetPasswordResponse'] = APIResolversParentTypes['ResetPasswordResponse']> = ResolversObject<{
+  currentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APIGetHomePageDataResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetHomePageDataResults'] = APIResolversParentTypes['GetHomePageDataResults']> = ResolversObject<{
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,
   recommendedLearningGoals?: Resolver<Array<APIResolversTypes['LearningGoal']>, ParentType, ContextType>,
@@ -2992,6 +3039,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningPathStartedItem?: APILearningPathStartedItemResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,
+  TriggerResetPasswordResponse?: APITriggerResetPasswordResponseResolvers<ContextType>,
+  ResetPasswordResponse?: APIResetPasswordResponseResolvers<ContextType>,
   GetHomePageDataResults?: APIGetHomePageDataResultsResolvers<ContextType>,
   SearchResultEntity?: APISearchResultEntityResolvers,
   SearchResult?: APISearchResultResolvers<ContextType>,

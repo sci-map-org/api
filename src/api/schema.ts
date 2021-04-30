@@ -171,6 +171,8 @@ import {
   registerGoogleResolver,
   registerResolver,
   verifyEmailAddressResolver,
+  triggerResetPasswordResolver,
+  resetPasswordResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
@@ -241,6 +243,8 @@ const resolvers: APIResolvers<APIContext> = {
     attachTopicIsSubTopicOfTopic: attachTopicIsSubTopicOfTopicResolver,
     updateTopicIsSubTopicOfTopic: updateTopicIsSubTopicOfTopicResolver,
     detachTopicIsSubTopicOfTopic: detachTopicIsSubTopicOfTopicResolver,
+    triggerResetPassword: triggerResetPasswordResolver,
+    resetPassword: resetPasswordResolver,
   },
   Query: {
     currentUser: currentUserResolver,
