@@ -1,4 +1,4 @@
-import { Query } from 'cypher-query-builder';
+import { node, Query, relation } from 'cypher-query-builder';
 import { DomainLabel } from '../entities/Domain';
 import { TopicBelongsToDomainLabel } from '../entities/relationships/TopicBelongsToDomain';
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
@@ -208,3 +208,23 @@ export const detachTopicIsSubTopicOfTopic = (
       parentTopic: destinationNode,
     };
   });
+
+export const getSubTopicsMaxIndex = async (topicId: string): Promise<number | null> => {
+  const q = new Query(neo4jQb);
+
+  q.match([
+    node('n', TopicLabel, { _id: topicId }),
+    relation('in', 'r', TopicIsSubTopicOfTopicLabel),
+    node('s', TopicLabel),
+  ]);
+
+  q.return({ 'r.index': 'maxIndex' });
+  q.orderBy({ 'r.index': 'DESC' });
+  q.limit(1);
+
+  const r = await q.run();
+  if (!r.length) return null;
+  const [maxIndex] = r.map(i => i.maxIndex);
+
+  return maxIndex;
+};

@@ -1,4 +1,3 @@
-import { SUBTOPIC_DEFAULT_INDEX_VALUE } from '../../entities/relationships/TopicIsSubTopicOfTopic';
 import { Topic } from '../../entities/Topic';
 import { findDomainConceptByKey } from '../../repositories/concepts.repository';
 import { findDomain } from '../../repositories/domains.repository';
@@ -11,6 +10,7 @@ import {
   searchTopics,
   updateTopicIsSubTopicOfTopic,
 } from '../../repositories/topics.repository';
+import { initSubtopicIndexValue } from '../../services/topics.service';
 import { APIITopicResolvers, APIMutationResolvers, APIQueryResolvers, TopicType } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
@@ -58,7 +58,7 @@ export const attachTopicIsSubTopicOfTopicResolver: APIMutationResolvers['attachT
   restrictAccess('loggedInUser', user, 'Must be logged in');
 
   const { parentTopic, subTopic, relationship } = await attachTopicIsSubTopicOfTopic(parentTopicId, subTopicId, {
-    index: payload.index || SUBTOPIC_DEFAULT_INDEX_VALUE,
+    index: payload.index || (await initSubtopicIndexValue(parentTopicId)),
     createdByUserId: user?._id,
   });
   return { parentTopic, subTopic, ...relationship };
