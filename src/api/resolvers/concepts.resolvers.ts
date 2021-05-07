@@ -194,6 +194,9 @@ export const getConceptParentTopicResolver: APIConceptResolvers['parentTopic'] =
     if (results.length > 1) {
       throw new Error(`Concept ${concept._id} has more than one parent topic`);
     }
+    if (!results.length) {
+      throw new Error(`Concept ${concept._id} has no parent topic`);
+    }
     const { relationship, parentTopic, subTopic } = results[0];
     return { ...relationship, parentTopic, subTopic };
   } catch (e) {
