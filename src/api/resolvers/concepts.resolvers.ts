@@ -18,13 +18,9 @@ import {
   updateConcept,
   updateConceptBelongsToDomain,
 } from '../../repositories/concepts.repository';
-import {
-  attachTopicIsSubTopicOfTopic,
-  getTopicParentTopics,
-  getTopicSize,
-  getTopicSubTopics,
-} from '../../repositories/topics.repository';
+import { attachTopicIsSubTopicOfTopic, getTopicParentTopics, getTopicSize } from '../../repositories/topics.repository';
 import { attachUserKnowsConcepts, detachUserKnowsConcepts } from '../../repositories/users.repository';
+import { initSubtopicIndexValue } from '../../services/topics.service';
 import {
   APIConcept,
   APIConceptResolvers,
@@ -62,7 +58,7 @@ export const addConceptToDomainResolver: APIMutationResolvers['addConceptToDomai
   ctx
 ) => {
   restrictAccess('loggedInUser', ctx.user, 'Must be logged in to create a concept');
-  const index = payload.index || 10000000;
+  const index = payload.index || (await initSubtopicIndexValue(parentTopicId));
   const createdConcept = await createConcept({ _id: ctx.user!._id }, nullToUndefined(omit(payload, 'index')));
   const { domain } = await attachConceptToDomain(createdConcept._id, domainId, { index });
   const { parentTopic } = await attachTopicIsSubTopicOfTopic(parentTopicId, createdConcept._id, { index });
