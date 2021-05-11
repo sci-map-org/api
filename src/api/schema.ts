@@ -154,6 +154,7 @@ import {
   attachTopicIsSubTopicOfTopicResolver,
   updateTopicIsSubTopicOfTopicResolver,
   detachTopicIsSubTopicOfTopicResolver,
+  getTopicByIdResolver,
 } from './resolvers/topics.resolvers';
 import {
   adminUpdateUserResolver,
@@ -263,6 +264,7 @@ const resolvers: APIResolvers<APIContext> = {
     getLearningGoalByKey: getLearningGoalByKeyResolver,
     getDomainLearningGoalByKey: getDomainLearningGoalByKeyResolver,
     searchLearningGoals: searchLearningGoalsResolver,
+    getTopicById: getTopicByIdResolver,
     searchTopics: searchTopicsResolver,
     searchSubTopics: searchSubTopicsResolver,
     checkTopicKeyAvailability: checkTopicKeyAvailabilityResolver,

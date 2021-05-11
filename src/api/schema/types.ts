@@ -63,6 +63,7 @@ export type APIQuery = {
   getLearningPathByKey: APILearningPath;
   getResourceById: APIResource;
   getTopLevelDomains: APIGetTopLevelDomainsResults;
+  getTopicById: APIITopic;
   getUser: APIUser;
   globalSearch: APIGlobalSearchResults;
   listArticles: APIListArticlesResult;
@@ -131,6 +132,11 @@ export type APIQueryGetLearningPathByKeyArgs = {
 
 export type APIQueryGetResourceByIdArgs = {
   id: Scalars['String'];
+};
+
+
+export type APIQueryGetTopicByIdArgs = {
+  topicId: Scalars['String'];
 };
 
 
@@ -2239,6 +2245,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'key'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
   getTopLevelDomains?: Resolver<APIResolversTypes['GetTopLevelDomainsResults'], ParentType, ContextType>,
+  getTopicById?: Resolver<APIResolversTypes['ITopic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByIdArgs, 'topicId'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
   globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
