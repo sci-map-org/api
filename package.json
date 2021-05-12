@@ -43,7 +43,7 @@
     "lodash": "^4.17.15",
     "monk": "^7.1.1",
     "neo4j-driver": "4.1.2",
-    "nodemailer": "^6.4.14",
+    "nodemailer": "^6.4.16",
     "puppeteer": "^5.5.0",
     "ramda": "^0.27.0",
     "shortid": "^2.2.15",
