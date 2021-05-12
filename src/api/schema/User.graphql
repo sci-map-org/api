@@ -8,6 +8,7 @@ type User {
   _id: String!
   email: String!
   displayName: String!
+  bio: String
   role: UserRole!
   key: String!
   articles(options: ListArticlesOptions!): ListArticlesResult
@@ -25,6 +26,7 @@ type CurrentUser {
   _id: String!
   email: String!
   displayName: String!
+  bio: String
   key: String!
   role: UserRole!
   articles(options: ListArticlesOptions!): ListArticlesResult
@@ -103,6 +105,7 @@ input RegisterGooglePayload {
 
 input AdminUpdateUserPayload {
   displayName: String
+  bio: String
   key: String
   email: String
   role: UserRole
@@ -134,6 +137,7 @@ type ResetPasswordResponse {
 
 input UpdateCurrentUserPayload {
   displayName: String
+  bio: String
 }
 
 type Mutation {

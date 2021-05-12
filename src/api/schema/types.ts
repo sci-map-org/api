@@ -1527,6 +1527,7 @@ export type APIUser = {
    __typename?: 'User';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
+  bio?: Maybe<Scalars['String']>;
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
@@ -1550,6 +1551,7 @@ export type APICurrentUser = {
    __typename?: 'CurrentUser';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
+  bio?: Maybe<Scalars['String']>;
   consumedResources?: Maybe<APIUserConsumedResourcesResult>;
   createdLearningGoals?: Maybe<Array<APILearningGoalCreatedItem>>;
   /** private stuff here */
@@ -1661,6 +1663,7 @@ export type APIRegisterGooglePayload = {
 
 export type APIAdminUpdateUserPayload = {
   active?: Maybe<Scalars['Boolean']>;
+  bio?: Maybe<Scalars['String']>;
   displayName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
@@ -1694,6 +1697,7 @@ export type APIResetPasswordResponse = {
 };
 
 export type APIUpdateCurrentUserPayload = {
+  bio?: Maybe<Scalars['String']>;
   displayName?: Maybe<Scalars['String']>;
 };
 
@@ -2815,6 +2819,7 @@ export type APICheckTopicKeyAvailabilityResultResolvers<ContextType = APIContext
 export type APIUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['User'] = APIResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APIUserArticlesArgs, 'options'>>,
+  bio?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -2825,6 +2830,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
+  bio?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   consumedResources?: Resolver<Maybe<APIResolversTypes['UserConsumedResourcesResult']>, ParentType, ContextType, RequireFields<APICurrentUserConsumedResourcesArgs, 'options'>>,
   createdLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalCreatedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningGoalsArgs, 'options'>>,
   createdLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningPathsArgs, 'options'>>,

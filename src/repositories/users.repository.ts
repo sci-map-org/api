@@ -31,6 +31,7 @@ import {
 
 interface UpdateUserData {
   displayName?: string;
+  bio?: string;
   key?: string;
   email?: string;
   role?: UserRole;

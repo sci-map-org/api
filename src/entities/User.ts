@@ -10,6 +10,7 @@ export interface User {
   _id: string;
   email: string;
   displayName: string;
+  bio?: string;
   key: string;
   password_hash?: string; // Either password_hash or googleUserId is required
   googleUserId?: string;
