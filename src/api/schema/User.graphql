@@ -132,6 +132,10 @@ type ResetPasswordResponse {
   currentUser: CurrentUser!
 }
 
+input UpdateCurrentUserPayload {
+  displayName: String
+}
+
 type Mutation {
   login(email: String!, password: String!, discourseSSO: DiscourseSSO): LoginResponse!
   loginGoogle(idToken: String!, discourseSSO: DiscourseSSO): LoginResponse!
@@ -141,4 +145,5 @@ type Mutation {
   triggerResetPassword(email: String!): TriggerResetPasswordResponse!
   resetPassword(payload: ResetPasswordPayload!): ResetPasswordResponse!
   adminUpdateUser(id: String!, payload: AdminUpdateUserPayload!): User!
+  updateCurrentUser(payload: UpdateCurrentUserPayload!): CurrentUser!
 }

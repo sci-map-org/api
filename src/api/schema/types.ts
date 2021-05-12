@@ -256,6 +256,7 @@ export type APIMutation = {
   updateArticle: APIArticle;
   updateConcept: APIConcept;
   updateConceptBelongsToDomain: APIConceptBelongsToDomain;
+  updateCurrentUser: APICurrentUser;
   updateDomain: APIDomain;
   updateLearningGoal: APILearningGoal;
   updateLearningPath: APILearningPath;
@@ -593,6 +594,11 @@ export type APIMutationUpdateConceptBelongsToDomainArgs = {
   conceptId: Scalars['String'];
   domainId: Scalars['String'];
   payload: APIUpdateConceptBelongsToDomainPayload;
+};
+
+
+export type APIMutationUpdateCurrentUserArgs = {
+  payload: APIUpdateCurrentUserPayload;
 };
 
 
@@ -1687,6 +1693,10 @@ export type APIResetPasswordResponse = {
   currentUser: APICurrentUser;
 };
 
+export type APIUpdateCurrentUserPayload = {
+  displayName?: Maybe<Scalars['String']>;
+};
+
 export type APIGetHomePageDataResults = {
    __typename?: 'GetHomePageDataResults';
   currentUser?: Maybe<APICurrentUser>;
@@ -2002,6 +2012,7 @@ export type APIResolversTypes = ResolversObject<{
   TriggerResetPasswordResponse: ResolverTypeWrapper<APITriggerResetPasswordResponse>,
   ResetPasswordPayload: APIResetPasswordPayload,
   ResetPasswordResponse: ResolverTypeWrapper<APIResetPasswordResponse>,
+  UpdateCurrentUserPayload: APIUpdateCurrentUserPayload,
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>,
   GlobalSearchOptions: APIGlobalSearchOptions,
   SearchResultEntity: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
@@ -2182,6 +2193,7 @@ export type APIResolversParentTypes = ResolversObject<{
   TriggerResetPasswordResponse: APITriggerResetPasswordResponse,
   ResetPasswordPayload: APIResetPasswordPayload,
   ResetPasswordResponse: APIResetPasswordResponse,
+  UpdateCurrentUserPayload: APIUpdateCurrentUserPayload,
   GetHomePageDataResults: APIGetHomePageDataResults,
   GlobalSearchOptions: APIGlobalSearchOptions,
   SearchResultEntity: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
@@ -2305,6 +2317,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationUpdateArticleArgs, 'id' | 'payload'>>,
   updateConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptArgs, '_id' | 'payload'>>,
   updateConceptBelongsToDomain?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptBelongsToDomainArgs, 'conceptId' | 'domainId' | 'payload'>>,
+  updateCurrentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationUpdateCurrentUserArgs, 'payload'>>,
   updateDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationUpdateDomainArgs, 'id' | 'payload'>>,
   updateLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningGoalArgs, '_id' | 'payload'>>,
   updateLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningPathArgs, '_id' | 'payload'>>,

@@ -35,6 +35,7 @@ import {
   APIUser,
   APIUserResolvers,
 } from '../schema/types';
+import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIArticle } from './articles.resolvers';
 
@@ -181,6 +182,17 @@ export const getUserResolver: APIQueryResolvers['getUser'] = async (_parent, { k
   const foundUser = await findUser({ key });
   if (!foundUser) throw new Error('User not found');
   return toAPIUser(foundUser);
+};
+
+export const updateCurrentUserResolver: APIMutationResolvers['updateCurrentUser'] = async (
+  _parent,
+  { payload },
+  { user }
+) => {
+  if (!user) throw new UnauthorizedError();
+  const updatedUser = await updateUser({ _id: user._id }, nullToUndefined(payload));
+  if (!updatedUser) throw new Error('CurrentUser to update not found, should never throw');
+  return updatedUser;
 };
 
 export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = async (
