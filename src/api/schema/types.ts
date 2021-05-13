@@ -1531,6 +1531,7 @@ export type APIUser = {
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
+  profilePictureUrl?: Maybe<Scalars['String']>;
   role: UserRole;
 };
 
@@ -1559,6 +1560,7 @@ export type APICurrentUser = {
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
+  profilePictureUrl?: Maybe<Scalars['String']>;
   role: UserRole;
   startedLearningGoals?: Maybe<Array<APILearningGoalStartedItem>>;
   startedLearningPaths?: Maybe<Array<APILearningPathStartedItem>>;
@@ -1667,6 +1669,7 @@ export type APIAdminUpdateUserPayload = {
   displayName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
+  profilePictureUrl?: Maybe<Scalars['String']>;
   role?: Maybe<UserRole>;
 };
 
@@ -1699,6 +1702,7 @@ export type APIResetPasswordResponse = {
 export type APIUpdateCurrentUserPayload = {
   bio?: Maybe<Scalars['String']>;
   displayName?: Maybe<Scalars['String']>;
+  profilePictureUrl?: Maybe<Scalars['String']>;
 };
 
 export type APIGetHomePageDataResults = {
@@ -2823,6 +2827,7 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  profilePictureUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2837,6 +2842,7 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  profilePictureUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
   startedLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningGoalsArgs, 'options'>>,
   startedLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPathStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningPathsArgs, 'options'>>,

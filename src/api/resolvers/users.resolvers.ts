@@ -190,7 +190,10 @@ export const updateCurrentUserResolver: APIMutationResolvers['updateCurrentUser'
   { user }
 ) => {
   if (!user) throw new UnauthorizedError();
-  const updatedUser = await updateUser({ _id: user._id }, nullToUndefined(payload));
+  const updatedUser = await updateUser(
+    { _id: user._id },
+    { ...nullToUndefined(payload), profilePictureUrl: payload.profilePictureUrl }
+  );
   if (!updatedUser) throw new Error('CurrentUser to update not found, should never throw');
   return updatedUser;
 };
@@ -203,7 +206,10 @@ export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = 
   if (!user || user.role !== UserRole.ADMIN) {
     throw new UnauthorizedError();
   }
-  const updatedUser = await updateUser({ _id: id }, nullToUndefined(payload));
+  const updatedUser = await updateUser(
+    { _id: id },
+    { ...nullToUndefined(payload), profilePictureUrl: payload.profilePictureUrl }
+  );
   if (!updatedUser) throw new NotFoundError('User', id);
   return toAPIUser(updatedUser);
 };

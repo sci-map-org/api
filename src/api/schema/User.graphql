@@ -9,6 +9,7 @@ type User {
   email: String!
   displayName: String!
   bio: String
+  profilePictureUrl: String
   role: UserRole!
   key: String!
   articles(options: ListArticlesOptions!): ListArticlesResult
@@ -27,6 +28,7 @@ type CurrentUser {
   email: String!
   displayName: String!
   bio: String
+  profilePictureUrl: String
   key: String!
   role: UserRole!
   articles(options: ListArticlesOptions!): ListArticlesResult
@@ -106,6 +108,7 @@ input RegisterGooglePayload {
 input AdminUpdateUserPayload {
   displayName: String
   bio: String
+  profilePictureUrl: String
   key: String
   email: String
   role: UserRole
@@ -137,6 +140,7 @@ type ResetPasswordResponse {
 
 input UpdateCurrentUserPayload {
   displayName: String
+  profilePictureUrl: String
   bio: String
 }
 
