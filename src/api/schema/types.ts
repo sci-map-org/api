@@ -256,6 +256,7 @@ export type APIMutation = {
   updateArticle: APIArticle;
   updateConcept: APIConcept;
   updateConceptBelongsToDomain: APIConceptBelongsToDomain;
+  updateCurrentUser: APICurrentUser;
   updateDomain: APIDomain;
   updateLearningGoal: APILearningGoal;
   updateLearningPath: APILearningPath;
@@ -593,6 +594,11 @@ export type APIMutationUpdateConceptBelongsToDomainArgs = {
   conceptId: Scalars['String'];
   domainId: Scalars['String'];
   payload: APIUpdateConceptBelongsToDomainPayload;
+};
+
+
+export type APIMutationUpdateCurrentUserArgs = {
+  payload: APIUpdateCurrentUserPayload;
 };
 
 
@@ -1521,9 +1527,11 @@ export type APIUser = {
    __typename?: 'User';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
+  bio?: Maybe<Scalars['String']>;
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
+  profilePictureUrl?: Maybe<Scalars['String']>;
   role: UserRole;
 };
 
@@ -1544,6 +1552,7 @@ export type APICurrentUser = {
    __typename?: 'CurrentUser';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
+  bio?: Maybe<Scalars['String']>;
   consumedResources?: Maybe<APIUserConsumedResourcesResult>;
   createdLearningGoals?: Maybe<Array<APILearningGoalCreatedItem>>;
   /** private stuff here */
@@ -1551,6 +1560,7 @@ export type APICurrentUser = {
   displayName: Scalars['String'];
   email: Scalars['String'];
   key: Scalars['String'];
+  profilePictureUrl?: Maybe<Scalars['String']>;
   role: UserRole;
   startedLearningGoals?: Maybe<Array<APILearningGoalStartedItem>>;
   startedLearningPaths?: Maybe<Array<APILearningPathStartedItem>>;
@@ -1655,9 +1665,11 @@ export type APIRegisterGooglePayload = {
 
 export type APIAdminUpdateUserPayload = {
   active?: Maybe<Scalars['Boolean']>;
+  bio?: Maybe<Scalars['String']>;
   displayName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
+  profilePictureUrl?: Maybe<Scalars['String']>;
   role?: Maybe<UserRole>;
 };
 
@@ -1685,6 +1697,12 @@ export type APIResetPasswordPayload = {
 export type APIResetPasswordResponse = {
    __typename?: 'ResetPasswordResponse';
   currentUser: APICurrentUser;
+};
+
+export type APIUpdateCurrentUserPayload = {
+  bio?: Maybe<Scalars['String']>;
+  displayName?: Maybe<Scalars['String']>;
+  profilePictureUrl?: Maybe<Scalars['String']>;
 };
 
 export type APIGetHomePageDataResults = {
@@ -2002,6 +2020,7 @@ export type APIResolversTypes = ResolversObject<{
   TriggerResetPasswordResponse: ResolverTypeWrapper<APITriggerResetPasswordResponse>,
   ResetPasswordPayload: APIResetPasswordPayload,
   ResetPasswordResponse: ResolverTypeWrapper<APIResetPasswordResponse>,
+  UpdateCurrentUserPayload: APIUpdateCurrentUserPayload,
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>,
   GlobalSearchOptions: APIGlobalSearchOptions,
   SearchResultEntity: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
@@ -2182,6 +2201,7 @@ export type APIResolversParentTypes = ResolversObject<{
   TriggerResetPasswordResponse: APITriggerResetPasswordResponse,
   ResetPasswordPayload: APIResetPasswordPayload,
   ResetPasswordResponse: APIResetPasswordResponse,
+  UpdateCurrentUserPayload: APIUpdateCurrentUserPayload,
   GetHomePageDataResults: APIGetHomePageDataResults,
   GlobalSearchOptions: APIGlobalSearchOptions,
   SearchResultEntity: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
@@ -2305,6 +2325,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationUpdateArticleArgs, 'id' | 'payload'>>,
   updateConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptArgs, '_id' | 'payload'>>,
   updateConceptBelongsToDomain?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptBelongsToDomainArgs, 'conceptId' | 'domainId' | 'payload'>>,
+  updateCurrentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationUpdateCurrentUserArgs, 'payload'>>,
   updateDomain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType, RequireFields<APIMutationUpdateDomainArgs, 'id' | 'payload'>>,
   updateLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningGoalArgs, '_id' | 'payload'>>,
   updateLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningPathArgs, '_id' | 'payload'>>,
@@ -2802,9 +2823,11 @@ export type APICheckTopicKeyAvailabilityResultResolvers<ContextType = APIContext
 export type APIUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['User'] = APIResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APIUserArticlesArgs, 'options'>>,
+  bio?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  profilePictureUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2812,12 +2835,14 @@ export type APIUserResolvers<ContextType = APIContext, ParentType extends APIRes
 export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CurrentUser'] = APIResolversParentTypes['CurrentUser']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
+  bio?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   consumedResources?: Resolver<Maybe<APIResolversTypes['UserConsumedResourcesResult']>, ParentType, ContextType, RequireFields<APICurrentUserConsumedResourcesArgs, 'options'>>,
   createdLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalCreatedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningGoalsArgs, 'options'>>,
   createdLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningPathsArgs, 'options'>>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  profilePictureUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
   startedLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningGoalsArgs, 'options'>>,
   startedLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPathStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningPathsArgs, 'options'>>,

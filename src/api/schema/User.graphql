@@ -8,6 +8,8 @@ type User {
   _id: String!
   email: String!
   displayName: String!
+  bio: String
+  profilePictureUrl: String
   role: UserRole!
   key: String!
   articles(options: ListArticlesOptions!): ListArticlesResult
@@ -25,6 +27,8 @@ type CurrentUser {
   _id: String!
   email: String!
   displayName: String!
+  bio: String
+  profilePictureUrl: String
   key: String!
   role: UserRole!
   articles(options: ListArticlesOptions!): ListArticlesResult
@@ -103,6 +107,8 @@ input RegisterGooglePayload {
 
 input AdminUpdateUserPayload {
   displayName: String
+  bio: String
+  profilePictureUrl: String
   key: String
   email: String
   role: UserRole
@@ -132,6 +138,12 @@ type ResetPasswordResponse {
   currentUser: CurrentUser!
 }
 
+input UpdateCurrentUserPayload {
+  displayName: String
+  profilePictureUrl: String
+  bio: String
+}
+
 type Mutation {
   login(email: String!, password: String!, discourseSSO: DiscourseSSO): LoginResponse!
   loginGoogle(idToken: String!, discourseSSO: DiscourseSSO): LoginResponse!
@@ -141,4 +153,5 @@ type Mutation {
   triggerResetPassword(email: String!): TriggerResetPasswordResponse!
   resetPassword(payload: ResetPasswordPayload!): ResetPasswordResponse!
   adminUpdateUser(id: String!, payload: AdminUpdateUserPayload!): User!
+  updateCurrentUser(payload: UpdateCurrentUserPayload!): CurrentUser!
 }
