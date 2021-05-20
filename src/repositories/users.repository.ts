@@ -31,6 +31,8 @@ import {
 
 interface UpdateUserData {
   displayName?: string;
+  bio?: string;
+  profilePictureUrl?: string | null;
   key?: string;
   email?: string;
   role?: UserRole;

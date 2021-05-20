@@ -35,6 +35,7 @@ import {
   APIUser,
   APIUserResolvers,
 } from '../schema/types';
+import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIArticle } from './articles.resolvers';
 
@@ -183,6 +184,20 @@ export const getUserResolver: APIQueryResolvers['getUser'] = async (_parent, { k
   return toAPIUser(foundUser);
 };
 
+export const updateCurrentUserResolver: APIMutationResolvers['updateCurrentUser'] = async (
+  _parent,
+  { payload },
+  { user }
+) => {
+  if (!user) throw new UnauthorizedError();
+  const updatedUser = await updateUser(
+    { _id: user._id },
+    { ...nullToUndefined(payload), profilePictureUrl: payload.profilePictureUrl }
+  );
+  if (!updatedUser) throw new Error('CurrentUser to update not found, should never throw');
+  return updatedUser;
+};
+
 export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = async (
   _parent,
   { id, payload },
@@ -191,7 +206,10 @@ export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = 
   if (!user || user.role !== UserRole.ADMIN) {
     throw new UnauthorizedError();
   }
-  const updatedUser = await updateUser({ _id: id }, nullToUndefined(payload));
+  const updatedUser = await updateUser(
+    { _id: id },
+    { ...nullToUndefined(payload), profilePictureUrl: payload.profilePictureUrl }
+  );
   if (!updatedUser) throw new NotFoundError('User', id);
   return toAPIUser(updatedUser);
 };

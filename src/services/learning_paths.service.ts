@@ -92,11 +92,11 @@ export const findLearningPathIfAuthorized = async (
 ): Promise<LearningPath> => {
   const learningPath = await findLearningPath(learningPathFilter);
 
-  if (!learningPath) throw new NotFoundError('LearningPath', JSON.stringify(learningPathFilter));
+  if (!learningPath) throw new NotFoundError('LearningPath', JSON.stringify(learningPathFilter), 'filter');
 
   if (!learningPath.public) {
     if (!userId || !(await findLearningPathCreatedBy(userId, learningPathFilter)))
-      throw new NotFoundError('LearningPath', JSON.stringify(learningPathFilter));
+      throw new NotFoundError('LearningPath', JSON.stringify(learningPathFilter), 'filter');
   }
   return learningPath;
 };
