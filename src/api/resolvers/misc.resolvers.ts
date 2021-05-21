@@ -32,9 +32,10 @@ export const globalSearchResolver: APIQueryResolvers['globalSearch'] = async (_,
 };
 
 export const getTopLevelDomainsResolver: APIQueryResolvers['getTopLevelDomains'] = async (_, {}) => {
+  const topLevelDomainKeys = env.OTHER.TOP_LEVEL_DOMAINS_KEYS.split(',');
   return {
     items: await Promise.all(
-      ['functional_programming', 'machine_learning', 'design'].map(async key => {
+      topLevelDomainKeys.map(async key => {
         const d = await findDomain({ key });
         if (!d) throw new Error(`Domain with key ${key} not found`);
         return d;
