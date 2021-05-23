@@ -53,6 +53,7 @@ type CheckTopicKeyAvailabilityResult {
 }
 
 type Query {
+  getTopicById(topicId: String!): ITopic!
   searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
   searchSubTopics(domainId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
   checkTopicKeyAvailability(key: String!, topicType: TopicType!, domainKey: String): CheckTopicKeyAvailabilityResult!

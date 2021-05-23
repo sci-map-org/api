@@ -18,7 +18,12 @@ type GlobalSearchResults {
   results: [SearchResult!]!
 }
 
+type GetTopLevelDomainsResults {
+  items: [Domain!]!
+}
+
 type Query {
   getHomePageData: GetHomePageDataResults!
+  getTopLevelDomains: GetTopLevelDomainsResults!
   globalSearch(query: String!, options: GlobalSearchOptions): GlobalSearchResults!
 }

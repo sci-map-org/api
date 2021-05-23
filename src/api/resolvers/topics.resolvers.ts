@@ -1,10 +1,12 @@
-import { Topic } from '../../entities/Topic';
+import { Topic, TopicLabel } from '../../entities/Topic';
+import { NotFoundError } from '../../errors/NotFoundError';
 import { findDomainConceptByKey } from '../../repositories/concepts.repository';
 import { findDomain } from '../../repositories/domains.repository';
 import { findLearningGoal } from '../../repositories/learning_goals.repository';
 import {
   attachTopicIsSubTopicOfTopic,
   detachTopicIsSubTopicOfTopic,
+  getTopicById,
   getTopicSubTopics,
   searchSubTopics,
   searchTopics,
@@ -17,6 +19,12 @@ import { nullToUndefined } from '../util/nullToUndefined';
 
 export const topicResolveType: APIITopicResolvers['__resolveType'] = (obj, ctx, info) => {
   return obj.topicType;
+};
+
+export const getTopicByIdResolver: APIQueryResolvers['getTopicById'] = async (_, { topicId }) => {
+  const topic = await getTopicById(topicId);
+  if (!topic) throw new NotFoundError(TopicLabel, topicId);
+  return topic;
 };
 
 export const searchTopicsResolver: APIQueryResolvers['searchTopics'] = async (_, { options }) => {

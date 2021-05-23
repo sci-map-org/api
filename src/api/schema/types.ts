@@ -62,6 +62,8 @@ export type APIQuery = {
   getLearningPath: APILearningPath;
   getLearningPathByKey: APILearningPath;
   getResourceById: APIResource;
+  getTopLevelDomains: APIGetTopLevelDomainsResults;
+  getTopicById: APIITopic;
   getUser: APIUser;
   globalSearch: APIGlobalSearchResults;
   listArticles: APIListArticlesResult;
@@ -130,6 +132,11 @@ export type APIQueryGetLearningPathByKeyArgs = {
 
 export type APIQueryGetResourceByIdArgs = {
   id: Scalars['String'];
+};
+
+
+export type APIQueryGetTopicByIdArgs = {
+  topicId: Scalars['String'];
 };
 
 
@@ -1729,6 +1736,11 @@ export type APIGlobalSearchResults = {
   results: Array<APISearchResult>;
 };
 
+export type APIGetTopLevelDomainsResults = {
+   __typename?: 'GetTopLevelDomainsResults';
+  items: Array<APIDomain>;
+};
+
 
 export type APIUpdateConceptReferencesConceptResult = {
    __typename?: 'UpdateConceptReferencesConceptResult';
@@ -2026,6 +2038,7 @@ export type APIResolversTypes = ResolversObject<{
   SearchResultEntity: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
   SearchResult: ResolverTypeWrapper<Omit<APISearchResult, 'entity'> & { entity: APIResolversTypes['SearchResultEntity'] }>,
   GlobalSearchResults: ResolverTypeWrapper<APIGlobalSearchResults>,
+  GetTopLevelDomainsResults: ResolverTypeWrapper<APIGetTopLevelDomainsResults>,
   Date: ResolverTypeWrapper<Scalars['Date']>,
   UpdateConceptReferencesConceptResult: ResolverTypeWrapper<APIUpdateConceptReferencesConceptResult>,
   TopicIsSubTopicOfTopic: ResolverTypeWrapper<APITopicIsSubTopicOfTopic>,
@@ -2207,6 +2220,7 @@ export type APIResolversParentTypes = ResolversObject<{
   SearchResultEntity: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
   SearchResult: Omit<APISearchResult, 'entity'> & { entity: APIResolversParentTypes['SearchResultEntity'] },
   GlobalSearchResults: APIGlobalSearchResults,
+  GetTopLevelDomainsResults: APIGetTopLevelDomainsResults,
   Date: Scalars['Date'],
   UpdateConceptReferencesConceptResult: APIUpdateConceptReferencesConceptResult,
   TopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic,
@@ -2250,6 +2264,8 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathArgs, '_id'>>,
   getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'key'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
+  getTopLevelDomains?: Resolver<APIResolversTypes['GetTopLevelDomainsResults'], ParentType, ContextType>,
+  getTopicById?: Resolver<APIResolversTypes['ITopic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByIdArgs, 'topicId'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
   globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
@@ -2927,6 +2943,11 @@ export type APIGlobalSearchResultsResolvers<ContextType = APIContext, ParentType
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APIGetTopLevelDomainsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopLevelDomainsResults'] = APIResolversParentTypes['GetTopLevelDomainsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export interface APIDateScalarConfig extends GraphQLScalarTypeConfig<APIResolversTypes['Date'], any> {
   name: 'Date'
 }
@@ -3056,6 +3077,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SearchResultEntity?: APISearchResultEntityResolvers,
   SearchResult?: APISearchResultResolvers<ContextType>,
   GlobalSearchResults?: APIGlobalSearchResultsResolvers<ContextType>,
+  GetTopLevelDomainsResults?: APIGetTopLevelDomainsResultsResolvers<ContextType>,
   Date?: GraphQLScalarType,
   UpdateConceptReferencesConceptResult?: APIUpdateConceptReferencesConceptResultResolvers<ContextType>,
   TopicIsSubTopicOfTopic?: APITopicIsSubTopicOfTopicResolvers<ContextType>,

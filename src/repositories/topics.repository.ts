@@ -4,8 +4,11 @@ import { TopicBelongsToDomainLabel } from '../entities/relationships/TopicBelong
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
 import { Topic, TopicLabel, TopicType } from '../entities/Topic';
 import { neo4jQb, neo4jDriver } from '../infra/neo4j';
-import { attachUniqueNodes, detachUniqueNodes, getRelatedNodes } from './util/abstract_graph_repo';
+import { attachUniqueNodes, detachUniqueNodes, findOne, getRelatedNodes } from './util/abstract_graph_repo';
 import { SortingDirection } from './util/sorting';
+
+export const getTopicById = (topicId: string) =>
+  findOne<Topic, { _id: string }>({ label: TopicLabel })({ _id: topicId });
 
 export const searchTopics = async (
   query: string,

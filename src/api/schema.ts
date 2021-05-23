@@ -118,7 +118,7 @@ import {
   startLearningPathResolver,
   updateLearningPathResolver,
 } from './resolvers/learning_paths.resolvers';
-import { getHomePageDataResolver, globalSearchResolver } from './resolvers/misc.resolvers';
+import { getHomePageDataResolver, globalSearchResolver, getTopLevelDomainsResolver } from './resolvers/misc.resolvers';
 import {
   addSubResourceResolver,
   addSubResourceToSeriesResolver,
@@ -154,6 +154,7 @@ import {
   attachTopicIsSubTopicOfTopicResolver,
   updateTopicIsSubTopicOfTopicResolver,
   detachTopicIsSubTopicOfTopicResolver,
+  getTopicByIdResolver,
 } from './resolvers/topics.resolvers';
 import {
   adminUpdateUserResolver,
@@ -265,12 +266,14 @@ const resolvers: APIResolvers<APIContext> = {
     getLearningGoalByKey: getLearningGoalByKeyResolver,
     getDomainLearningGoalByKey: getDomainLearningGoalByKeyResolver,
     searchLearningGoals: searchLearningGoalsResolver,
+    getTopicById: getTopicByIdResolver,
     searchTopics: searchTopicsResolver,
     searchSubTopics: searchSubTopicsResolver,
     checkTopicKeyAvailability: checkTopicKeyAvailabilityResolver,
     analyzeResourceUrl: analyzeResourceUrlResolver,
     getHomePageData: getHomePageDataResolver,
     globalSearch: globalSearchResolver,
+    getTopLevelDomains: getTopLevelDomainsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
