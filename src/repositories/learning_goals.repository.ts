@@ -474,7 +474,7 @@ export const getLearningGoalRelevantLearningMaterials = async (
   q.raw(`
   MATCH (cov)<-[:${LearningMaterialCoversConceptLabel}|${LearningMaterialLeadsToLearningGoalLabel}|${LearningGoalRequiresSubGoalLabel}*0..5]-(lm:${LearningMaterialLabel})
   <-[:${UserCreatedLearningMaterialLabel}]-(crea:${UserLabel}) 
-  WHERE cov._id IN req
+  WHERE cov._id IN req AND (lm:Resource or lm.public = true)
   `);
   //  OPTIONAL match (lm)<-[rel:RATED]-(u:User)
   q.optionalMatch([node('lm'), relation('in', 'rel', UserRatedLearningMaterialLabel), node('u', UserLabel)]);
