@@ -23,9 +23,9 @@ jobs:
                 command: |
                   sudo apt-get -y -qq update
                   sudo apt-get install python3-pip python3-dev build-essential
-                  sudo pip install --upgrade setuptools
-                  sudo pip install pyrsistent
-                  sudo pip install awsebcli
+                  sudo pip3 install --upgrade setuptools
+                  sudo pip3 install pyrsistent
+                  sudo pip3 install awsebcli
             - run:
                 name: Deploying
                 command: eb deploy SciMapApiProduction
