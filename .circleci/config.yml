@@ -22,10 +22,10 @@ jobs:
                 name: Installing deployment dependencies
                 command: |
                   sudo apt-get -y -qq update
-                  sudo apt-get install python-pip python-dev build-essential
+                  sudo apt-get install python3-pip python3-dev build-essential
                   sudo pip install --upgrade setuptools
-                  sudo pip install pyrsistent==0.16.0
-                  sudo pip install awsebcli botocore==1.21.31
+                  sudo pip install pyrsistent
+                  sudo pip install awsebcli
             - run:
                 name: Deploying
                 command: eb deploy SciMapApiProduction
