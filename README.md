@@ -7,6 +7,7 @@ Backend (GraphQl API) for [Sci-map.org](https://sci-map.org).
 Node.js + Typescript, Neo4j, Apollo Server.
 We are considering a switch towards neo4j-graphql-js as it would highly improve the queries performance, however it currently lacks some features.
 
+
 ## Setup
 
 - Install (Neo4j Desktop)[https://neo4j.com/download/] and create a database with 3.5.17 Neo4j version.
