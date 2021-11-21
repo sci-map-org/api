@@ -1,4 +1,4 @@
-import { BaseTopic } from './Topic';
+// import { BaseTopic } from './Topic';
 
-export const DomainLabel = 'Domain';
-export interface Domain extends BaseTopic {}
+// export const DomainLabel = 'Domain';
+// export interface Domain extends BaseTopic {}

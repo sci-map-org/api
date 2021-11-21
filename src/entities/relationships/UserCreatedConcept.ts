@@ -1,5 +1,5 @@
-export const UserCreatedConceptLabel = 'CREATED'
+// export const UserCreatedConceptLabel = 'CREATED'
 
-export interface UserCreatedConcept {
-    createdAt: number
-}
+// export interface UserCreatedConcept {
+//     createdAt: number
+// }

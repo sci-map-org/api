@@ -1,5 +1,5 @@
-export const UserCreatedDomainLabel = 'CREATED';
+// export const UserCreatedDomainLabel = 'CREATED';
 
-export interface UserCreatedDomain {
-  createdAt: number;
-}
+// export interface UserCreatedDomain {
+//   createdAt: number;
+// }

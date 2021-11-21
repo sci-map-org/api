@@ -1,21 +1,29 @@
-import { Concept } from './Concept';
-import { Domain } from './Domain';
-import { LearningGoal } from './LearningGoal';
+// import { Concept } from './Concept';
+// import { Domain } from './Domain';
+// import { LearningGoal } from './LearningGoal';
 
 export const TopicLabel = 'Topic';
 
-export interface BaseTopic {
+export interface Topic {
   _id: string;
   name: string;
   key: string;
   description?: string;
-  topicType: TopicType;
+  // topicType: TopicType;
 }
 
-export type Topic = Domain | Concept | LearningGoal;
+// interface BaseTopic extends TopicInterface {
 
-export enum TopicType {
-  Domain = 'Domain',
-  Concept = 'Concept',
-  LearningGoal = 'LearningGoal',
-}
+// }
+
+// export type Topic = BaseTopic | LearningGoal;
+
+// export interface Topic extends TopicInterface {
+  
+// }
+
+// export enum TopicType {
+//   Topic = 'Topic',
+//   // Concept = 'Concept',
+//   LearningGoal = 'LearningGoal',
+// }

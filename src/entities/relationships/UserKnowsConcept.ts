@@ -1,5 +1,5 @@
-export const UserKnowsConceptLabel = 'KNOWS';
+// export const UserKnowsConceptLabel = 'KNOWS';
 
-export interface UserKnowsConcept {
-  level: number;
-}
+// export interface UserKnowsConcept {
+//   level: number;
+// }
