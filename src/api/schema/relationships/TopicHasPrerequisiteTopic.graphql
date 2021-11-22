@@ -1,0 +1,16 @@
+type TopicHasPrerequisiteTopic {
+  strength: Float!
+}
+
+type UpdateTopicHasPrerequisiteTopicResult {
+  topic: Topic!
+  prerequisiteTopic: Topic!
+}
+
+type Mutation {
+  addTopicHasPrerequisiteTopic(topicId: String!, prerequisiteTopicId: String!): UpdateTopicHasPrerequisiteTopicResult!
+  removeTopicHasPrerequisiteTopic(
+    topicId: String!
+    prerequisiteTopicId: String!
+  ): UpdateTopicHasPrerequisiteTopicResult!
+}

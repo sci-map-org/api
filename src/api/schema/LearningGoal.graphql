@@ -3,7 +3,7 @@ enum LearningGoalType {
   SubGoal
 }
 
-type LearningGoal implements ITopic {
+type LearningGoal  {
   _id: String!
   key: String!
   type: LearningGoalType!

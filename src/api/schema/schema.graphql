@@ -13,6 +13,7 @@
 # import Query.*, Mutation.* from "LearningGoal.graphql"
 # import Mutation.* from "./relationships/ConceptBelongsToDomain.graphql"
 # import Mutation.* from "./relationships/ConceptReferencesConcept.graphql"
+# import Mutation.* from "./relationships/TopicHasPrerequisiteTopic.graphql"
 # import Mutation.* from "./relationships/TopicIsSubTopicOfTopic.graphql"
 # import * from "./relationships/LearningGoalBelongsToDomain.graphql"
 # import * from "./relationships/TopicBelongsToDomain.graphql"

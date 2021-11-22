@@ -2,8 +2,8 @@ type TopicIsSubTopicOfTopic {
   index: Float!
   createdAt: Date!
   createdByUserId: String
-  subTopic: ITopic!
-  parentTopic: ITopic!
+  subTopic: Topic!
+  parentTopic: Topic!
 }
 
 input AttachTopicIsSubTopicOfTopicPayload {
@@ -15,8 +15,8 @@ input UpdateTopicIsSubTopicOfTopicPayload {
   # strength
 }
 type DetachTopicIsSubTopicOfTopicResult {
-  parentTopic: ITopic!
-  subTopic: ITopic!
+  parentTopic: Topic!
+  subTopic: Topic!
 }
 
 type Mutation {

@@ -1,4 +1,4 @@
-type Concept implements ITopic {
+type Concept {
   _id: String!
   key: String!
   name: String!
@@ -70,7 +70,7 @@ input SetConceptKnownPayload {
 type AddConceptToDomainResult {
   concept: Concept!
   domain: Domain!
-  parentTopic: ITopic!
+  parentTopic: Topic!
 }
 
 type DeleteConceptResult {
@@ -79,19 +79,19 @@ type DeleteConceptResult {
   domain: Domain
 }
 
-type Query {
-  getConcept(_id: String!): Concept!
-  getDomainConceptByKey(domainKey: String!, conceptKey: String!): Concept!
-}
+# type Query {
+#   getConcept(_id: String!): Concept!
+#   getDomainConceptByKey(domainKey: String!, conceptKey: String!): Concept!
+# }
 
-type Mutation {
-  addConceptToDomain(
-    domainId: String!
-    parentTopicId: String!
-    payload: AddConceptToDomainPayload!
-  ): AddConceptToDomainResult!
-  updateConcept(_id: String!, payload: UpdateConceptPayload!): Concept!
-  deleteConcept(_id: String!): DeleteConceptResult!
-  setConceptsKnown(payload: SetConceptKnownPayload!): [Concept!]!
-  setConceptsUnknown(conceptIds: [String!]!): [Concept!]!
-}
+# type Mutation {
+#   addConceptToDomain(
+#     domainId: String!
+#     parentTopicId: String!
+#     payload: AddConceptToDomainPayload!
+#   ): AddConceptToDomainResult!
+#   updateConcept(_id: String!, payload: UpdateConceptPayload!): Concept!
+#   deleteConcept(_id: String!): DeleteConceptResult!
+#   setConceptsKnown(payload: SetConceptKnownPayload!): [Concept!]!
+#   setConceptsUnknown(conceptIds: [String!]!): [Concept!]!
+# }

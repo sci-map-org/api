@@ -1,4 +1,4 @@
-type Domain implements ITopic {
+type Domain  {
   _id: String!
   name: String!
   key: String!
@@ -138,13 +138,13 @@ type DeleteDomainResponse {
   success: Boolean!
 }
 
-type Query {
-  searchDomains(options: SearchDomainsOptions!): SearchDomainsResult!
-  getDomainByKey(key: String!): Domain!
-}
+# type Query {
+#   searchDomains(options: SearchDomainsOptions!): SearchDomainsResult!
+#   getDomainByKey(key: String!): Domain!
+# }
 
-type Mutation {
-  createDomain(payload: CreateDomainPayload!): Domain!
-  updateDomain(id: String!, payload: UpdateDomainPayload!): Domain!
-  deleteDomain(id: String!): DeleteDomainResponse!
-}
+# type Mutation {
+#   createDomain(payload: CreateDomainPayload!): Domain!
+#   updateDomain(id: String!, payload: UpdateDomainPayload!): Domain!
+#   deleteDomain(id: String!): DeleteDomainResponse!
+# }

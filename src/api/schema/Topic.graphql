@@ -1,16 +1,23 @@
-interface ITopic {
+type Topic {
   _id: String!
   name: String!
   key: String!
   description: String
-  topicType: TopicType! # To remove once there is a difference between the schema. Make a migration to remove it also from db
-  size: Float
+  parentTopic: Topic
   subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-  #   domains: [TopicsBelongsToDomainItem!] # parent domains ? or belong to domain ? Cause domain can be one already. parentDomains ?
+  subTopicsTotalCount: Int
+  # resources(options: DomainResourcesOptions!): DomainResourcesResults
+  # learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
+  learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults
+  learningMaterialsTotalCount: Int
+  # learningGoals: [LearningGoalBelongsToDomain!] => later
   # progress | completion
-  # coveredByLearningMaterials # ? shared recommendation engine ?
-  # social / might be different forms, maybe same in the beginning, e.g. comment or question ?
-  #
+  known: KnownTopic
+  prerequisiteTopics: [TopicHasPrerequisiteTopicItem!]
+  isPrerequisiteForTopics: [TopicHasPrerequisiteTopicItem!]
+  # followUpsTopics: [Topic!] TODO
+  createdBy: User
+  createdAt: Date!
 }
 
 enum TopicSubTopicsSortingType {
@@ -24,7 +31,7 @@ input TopicSubTopicsSortingOptions {
 
 input TopicSubTopicsOptions {
   sorting: TopicSubTopicsSortingOptions!
-  topicTypeIn: [TopicType!]
+  # topicTypeIn: [TopicType!]
 }
 
 enum TopicType {
@@ -33,28 +40,100 @@ enum TopicType {
   LearningGoal
 }
 
-input SearchTopicsFilterOptions {
-  topicTypeIn: [TopicType!]
-}
+# input SearchTopicsFilterOptions {
+#   topicTypeIn: [TopicType!]
+# }
 
 input SearchTopicsOptions {
   query: String!
   pagination: PaginationOptions!
-  filter: SearchTopicsFilterOptions
+  # filter: SearchTopicsFilterOptions
 }
 
 type SearchTopicsResult {
-  items: [ITopic!]!
+  items: [Topic!]!
+}
+
+# learning materials
+enum TopicLearningMaterialsSortingType {
+  recommended
+  rating
+  newest
+}
+
+input TopicLearningMaterialsFilterOptions {
+  # resourceTypeIn: [ResourceType!]
+  completedByUser: Boolean!
+  # learningMaterialTypeIn: [LearningMaterialType!] TODO
+}
+
+input TopicLearningMaterialsOptions {
+  sortingType: TopicLearningMaterialsSortingType!
+  query: String
+  filter: TopicLearningMaterialsFilterOptions!
+}
+
+type TopicLearningMaterialsResults {
+  items: [LearningMaterial!]!
+}
+
+# prereq
+type TopicHasPrerequisiteTopicItem {
+  topic: Topic!
+  relationship: TopicHasPrerequisiteTopic!
 }
 
 type CheckTopicKeyAvailabilityResult {
   available: Boolean!
-  existingTopic: ITopic
+  existingTopic: Topic
+}
+
+# progress
+type KnownTopic {
+  level: Float!
+}
+
+# mutation types
+
+input CreateTopicPayload {
+  name: String!
+  key: String!
+  description: String
+}
+
+input UpdateTopicPayload {
+  name: String
+  key: String
+  description: String
+}
+
+type DeleteTopicResponse {
+  _id: String!
+  success: Boolean!
+}
+
+input SetTopicKnownPayloadTopicsField {
+  topicId: String!
+  level: Float
+}
+
+input SetTopicsKnownPayload {
+  topics: [SetTopicKnownPayloadTopicsField!]!
 }
 
 type Query {
-  getTopicById(topicId: String!): ITopic!
+  getTopicById(topicId: String!): Topic!
+  getTopicByKey(topicId: String!): Topic!
   searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
-  searchSubTopics(domainId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
-  checkTopicKeyAvailability(key: String!, topicType: TopicType!, domainKey: String): CheckTopicKeyAvailabilityResult!
+  searchSubTopics(topicId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
+  checkTopicKeyAvailability(key: String!): CheckTopicKeyAvailabilityResult!
+}
+
+
+type Mutation {
+  createTopic(payload: CreateTopicPayload!): Topic!
+  updateTopic(id: String!, payload: UpdateTopicPayload!): Topic!
+  deleteTopic(id: String!): DeleteTopicResponse!
+  setTopicsKnown(payload: SetTopicsKnownPayload!): [Topic!]!
+  setTopicsUnknown(topicIds: [String!]!): [Topic!]!
 }
