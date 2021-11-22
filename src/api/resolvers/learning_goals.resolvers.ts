@@ -31,7 +31,6 @@ import {
   getLearningGoalRating,
   rateLearningGoal,
 } from '../../repositories/learning_goals.repository';
-import { getTopicSize } from '../../repositories/topics.repository';
 import { JWTPayload } from '../../services/auth/jwt';
 import { UnauthenticatedError, UnauthorizedError } from '../errors/UnauthenticatedError';
 import { APILearningGoalResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
@@ -366,9 +365,3 @@ export const getLearningGoalDependantsLearningGoalsResolver: APILearningGoalReso
 
 export const getLearningGoalRatingResolver: APILearningGoalResolvers['rating'] = learningGoal =>
   getLearningGoalRating(learningGoal._id);
-
-export const getLearningGoalSubTopicsResolver: APILearningGoalResolvers['subTopics'] = getTopicSubTopicsResolver;
-
-export const getLearningGoalSizeResolver: APILearningGoalResolvers['size'] = async learningGoal => {
-  return getTopicSize(learningGoal._id);
-};

@@ -184,6 +184,7 @@ import {
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
+import { LearningGoalType } from '../entities/LearningGoal';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -392,11 +393,12 @@ const resolvers: APIResolvers<APIContext> = {
       //@ts-ignore
       if (!obj.topicType) return 'Resource';
       //@ts-ignore
-      if (obj.topicType === TopicType.Concept) return 'Concept';
+      // if (obj.topicType === TopicType.Concept) return 'Concept';
       //@ts-ignore
-      if (obj.topicType === TopicType.LearningGoal) return 'LearningGoal';
+      if (obj.type === LearningGoalType.Roadmap || obj.type === LearningGoalType.SubGoal) return 'LearningGoal';
       //@ts-ignore
-      if (obj.topicType === TopicType.Domain) return 'Domain';
+      // if (obj.topicType === TopicType.Domain) return 'Domain';
+      return 'Topic'
       throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },
