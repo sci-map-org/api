@@ -211,6 +211,7 @@ export type APIMutation = {
   publishLearningGoal: APILearningGoalPublishedResult;
   rateLearningGoal: APILearningGoal;
   rateLearningMaterial: APILearningMaterial;
+  recommendLearningMaterial: APILearningMaterial;
   register: APICurrentUser;
   registerGoogle: APICurrentUser;
   removeComplementaryResourceFromLearningPath: APIComplementaryResourceUpdatedResult;
@@ -242,7 +243,6 @@ export type APIMutation = {
   updateTopic: APITopic;
   updateTopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic;
   verifyEmailAddress: APIVerifyEmailResponse;
-  voteResource: APIResource;
 };
 
 
@@ -451,6 +451,11 @@ export type APIMutationRateLearningMaterialArgs = {
 };
 
 
+export type APIMutationRecommendLearningMaterialArgs = {
+  learningMaterialId: Scalars['String'];
+};
+
+
 export type APIMutationRegisterArgs = {
   payload: APIRegisterPayload;
 };
@@ -578,12 +583,6 @@ export type APIMutationVerifyEmailAddressArgs = {
   token: Scalars['String'];
 };
 
-
-export type APIMutationVoteResourceArgs = {
-  resourceId: Scalars['String'];
-  value: APIResourceVoteValue;
-};
-
 export { LearningGoalType };
 
 export type APILearningGoal = {
@@ -598,7 +597,6 @@ export type APILearningGoal = {
   name: Scalars['String'];
   parentTopic?: Maybe<APITopicIsSubTopicOfTopic>;
   progress?: Maybe<APILearningGoalProgress>;
-  /** topicType: TopicType! */
   publishedAt?: Maybe<Scalars['Date']>;
   rating?: Maybe<Scalars['Float']>;
   relevantLearningMaterials?: Maybe<APILearningGoalRelevantLearningMaterialsResults>;
@@ -1000,6 +998,10 @@ export type APICreateSubResourcePayload = {
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
+  outcomesSubGoalsIds?: Maybe<Array<Scalars['String']>>;
+  /** covered subtopics TODO */
+  prerequisitesSubGoalsIds?: Maybe<Array<Scalars['String']>>;
+  showInTopics: Array<Scalars['String']>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;
   url: Scalars['String'];
@@ -1010,11 +1012,10 @@ export type APICreateResourcePayload = {
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
-  /**
-   * domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
-   * prerequisitesLearningGoalsIds: [String!]
-   * outcomesLearningGoalsIds: [String!]
-   */
+  outcomesSubGoalsIds?: Maybe<Array<Scalars['String']>>;
+  /** covered subtopics TODO */
+  prerequisitesSubGoalsIds?: Maybe<Array<Scalars['String']>>;
+  showInTopics: Array<Scalars['String']>;
   subResourceSeries?: Maybe<Array<APICreateSubResourcePayload>>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;
@@ -1039,11 +1040,6 @@ export type APISetResourcesConsumedPayloadResourcesField = {
 export type APISetResourcesConsumedPayload = {
   resources: Array<APISetResourcesConsumedPayloadResourcesField>;
 };
-
-export enum APIResourceVoteValue {
-  Down = 'down',
-  Up = 'up'
-}
 
 export type APIDeleteResourceResponse = {
    __typename?: 'DeleteResourceResponse';
@@ -1111,10 +1107,6 @@ export type APITopic = {
    * progress | completion
    */
   known?: Maybe<APIKnownTopic>;
-  /**
-   * resources(options: DomainResourcesOptions!): DomainResourcesResults
-   * learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
-   */
   learningMaterials?: Maybe<APITopicLearningMaterialsResults>;
   learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
   name: Scalars['String'];
@@ -1628,7 +1620,6 @@ export type APIResolversTypes = ResolversObject<{
   UpdateResourcePayload: APIUpdateResourcePayload,
   SetResourcesConsumedPayloadResourcesField: APISetResourcesConsumedPayloadResourcesField,
   SetResourcesConsumedPayload: APISetResourcesConsumedPayload,
-  ResourceVoteValue: APIResourceVoteValue,
   DeleteResourceResponse: ResolverTypeWrapper<APIDeleteResourceResponse>,
   SubResourceCreatedResult: ResolverTypeWrapper<APISubResourceCreatedResult>,
   SubResourceSeriesCreatedResult: ResolverTypeWrapper<APISubResourceSeriesCreatedResult>,
@@ -1770,7 +1761,6 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateResourcePayload: APIUpdateResourcePayload,
   SetResourcesConsumedPayloadResourcesField: APISetResourcesConsumedPayloadResourcesField,
   SetResourcesConsumedPayload: APISetResourcesConsumedPayload,
-  ResourceVoteValue: APIResourceVoteValue,
   DeleteResourceResponse: APIDeleteResourceResponse,
   SubResourceCreatedResult: APISubResourceCreatedResult,
   SubResourceSeriesCreatedResult: APISubResourceSeriesCreatedResult,
@@ -1917,6 +1907,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   publishLearningGoal?: Resolver<APIResolversTypes['LearningGoalPublishedResult'], ParentType, ContextType, RequireFields<APIMutationPublishLearningGoalArgs, 'learningGoalId'>>,
   rateLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationRateLearningGoalArgs, 'learningGoalId' | 'value'>>,
   rateLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRateLearningMaterialArgs, 'learningMaterialId' | 'value'>>,
+  recommendLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRecommendLearningMaterialArgs, 'learningMaterialId'>>,
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>,
   removeComplementaryResourceFromLearningPath?: Resolver<APIResolversTypes['ComplementaryResourceUpdatedResult'], ParentType, ContextType, RequireFields<APIMutationRemoveComplementaryResourceFromLearningPathArgs, 'learningPathId' | 'resourceId'>>,
@@ -1940,7 +1931,6 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicArgs, 'id' | 'payload'>>,
   updateTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['TopicIsSubTopicOfTopic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId' | 'payload'>>,
   verifyEmailAddress?: Resolver<APIResolversTypes['VerifyEmailResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>,
-  voteResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationVoteResourceArgs, 'resourceId' | 'value'>>,
 }>;
 
 export type APILearningGoalResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoal'] = APIResolversParentTypes['LearningGoal']> = ResolversObject<{

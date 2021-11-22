@@ -1,5 +1,0 @@
-# type TopicBelongsToDomain {
-#   index: Float!
-#   topic: Topic!
-#   domain: Domain!
-# }

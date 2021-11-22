@@ -9,7 +9,6 @@ type LearningGoal  {
   type: LearningGoalType!
   name: String!
   description: String
-  # topicType: TopicType!
   publishedAt: Date
   hidden: Boolean!
   rating: Float
@@ -108,11 +107,6 @@ type DeleteLearningGoalMutationResult {
   _id: String!
   success: Boolean!
 }
-
-# type DomainAndLearningGoalResult {
-#   domain: Domain!
-#   learningGoal: LearningGoal!
-# }
 
 input SearchLearningGoalsOptions {
   query: String

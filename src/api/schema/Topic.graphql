@@ -6,8 +6,6 @@ type Topic {
   parentTopic: Topic
   subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
   subTopicsTotalCount: Int
-  # resources(options: DomainResourcesOptions!): DomainResourcesResults
-  # learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
   learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults
   learningMaterialsTotalCount: Int
   # learningGoals: [LearningGoalBelongsToDomain!] => later
@@ -32,12 +30,6 @@ input TopicSubTopicsSortingOptions {
 input TopicSubTopicsOptions {
   sorting: TopicSubTopicsSortingOptions!
 }
-
-# enum TopicType {
-#   Domain
-#   Concept
-#   LearningGoal
-# }
 
 # input SearchTopicsFilterOptions {
 #   topicTypeIn: [TopicType!]

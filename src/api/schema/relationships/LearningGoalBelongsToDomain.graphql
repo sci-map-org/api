@@ -1,5 +1,0 @@
-# type LearningGoalBelongsToDomain {
-#   index: Float!
-#   domain: Domain!
-#   learningGoal: LearningGoal!
-# }

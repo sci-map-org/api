@@ -39,6 +39,7 @@ type LearningMaterialOutcomeItem {
 }
 
 type Mutation {
+  recommendLearningMaterial(learningMaterialId: String!): LearningMaterial!
   showLearningMaterialInTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
   hideLearningMaterialFromTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
   attachLearningMaterialCoversSubTopics(learningMaterialId: String!, subTopicIds: [String!]!): LearningMaterial!
