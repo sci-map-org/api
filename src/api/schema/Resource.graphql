@@ -43,49 +43,50 @@ type Resource implements LearningMaterial {
   tags: [LearningMaterialTag!]
   url: String!
   upvotes: Int
-  rating: Float
+  # rating: Float
   description: String
   durationSeconds: Int
   consumed: ConsumedResource
-  creator: User
-  coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
-  coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
-  domains: [Domain!]
   subResources: [Resource!]
   parentResources: [Resource!]
   subResourceSeries: [Resource!]
   seriesParentResource: Resource
   nextResource: Resource
   previousResource: Resource
+  coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults
+  coveredSubTopicsTree: [Topic!]
+  showedIn: [Topic!]
   prerequisites: [LearningMaterialPrerequisiteItem!]
   outcomes: [LearningMaterialOutcomeItem!]
+  createdBy: User
+  createdAt: Date!
 }
 
-input ResourceDomainsOptions {
-  pagination: PaginationOptions
-}
+# input ResourceDomainsOptions {
+#   pagination: PaginationOptions
+# }
 
-type ResourceDomainsResults {
-  items: [Domain!]!
-}
+# type ResourceDomainsResults {
+#   items: [Domain!]!
+# }
 
-input ResourceCoveredConceptsOptions {
-  pagination: PaginationOptions
-}
+# input ResourceCoveredConceptsOptions {
+#   pagination: PaginationOptions
+# }
 
-type ResourceCoveredConceptsResults {
-  items: [Concept!]!
-}
+# type ResourceCoveredConceptsResults {
+#   items: [Concept!]!
+# }
 
-type ResourceCoveredConceptsByDomainItem {
-  domain: Domain!
-  coveredConcepts: [Concept!]!
-}
+# type ResourceCoveredConceptsByDomainItem {
+#   domain: Domain!
+#   coveredConcepts: [Concept!]!
+# }
 
-input DomainAndCoveredConcepts {
-  domainId: String!
-  conceptsIds: [String!]!
-}
+# input DomainAndCoveredConcepts {
+#   domainId: String!
+#   conceptsIds: [String!]!
+# }
 
 input CreateSubResourcePayload {
   name: String!
@@ -95,9 +96,9 @@ input CreateSubResourcePayload {
   description: String
   durationSeconds: Int
   tags: [String!]
-  domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
-  prerequisitesLearningGoalsIds: [String!]
-  outcomesLearningGoalsIds: [String!]
+  # domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
+  # prerequisitesLearningGoalsIds: [String!]
+  # outcomesLearningGoalsIds: [String!] TODO
 }
 
 input CreateResourcePayload {
@@ -108,9 +109,9 @@ input CreateResourcePayload {
   description: String
   durationSeconds: Int
   tags: [String!]
-  domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
-  prerequisitesLearningGoalsIds: [String!]
-  outcomesLearningGoalsIds: [String!]
+  # domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
+  # prerequisitesLearningGoalsIds: [String!]
+  # outcomesLearningGoalsIds: [String!]
   subResourceSeries: [CreateSubResourcePayload!]
 }
 

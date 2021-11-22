@@ -2,21 +2,22 @@ type LearningPath implements LearningMaterial {
   _id: String!
   key: String!
   name: String!
-  public: Boolean!
   description: String
+  public: Boolean!
   durationSeconds: Int
   resourceItems: [LearningPathResourceItem!]
   complementaryResources: [Resource!]
   tags: [LearningMaterialTag!]
-  rating: Float
-  coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
-  coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
-  domains: [Domain!]
+  # rating: Float
   started: LearningPathStarted
-  createdBy: User
   startedBy(options: LearningPathStartedByOptions!): LearningPathStartedByResults
+  coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults
+  coveredSubTopicsTree: [Topic!]
+  showedIn: [Topic!]
   prerequisites: [LearningMaterialPrerequisiteItem!]
   outcomes: [LearningMaterialOutcomeItem!]
+  createdBy: User
+  createdAt: Date!
 }
 
 input LearningPathStartedByOptions {

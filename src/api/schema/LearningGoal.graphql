@@ -9,13 +9,13 @@ type LearningGoal  {
   type: LearningGoalType!
   name: String!
   description: String
-  topicType: TopicType!
+  # topicType: TopicType!
   publishedAt: Date
   hidden: Boolean!
   rating: Float
   progress: LearningGoalProgress
   createdBy: User
-  domain: LearningGoalBelongsToDomain
+  showedIn: [Topic!]
   subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
   parentTopic: TopicIsSubTopicOfTopic
   size: Float
@@ -80,7 +80,7 @@ type SubGoalItem {
   strength: Float!
 }
 
-union SubGoal = LearningGoal | Concept
+union SubGoal = LearningGoal | Topic
 
 input CreateLearningGoalPayload {
   name: String!
@@ -109,10 +109,10 @@ type DeleteLearningGoalMutationResult {
   success: Boolean!
 }
 
-type DomainAndLearningGoalResult {
-  domain: Domain!
-  learningGoal: LearningGoal!
-}
+# type DomainAndLearningGoalResult {
+#   domain: Domain!
+#   learningGoal: LearningGoal!
+# }
 
 input SearchLearningGoalsOptions {
   query: String
@@ -157,17 +157,17 @@ type UpdateLearningGoalDependenciesResult {
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
-  getDomainLearningGoalByKey(domainKey: String!, learningGoalKey: String!): DomainAndLearningGoalResult!
+  # getDomainLearningGoalByKey(domainKey: String!, learningGoalKey: String!): DomainAndLearningGoalResult! TODO
 }
 
 type Mutation {
   createLearningGoal(payload: CreateLearningGoalPayload!, options: CreateLearningGoalOptions): LearningGoal!
-  attachLearningGoalToDomain(
-    learningGoalId: String!
-    domainId: String!
-    payload: AttachLearningGoalToDomainPayload!
-  ): DomainAndLearningGoalResult!
-  detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
+  # attachLearningGoalToDomain(
+  #   learningGoalId: String!
+  #   domainId: String!
+  #   payload: AttachLearningGoalToDomainPayload!
+  # ): DomainAndLearningGoalResult! TODO
+  # detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
   updateLearningGoal(_id: String!, payload: UpdateLearningGoalPayload!): LearningGoal!
   deleteLearningGoal(_id: String!): DeleteLearningGoalMutationResult!
   attachLearningGoalRequiresSubGoal(

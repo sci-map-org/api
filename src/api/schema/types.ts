@@ -3,9 +3,7 @@ import { UserRole } from '../../entities/User';
 import { ResourceType } from '../../entities/Resource';
 import { ResourceMediaType } from '../../entities/Resource';
 import { SortingDirection } from '../../repositories/util/sorting';
-import { TopicType } from '../../entities/Topic';
 import { LearningGoalType } from '../../entities/LearningGoal';
-import { ConceptType } from '../../entities/Concept';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -53,13 +51,12 @@ export type APIQuery = {
   checkTopicKeyAvailability: APICheckTopicKeyAvailabilityResult;
   currentUser?: Maybe<APICurrentUser>;
   getArticleByKey: APIArticle;
-  getDomainLearningGoalByKey: APIDomainAndLearningGoalResult;
   getHomePageData: APIGetHomePageDataResults;
   getLearningGoalByKey: APILearningGoal;
   getLearningPath: APILearningPath;
   getLearningPathByKey: APILearningPath;
   getResourceById: APIResource;
-  getTopLevelDomains: APIGetTopLevelDomainsResults;
+  getTopLevelTopics: APIGetTopLevelTopicsResults;
   getTopicById: APITopic;
   getTopicByKey: APITopic;
   getUser: APIUser;
@@ -85,12 +82,6 @@ export type APIQueryCheckTopicKeyAvailabilityArgs = {
 
 export type APIQueryGetArticleByKeyArgs = {
   key: Scalars['String'];
-};
-
-
-export type APIQueryGetDomainLearningGoalByKeyArgs = {
-  domainKey: Scalars['String'];
-  learningGoalKey: Scalars['String'];
 };
 
 
@@ -186,7 +177,6 @@ export type APIDeleteArticleResponse = {
 export type APIMutation = {
    __typename?: 'Mutation';
   addComplementaryResourceToLearningPath: APIComplementaryResourceUpdatedResult;
-  addConceptReferencesConcept: APIUpdateConceptReferencesConceptResult;
   addLearningMaterialOutcome: APILearningMaterial;
   addLearningMaterialPrerequisite: APILearningMaterial;
   addSubResource: APISubResourceCreatedResult;
@@ -196,9 +186,7 @@ export type APIMutation = {
   adminUpdateUser: APIUser;
   attachLearningGoalDependency: APIUpdateLearningGoalDependenciesResult;
   attachLearningGoalRequiresSubGoal: APIAttachLearningGoalRequiresSubGoalResult;
-  attachLearningGoalToDomain: APIDomainAndLearningGoalResult;
-  attachLearningMaterialCoversConcepts: APILearningMaterial;
-  attachLearningMaterialToDomain: APILearningMaterial;
+  attachLearningMaterialCoversSubTopics: APILearningMaterial;
   attachTopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic;
   completeLearningPath: APILearningPathCompletedResult;
   createArticle: APIArticle;
@@ -213,11 +201,10 @@ export type APIMutation = {
   deleteResource: APIDeleteResourceResponse;
   deleteTopic: APIDeleteTopicResponse;
   detachLearningGoalDependency: APIUpdateLearningGoalDependenciesResult;
-  detachLearningGoalFromDomain: APIDomainAndLearningGoalResult;
   detachLearningGoalRequiresSubGoal: APIDetachLearningGoalRequiresSubGoalResult;
-  detachLearningMaterialCoversConcepts: APILearningMaterial;
-  detachLearningMaterialFromDomain: APILearningMaterial;
+  detachLearningMaterialCoversSubTopics: APILearningMaterial;
   detachTopicIsSubTopicOfTopic: APIDetachTopicIsSubTopicOfTopicResult;
+  hideLearningMaterialFromTopic: APILearningMaterial;
   indexLearningGoal: APILearningGoalIndexedResult;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
@@ -227,7 +214,6 @@ export type APIMutation = {
   register: APICurrentUser;
   registerGoogle: APICurrentUser;
   removeComplementaryResourceFromLearningPath: APIComplementaryResourceUpdatedResult;
-  removeConceptReferencesConcept: APIUpdateConceptReferencesConceptResult;
   removeLearningMaterialOutcome: APILearningMaterial;
   removeLearningMaterialPrerequisite: APILearningMaterial;
   removeTagsFromLearningMaterial: APILearningMaterial;
@@ -236,12 +222,20 @@ export type APIMutation = {
   setResourcesConsumed: Array<APIResource>;
   setTopicsKnown: Array<APITopic>;
   setTopicsUnknown: Array<APITopic>;
+  showLearningMaterialInTopic: APILearningMaterial;
   startLearningGoal: APILearningGoalStartedResult;
   startLearningPath: APILearningPathStartedResult;
   triggerResetPassword: APITriggerResetPasswordResponse;
   updateArticle: APIArticle;
-  updateConceptBelongsToDomain: APIConceptBelongsToDomain;
   updateCurrentUser: APICurrentUser;
+  /**
+   * attachLearningGoalToDomain(
+   *   learningGoalId: String!
+   *   domainId: String!
+   *   payload: AttachLearningGoalToDomainPayload!
+   * ): DomainAndLearningGoalResult! TODO
+   * detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
+   */
   updateLearningGoal: APILearningGoal;
   updateLearningPath: APILearningPath;
   updateResource: APIResource;
@@ -258,21 +252,15 @@ export type APIMutationAddComplementaryResourceToLearningPathArgs = {
 };
 
 
-export type APIMutationAddConceptReferencesConceptArgs = {
-  conceptId: Scalars['String'];
-  referencedConceptId: Scalars['String'];
-};
-
-
 export type APIMutationAddLearningMaterialOutcomeArgs = {
   learningMaterialId: Scalars['String'];
-  outcomeLearningGoalId: Scalars['String'];
+  outcomeSubGoalId: Scalars['String'];
 };
 
 
 export type APIMutationAddLearningMaterialPrerequisiteArgs = {
   learningMaterialId: Scalars['String'];
-  prerequisiteLearningGoalId: Scalars['String'];
+  prerequisiteSubGoalId: Scalars['String'];
 };
 
 
@@ -321,22 +309,9 @@ export type APIMutationAttachLearningGoalRequiresSubGoalArgs = {
 };
 
 
-export type APIMutationAttachLearningGoalToDomainArgs = {
-  domainId: Scalars['String'];
-  learningGoalId: Scalars['String'];
-  payload: APIAttachLearningGoalToDomainPayload;
-};
-
-
-export type APIMutationAttachLearningMaterialCoversConceptsArgs = {
-  conceptIds: Array<Scalars['String']>;
+export type APIMutationAttachLearningMaterialCoversSubTopicsArgs = {
   learningMaterialId: Scalars['String'];
-};
-
-
-export type APIMutationAttachLearningMaterialToDomainArgs = {
-  domainId: Scalars['String'];
-  learningMaterialId: Scalars['String'];
+  subTopicIds: Array<Scalars['String']>;
 };
 
 
@@ -417,33 +392,27 @@ export type APIMutationDetachLearningGoalDependencyArgs = {
 };
 
 
-export type APIMutationDetachLearningGoalFromDomainArgs = {
-  domainId: Scalars['String'];
-  learningGoalId: Scalars['String'];
-};
-
-
 export type APIMutationDetachLearningGoalRequiresSubGoalArgs = {
   learningGoalId: Scalars['String'];
   subGoalId: Scalars['String'];
 };
 
 
-export type APIMutationDetachLearningMaterialCoversConceptsArgs = {
-  conceptIds: Array<Scalars['String']>;
+export type APIMutationDetachLearningMaterialCoversSubTopicsArgs = {
   learningMaterialId: Scalars['String'];
-};
-
-
-export type APIMutationDetachLearningMaterialFromDomainArgs = {
-  domainId: Scalars['String'];
-  learningMaterialId: Scalars['String'];
+  subTopicIds: Array<Scalars['String']>;
 };
 
 
 export type APIMutationDetachTopicIsSubTopicOfTopicArgs = {
   parentTopicId: Scalars['String'];
   subTopicId: Scalars['String'];
+};
+
+
+export type APIMutationHideLearningMaterialFromTopicArgs = {
+  learningMaterialId: Scalars['String'];
+  topicId: Scalars['String'];
 };
 
 
@@ -498,21 +467,15 @@ export type APIMutationRemoveComplementaryResourceFromLearningPathArgs = {
 };
 
 
-export type APIMutationRemoveConceptReferencesConceptArgs = {
-  conceptId: Scalars['String'];
-  referencedConceptId: Scalars['String'];
-};
-
-
 export type APIMutationRemoveLearningMaterialOutcomeArgs = {
   learningMaterialId: Scalars['String'];
-  outcomeLearningGoalId: Scalars['String'];
+  outcomeSubGoalId: Scalars['String'];
 };
 
 
 export type APIMutationRemoveLearningMaterialPrerequisiteArgs = {
   learningMaterialId: Scalars['String'];
-  prerequisiteLearningGoalId: Scalars['String'];
+  prerequisiteSubGoalId: Scalars['String'];
 };
 
 
@@ -548,6 +511,12 @@ export type APIMutationSetTopicsUnknownArgs = {
 };
 
 
+export type APIMutationShowLearningMaterialInTopicArgs = {
+  learningMaterialId: Scalars['String'];
+  topicId: Scalars['String'];
+};
+
+
 export type APIMutationStartLearningGoalArgs = {
   learningGoalId: Scalars['String'];
 };
@@ -566,13 +535,6 @@ export type APIMutationTriggerResetPasswordArgs = {
 export type APIMutationUpdateArticleArgs = {
   id: Scalars['String'];
   payload: APIUpdateArticlePayload;
-};
-
-
-export type APIMutationUpdateConceptBelongsToDomainArgs = {
-  conceptId: Scalars['String'];
-  domainId: Scalars['String'];
-  payload: APIUpdateConceptBelongsToDomainPayload;
 };
 
 
@@ -622,272 +584,6 @@ export type APIMutationVoteResourceArgs = {
   value: APIResourceVoteValue;
 };
 
-export type APIConcept = {
-   __typename?: 'Concept';
-  _id: Scalars['String'];
-  coveredByResources?: Maybe<APIConceptCoveredByResourcesResults>;
-  description?: Maybe<Scalars['String']>;
-  domain?: Maybe<APIDomain>;
-  key: Scalars['String'];
-  known?: Maybe<APIKnownConcept>;
-  name: Scalars['String'];
-  parentTopic?: Maybe<APITopicIsSubTopicOfTopic>;
-  referencedByConcepts?: Maybe<Array<APIConceptReferencesConceptItem>>;
-  referencingConcepts?: Maybe<Array<APIConceptReferencesConceptItem>>;
-  size?: Maybe<Scalars['Float']>;
-  subTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
-  topicType: TopicType;
-  types: Array<ConceptType>;
-};
-
-
-export type APIConceptCoveredByResourcesArgs = {
-  options: APIConceptCoveredByResourcesOptions;
-};
-
-
-export type APIConceptSubTopicsArgs = {
-  options: APITopicSubTopicsOptions;
-};
-
-export { ConceptType };
-
-export type APIKnownConcept = {
-   __typename?: 'KnownConcept';
-  level: Scalars['Float'];
-};
-
-export type APIConceptReferencesConceptItem = {
-   __typename?: 'ConceptReferencesConceptItem';
-  concept: APIConcept;
-  relationship: APIConceptReferencesConcept;
-};
-
-export type APIConceptCoveredByResourcesOptions = {
-  pagination?: Maybe<APIPaginationOptions>;
-};
-
-export type APIConceptCoveredByResourcesResults = {
-   __typename?: 'ConceptCoveredByResourcesResults';
-  items: Array<APIResource>;
-};
-
-export type APIAddConceptToDomainPayload = {
-  key?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  types: Array<ConceptType>;
-  description?: Maybe<Scalars['String']>;
-  index?: Maybe<Scalars['Float']>;
-};
-
-export type APIUpdateConceptPayload = {
-  key?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  types?: Maybe<Array<ConceptType>>;
-  description?: Maybe<Scalars['String']>;
-};
-
-export type APISetConceptKnownPayloadConceptsField = {
-  conceptId: Scalars['String'];
-  level?: Maybe<Scalars['Float']>;
-};
-
-export type APISetConceptKnownPayload = {
-  concepts: Array<APISetConceptKnownPayloadConceptsField>;
-};
-
-export type APIAddConceptToDomainResult = {
-   __typename?: 'AddConceptToDomainResult';
-  concept: APIConcept;
-  domain: APIDomain;
-  parentTopic: APITopic;
-};
-
-export type APIDeleteConceptResult = {
-   __typename?: 'DeleteConceptResult';
-  success: Scalars['Boolean'];
-  _id: Scalars['String'];
-  domain?: Maybe<APIDomain>;
-};
-
-export type APIDomain = {
-   __typename?: 'Domain';
-  _id: Scalars['String'];
-  conceptTotalCount?: Maybe<Scalars['Int']>;
-  concepts?: Maybe<APIDomainConceptsResults>;
-  description?: Maybe<Scalars['String']>;
-  key: Scalars['String'];
-  learningGoals?: Maybe<Array<APILearningGoalBelongsToDomain>>;
-  learningMaterials?: Maybe<APIDomainLearningMaterialsResults>;
-  learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
-  learningPaths?: Maybe<APIDomainLearningPathsResults>;
-  name: Scalars['String'];
-  parentTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
-  resources?: Maybe<APIDomainResourcesResults>;
-  size?: Maybe<Scalars['Float']>;
-  subTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
-  topicType: TopicType;
-};
-
-
-export type APIDomainConceptsArgs = {
-  options: APIDomainConceptsOptions;
-};
-
-
-export type APIDomainLearningMaterialsArgs = {
-  options: APIDomainLearningMaterialsOptions;
-};
-
-
-export type APIDomainLearningPathsArgs = {
-  options: APIDomainLearningPathsOptions;
-};
-
-
-export type APIDomainParentTopicsArgs = {
-  options: APITopicSubTopicsOptions;
-};
-
-
-export type APIDomainResourcesArgs = {
-  options: APIDomainResourcesOptions;
-};
-
-
-export type APIDomainSubTopicsArgs = {
-  options: APITopicSubTopicsOptions;
-};
-
-/** Domain learning paths */
-export enum APIDomainLearningPathsSortingFields {
-  CreatedAt = 'createdAt'
-}
-
-export type APIDomainLearningPathsSortingOptions = {
-  direction: SortingDirection;
-  field: APIDomainLearningPathsSortingFields;
-};
-
-export type APIDomainLearningPathsOptions = {
-  pagination?: Maybe<APIPaginationOptions>;
-  sorting: APIDomainLearningPathsSortingOptions;
-};
-
-export type APIDomainLearningPathsResults = {
-   __typename?: 'DomainLearningPathsResults';
-  items: Array<APILearningPath>;
-};
-
-/** Domain concepts */
-export enum APIDomainConceptSortingEntities {
-  Concept = 'concept',
-  Relationship = 'relationship'
-}
-
-export enum APIDomainConceptSortingFields {
-  Id = '_id',
-  Index = 'index'
-}
-
-export type APIDomainConceptSortingOptions = {
-  direction: SortingDirection;
-  entity: APIDomainConceptSortingEntities;
-  field: APIDomainConceptSortingFields;
-};
-
-export type APIDomainConceptsOptions = {
-  pagination?: Maybe<APIPaginationOptions>;
-  sorting?: Maybe<APIDomainConceptSortingOptions>;
-};
-
-export type APIDomainConceptsItem = {
-   __typename?: 'DomainConceptsItem';
-  concept: APIConcept;
-  relationship: APIConceptBelongsToDomain;
-};
-
-export type APIDomainConceptsResults = {
-   __typename?: 'DomainConceptsResults';
-  items: Array<APIDomainConceptsItem>;
-};
-
-/** Domain resources */
-export enum APIDomainResourcesSortingType {
-  Newest = 'newest',
-  Recommended = 'recommended'
-}
-
-export type APIDomainResourcesFilterOptions = {
-  consumedByUser: Scalars['Boolean'];
-  resourceTypeIn?: Maybe<Array<ResourceType>>;
-};
-
-export type APIDomainResourcesOptions = {
-  filter: APIDomainResourcesFilterOptions;
-  /** pagination: PaginationOptions! # not required yet */
-  query?: Maybe<Scalars['String']>;
-  sortingType: APIDomainResourcesSortingType;
-};
-
-export type APIDomainResourcesResults = {
-   __typename?: 'DomainResourcesResults';
-  items: Array<APIResource>;
-};
-
-/** learning materials */
-export enum APIDomainLearningMaterialsSortingType {
-  Newest = 'newest',
-  Rating = 'rating',
-  Recommended = 'recommended'
-}
-
-export type APIDomainLearningMaterialsFilterOptions = {
-  completedByUser: Scalars['Boolean'];
-  learningMaterialTypeIn?: Maybe<Array<APILearningMaterialType>>;
-  resourceTypeIn?: Maybe<Array<ResourceType>>;
-};
-
-export type APIDomainLearningMaterialsOptions = {
-  filter: APIDomainLearningMaterialsFilterOptions;
-  query?: Maybe<Scalars['String']>;
-  sortingType: APIDomainLearningMaterialsSortingType;
-};
-
-export type APIDomainLearningMaterialsResults = {
-   __typename?: 'DomainLearningMaterialsResults';
-  items: Array<APILearningMaterial>;
-};
-
-/** search domains */
-export type APISearchDomainsOptions = {
-  query?: Maybe<Scalars['String']>;
-  pagination: APIPaginationOptions;
-};
-
-export type APISearchDomainsResult = {
-   __typename?: 'SearchDomainsResult';
-  items: Array<APIDomain>;
-};
-
-export type APICreateDomainPayload = {
-  name: Scalars['String'];
-  key: Scalars['String'];
-  description?: Maybe<Scalars['String']>;
-};
-
-export type APIUpdateDomainPayload = {
-  name?: Maybe<Scalars['String']>;
-  key?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-};
-
-export type APIDeleteDomainResponse = {
-   __typename?: 'DeleteDomainResponse';
-  _id: Scalars['String'];
-  success: Scalars['Boolean'];
-};
-
 export { LearningGoalType };
 
 export type APILearningGoal = {
@@ -897,22 +593,22 @@ export type APILearningGoal = {
   dependantLearningGoals?: Maybe<Array<APIDependsOnGoalItem>>;
   dependsOnLearningGoals?: Maybe<Array<APIDependsOnGoalItem>>;
   description?: Maybe<Scalars['String']>;
-  domain?: Maybe<APILearningGoalBelongsToDomain>;
   hidden: Scalars['Boolean'];
   key: Scalars['String'];
   name: Scalars['String'];
   parentTopic?: Maybe<APITopicIsSubTopicOfTopic>;
   progress?: Maybe<APILearningGoalProgress>;
+  /** topicType: TopicType! */
   publishedAt?: Maybe<Scalars['Date']>;
   rating?: Maybe<Scalars['Float']>;
   relevantLearningMaterials?: Maybe<APILearningGoalRelevantLearningMaterialsResults>;
   requiredInGoals?: Maybe<Array<APIRequiredInGoalItem>>;
   requiredSubGoals?: Maybe<Array<APISubGoalItem>>;
+  showedIn?: Maybe<Array<APITopic>>;
   size?: Maybe<Scalars['Float']>;
   started?: Maybe<APILearningGoalStarted>;
   startedBy?: Maybe<APILearningGoalStartedByResults>;
   subTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
-  topicType: TopicType;
   type: LearningGoalType;
 };
 
@@ -1001,7 +697,7 @@ export type APISubGoalItem = {
   subGoal: APISubGoal;
 };
 
-export type APISubGoal = APIConcept | APILearningGoal;
+export type APISubGoal = APILearningGoal | APITopic;
 
 export type APICreateLearningGoalPayload = {
   description?: Maybe<Scalars['String']>;
@@ -1030,12 +726,6 @@ export type APIDeleteLearningGoalMutationResult = {
    __typename?: 'DeleteLearningGoalMutationResult';
   _id: Scalars['String'];
   success: Scalars['Boolean'];
-};
-
-export type APIDomainAndLearningGoalResult = {
-   __typename?: 'DomainAndLearningGoalResult';
-  domain: APIDomain;
-  learningGoal: APILearningGoal;
 };
 
 export type APISearchLearningGoalsOptions = {
@@ -1089,54 +779,41 @@ export type APIUpdateLearningGoalDependenciesResult = {
 
 export type APILearningMaterial = {
   _id: Scalars['String'];
-  coveredConcepts?: Maybe<APILearningMaterialCoveredConceptsResults>;
-  coveredConceptsByDomain?: Maybe<Array<APILearningMaterialCoveredConceptsByDomainItem>>;
-  domains?: Maybe<Array<APIDomain>>;
+  /** rating: Float */
+  coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
+  coveredSubTopicsTree?: Maybe<Array<APITopic>>;
+  createdAt: Scalars['Date'];
+  createdBy?: Maybe<APIUser>;
   outcomes?: Maybe<Array<APILearningMaterialOutcomeItem>>;
   prerequisites?: Maybe<Array<APILearningMaterialPrerequisiteItem>>;
-  rating?: Maybe<Scalars['Float']>;
+  showedIn?: Maybe<Array<APITopic>>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
 };
 
 
-export type APILearningMaterialCoveredConceptsArgs = {
-  options: APILearningMaterialCoveredConceptsOptions;
+export type APILearningMaterialCoveredSubTopicsArgs = {
+  options: APILearningMaterialCoveredSubTopicsOptions;
 };
 
 export enum APILearningMaterialType {
-  LearningPath = 'LearningPath',
-  Resource = 'Resource'
+  Resource = 'Resource',
+  LearningPath = 'LearningPath'
 }
 
-export type APILearningMaterialCoveredConceptsOptions = {
+export type APILearningMaterialCoveredSubTopicsOptions = {
   pagination?: Maybe<APIPaginationOptions>;
 };
 
-export type APILearningMaterialCoveredConceptsResults = {
-   __typename?: 'LearningMaterialCoveredConceptsResults';
-  items: Array<APIConcept>;
-};
-
-export type APILearningMaterialCoveredConceptsByDomainItem = {
-   __typename?: 'LearningMaterialCoveredConceptsByDomainItem';
-  coveredConcepts: Array<APIConcept>;
-  domain: APIDomain;
-};
-
-export type APILearningMaterialDomainsOptions = {
-  pagination?: Maybe<APIPaginationOptions>;
-};
-
-export type APILearningMaterialDomainsResults = {
-   __typename?: 'LearningMaterialDomainsResults';
-  items: Array<APIDomain>;
+export type APILearningMaterialCoveredSubTopicsResults = {
+   __typename?: 'LearningMaterialCoveredSubTopicsResults';
+  items: Array<APITopic>;
 };
 
 export type APILearningMaterialPrerequisiteItem = {
    __typename?: 'LearningMaterialPrerequisiteItem';
   createdAt: Scalars['Date'];
   createdBy: Scalars['String'];
-  learningGoal: APILearningGoal;
+  prerequisite: APISubGoal;
   strength: Scalars['Float'];
 };
 
@@ -1144,7 +821,7 @@ export type APILearningMaterialOutcomeItem = {
    __typename?: 'LearningMaterialOutcomeItem';
   createdAt: Scalars['Date'];
   createdBy: Scalars['String'];
-  learningGoal: APILearningGoal;
+  outcome: APISubGoal;
   strength: Scalars['Float'];
 };
 
@@ -1168,27 +845,28 @@ export type APILearningPath = APILearningMaterial & {
    __typename?: 'LearningPath';
   _id: Scalars['String'];
   complementaryResources?: Maybe<Array<APIResource>>;
-  coveredConcepts?: Maybe<APILearningMaterialCoveredConceptsResults>;
-  coveredConceptsByDomain?: Maybe<Array<APILearningMaterialCoveredConceptsByDomainItem>>;
+  coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
+  coveredSubTopicsTree?: Maybe<Array<APITopic>>;
+  createdAt: Scalars['Date'];
   createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
-  domains?: Maybe<Array<APIDomain>>;
   durationSeconds?: Maybe<Scalars['Int']>;
   key: Scalars['String'];
   name: Scalars['String'];
   outcomes?: Maybe<Array<APILearningMaterialOutcomeItem>>;
   prerequisites?: Maybe<Array<APILearningMaterialPrerequisiteItem>>;
   public: Scalars['Boolean'];
-  rating?: Maybe<Scalars['Float']>;
   resourceItems?: Maybe<Array<APILearningPathResourceItem>>;
+  showedIn?: Maybe<Array<APITopic>>;
+  /** rating: Float */
   started?: Maybe<APILearningPathStarted>;
   startedBy?: Maybe<APILearningPathStartedByResults>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
 };
 
 
-export type APILearningPathCoveredConceptsArgs = {
-  options: APILearningMaterialCoveredConceptsOptions;
+export type APILearningPathCoveredSubTopicsArgs = {
+  options: APILearningMaterialCoveredSubTopicsOptions;
 };
 
 
@@ -1288,11 +966,12 @@ export type APIResource = APILearningMaterial & {
    __typename?: 'Resource';
   _id: Scalars['String'];
   consumed?: Maybe<APIConsumedResource>;
-  coveredConcepts?: Maybe<APILearningMaterialCoveredConceptsResults>;
-  coveredConceptsByDomain?: Maybe<Array<APILearningMaterialCoveredConceptsByDomainItem>>;
-  creator?: Maybe<APIUser>;
+  coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
+  coveredSubTopicsTree?: Maybe<Array<APITopic>>;
+  createdAt: Scalars['Date'];
+  createdBy?: Maybe<APIUser>;
+  /** rating: Float */
   description?: Maybe<Scalars['String']>;
-  domains?: Maybe<Array<APIDomain>>;
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
@@ -1301,8 +980,8 @@ export type APIResource = APILearningMaterial & {
   parentResources?: Maybe<Array<APIResource>>;
   prerequisites?: Maybe<Array<APILearningMaterialPrerequisiteItem>>;
   previousResource?: Maybe<APIResource>;
-  rating?: Maybe<Scalars['Float']>;
   seriesParentResource?: Maybe<APIResource>;
+  showedIn?: Maybe<Array<APITopic>>;
   subResourceSeries?: Maybe<Array<APIResource>>;
   subResources?: Maybe<Array<APIResource>>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
@@ -1312,47 +991,15 @@ export type APIResource = APILearningMaterial & {
 };
 
 
-export type APIResourceCoveredConceptsArgs = {
-  options: APILearningMaterialCoveredConceptsOptions;
-};
-
-export type APIResourceDomainsOptions = {
-  pagination?: Maybe<APIPaginationOptions>;
-};
-
-export type APIResourceDomainsResults = {
-   __typename?: 'ResourceDomainsResults';
-  items: Array<APIDomain>;
-};
-
-export type APIResourceCoveredConceptsOptions = {
-  pagination?: Maybe<APIPaginationOptions>;
-};
-
-export type APIResourceCoveredConceptsResults = {
-   __typename?: 'ResourceCoveredConceptsResults';
-  items: Array<APIConcept>;
-};
-
-export type APIResourceCoveredConceptsByDomainItem = {
-   __typename?: 'ResourceCoveredConceptsByDomainItem';
-  domain: APIDomain;
-  coveredConcepts: Array<APIConcept>;
-};
-
-export type APIDomainAndCoveredConcepts = {
-  conceptsIds: Array<Scalars['String']>;
-  domainId: Scalars['String'];
+export type APIResourceCoveredSubTopicsArgs = {
+  options: APILearningMaterialCoveredSubTopicsOptions;
 };
 
 export type APICreateSubResourcePayload = {
   description?: Maybe<Scalars['String']>;
-  domainsAndCoveredConcepts?: Maybe<Array<APIDomainAndCoveredConcepts>>;
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
-  outcomesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
-  prerequisitesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;
   url: Scalars['String'];
@@ -1360,12 +1007,14 @@ export type APICreateSubResourcePayload = {
 
 export type APICreateResourcePayload = {
   description?: Maybe<Scalars['String']>;
-  domainsAndCoveredConcepts?: Maybe<Array<APIDomainAndCoveredConcepts>>;
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
-  outcomesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
-  prerequisitesLearningGoalsIds?: Maybe<Array<Scalars['String']>>;
+  /**
+   * domainsAndCoveredConcepts: [DomainAndCoveredConcepts!]
+   * prerequisitesLearningGoalsIds: [String!]
+   * outcomesLearningGoalsIds: [String!]
+   */
   subResourceSeries?: Maybe<Array<APICreateSubResourcePayload>>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;
@@ -1497,8 +1146,6 @@ export type APITopicSubTopicsSortingOptions = {
 export type APITopicSubTopicsOptions = {
   sorting: APITopicSubTopicsSortingOptions;
 };
-
-export { TopicType };
 
 export type APISearchTopicsOptions = {
   pagination: APIPaginationOptions;
@@ -1774,7 +1421,7 @@ export type APIGlobalSearchOptions = {
   pagination?: Maybe<APIPaginationOptions>;
 };
 
-export type APISearchResultEntity = APIConcept | APIDomain | APILearningGoal | APILearningPath | APIResource;
+export type APISearchResultEntity = APILearningGoal | APILearningPath | APIResource | APITopic;
 
 export type APISearchResult = {
    __typename?: 'SearchResult';
@@ -1787,17 +1434,11 @@ export type APIGlobalSearchResults = {
   results: Array<APISearchResult>;
 };
 
-export type APIGetTopLevelDomainsResults = {
-   __typename?: 'GetTopLevelDomainsResults';
-  items: Array<APIDomain>;
+export type APIGetTopLevelTopicsResults = {
+   __typename?: 'GetTopLevelTopicsResults';
+  items: Array<APITopic>;
 };
 
-
-export type APIUpdateConceptReferencesConceptResult = {
-   __typename?: 'UpdateConceptReferencesConceptResult';
-  concept: APIConcept;
-  referencedConcept: APIConcept;
-};
 
 export type APIUpdateTopicHasPrerequisiteTopicResult = {
    __typename?: 'UpdateTopicHasPrerequisiteTopicResult';
@@ -1824,24 +1465,8 @@ export type APIDetachTopicIsSubTopicOfTopicResult = {
   subTopic: APITopic;
 };
 
-export type APIConceptBelongsToDomain = {
-   __typename?: 'ConceptBelongsToDomain';
-  index: Scalars['Float'];
-};
-
-export type APIUpdateConceptBelongsToDomainPayload = {
-  index?: Maybe<Scalars['Float']>;
-};
-
 export type APIUpdateTopicIsSubTopicOfTopicPayload = {
   index?: Maybe<Scalars['Float']>;
-};
-
-export type APILearningGoalBelongsToDomain = {
-   __typename?: 'LearningGoalBelongsToDomain';
-  index: Scalars['Float'];
-  domain: APIDomain;
-  learningGoal: APILearningGoal;
 };
 
 export type APIPaginationOptions = {
@@ -1855,11 +1480,6 @@ export type APITopicHasPrerequisiteTopic = {
 };
 
 export { SortingDirection };
-
-export type APIConceptReferencesConcept = {
-   __typename?: 'ConceptReferencesConcept';
-  strength: Scalars['Float'];
-};
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
@@ -1948,49 +1568,13 @@ export type APIResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   Mutation: ResolverTypeWrapper<{}>,
   Float: ResolverTypeWrapper<Scalars['Float']>,
-  Concept: ResolverTypeWrapper<APIConcept>,
-  ConceptType: ConceptType,
-  KnownConcept: ResolverTypeWrapper<APIKnownConcept>,
-  ConceptReferencesConceptItem: ResolverTypeWrapper<APIConceptReferencesConceptItem>,
-  ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
-  ConceptCoveredByResourcesResults: ResolverTypeWrapper<APIConceptCoveredByResourcesResults>,
-  AddConceptToDomainPayload: APIAddConceptToDomainPayload,
-  UpdateConceptPayload: APIUpdateConceptPayload,
-  SetConceptKnownPayloadConceptsField: APISetConceptKnownPayloadConceptsField,
-  SetConceptKnownPayload: APISetConceptKnownPayload,
-  AddConceptToDomainResult: ResolverTypeWrapper<APIAddConceptToDomainResult>,
-  DeleteConceptResult: ResolverTypeWrapper<APIDeleteConceptResult>,
-  Domain: ResolverTypeWrapper<APIDomain>,
-  Int: ResolverTypeWrapper<Scalars['Int']>,
-  DomainLearningPathsSortingFields: APIDomainLearningPathsSortingFields,
-  DomainLearningPathsSortingOptions: APIDomainLearningPathsSortingOptions,
-  DomainLearningPathsOptions: APIDomainLearningPathsOptions,
-  DomainLearningPathsResults: ResolverTypeWrapper<APIDomainLearningPathsResults>,
-  DomainConceptSortingEntities: APIDomainConceptSortingEntities,
-  DomainConceptSortingFields: APIDomainConceptSortingFields,
-  DomainConceptSortingOptions: APIDomainConceptSortingOptions,
-  DomainConceptsOptions: APIDomainConceptsOptions,
-  DomainConceptsItem: ResolverTypeWrapper<APIDomainConceptsItem>,
-  DomainConceptsResults: ResolverTypeWrapper<APIDomainConceptsResults>,
-  DomainResourcesSortingType: APIDomainResourcesSortingType,
-  DomainResourcesFilterOptions: APIDomainResourcesFilterOptions,
-  DomainResourcesOptions: APIDomainResourcesOptions,
-  DomainResourcesResults: ResolverTypeWrapper<APIDomainResourcesResults>,
-  DomainLearningMaterialsSortingType: APIDomainLearningMaterialsSortingType,
-  DomainLearningMaterialsFilterOptions: APIDomainLearningMaterialsFilterOptions,
-  DomainLearningMaterialsOptions: APIDomainLearningMaterialsOptions,
-  DomainLearningMaterialsResults: ResolverTypeWrapper<APIDomainLearningMaterialsResults>,
-  SearchDomainsOptions: APISearchDomainsOptions,
-  SearchDomainsResult: ResolverTypeWrapper<APISearchDomainsResult>,
-  CreateDomainPayload: APICreateDomainPayload,
-  UpdateDomainPayload: APIUpdateDomainPayload,
-  DeleteDomainResponse: ResolverTypeWrapper<APIDeleteDomainResponse>,
   LearningGoalType: LearningGoalType,
   LearningGoal: ResolverTypeWrapper<APILearningGoal>,
   DependsOnGoalItem: ResolverTypeWrapper<APIDependsOnGoalItem>,
   LearningGoalRelevantLearningMaterialsOptions: APILearningGoalRelevantLearningMaterialsOptions,
   LearningGoalRelevantLearningMaterialsItem: ResolverTypeWrapper<APILearningGoalRelevantLearningMaterialsItem>,
   LearningGoalRelevantLearningMaterialsResults: ResolverTypeWrapper<APILearningGoalRelevantLearningMaterialsResults>,
+  Int: ResolverTypeWrapper<Scalars['Int']>,
   LearningGoalProgress: ResolverTypeWrapper<APILearningGoalProgress>,
   LearningGoalStarted: ResolverTypeWrapper<APILearningGoalStarted>,
   LearningGoalStartedByOptions: APILearningGoalStartedByOptions,
@@ -1998,13 +1582,12 @@ export type APIResolversTypes = ResolversObject<{
   LearningGoalStartedByItem: ResolverTypeWrapper<APILearningGoalStartedByItem>,
   RequiredInGoalItem: ResolverTypeWrapper<APIRequiredInGoalItem>,
   SubGoalItem: ResolverTypeWrapper<Omit<APISubGoalItem, 'subGoal'> & { subGoal: APIResolversTypes['SubGoal'] }>,
-  SubGoal: APIResolversTypes['Concept'] | APIResolversTypes['LearningGoal'],
+  SubGoal: APIResolversTypes['LearningGoal'] | APIResolversTypes['Topic'],
   CreateLearningGoalPayload: APICreateLearningGoalPayload,
   CreateLearningGoalOptions: APICreateLearningGoalOptions,
   UpdateLearningGoalPayload: APIUpdateLearningGoalPayload,
   AttachLearningGoalToDomainPayload: APIAttachLearningGoalToDomainPayload,
   DeleteLearningGoalMutationResult: ResolverTypeWrapper<APIDeleteLearningGoalMutationResult>,
-  DomainAndLearningGoalResult: ResolverTypeWrapper<APIDomainAndLearningGoalResult>,
   SearchLearningGoalsOptions: APISearchLearningGoalsOptions,
   SearchLearningGoalsResult: ResolverTypeWrapper<APISearchLearningGoalsResult>,
   AttachLearningGoalRequiresSubGoalPayload: APIAttachLearningGoalRequiresSubGoalPayload,
@@ -2016,13 +1599,10 @@ export type APIResolversTypes = ResolversObject<{
   UpdateLearningGoalDependenciesResult: ResolverTypeWrapper<APIUpdateLearningGoalDependenciesResult>,
   LearningMaterial: APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
   LearningMaterialType: APILearningMaterialType,
-  LearningMaterialCoveredConceptsOptions: APILearningMaterialCoveredConceptsOptions,
-  LearningMaterialCoveredConceptsResults: ResolverTypeWrapper<APILearningMaterialCoveredConceptsResults>,
-  LearningMaterialCoveredConceptsByDomainItem: ResolverTypeWrapper<APILearningMaterialCoveredConceptsByDomainItem>,
-  LearningMaterialDomainsOptions: APILearningMaterialDomainsOptions,
-  LearningMaterialDomainsResults: ResolverTypeWrapper<APILearningMaterialDomainsResults>,
-  LearningMaterialPrerequisiteItem: ResolverTypeWrapper<APILearningMaterialPrerequisiteItem>,
-  LearningMaterialOutcomeItem: ResolverTypeWrapper<APILearningMaterialOutcomeItem>,
+  LearningMaterialCoveredSubTopicsOptions: APILearningMaterialCoveredSubTopicsOptions,
+  LearningMaterialCoveredSubTopicsResults: ResolverTypeWrapper<APILearningMaterialCoveredSubTopicsResults>,
+  LearningMaterialPrerequisiteItem: ResolverTypeWrapper<Omit<APILearningMaterialPrerequisiteItem, 'prerequisite'> & { prerequisite: APIResolversTypes['SubGoal'] }>,
+  LearningMaterialOutcomeItem: ResolverTypeWrapper<Omit<APILearningMaterialOutcomeItem, 'outcome'> & { outcome: APIResolversTypes['SubGoal'] }>,
   LearningMaterialTag: ResolverTypeWrapper<APILearningMaterialTag>,
   LearningMaterialTagSearchResult: ResolverTypeWrapper<APILearningMaterialTagSearchResult>,
   SearchLearningMaterialTagsOptions: APISearchLearningMaterialTagsOptions,
@@ -2043,12 +1623,6 @@ export type APIResolversTypes = ResolversObject<{
   ResourceType: ResourceType,
   ConsumedResource: ResolverTypeWrapper<APIConsumedResource>,
   Resource: ResolverTypeWrapper<APIResource>,
-  ResourceDomainsOptions: APIResourceDomainsOptions,
-  ResourceDomainsResults: ResolverTypeWrapper<APIResourceDomainsResults>,
-  ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
-  ResourceCoveredConceptsResults: ResolverTypeWrapper<APIResourceCoveredConceptsResults>,
-  ResourceCoveredConceptsByDomainItem: ResolverTypeWrapper<APIResourceCoveredConceptsByDomainItem>,
-  DomainAndCoveredConcepts: APIDomainAndCoveredConcepts,
   CreateSubResourcePayload: APICreateSubResourcePayload,
   CreateResourcePayload: APICreateResourcePayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
@@ -2067,7 +1641,6 @@ export type APIResolversTypes = ResolversObject<{
   TopicSubTopicsSortingType: APITopicSubTopicsSortingType,
   TopicSubTopicsSortingOptions: APITopicSubTopicsSortingOptions,
   TopicSubTopicsOptions: APITopicSubTopicsOptions,
-  TopicType: TopicType,
   SearchTopicsOptions: APISearchTopicsOptions,
   SearchTopicsResult: ResolverTypeWrapper<APISearchTopicsResult>,
   TopicLearningMaterialsSortingType: APITopicLearningMaterialsSortingType,
@@ -2107,24 +1680,19 @@ export type APIResolversTypes = ResolversObject<{
   UpdateCurrentUserPayload: APIUpdateCurrentUserPayload,
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>,
   GlobalSearchOptions: APIGlobalSearchOptions,
-  SearchResultEntity: APIResolversTypes['Concept'] | APIResolversTypes['Domain'] | APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
+  SearchResultEntity: APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'] | APIResolversTypes['Topic'],
   SearchResult: ResolverTypeWrapper<Omit<APISearchResult, 'entity'> & { entity: APIResolversTypes['SearchResultEntity'] }>,
   GlobalSearchResults: ResolverTypeWrapper<APIGlobalSearchResults>,
-  GetTopLevelDomainsResults: ResolverTypeWrapper<APIGetTopLevelDomainsResults>,
+  GetTopLevelTopicsResults: ResolverTypeWrapper<APIGetTopLevelTopicsResults>,
   Date: ResolverTypeWrapper<Scalars['Date']>,
-  UpdateConceptReferencesConceptResult: ResolverTypeWrapper<APIUpdateConceptReferencesConceptResult>,
   UpdateTopicHasPrerequisiteTopicResult: ResolverTypeWrapper<APIUpdateTopicHasPrerequisiteTopicResult>,
   TopicIsSubTopicOfTopic: ResolverTypeWrapper<APITopicIsSubTopicOfTopic>,
   AttachTopicIsSubTopicOfTopicPayload: APIAttachTopicIsSubTopicOfTopicPayload,
   DetachTopicIsSubTopicOfTopicResult: ResolverTypeWrapper<APIDetachTopicIsSubTopicOfTopicResult>,
-  ConceptBelongsToDomain: ResolverTypeWrapper<APIConceptBelongsToDomain>,
-  UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
   UpdateTopicIsSubTopicOfTopicPayload: APIUpdateTopicIsSubTopicOfTopicPayload,
-  LearningGoalBelongsToDomain: ResolverTypeWrapper<APILearningGoalBelongsToDomain>,
   PaginationOptions: APIPaginationOptions,
   TopicHasPrerequisiteTopic: ResolverTypeWrapper<APITopicHasPrerequisiteTopic>,
   SortingDirection: SortingDirection,
-  ConceptReferencesConcept: ResolverTypeWrapper<APIConceptReferencesConcept>,
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -2142,49 +1710,13 @@ export type APIResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'],
   Mutation: {},
   Float: Scalars['Float'],
-  Concept: APIConcept,
-  ConceptType: ConceptType,
-  KnownConcept: APIKnownConcept,
-  ConceptReferencesConceptItem: APIConceptReferencesConceptItem,
-  ConceptCoveredByResourcesOptions: APIConceptCoveredByResourcesOptions,
-  ConceptCoveredByResourcesResults: APIConceptCoveredByResourcesResults,
-  AddConceptToDomainPayload: APIAddConceptToDomainPayload,
-  UpdateConceptPayload: APIUpdateConceptPayload,
-  SetConceptKnownPayloadConceptsField: APISetConceptKnownPayloadConceptsField,
-  SetConceptKnownPayload: APISetConceptKnownPayload,
-  AddConceptToDomainResult: APIAddConceptToDomainResult,
-  DeleteConceptResult: APIDeleteConceptResult,
-  Domain: APIDomain,
-  Int: Scalars['Int'],
-  DomainLearningPathsSortingFields: APIDomainLearningPathsSortingFields,
-  DomainLearningPathsSortingOptions: APIDomainLearningPathsSortingOptions,
-  DomainLearningPathsOptions: APIDomainLearningPathsOptions,
-  DomainLearningPathsResults: APIDomainLearningPathsResults,
-  DomainConceptSortingEntities: APIDomainConceptSortingEntities,
-  DomainConceptSortingFields: APIDomainConceptSortingFields,
-  DomainConceptSortingOptions: APIDomainConceptSortingOptions,
-  DomainConceptsOptions: APIDomainConceptsOptions,
-  DomainConceptsItem: APIDomainConceptsItem,
-  DomainConceptsResults: APIDomainConceptsResults,
-  DomainResourcesSortingType: APIDomainResourcesSortingType,
-  DomainResourcesFilterOptions: APIDomainResourcesFilterOptions,
-  DomainResourcesOptions: APIDomainResourcesOptions,
-  DomainResourcesResults: APIDomainResourcesResults,
-  DomainLearningMaterialsSortingType: APIDomainLearningMaterialsSortingType,
-  DomainLearningMaterialsFilterOptions: APIDomainLearningMaterialsFilterOptions,
-  DomainLearningMaterialsOptions: APIDomainLearningMaterialsOptions,
-  DomainLearningMaterialsResults: APIDomainLearningMaterialsResults,
-  SearchDomainsOptions: APISearchDomainsOptions,
-  SearchDomainsResult: APISearchDomainsResult,
-  CreateDomainPayload: APICreateDomainPayload,
-  UpdateDomainPayload: APIUpdateDomainPayload,
-  DeleteDomainResponse: APIDeleteDomainResponse,
   LearningGoalType: LearningGoalType,
   LearningGoal: APILearningGoal,
   DependsOnGoalItem: APIDependsOnGoalItem,
   LearningGoalRelevantLearningMaterialsOptions: APILearningGoalRelevantLearningMaterialsOptions,
   LearningGoalRelevantLearningMaterialsItem: APILearningGoalRelevantLearningMaterialsItem,
   LearningGoalRelevantLearningMaterialsResults: APILearningGoalRelevantLearningMaterialsResults,
+  Int: Scalars['Int'],
   LearningGoalProgress: APILearningGoalProgress,
   LearningGoalStarted: APILearningGoalStarted,
   LearningGoalStartedByOptions: APILearningGoalStartedByOptions,
@@ -2192,13 +1724,12 @@ export type APIResolversParentTypes = ResolversObject<{
   LearningGoalStartedByItem: APILearningGoalStartedByItem,
   RequiredInGoalItem: APIRequiredInGoalItem,
   SubGoalItem: Omit<APISubGoalItem, 'subGoal'> & { subGoal: APIResolversParentTypes['SubGoal'] },
-  SubGoal: APIResolversParentTypes['Concept'] | APIResolversParentTypes['LearningGoal'],
+  SubGoal: APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['Topic'],
   CreateLearningGoalPayload: APICreateLearningGoalPayload,
   CreateLearningGoalOptions: APICreateLearningGoalOptions,
   UpdateLearningGoalPayload: APIUpdateLearningGoalPayload,
   AttachLearningGoalToDomainPayload: APIAttachLearningGoalToDomainPayload,
   DeleteLearningGoalMutationResult: APIDeleteLearningGoalMutationResult,
-  DomainAndLearningGoalResult: APIDomainAndLearningGoalResult,
   SearchLearningGoalsOptions: APISearchLearningGoalsOptions,
   SearchLearningGoalsResult: APISearchLearningGoalsResult,
   AttachLearningGoalRequiresSubGoalPayload: APIAttachLearningGoalRequiresSubGoalPayload,
@@ -2210,13 +1741,10 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateLearningGoalDependenciesResult: APIUpdateLearningGoalDependenciesResult,
   LearningMaterial: APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
   LearningMaterialType: APILearningMaterialType,
-  LearningMaterialCoveredConceptsOptions: APILearningMaterialCoveredConceptsOptions,
-  LearningMaterialCoveredConceptsResults: APILearningMaterialCoveredConceptsResults,
-  LearningMaterialCoveredConceptsByDomainItem: APILearningMaterialCoveredConceptsByDomainItem,
-  LearningMaterialDomainsOptions: APILearningMaterialDomainsOptions,
-  LearningMaterialDomainsResults: APILearningMaterialDomainsResults,
-  LearningMaterialPrerequisiteItem: APILearningMaterialPrerequisiteItem,
-  LearningMaterialOutcomeItem: APILearningMaterialOutcomeItem,
+  LearningMaterialCoveredSubTopicsOptions: APILearningMaterialCoveredSubTopicsOptions,
+  LearningMaterialCoveredSubTopicsResults: APILearningMaterialCoveredSubTopicsResults,
+  LearningMaterialPrerequisiteItem: Omit<APILearningMaterialPrerequisiteItem, 'prerequisite'> & { prerequisite: APIResolversParentTypes['SubGoal'] },
+  LearningMaterialOutcomeItem: Omit<APILearningMaterialOutcomeItem, 'outcome'> & { outcome: APIResolversParentTypes['SubGoal'] },
   LearningMaterialTag: APILearningMaterialTag,
   LearningMaterialTagSearchResult: APILearningMaterialTagSearchResult,
   SearchLearningMaterialTagsOptions: APISearchLearningMaterialTagsOptions,
@@ -2237,12 +1765,6 @@ export type APIResolversParentTypes = ResolversObject<{
   ResourceType: ResourceType,
   ConsumedResource: APIConsumedResource,
   Resource: APIResource,
-  ResourceDomainsOptions: APIResourceDomainsOptions,
-  ResourceDomainsResults: APIResourceDomainsResults,
-  ResourceCoveredConceptsOptions: APIResourceCoveredConceptsOptions,
-  ResourceCoveredConceptsResults: APIResourceCoveredConceptsResults,
-  ResourceCoveredConceptsByDomainItem: APIResourceCoveredConceptsByDomainItem,
-  DomainAndCoveredConcepts: APIDomainAndCoveredConcepts,
   CreateSubResourcePayload: APICreateSubResourcePayload,
   CreateResourcePayload: APICreateResourcePayload,
   UpdateResourcePayload: APIUpdateResourcePayload,
@@ -2261,7 +1783,6 @@ export type APIResolversParentTypes = ResolversObject<{
   TopicSubTopicsSortingType: APITopicSubTopicsSortingType,
   TopicSubTopicsSortingOptions: APITopicSubTopicsSortingOptions,
   TopicSubTopicsOptions: APITopicSubTopicsOptions,
-  TopicType: TopicType,
   SearchTopicsOptions: APISearchTopicsOptions,
   SearchTopicsResult: APISearchTopicsResult,
   TopicLearningMaterialsSortingType: APITopicLearningMaterialsSortingType,
@@ -2301,24 +1822,19 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateCurrentUserPayload: APIUpdateCurrentUserPayload,
   GetHomePageDataResults: APIGetHomePageDataResults,
   GlobalSearchOptions: APIGlobalSearchOptions,
-  SearchResultEntity: APIResolversParentTypes['Concept'] | APIResolversParentTypes['Domain'] | APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
+  SearchResultEntity: APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'] | APIResolversParentTypes['Topic'],
   SearchResult: Omit<APISearchResult, 'entity'> & { entity: APIResolversParentTypes['SearchResultEntity'] },
   GlobalSearchResults: APIGlobalSearchResults,
-  GetTopLevelDomainsResults: APIGetTopLevelDomainsResults,
+  GetTopLevelTopicsResults: APIGetTopLevelTopicsResults,
   Date: Scalars['Date'],
-  UpdateConceptReferencesConceptResult: APIUpdateConceptReferencesConceptResult,
   UpdateTopicHasPrerequisiteTopicResult: APIUpdateTopicHasPrerequisiteTopicResult,
   TopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic,
   AttachTopicIsSubTopicOfTopicPayload: APIAttachTopicIsSubTopicOfTopicPayload,
   DetachTopicIsSubTopicOfTopicResult: APIDetachTopicIsSubTopicOfTopicResult,
-  ConceptBelongsToDomain: APIConceptBelongsToDomain,
-  UpdateConceptBelongsToDomainPayload: APIUpdateConceptBelongsToDomainPayload,
   UpdateTopicIsSubTopicOfTopicPayload: APIUpdateTopicIsSubTopicOfTopicPayload,
-  LearningGoalBelongsToDomain: APILearningGoalBelongsToDomain,
   PaginationOptions: APIPaginationOptions,
   TopicHasPrerequisiteTopic: APITopicHasPrerequisiteTopic,
   SortingDirection: SortingDirection,
-  ConceptReferencesConcept: APIConceptReferencesConcept,
 }>;
 
 export type APIArticleResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Article'] = APIResolversParentTypes['Article']> = ResolversObject<{
@@ -2341,13 +1857,12 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   checkTopicKeyAvailability?: Resolver<APIResolversTypes['CheckTopicKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckTopicKeyAvailabilityArgs, 'key'>>,
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>,
-  getDomainLearningGoalByKey?: Resolver<APIResolversTypes['DomainAndLearningGoalResult'], ParentType, ContextType, RequireFields<APIQueryGetDomainLearningGoalByKeyArgs, 'domainKey' | 'learningGoalKey'>>,
   getHomePageData?: Resolver<APIResolversTypes['GetHomePageDataResults'], ParentType, ContextType>,
   getLearningGoalByKey?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIQueryGetLearningGoalByKeyArgs, 'key'>>,
   getLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathArgs, '_id'>>,
   getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'key'>>,
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
-  getTopLevelDomains?: Resolver<APIResolversTypes['GetTopLevelDomainsResults'], ParentType, ContextType>,
+  getTopLevelTopics?: Resolver<APIResolversTypes['GetTopLevelTopicsResults'], ParentType, ContextType>,
   getTopicById?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByIdArgs, 'topicId'>>,
   getTopicByKey?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByKeyArgs, 'topicId'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
@@ -2368,9 +1883,8 @@ export type APIDeleteArticleResponseResolvers<ContextType = APIContext, ParentTy
 
 export type APIMutationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Mutation'] = APIResolversParentTypes['Mutation']> = ResolversObject<{
   addComplementaryResourceToLearningPath?: Resolver<APIResolversTypes['ComplementaryResourceUpdatedResult'], ParentType, ContextType, RequireFields<APIMutationAddComplementaryResourceToLearningPathArgs, 'learningPathId' | 'resourceId'>>,
-  addConceptReferencesConcept?: Resolver<APIResolversTypes['UpdateConceptReferencesConceptResult'], ParentType, ContextType, RequireFields<APIMutationAddConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
-  addLearningMaterialOutcome?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddLearningMaterialOutcomeArgs, 'learningMaterialId' | 'outcomeLearningGoalId'>>,
-  addLearningMaterialPrerequisite?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddLearningMaterialPrerequisiteArgs, 'learningMaterialId' | 'prerequisiteLearningGoalId'>>,
+  addLearningMaterialOutcome?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddLearningMaterialOutcomeArgs, 'learningMaterialId' | 'outcomeSubGoalId'>>,
+  addLearningMaterialPrerequisite?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddLearningMaterialPrerequisiteArgs, 'learningMaterialId' | 'prerequisiteSubGoalId'>>,
   addSubResource?: Resolver<APIResolversTypes['SubResourceCreatedResult'], ParentType, ContextType, RequireFields<APIMutationAddSubResourceArgs, 'parentResourceId' | 'subResourceId'>>,
   addSubResourceToSeries?: Resolver<APIResolversTypes['SubResourceSeriesCreatedResult'], ParentType, ContextType, RequireFields<APIMutationAddSubResourceToSeriesArgs, 'parentResourceId' | 'previousResourceId' | 'subResourceId'>>,
   addTagsToLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddTagsToLearningMaterialArgs, 'learningMaterialId' | 'tags'>>,
@@ -2378,9 +1892,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
   attachLearningGoalDependency?: Resolver<APIResolversTypes['UpdateLearningGoalDependenciesResult'], ParentType, ContextType, RequireFields<APIMutationAttachLearningGoalDependencyArgs, 'learningGoalDependencyId' | 'learningGoalId' | 'parentLearningGoalId'>>,
   attachLearningGoalRequiresSubGoal?: Resolver<APIResolversTypes['AttachLearningGoalRequiresSubGoalResult'], ParentType, ContextType, RequireFields<APIMutationAttachLearningGoalRequiresSubGoalArgs, 'learningGoalId' | 'payload' | 'subGoalId'>>,
-  attachLearningGoalToDomain?: Resolver<APIResolversTypes['DomainAndLearningGoalResult'], ParentType, ContextType, RequireFields<APIMutationAttachLearningGoalToDomainArgs, 'domainId' | 'learningGoalId' | 'payload'>>,
-  attachLearningMaterialCoversConcepts?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAttachLearningMaterialCoversConceptsArgs, 'conceptIds' | 'learningMaterialId'>>,
-  attachLearningMaterialToDomain?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAttachLearningMaterialToDomainArgs, 'domainId' | 'learningMaterialId'>>,
+  attachLearningMaterialCoversSubTopics?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAttachLearningMaterialCoversSubTopicsArgs, 'learningMaterialId' | 'subTopicIds'>>,
   attachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['TopicIsSubTopicOfTopic'], ParentType, ContextType, RequireFields<APIMutationAttachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId' | 'payload'>>,
   completeLearningPath?: Resolver<APIResolversTypes['LearningPathCompletedResult'], ParentType, ContextType, RequireFields<APIMutationCompleteLearningPathArgs, 'completed' | 'learningPathId'>>,
   createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
@@ -2395,11 +1907,10 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   deleteResource?: Resolver<APIResolversTypes['DeleteResourceResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteResourceArgs, '_id'>>,
   deleteTopic?: Resolver<APIResolversTypes['DeleteTopicResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteTopicArgs, 'id'>>,
   detachLearningGoalDependency?: Resolver<APIResolversTypes['UpdateLearningGoalDependenciesResult'], ParentType, ContextType, RequireFields<APIMutationDetachLearningGoalDependencyArgs, 'learningGoalDependencyId' | 'learningGoalId' | 'parentLearningGoalId'>>,
-  detachLearningGoalFromDomain?: Resolver<APIResolversTypes['DomainAndLearningGoalResult'], ParentType, ContextType, RequireFields<APIMutationDetachLearningGoalFromDomainArgs, 'domainId' | 'learningGoalId'>>,
   detachLearningGoalRequiresSubGoal?: Resolver<APIResolversTypes['DetachLearningGoalRequiresSubGoalResult'], ParentType, ContextType, RequireFields<APIMutationDetachLearningGoalRequiresSubGoalArgs, 'learningGoalId' | 'subGoalId'>>,
-  detachLearningMaterialCoversConcepts?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialCoversConceptsArgs, 'conceptIds' | 'learningMaterialId'>>,
-  detachLearningMaterialFromDomain?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialFromDomainArgs, 'domainId' | 'learningMaterialId'>>,
+  detachLearningMaterialCoversSubTopics?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialCoversSubTopicsArgs, 'learningMaterialId' | 'subTopicIds'>>,
   detachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['DetachTopicIsSubTopicOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId'>>,
+  hideLearningMaterialFromTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationHideLearningMaterialFromTopicArgs, 'learningMaterialId' | 'topicId'>>,
   indexLearningGoal?: Resolver<APIResolversTypes['LearningGoalIndexedResult'], ParentType, ContextType, RequireFields<APIMutationIndexLearningGoalArgs, 'learningGoalId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>,
@@ -2409,20 +1920,19 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>,
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>,
   removeComplementaryResourceFromLearningPath?: Resolver<APIResolversTypes['ComplementaryResourceUpdatedResult'], ParentType, ContextType, RequireFields<APIMutationRemoveComplementaryResourceFromLearningPathArgs, 'learningPathId' | 'resourceId'>>,
-  removeConceptReferencesConcept?: Resolver<APIResolversTypes['UpdateConceptReferencesConceptResult'], ParentType, ContextType, RequireFields<APIMutationRemoveConceptReferencesConceptArgs, 'conceptId' | 'referencedConceptId'>>,
-  removeLearningMaterialOutcome?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialOutcomeArgs, 'learningMaterialId' | 'outcomeLearningGoalId'>>,
-  removeLearningMaterialPrerequisite?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialPrerequisiteArgs, 'learningMaterialId' | 'prerequisiteLearningGoalId'>>,
+  removeLearningMaterialOutcome?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialOutcomeArgs, 'learningMaterialId' | 'outcomeSubGoalId'>>,
+  removeLearningMaterialPrerequisite?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialPrerequisiteArgs, 'learningMaterialId' | 'prerequisiteSubGoalId'>>,
   removeTagsFromLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveTagsFromLearningMaterialArgs, 'learningMaterialId' | 'tags'>>,
   removeTopicHasPrerequisiteTopic?: Resolver<APIResolversTypes['UpdateTopicHasPrerequisiteTopicResult'], ParentType, ContextType, RequireFields<APIMutationRemoveTopicHasPrerequisiteTopicArgs, 'topicId' | 'prerequisiteTopicId'>>,
   resetPassword?: Resolver<APIResolversTypes['ResetPasswordResponse'], ParentType, ContextType, RequireFields<APIMutationResetPasswordArgs, 'payload'>>,
   setResourcesConsumed?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType, RequireFields<APIMutationSetResourcesConsumedArgs, 'payload'>>,
   setTopicsKnown?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType, RequireFields<APIMutationSetTopicsKnownArgs, 'payload'>>,
   setTopicsUnknown?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType, RequireFields<APIMutationSetTopicsUnknownArgs, 'topicIds'>>,
+  showLearningMaterialInTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationShowLearningMaterialInTopicArgs, 'learningMaterialId' | 'topicId'>>,
   startLearningGoal?: Resolver<APIResolversTypes['LearningGoalStartedResult'], ParentType, ContextType, RequireFields<APIMutationStartLearningGoalArgs, 'learningGoalId'>>,
   startLearningPath?: Resolver<APIResolversTypes['LearningPathStartedResult'], ParentType, ContextType, RequireFields<APIMutationStartLearningPathArgs, 'learningPathId'>>,
   triggerResetPassword?: Resolver<APIResolversTypes['TriggerResetPasswordResponse'], ParentType, ContextType, RequireFields<APIMutationTriggerResetPasswordArgs, 'email'>>,
   updateArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationUpdateArticleArgs, 'id' | 'payload'>>,
-  updateConceptBelongsToDomain?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType, RequireFields<APIMutationUpdateConceptBelongsToDomainArgs, 'conceptId' | 'domainId' | 'payload'>>,
   updateCurrentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationUpdateCurrentUserArgs, 'payload'>>,
   updateLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningGoalArgs, '_id' | 'payload'>>,
   updateLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningPathArgs, '_id' | 'payload'>>,
@@ -2433,117 +1943,12 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   voteResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationVoteResourceArgs, 'resourceId' | 'value'>>,
 }>;
 
-export type APIConceptResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Concept'] = APIResolversParentTypes['Concept']> = ResolversObject<{
-  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  coveredByResources?: Resolver<Maybe<APIResolversTypes['ConceptCoveredByResourcesResults']>, ParentType, ContextType, RequireFields<APIConceptCoveredByResourcesArgs, 'options'>>,
-  description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  domain?: Resolver<Maybe<APIResolversTypes['Domain']>, ParentType, ContextType>,
-  key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  known?: Resolver<Maybe<APIResolversTypes['KnownConcept']>, ParentType, ContextType>,
-  name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  parentTopic?: Resolver<Maybe<APIResolversTypes['TopicIsSubTopicOfTopic']>, ParentType, ContextType>,
-  referencedByConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptReferencesConceptItem']>>, ParentType, ContextType>,
-  referencingConcepts?: Resolver<Maybe<Array<APIResolversTypes['ConceptReferencesConceptItem']>>, ParentType, ContextType>,
-  size?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
-  subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType, RequireFields<APIConceptSubTopicsArgs, 'options'>>,
-  topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
-  types?: Resolver<Array<APIResolversTypes['ConceptType']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIKnownConceptResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['KnownConcept'] = APIResolversParentTypes['KnownConcept']> = ResolversObject<{
-  level?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIConceptReferencesConceptItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptReferencesConceptItem'] = APIResolversParentTypes['ConceptReferencesConceptItem']> = ResolversObject<{
-  concept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType>,
-  relationship?: Resolver<APIResolversTypes['ConceptReferencesConcept'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIConceptCoveredByResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptCoveredByResourcesResults'] = APIResolversParentTypes['ConceptCoveredByResourcesResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIAddConceptToDomainResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['AddConceptToDomainResult'] = APIResolversParentTypes['AddConceptToDomainResult']> = ResolversObject<{
-  concept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType>,
-  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
-  parentTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDeleteConceptResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteConceptResult'] = APIResolversParentTypes['DeleteConceptResult']> = ResolversObject<{
-  success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
-  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  domain?: Resolver<Maybe<APIResolversTypes['Domain']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDomainResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Domain'] = APIResolversParentTypes['Domain']> = ResolversObject<{
-  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  conceptTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
-  concepts?: Resolver<Maybe<APIResolversTypes['DomainConceptsResults']>, ParentType, ContextType, RequireFields<APIDomainConceptsArgs, 'options'>>,
-  description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  learningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalBelongsToDomain']>>, ParentType, ContextType>,
-  learningMaterials?: Resolver<Maybe<APIResolversTypes['DomainLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APIDomainLearningMaterialsArgs, 'options'>>,
-  learningMaterialsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
-  learningPaths?: Resolver<Maybe<APIResolversTypes['DomainLearningPathsResults']>, ParentType, ContextType, RequireFields<APIDomainLearningPathsArgs, 'options'>>,
-  name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  parentTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType, RequireFields<APIDomainParentTopicsArgs, 'options'>>,
-  resources?: Resolver<Maybe<APIResolversTypes['DomainResourcesResults']>, ParentType, ContextType, RequireFields<APIDomainResourcesArgs, 'options'>>,
-  size?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
-  subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType, RequireFields<APIDomainSubTopicsArgs, 'options'>>,
-  topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDomainLearningPathsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainLearningPathsResults'] = APIResolversParentTypes['DomainLearningPathsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['LearningPath']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDomainConceptsItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainConceptsItem'] = APIResolversParentTypes['DomainConceptsItem']> = ResolversObject<{
-  concept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType>,
-  relationship?: Resolver<APIResolversTypes['ConceptBelongsToDomain'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDomainConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainConceptsResults'] = APIResolversParentTypes['DomainConceptsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['DomainConceptsItem']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDomainResourcesResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainResourcesResults'] = APIResolversParentTypes['DomainResourcesResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDomainLearningMaterialsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainLearningMaterialsResults'] = APIResolversParentTypes['DomainLearningMaterialsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['LearningMaterial']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APISearchDomainsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchDomainsResult'] = APIResolversParentTypes['SearchDomainsResult']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDeleteDomainResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteDomainResponse'] = APIResolversParentTypes['DeleteDomainResponse']> = ResolversObject<{
-  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
 export type APILearningGoalResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoal'] = APIResolversParentTypes['LearningGoal']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   dependantLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['DependsOnGoalItem']>>, ParentType, ContextType, RequireFields<APILearningGoalDependantLearningGoalsArgs, never>>,
   dependsOnLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['DependsOnGoalItem']>>, ParentType, ContextType, RequireFields<APILearningGoalDependsOnLearningGoalsArgs, never>>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  domain?: Resolver<Maybe<APIResolversTypes['LearningGoalBelongsToDomain']>, ParentType, ContextType>,
   hidden?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -2554,11 +1959,11 @@ export type APILearningGoalResolvers<ContextType = APIContext, ParentType extend
   relevantLearningMaterials?: Resolver<Maybe<APIResolversTypes['LearningGoalRelevantLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APILearningGoalRelevantLearningMaterialsArgs, 'options'>>,
   requiredInGoals?: Resolver<Maybe<Array<APIResolversTypes['RequiredInGoalItem']>>, ParentType, ContextType>,
   requiredSubGoals?: Resolver<Maybe<Array<APIResolversTypes['SubGoalItem']>>, ParentType, ContextType>,
+  showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   size?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   started?: Resolver<Maybe<APIResolversTypes['LearningGoalStarted']>, ParentType, ContextType>,
   startedBy?: Resolver<Maybe<APIResolversTypes['LearningGoalStartedByResults']>, ParentType, ContextType, RequireFields<APILearningGoalStartedByArgs, 'options'>>,
   subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType, RequireFields<APILearningGoalSubTopicsArgs, 'options'>>,
-  topicType?: Resolver<APIResolversTypes['TopicType'], ParentType, ContextType>,
   type?: Resolver<APIResolversTypes['LearningGoalType'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2616,18 +2021,12 @@ export type APISubGoalItemResolvers<ContextType = APIContext, ParentType extends
 }>;
 
 export type APISubGoalResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SubGoal'] = APIResolversParentTypes['SubGoal']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'Concept' | 'LearningGoal', ParentType, ContextType>
+  __resolveType: TypeResolveFn<'LearningGoal' | 'Topic', ParentType, ContextType>
 }>;
 
 export type APIDeleteLearningGoalMutationResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteLearningGoalMutationResult'] = APIResolversParentTypes['DeleteLearningGoalMutationResult']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIDomainAndLearningGoalResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DomainAndLearningGoalResult'] = APIResolversParentTypes['DomainAndLearningGoalResult']> = ResolversObject<{
-  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
-  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2674,35 +2073,25 @@ export type APIUpdateLearningGoalDependenciesResultResolvers<ContextType = APICo
 export type APILearningMaterialResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterial'] = APIResolversParentTypes['LearningMaterial']> = ResolversObject<{
   __resolveType: TypeResolveFn<'LearningPath' | 'Resource', ParentType, ContextType>,
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  coveredConcepts?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APILearningMaterialCoveredConceptsArgs, 'options'>>,
-  coveredConceptsByDomain?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialCoveredConceptsByDomainItem']>>, ParentType, ContextType>,
-  domains?: Resolver<Maybe<Array<APIResolversTypes['Domain']>>, ParentType, ContextType>,
+  coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APILearningMaterialCoveredSubTopicsArgs, 'options'>>,
+  coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
+  createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
+  createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   outcomes?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialOutcomeItem']>>, ParentType, ContextType>,
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialPrerequisiteItem']>>, ParentType, ContextType>,
-  rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
+  showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialTag']>>, ParentType, ContextType>,
 }>;
 
-export type APILearningMaterialCoveredConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterialCoveredConceptsResults'] = APIResolversParentTypes['LearningMaterialCoveredConceptsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APILearningMaterialCoveredConceptsByDomainItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterialCoveredConceptsByDomainItem'] = APIResolversParentTypes['LearningMaterialCoveredConceptsByDomainItem']> = ResolversObject<{
-  coveredConcepts?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
-  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APILearningMaterialDomainsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterialDomainsResults'] = APIResolversParentTypes['LearningMaterialDomainsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
+export type APILearningMaterialCoveredSubTopicsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterialCoveredSubTopicsResults'] = APIResolversParentTypes['LearningMaterialCoveredSubTopicsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
 export type APILearningMaterialPrerequisiteItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterialPrerequisiteItem'] = APIResolversParentTypes['LearningMaterialPrerequisiteItem']> = ResolversObject<{
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   createdBy?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
+  prerequisite?: Resolver<APIResolversTypes['SubGoal'], ParentType, ContextType>,
   strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2710,7 +2099,7 @@ export type APILearningMaterialPrerequisiteItemResolvers<ContextType = APIContex
 export type APILearningMaterialOutcomeItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterialOutcomeItem'] = APIResolversParentTypes['LearningMaterialOutcomeItem']> = ResolversObject<{
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   createdBy?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
+  outcome?: Resolver<APIResolversTypes['SubGoal'], ParentType, ContextType>,
   strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2729,19 +2118,19 @@ export type APILearningMaterialTagSearchResultResolvers<ContextType = APIContext
 export type APILearningPathResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPath'] = APIResolversParentTypes['LearningPath']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   complementaryResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
-  coveredConcepts?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APILearningPathCoveredConceptsArgs, 'options'>>,
-  coveredConceptsByDomain?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialCoveredConceptsByDomainItem']>>, ParentType, ContextType>,
+  coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APILearningPathCoveredSubTopicsArgs, 'options'>>,
+  coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
+  createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  domains?: Resolver<Maybe<Array<APIResolversTypes['Domain']>>, ParentType, ContextType>,
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   outcomes?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialOutcomeItem']>>, ParentType, ContextType>,
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialPrerequisiteItem']>>, ParentType, ContextType>,
   public?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
-  rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   resourceItems?: Resolver<Maybe<Array<APIResolversTypes['LearningPathResourceItem']>>, ParentType, ContextType>,
+  showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   started?: Resolver<Maybe<APIResolversTypes['LearningPathStarted']>, ParentType, ContextType>,
   startedBy?: Resolver<Maybe<APIResolversTypes['LearningPathStartedByResults']>, ParentType, ContextType, RequireFields<APILearningPathStartedByArgs, 'options'>>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialTag']>>, ParentType, ContextType>,
@@ -2808,11 +2197,11 @@ export type APIConsumedResourceResolvers<ContextType = APIContext, ParentType ex
 export type APIResourceResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Resource'] = APIResolversParentTypes['Resource']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   consumed?: Resolver<Maybe<APIResolversTypes['ConsumedResource']>, ParentType, ContextType>,
-  coveredConcepts?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredConceptsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredConceptsArgs, 'options'>>,
-  coveredConceptsByDomain?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialCoveredConceptsByDomainItem']>>, ParentType, ContextType>,
-  creator?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
+  coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredSubTopicsArgs, 'options'>>,
+  coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
+  createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
+  createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  domains?: Resolver<Maybe<Array<APIResolversTypes['Domain']>>, ParentType, ContextType>,
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
@@ -2821,30 +2210,14 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   parentResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialPrerequisiteItem']>>, ParentType, ContextType>,
   previousResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>,
-  rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>,
   seriesParentResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>,
+  showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   subResourceSeries?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
   subResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>,
   tags?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialTag']>>, ParentType, ContextType>,
   type?: Resolver<APIResolversTypes['ResourceType'], ParentType, ContextType>,
   upvotes?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIResourceDomainsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceDomainsResults'] = APIResolversParentTypes['ResourceDomainsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIResourceCoveredConceptsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceCoveredConceptsResults'] = APIResolversParentTypes['ResourceCoveredConceptsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIResourceCoveredConceptsByDomainItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceCoveredConceptsByDomainItem'] = APIResolversParentTypes['ResourceCoveredConceptsByDomainItem']> = ResolversObject<{
-  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
-  coveredConcepts?: Resolver<Array<APIResolversTypes['Concept']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -3040,7 +2413,7 @@ export type APIGetHomePageDataResultsResolvers<ContextType = APIContext, ParentT
 }>;
 
 export type APISearchResultEntityResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchResultEntity'] = APIResolversParentTypes['SearchResultEntity']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'Concept' | 'Domain' | 'LearningGoal' | 'LearningPath' | 'Resource', ParentType, ContextType>
+  __resolveType: TypeResolveFn<'LearningGoal' | 'LearningPath' | 'Resource' | 'Topic', ParentType, ContextType>
 }>;
 
 export type APISearchResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchResult'] = APIResolversParentTypes['SearchResult']> = ResolversObject<{
@@ -3054,20 +2427,14 @@ export type APIGlobalSearchResultsResolvers<ContextType = APIContext, ParentType
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
-export type APIGetTopLevelDomainsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopLevelDomainsResults'] = APIResolversParentTypes['GetTopLevelDomainsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Domain']>, ParentType, ContextType>,
+export type APIGetTopLevelTopicsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopLevelTopicsResults'] = APIResolversParentTypes['GetTopLevelTopicsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
 export interface APIDateScalarConfig extends GraphQLScalarTypeConfig<APIResolversTypes['Date'], any> {
   name: 'Date'
 }
-
-export type APIUpdateConceptReferencesConceptResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['UpdateConceptReferencesConceptResult'] = APIResolversParentTypes['UpdateConceptReferencesConceptResult']> = ResolversObject<{
-  concept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType>,
-  referencedConcept?: Resolver<APIResolversTypes['Concept'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
 
 export type APIUpdateTopicHasPrerequisiteTopicResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['UpdateTopicHasPrerequisiteTopicResult'] = APIResolversParentTypes['UpdateTopicHasPrerequisiteTopicResult']> = ResolversObject<{
   topic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
@@ -3090,24 +2457,7 @@ export type APIDetachTopicIsSubTopicOfTopicResultResolvers<ContextType = APICont
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
-export type APIConceptBelongsToDomainResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptBelongsToDomain'] = APIResolversParentTypes['ConceptBelongsToDomain']> = ResolversObject<{
-  index?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APILearningGoalBelongsToDomainResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalBelongsToDomain'] = APIResolversParentTypes['LearningGoalBelongsToDomain']> = ResolversObject<{
-  index?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
-  domain?: Resolver<APIResolversTypes['Domain'], ParentType, ContextType>,
-  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
 export type APITopicHasPrerequisiteTopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TopicHasPrerequisiteTopic'] = APIResolversParentTypes['TopicHasPrerequisiteTopic']> = ResolversObject<{
-  strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APIConceptReferencesConceptResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ConceptReferencesConcept'] = APIResolversParentTypes['ConceptReferencesConcept']> = ResolversObject<{
   strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -3118,20 +2468,6 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   Query?: APIQueryResolvers<ContextType>,
   DeleteArticleResponse?: APIDeleteArticleResponseResolvers<ContextType>,
   Mutation?: APIMutationResolvers<ContextType>,
-  Concept?: APIConceptResolvers<ContextType>,
-  KnownConcept?: APIKnownConceptResolvers<ContextType>,
-  ConceptReferencesConceptItem?: APIConceptReferencesConceptItemResolvers<ContextType>,
-  ConceptCoveredByResourcesResults?: APIConceptCoveredByResourcesResultsResolvers<ContextType>,
-  AddConceptToDomainResult?: APIAddConceptToDomainResultResolvers<ContextType>,
-  DeleteConceptResult?: APIDeleteConceptResultResolvers<ContextType>,
-  Domain?: APIDomainResolvers<ContextType>,
-  DomainLearningPathsResults?: APIDomainLearningPathsResultsResolvers<ContextType>,
-  DomainConceptsItem?: APIDomainConceptsItemResolvers<ContextType>,
-  DomainConceptsResults?: APIDomainConceptsResultsResolvers<ContextType>,
-  DomainResourcesResults?: APIDomainResourcesResultsResolvers<ContextType>,
-  DomainLearningMaterialsResults?: APIDomainLearningMaterialsResultsResolvers<ContextType>,
-  SearchDomainsResult?: APISearchDomainsResultResolvers<ContextType>,
-  DeleteDomainResponse?: APIDeleteDomainResponseResolvers<ContextType>,
   LearningGoal?: APILearningGoalResolvers<ContextType>,
   DependsOnGoalItem?: APIDependsOnGoalItemResolvers<ContextType>,
   LearningGoalRelevantLearningMaterialsItem?: APILearningGoalRelevantLearningMaterialsItemResolvers<ContextType>,
@@ -3144,7 +2480,6 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SubGoalItem?: APISubGoalItemResolvers<ContextType>,
   SubGoal?: APISubGoalResolvers,
   DeleteLearningGoalMutationResult?: APIDeleteLearningGoalMutationResultResolvers<ContextType>,
-  DomainAndLearningGoalResult?: APIDomainAndLearningGoalResultResolvers<ContextType>,
   SearchLearningGoalsResult?: APISearchLearningGoalsResultResolvers<ContextType>,
   AttachLearningGoalRequiresSubGoalResult?: APIAttachLearningGoalRequiresSubGoalResultResolvers<ContextType>,
   DetachLearningGoalRequiresSubGoalResult?: APIDetachLearningGoalRequiresSubGoalResultResolvers<ContextType>,
@@ -3153,9 +2488,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningGoalIndexedResult?: APILearningGoalIndexedResultResolvers<ContextType>,
   UpdateLearningGoalDependenciesResult?: APIUpdateLearningGoalDependenciesResultResolvers<ContextType>,
   LearningMaterial?: APILearningMaterialResolvers,
-  LearningMaterialCoveredConceptsResults?: APILearningMaterialCoveredConceptsResultsResolvers<ContextType>,
-  LearningMaterialCoveredConceptsByDomainItem?: APILearningMaterialCoveredConceptsByDomainItemResolvers<ContextType>,
-  LearningMaterialDomainsResults?: APILearningMaterialDomainsResultsResolvers<ContextType>,
+  LearningMaterialCoveredSubTopicsResults?: APILearningMaterialCoveredSubTopicsResultsResolvers<ContextType>,
   LearningMaterialPrerequisiteItem?: APILearningMaterialPrerequisiteItemResolvers<ContextType>,
   LearningMaterialOutcomeItem?: APILearningMaterialOutcomeItemResolvers<ContextType>,
   LearningMaterialTag?: APILearningMaterialTagResolvers<ContextType>,
@@ -3171,9 +2504,6 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningPathCompletedResult?: APILearningPathCompletedResultResolvers<ContextType>,
   ConsumedResource?: APIConsumedResourceResolvers<ContextType>,
   Resource?: APIResourceResolvers<ContextType>,
-  ResourceDomainsResults?: APIResourceDomainsResultsResolvers<ContextType>,
-  ResourceCoveredConceptsResults?: APIResourceCoveredConceptsResultsResolvers<ContextType>,
-  ResourceCoveredConceptsByDomainItem?: APIResourceCoveredConceptsByDomainItemResolvers<ContextType>,
   DeleteResourceResponse?: APIDeleteResourceResponseResolvers<ContextType>,
   SubResourceCreatedResult?: APISubResourceCreatedResultResolvers<ContextType>,
   SubResourceSeriesCreatedResult?: APISubResourceSeriesCreatedResultResolvers<ContextType>,
@@ -3203,16 +2533,12 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SearchResultEntity?: APISearchResultEntityResolvers,
   SearchResult?: APISearchResultResolvers<ContextType>,
   GlobalSearchResults?: APIGlobalSearchResultsResolvers<ContextType>,
-  GetTopLevelDomainsResults?: APIGetTopLevelDomainsResultsResolvers<ContextType>,
+  GetTopLevelTopicsResults?: APIGetTopLevelTopicsResultsResolvers<ContextType>,
   Date?: GraphQLScalarType,
-  UpdateConceptReferencesConceptResult?: APIUpdateConceptReferencesConceptResultResolvers<ContextType>,
   UpdateTopicHasPrerequisiteTopicResult?: APIUpdateTopicHasPrerequisiteTopicResultResolvers<ContextType>,
   TopicIsSubTopicOfTopic?: APITopicIsSubTopicOfTopicResolvers<ContextType>,
   DetachTopicIsSubTopicOfTopicResult?: APIDetachTopicIsSubTopicOfTopicResultResolvers<ContextType>,
-  ConceptBelongsToDomain?: APIConceptBelongsToDomainResolvers<ContextType>,
-  LearningGoalBelongsToDomain?: APILearningGoalBelongsToDomainResolvers<ContextType>,
   TopicHasPrerequisiteTopic?: APITopicHasPrerequisiteTopicResolvers<ContextType>,
-  ConceptReferencesConcept?: APIConceptReferencesConceptResolvers<ContextType>,
 }>;
 
 

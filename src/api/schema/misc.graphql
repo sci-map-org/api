@@ -8,7 +8,7 @@ input GlobalSearchOptions {
   pagination: PaginationOptions
 }
 
-union SearchResultEntity = Domain | Concept | LearningGoal | Resource | LearningPath
+union SearchResultEntity = Topic | LearningGoal | Resource | LearningPath
 
 type SearchResult {
   entity: SearchResultEntity!
@@ -18,12 +18,12 @@ type GlobalSearchResults {
   results: [SearchResult!]!
 }
 
-type GetTopLevelDomainsResults {
-  items: [Domain!]!
+type GetTopLevelTopicsResults {
+  items: [Topic!]!
 }
 
 type Query {
   getHomePageData: GetHomePageDataResults!
-  getTopLevelDomains: GetTopLevelDomainsResults!
+  getTopLevelTopics: GetTopLevelTopicsResults!
   globalSearch(query: String!, options: GlobalSearchOptions): GlobalSearchResults!
 }

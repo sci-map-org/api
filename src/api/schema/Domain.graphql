@@ -1,142 +1,142 @@
-type Domain  {
-  _id: String!
-  name: String!
-  key: String!
-  description: String
-  topicType: TopicType!
-  size: Float
-  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-  parentTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-  concepts(options: DomainConceptsOptions!): DomainConceptsResults
-  conceptTotalCount: Int
-  resources(options: DomainResourcesOptions!): DomainResourcesResults
-  learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
-  learningMaterials(options: DomainLearningMaterialsOptions!): DomainLearningMaterialsResults
-  learningMaterialsTotalCount: Int
-  learningGoals: [LearningGoalBelongsToDomain!]
-}
+# type Domain  {
+#   _id: String!
+#   name: String!
+#   key: String!
+#   description: String
+#   topicType: TopicType!
+#   size: Float
+#   subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+#   parentTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+#   concepts(options: DomainConceptsOptions!): DomainConceptsResults
+#   conceptTotalCount: Int
+#   resources(options: DomainResourcesOptions!): DomainResourcesResults
+#   learningPaths(options: DomainLearningPathsOptions!): DomainLearningPathsResults
+#   learningMaterials(options: DomainLearningMaterialsOptions!): DomainLearningMaterialsResults
+#   learningMaterialsTotalCount: Int
+#   learningGoals: [LearningGoalBelongsToDomain!]
+# }
 
 # Domain learning paths
-enum DomainLearningPathsSortingFields {
-  createdAt
-}
+# enum DomainLearningPathsSortingFields {
+#   createdAt
+# }
 
-input DomainLearningPathsSortingOptions {
-  field: DomainLearningPathsSortingFields!
-  direction: SortingDirection!
-}
+# input DomainLearningPathsSortingOptions {
+#   field: DomainLearningPathsSortingFields!
+#   direction: SortingDirection!
+# }
 
-input DomainLearningPathsOptions {
-  pagination: PaginationOptions
-  sorting: DomainLearningPathsSortingOptions!
-}
+# input DomainLearningPathsOptions {
+#   pagination: PaginationOptions
+#   sorting: DomainLearningPathsSortingOptions!
+# }
 
-type DomainLearningPathsResults {
-  items: [LearningPath!]!
-}
+# type DomainLearningPathsResults {
+#   items: [LearningPath!]!
+# }
 
-# Domain concepts
-enum DomainConceptSortingEntities {
-  concept
-  relationship
-}
+# # Domain concepts
+# enum DomainConceptSortingEntities {
+#   concept
+#   relationship
+# }
 
-enum DomainConceptSortingFields {
-  _id
-  index
-}
+# enum DomainConceptSortingFields {
+#   _id
+#   index
+# }
 
-input DomainConceptSortingOptions {
-  entity: DomainConceptSortingEntities!
-  field: DomainConceptSortingFields!
-  direction: SortingDirection!
-}
+# input DomainConceptSortingOptions {
+#   entity: DomainConceptSortingEntities!
+#   field: DomainConceptSortingFields!
+#   direction: SortingDirection!
+# }
 
-input DomainConceptsOptions {
-  pagination: PaginationOptions
-  sorting: DomainConceptSortingOptions
-}
+# input DomainConceptsOptions {
+#   pagination: PaginationOptions
+#   sorting: DomainConceptSortingOptions
+# }
 
-type DomainConceptsItem {
-  concept: Concept!
-  relationship: ConceptBelongsToDomain!
-}
+# type DomainConceptsItem {
+#   concept: Concept!
+#   relationship: ConceptBelongsToDomain!
+# }
 
-type DomainConceptsResults {
-  items: [DomainConceptsItem!]!
-}
+# type DomainConceptsResults {
+#   items: [DomainConceptsItem!]!
+# }
 
-# Domain resources
-enum DomainResourcesSortingType {
-  recommended
-  newest
-}
+# # Domain resources
+# enum DomainResourcesSortingType {
+#   recommended
+#   newest
+# }
 
-input DomainResourcesFilterOptions {
-  resourceTypeIn: [ResourceType!]
-  consumedByUser: Boolean!
-}
+# input DomainResourcesFilterOptions {
+#   resourceTypeIn: [ResourceType!]
+#   consumedByUser: Boolean!
+# }
 
-input DomainResourcesOptions {
-  sortingType: DomainResourcesSortingType!
-  # pagination: PaginationOptions! # not required yet
-  query: String
-  filter: DomainResourcesFilterOptions!
-}
+# input DomainResourcesOptions {
+#   sortingType: DomainResourcesSortingType!
+#   # pagination: PaginationOptions! # not required yet
+#   query: String
+#   filter: DomainResourcesFilterOptions!
+# }
 
-type DomainResourcesResults {
-  items: [Resource!]!
-}
+# type DomainResourcesResults {
+#   items: [Resource!]!
+# }
 
-# learning materials
-enum DomainLearningMaterialsSortingType {
-  recommended
-  rating
-  newest
-}
+# # learning materials
+# enum DomainLearningMaterialsSortingType {
+#   recommended
+#   rating
+#   newest
+# }
 
-input DomainLearningMaterialsFilterOptions {
-  resourceTypeIn: [ResourceType!]
-  completedByUser: Boolean!
-  learningMaterialTypeIn: [LearningMaterialType!]
-}
+# input DomainLearningMaterialsFilterOptions {
+#   resourceTypeIn: [ResourceType!]
+#   completedByUser: Boolean!
+#   learningMaterialTypeIn: [LearningMaterialType!]
+# }
 
-input DomainLearningMaterialsOptions {
-  sortingType: DomainLearningMaterialsSortingType!
-  query: String
-  filter: DomainLearningMaterialsFilterOptions!
-}
+# input DomainLearningMaterialsOptions {
+#   sortingType: DomainLearningMaterialsSortingType!
+#   query: String
+#   filter: DomainLearningMaterialsFilterOptions!
+# }
 
-type DomainLearningMaterialsResults {
-  items: [LearningMaterial!]!
-}
+# type DomainLearningMaterialsResults {
+#   items: [LearningMaterial!]!
+# }
 
-# search domains
-input SearchDomainsOptions {
-  query: String
-  pagination: PaginationOptions!
-}
+# # search domains
+# input SearchDomainsOptions {
+#   query: String
+#   pagination: PaginationOptions!
+# }
 
-type SearchDomainsResult {
-  items: [Domain!]!
-}
+# type SearchDomainsResult {
+#   items: [Domain!]!
+# }
 
-input CreateDomainPayload {
-  name: String!
-  key: String!
-  description: String
-}
+# input CreateDomainPayload {
+#   name: String!
+#   key: String!
+#   description: String
+# }
 
-input UpdateDomainPayload {
-  name: String
-  key: String
-  description: String
-}
+# input UpdateDomainPayload {
+#   name: String
+#   key: String
+#   description: String
+# }
 
-type DeleteDomainResponse {
-  _id: String!
-  success: Boolean!
-}
+# type DeleteDomainResponse {
+#   _id: String!
+#   success: Boolean!
+# }
 
 # type Query {
 #   searchDomains(options: SearchDomainsOptions!): SearchDomainsResult!

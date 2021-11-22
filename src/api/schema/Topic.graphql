@@ -31,14 +31,13 @@ input TopicSubTopicsSortingOptions {
 
 input TopicSubTopicsOptions {
   sorting: TopicSubTopicsSortingOptions!
-  # topicTypeIn: [TopicType!]
 }
 
-enum TopicType {
-  Domain
-  Concept
-  LearningGoal
-}
+# enum TopicType {
+#   Domain
+#   Concept
+#   LearningGoal
+# }
 
 # input SearchTopicsFilterOptions {
 #   topicTypeIn: [TopicType!]

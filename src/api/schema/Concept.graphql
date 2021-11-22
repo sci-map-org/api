@@ -1,83 +1,83 @@
-type Concept {
-  _id: String!
-  key: String!
-  name: String!
-  types: [ConceptType!]!
-  description: String
-  topicType: TopicType!
-  domain: Domain
-  parentTopic: TopicIsSubTopicOfTopic
-  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-  size: Float
-  coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
-  known: KnownConcept
-  referencingConcepts: [ConceptReferencesConceptItem!]
-  referencedByConcepts: [ConceptReferencesConceptItem!]
-}
+# type Concept {
+#   _id: String!
+#   key: String!
+#   name: String!
+#   types: [ConceptType!]!
+#   description: String
+#   topicType: TopicType!
+#   domain: Domain
+#   parentTopic: TopicIsSubTopicOfTopic
+#   subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+#   size: Float
+#   coveredByResources(options: ConceptCoveredByResourcesOptions!): ConceptCoveredByResourcesResults
+#   known: KnownConcept
+#   referencingConcepts: [ConceptReferencesConceptItem!]
+#   referencedByConcepts: [ConceptReferencesConceptItem!]
+# }
 
-enum ConceptType {
-  concept
-  question
-  problem
-  theory
-  method
-  technic
-  person
-  fact
-  event
-}
+# enum ConceptType {
+#   concept
+#   question
+#   problem
+#   theory
+#   method
+#   technic
+#   person
+#   fact
+#   event
+# }
 
-type KnownConcept {
-  level: Float!
-}
+# type KnownConcept {
+#   level: Float!
+# }
 
-type ConceptReferencesConceptItem {
-  concept: Concept!
-  relationship: ConceptReferencesConcept!
-}
+# type ConceptReferencesConceptItem {
+#   concept: Concept!
+#   relationship: ConceptReferencesConcept!
+# }
 
-input ConceptCoveredByResourcesOptions {
-  pagination: PaginationOptions
-}
+# input ConceptCoveredByResourcesOptions {
+#   pagination: PaginationOptions
+# }
 
-type ConceptCoveredByResourcesResults {
-  items: [Resource!]!
-}
+# type ConceptCoveredByResourcesResults {
+#   items: [Resource!]!
+# }
 
-input AddConceptToDomainPayload {
-  key: String
-  name: String!
-  types: [ConceptType!]!
-  description: String
-  index: Float
-}
+# input AddConceptToDomainPayload {
+#   key: String
+#   name: String!
+#   types: [ConceptType!]!
+#   description: String
+#   index: Float
+# }
 
-input UpdateConceptPayload {
-  key: String
-  name: String
-  types: [ConceptType!]
-  description: String
-}
+# input UpdateConceptPayload {
+#   key: String
+#   name: String
+#   types: [ConceptType!]
+#   description: String
+# }
 
-input SetConceptKnownPayloadConceptsField {
-  conceptId: String!
-  level: Float
-}
-input SetConceptKnownPayload {
-  concepts: [SetConceptKnownPayloadConceptsField!]!
-}
+# input SetConceptKnownPayloadConceptsField {
+#   conceptId: String!
+#   level: Float
+# }
+# input SetConceptKnownPayload {
+#   concepts: [SetConceptKnownPayloadConceptsField!]!
+# }
 
-type AddConceptToDomainResult {
-  concept: Concept!
-  domain: Domain!
-  parentTopic: Topic!
-}
+# type AddConceptToDomainResult {
+#   concept: Concept!
+#   domain: Domain!
+#   parentTopic: Topic!
+# }
 
-type DeleteConceptResult {
-  success: Boolean!
-  _id: String!
-  domain: Domain
-}
+# type DeleteConceptResult {
+#   success: Boolean!
+#   _id: String!
+#   domain: Domain
+# }
 
 # type Query {
 #   getConcept(_id: String!): Concept!

@@ -1,15 +1,15 @@
-type ConceptBelongsToDomain {
-  index: Float!
-}
+# type ConceptBelongsToDomain {
+#   index: Float!
+# }
 
-input UpdateConceptBelongsToDomainPayload {
-  index: Float
-}
+# input UpdateConceptBelongsToDomainPayload {
+#   index: Float
+# }
 
-type Mutation {
-  updateConceptBelongsToDomain(
-    conceptId: String!
-    domainId: String!
-    payload: UpdateConceptBelongsToDomainPayload!
-  ): ConceptBelongsToDomain!
-}
+# type Mutation {
+#   updateConceptBelongsToDomain(
+#     conceptId: String!
+#     domainId: String!
+#     payload: UpdateConceptBelongsToDomainPayload!
+#   ): ConceptBelongsToDomain!
+# }
