@@ -1,7 +1,6 @@
 import { makeExecutableSchema } from 'apollo-server-koa';
 import { GraphQLScalarType } from 'graphql';
 import { importSchema } from 'graphql-import';
-import { TopicType } from '../entities/Topic';
 import {
   createArticleResolver,
   deleteArticleResolver,
@@ -150,12 +149,19 @@ import {
   checkTopicKeyAvailabilityResolver,
   searchSubTopicsResolver,
   searchTopicsResolver,
-  topicResolveType,
   attachTopicIsSubTopicOfTopicResolver,
   updateTopicIsSubTopicOfTopicResolver,
   detachTopicIsSubTopicOfTopicResolver,
   getTopicByIdResolver,
+  getTopicParentTopicResolver,
+  getTopicSubTopicsResolver,
+  getTopicSubTopicsTotalCountResolver,
+  getTopicLearningMaterialsResolver,
+  getTopicLearningMaterialsTotalCountResolver,
+  getTopicPrerequisitesResolver,
+  getTopicFollowUpsResolver,
 } from './resolvers/topics.resolvers';
+import { addTopicHasPrerequisiteTopicResolver, removeTopicHasPrerequisiteTopicResolver } from './resolvers/relationships/topic_has_prerequisite_topic.resolvers';
 import {
   adminUpdateUserResolver,
   currentUserResolver,
@@ -245,6 +251,8 @@ const resolvers: APIResolvers<APIContext> = {
     attachTopicIsSubTopicOfTopic: attachTopicIsSubTopicOfTopicResolver,
     updateTopicIsSubTopicOfTopic: updateTopicIsSubTopicOfTopicResolver,
     detachTopicIsSubTopicOfTopic: detachTopicIsSubTopicOfTopicResolver,
+    addTopicHasPrerequisiteTopic: addTopicHasPrerequisiteTopicResolver,
+    removeTopicHasPrerequisiteTopic: removeTopicHasPrerequisiteTopicResolver,
     triggerResetPassword: triggerResetPasswordResolver,
     resetPassword: resetPasswordResolver,
     updateCurrentUser: updateCurrentUserResolver,
@@ -361,8 +369,14 @@ const resolvers: APIResolvers<APIContext> = {
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,
   },
-  ITopic: {
-    __resolveType: topicResolveType,
+  Topic: {
+    parentTopic: getTopicParentTopicResolver,
+    subTopics: getTopicSubTopicsResolver,
+    subTopicsTotalCount: getTopicSubTopicsTotalCountResolver,
+    learningMaterials: getTopicLearningMaterialsResolver,
+    learningMaterialsTotalCount: getTopicLearningMaterialsTotalCountResolver,
+    prerequisites: getTopicPrerequisitesResolver,
+    followUps: getTopicFollowUpsResolver
   },
   SubGoal: {
     __resolveType: obj => {

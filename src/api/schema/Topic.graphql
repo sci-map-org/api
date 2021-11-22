@@ -8,12 +8,11 @@ type Topic {
   subTopicsTotalCount: Int
   learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults
   learningMaterialsTotalCount: Int
-  # learningGoals: [LearningGoalBelongsToDomain!] => later
+  # learningGoals: [LearningGoalBelongsToDomain!] => TODO
   # progress | completion
-  known: KnownTopic
-  prerequisiteTopics: [TopicHasPrerequisiteTopicItem!]
-  isPrerequisiteForTopics: [TopicHasPrerequisiteTopicItem!]
-  # followUpsTopics: [Topic!] TODO
+  # known: KnownTopic TODO -> change schema, both progress and wether marked as known or not
+  prerequisites: [TopicHasPrerequisiteTopicItem!]
+  followUps: [TopicHasPrerequisiteTopicItem!]
   createdBy: User
   createdAt: Date!
 }
@@ -114,7 +113,7 @@ input SetTopicsKnownPayload {
 
 type Query {
   getTopicById(topicId: String!): Topic!
-  getTopicByKey(topicId: String!): Topic!
+  getTopicByKey(topicKey: String!): Topic!
   searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
   searchSubTopics(topicId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
   checkTopicKeyAvailability(key: String!): CheckTopicKeyAvailabilityResult!
@@ -125,6 +124,6 @@ type Mutation {
   createTopic(payload: CreateTopicPayload!): Topic!
   updateTopic(id: String!, payload: UpdateTopicPayload!): Topic!
   deleteTopic(id: String!): DeleteTopicResponse!
-  setTopicsKnown(payload: SetTopicsKnownPayload!): [Topic!]!
+  setTopicsKnown(payload: SetTopicsKnownPayload!): [Topic!]! # TODO: better API, one mutation ?
   setTopicsUnknown(topicIds: [String!]!): [Topic!]!
 }

@@ -4,4 +4,4 @@ export interface TopicHasPrerequisiteTopic {
   strength: number;
 }
 
-export const STRENGTH_DEFAULT_VALUE = 100;
+export const TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE = 100;

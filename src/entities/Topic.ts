@@ -1,6 +1,3 @@
-// import { Concept } from './Concept';
-// import { Domain } from './Domain';
-// import { LearningGoal } from './LearningGoal';
 
 export const TopicLabel = 'Topic';
 
@@ -9,21 +6,6 @@ export interface Topic {
   name: string;
   key: string;
   description?: string;
-  // topicType: TopicType;
+  createdAt: number
 }
 
-// interface BaseTopic extends TopicInterface {
-
-// }
-
-// export type Topic = BaseTopic | LearningGoal;
-
-// export interface Topic extends TopicInterface {
-  
-// }
-
-// export enum TopicType {
-//   Topic = 'Topic',
-//   // Concept = 'Concept',
-//   LearningGoal = 'LearningGoal',
-// }

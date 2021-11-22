@@ -1,14 +1,16 @@
 import { node, Query, relation } from 'cypher-query-builder';
-import { DomainLabel } from '../entities/Domain';
-import { TopicBelongsToDomainLabel } from '../entities/relationships/TopicBelongsToDomain';
+import { TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE, TopicHasPrerequisiteTopic, TopicHasPrerequisiteTopicLabel } from '../entities/relationships/TopicHasPrerequisiteTopic';
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
-import { Topic, TopicLabel, TopicType } from '../entities/Topic';
+import { Topic, TopicLabel } from '../entities/Topic';
 import { neo4jQb, neo4jDriver } from '../infra/neo4j';
-import { attachUniqueNodes, detachUniqueNodes, findOne, getRelatedNodes } from './util/abstract_graph_repo';
+import { attachUniqueNodes, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNodes } from './util/abstract_graph_repo';
 import { SortingDirection } from './util/sorting';
 
-export const getTopicById = (topicId: string) =>
-  findOne<Topic, { _id: string }>({ label: TopicLabel })({ _id: topicId });
+const findTopic = findOne<Topic, { _id: string } | {key: string}>({ label: TopicLabel })
+
+export const getTopicById = (topicId: string) => findTopic({ _id: topicId });
+
+  export const getTopicByKey = (topicKey: string) => findTopic({ key: topicKey });
 
 export const searchTopics = async (
   query: string,
@@ -31,27 +33,27 @@ export const searchTopics = async (
   return records.map(r => r.get('node'));
 };
 
+// ======== SUBTOPICS =========
+
+// TODO include "part_of" topics
+// TODO check if duplicates in results
 export const searchSubTopics = async (
-  domainId: string,
+  rootTopicId: string,
   query: string,
   pagination: { offset?: number; limit?: number },
-  topicTypeIn?: TopicType[]
 ): Promise<Topic[]> => {
   const session = neo4jDriver.session();
 
   const { records } = await session.run(
-    `MATCH (d:${DomainLabel}) WHERE d._id = $domainId
-    MATCH (d)<-[:${TopicBelongsToDomainLabel}*1..20]-(node:${TopicLabel}) WHERE (NOT (node:LearningGoal) OR node.hidden = false)
-    AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)) ${
-      topicTypeIn ? ' AND (node.topicType IN $topicTypeIn)' : ''
-    }
+    `MATCH (rootTopic:${TopicLabel}) WHERE rootTopic._id = $rootTopicId
+    MATCH (rootTopic)<-[:${TopicIsSubTopicOfTopicLabel}*1..20]-(node:${TopicLabel})
+    AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)) 
      RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
     }`,
     {
       query,
-      domainId,
-      topicTypeIn,
+      rootTopicId,
     }
   );
   session.close();
@@ -59,12 +61,10 @@ export const searchSubTopics = async (
   return records.map(r => r.get('node'));
 };
 
-export const getTopicSize = async (_id: string): Promise<number> => {
-  // Sub Domains and concepts only for now, wether topic is concept or domain
-  // => add the REQUIRE relationship later (for now it's wrong order)
+export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> => {
   const q = new Query(neo4jQb);
   q.raw(
-    `match (n:${TopicLabel} {_id: $topicId})<-[:${TopicIsSubTopicOfTopicLabel}*0..5]-(c:${TopicLabel})  return count(DISTINCT c) as size`,
+    `match (n:${TopicLabel} {_id: $topicId})<-[:${TopicIsSubTopicOfTopicLabel}*0..20]-(c:${TopicLabel})  return count(DISTINCT c) as size`,
     {
       topicId: _id,
     }
@@ -77,7 +77,6 @@ export const getTopicSize = async (_id: string): Promise<number> => {
 export const getTopicSubTopics = (
   topicId: string,
   sortingOptions: { type: 'index'; direction: SortingDirection },
-  filter?: { topicTypeIn?: TopicType[] }
 ): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> =>
   getRelatedNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
     originNode: {
@@ -90,10 +89,6 @@ export const getTopicSubTopics = (
     },
     destinationNode: {
       label: TopicLabel,
-      ...(!!filter &&
-        filter.topicTypeIn && {
-          filter: { topicType: { $in: filter.topicTypeIn } },
-        }),
       // filter: { hidden: false }, TODO
     },
     sorting: {
@@ -109,12 +104,10 @@ export const getTopicSubTopics = (
     }))
   );
 
-export const getTopicParentTopics = (
+export const getTopicParentTopic = (
   topicId: string,
-  sortingOptions: { type: 'index'; direction: SortingDirection },
-  filter?: { topicTypeIn?: TopicType[] }
-): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> =>
-  getRelatedNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic } | null> =>
+  getOptionalRelatedNode<Topic, TopicIsSubTopicOfTopic, Topic>({
     originNode: {
       label: TopicLabel,
       filter: { _id: topicId },
@@ -125,22 +118,14 @@ export const getTopicParentTopics = (
     },
     destinationNode: {
       label: TopicLabel,
-      ...(!!filter &&
-        filter.topicTypeIn && {
-          filter: { topicType: { $in: filter.topicTypeIn } },
-        }),
     },
-    sorting: {
-      entity: 'relationship',
-      field: sortingOptions.type,
-      direction: sortingOptions.direction,
-    },
-  }).then(items =>
-    items.map(({ relationship, destinationNode, originNode }) => ({
-      parentTopic: destinationNode,
-      relationship,
-      subTopic: originNode,
-    }))
+
+  }).then(item =>
+   item ? ({
+      parentTopic: item.destinationNode,
+      relationship: item.relationship,
+      subTopic: item.originNode,
+    }) : null
   );
 
 export const attachTopicIsSubTopicOfTopic = (
@@ -211,6 +196,76 @@ export const detachTopicIsSubTopicOfTopic = (
       parentTopic: destinationNode,
     };
   });
+
+// ====== Prerequisites ======
+export const attachTopicHasPrerequisiteTopic = (
+  topicId: string,
+  prerequisiteTopicId: string,
+  strength?: number
+): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; topic: Topic }> =>
+  attachUniqueNodes<Topic, TopicHasPrerequisiteTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: topicId } },
+    relationship: {
+      label: TopicHasPrerequisiteTopicLabel,
+      onCreateProps: { strength: strength || TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE },
+      onMergeProps: { strength },
+    },
+    destinationNode: { label: TopicLabel, filter: { _id: prerequisiteTopicId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      topic: originNode,
+      relationship,
+      prerequisiteTopic: destinationNode,
+    };
+  });
+
+export const detachTopicHasPrerequisiteTopic = (
+  topicId: string,
+  prerequisiteTopicId: string,
+): Promise<{ prerequisiteTopic: Topic; topic: Topic }> =>
+  detachUniqueNodes<Topic, TopicHasPrerequisiteTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: topicId },
+    },
+    relationship: {
+      label: TopicHasPrerequisiteTopicLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: TopicLabel,
+      filter: { _id: prerequisiteTopicId },
+    },
+  }).then(({ originNode, destinationNode }) => {
+    return {
+      topic: originNode,
+      prerequisiteTopic: destinationNode,
+    };
+  });
+
+const getTopicPrerequisiteRelations = (filter: { _id: string } | { key: string }, direction: 'OUT' | 'IN'): Promise<{topic: Topic, relationship: TopicHasPrerequisiteTopic}[]> =>
+  getRelatedNodes<Topic, TopicHasPrerequisiteTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter,
+    },
+    relationship: {
+      label: TopicHasPrerequisiteTopicLabel,
+      direction,
+    },
+    destinationNode: {
+      label: TopicLabel,
+    },
+  }).then(items => items.map(item => ({ topic: item.destinationNode, relationship: item.relationship })));
+
+export const getTopicPrerequisites = (filter: { _id: string } | { key: string }) =>
+getTopicPrerequisiteRelations(filter, 'OUT');
+
+export const getTopicFollowUps = (filter: { _id: string } | { key: string }) =>
+getTopicPrerequisiteRelations(filter, 'IN');
+
+
+
 
 export const getSubTopicsMaxIndex = async (topicId: string): Promise<number | null> => {
   const q = new Query(neo4jQb);

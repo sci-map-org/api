@@ -2,15 +2,21 @@ type TopicHasPrerequisiteTopic {
   strength: Float!
 }
 
-type UpdateTopicHasPrerequisiteTopicResult {
+type AddTopicHasPrerequisiteTopicResult {
+  topic: Topic!
+  strength: Float!
+  prerequisiteTopic: Topic!
+}
+
+type RemoveTopicHasPrerequisiteTopicResult {
   topic: Topic!
   prerequisiteTopic: Topic!
 }
 
 type Mutation {
-  addTopicHasPrerequisiteTopic(topicId: String!, prerequisiteTopicId: String!): UpdateTopicHasPrerequisiteTopicResult!
+  addTopicHasPrerequisiteTopic(topicId: String!, prerequisiteTopicId: String!, strength: Float): AddTopicHasPrerequisiteTopicResult!
   removeTopicHasPrerequisiteTopic(
     topicId: String!
     prerequisiteTopicId: String!
-  ): UpdateTopicHasPrerequisiteTopicResult!
+  ): RemoveTopicHasPrerequisiteTopicResult!
 }

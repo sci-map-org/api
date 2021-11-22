@@ -111,7 +111,7 @@ export type APIQueryGetTopicByIdArgs = {
 
 
 export type APIQueryGetTopicByKeyArgs = {
-  topicId: Scalars['String'];
+  topicKey: Scalars['String'];
 };
 
 
@@ -182,7 +182,7 @@ export type APIMutation = {
   addSubResource: APISubResourceCreatedResult;
   addSubResourceToSeries: APISubResourceSeriesCreatedResult;
   addTagsToLearningMaterial: APILearningMaterial;
-  addTopicHasPrerequisiteTopic: APIUpdateTopicHasPrerequisiteTopicResult;
+  addTopicHasPrerequisiteTopic: APIAddTopicHasPrerequisiteTopicResult;
   adminUpdateUser: APIUser;
   attachLearningGoalDependency: APIUpdateLearningGoalDependenciesResult;
   attachLearningGoalRequiresSubGoal: APIAttachLearningGoalRequiresSubGoalResult;
@@ -218,7 +218,7 @@ export type APIMutation = {
   removeLearningMaterialOutcome: APILearningMaterial;
   removeLearningMaterialPrerequisite: APILearningMaterial;
   removeTagsFromLearningMaterial: APILearningMaterial;
-  removeTopicHasPrerequisiteTopic: APIUpdateTopicHasPrerequisiteTopicResult;
+  removeTopicHasPrerequisiteTopic: APIRemoveTopicHasPrerequisiteTopicResult;
   resetPassword: APIResetPasswordResponse;
   setResourcesConsumed: Array<APIResource>;
   setTopicsKnown: Array<APITopic>;
@@ -286,6 +286,7 @@ export type APIMutationAddTagsToLearningMaterialArgs = {
 export type APIMutationAddTopicHasPrerequisiteTopicArgs = {
   topicId: Scalars['String'];
   prerequisiteTopicId: Scalars['String'];
+  strength?: Maybe<Scalars['Float']>;
 };
 
 
@@ -1097,21 +1098,20 @@ export type APITopic = {
    __typename?: 'Topic';
   _id: Scalars['String'];
   createdAt: Scalars['Date'];
-  /** followUpsTopics: [Topic!] TODO */
   createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
-  isPrerequisiteForTopics?: Maybe<Array<APITopicHasPrerequisiteTopicItem>>;
+  followUps?: Maybe<Array<APITopicHasPrerequisiteTopicItem>>;
   key: Scalars['String'];
-  /**
-   * learningGoals: [LearningGoalBelongsToDomain!] => later
-   * progress | completion
-   */
-  known?: Maybe<APIKnownTopic>;
   learningMaterials?: Maybe<APITopicLearningMaterialsResults>;
   learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
   name: Scalars['String'];
   parentTopic?: Maybe<APITopic>;
-  prerequisiteTopics?: Maybe<Array<APITopicHasPrerequisiteTopicItem>>;
+  /**
+   * learningGoals: [LearningGoalBelongsToDomain!] => TODO
+   * progress | completion
+   * known: KnownTopic TODO -> change schema, both progress and wether marked as known or not
+   */
+  prerequisites?: Maybe<Array<APITopicHasPrerequisiteTopicItem>>;
   subTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
   subTopicsTotalCount?: Maybe<Scalars['Int']>;
 };
@@ -1432,9 +1432,10 @@ export type APIGetTopLevelTopicsResults = {
 };
 
 
-export type APIUpdateTopicHasPrerequisiteTopicResult = {
-   __typename?: 'UpdateTopicHasPrerequisiteTopicResult';
+export type APIAddTopicHasPrerequisiteTopicResult = {
+   __typename?: 'AddTopicHasPrerequisiteTopicResult';
   topic: APITopic;
+  strength: Scalars['Float'];
   prerequisiteTopic: APITopic;
 };
 
@@ -1455,6 +1456,12 @@ export type APIDetachTopicIsSubTopicOfTopicResult = {
    __typename?: 'DetachTopicIsSubTopicOfTopicResult';
   parentTopic: APITopic;
   subTopic: APITopic;
+};
+
+export type APIRemoveTopicHasPrerequisiteTopicResult = {
+   __typename?: 'RemoveTopicHasPrerequisiteTopicResult';
+  topic: APITopic;
+  prerequisiteTopic: APITopic;
 };
 
 export type APIUpdateTopicIsSubTopicOfTopicPayload = {
@@ -1676,10 +1683,11 @@ export type APIResolversTypes = ResolversObject<{
   GlobalSearchResults: ResolverTypeWrapper<APIGlobalSearchResults>,
   GetTopLevelTopicsResults: ResolverTypeWrapper<APIGetTopLevelTopicsResults>,
   Date: ResolverTypeWrapper<Scalars['Date']>,
-  UpdateTopicHasPrerequisiteTopicResult: ResolverTypeWrapper<APIUpdateTopicHasPrerequisiteTopicResult>,
+  AddTopicHasPrerequisiteTopicResult: ResolverTypeWrapper<APIAddTopicHasPrerequisiteTopicResult>,
   TopicIsSubTopicOfTopic: ResolverTypeWrapper<APITopicIsSubTopicOfTopic>,
   AttachTopicIsSubTopicOfTopicPayload: APIAttachTopicIsSubTopicOfTopicPayload,
   DetachTopicIsSubTopicOfTopicResult: ResolverTypeWrapper<APIDetachTopicIsSubTopicOfTopicResult>,
+  RemoveTopicHasPrerequisiteTopicResult: ResolverTypeWrapper<APIRemoveTopicHasPrerequisiteTopicResult>,
   UpdateTopicIsSubTopicOfTopicPayload: APIUpdateTopicIsSubTopicOfTopicPayload,
   PaginationOptions: APIPaginationOptions,
   TopicHasPrerequisiteTopic: ResolverTypeWrapper<APITopicHasPrerequisiteTopic>,
@@ -1817,10 +1825,11 @@ export type APIResolversParentTypes = ResolversObject<{
   GlobalSearchResults: APIGlobalSearchResults,
   GetTopLevelTopicsResults: APIGetTopLevelTopicsResults,
   Date: Scalars['Date'],
-  UpdateTopicHasPrerequisiteTopicResult: APIUpdateTopicHasPrerequisiteTopicResult,
+  AddTopicHasPrerequisiteTopicResult: APIAddTopicHasPrerequisiteTopicResult,
   TopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic,
   AttachTopicIsSubTopicOfTopicPayload: APIAttachTopicIsSubTopicOfTopicPayload,
   DetachTopicIsSubTopicOfTopicResult: APIDetachTopicIsSubTopicOfTopicResult,
+  RemoveTopicHasPrerequisiteTopicResult: APIRemoveTopicHasPrerequisiteTopicResult,
   UpdateTopicIsSubTopicOfTopicPayload: APIUpdateTopicIsSubTopicOfTopicPayload,
   PaginationOptions: APIPaginationOptions,
   TopicHasPrerequisiteTopic: APITopicHasPrerequisiteTopic,
@@ -1854,7 +1863,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
   getTopLevelTopics?: Resolver<APIResolversTypes['GetTopLevelTopicsResults'], ParentType, ContextType>,
   getTopicById?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByIdArgs, 'topicId'>>,
-  getTopicByKey?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByKeyArgs, 'topicId'>>,
+  getTopicByKey?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByKeyArgs, 'topicKey'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
   globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
@@ -1878,7 +1887,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   addSubResource?: Resolver<APIResolversTypes['SubResourceCreatedResult'], ParentType, ContextType, RequireFields<APIMutationAddSubResourceArgs, 'parentResourceId' | 'subResourceId'>>,
   addSubResourceToSeries?: Resolver<APIResolversTypes['SubResourceSeriesCreatedResult'], ParentType, ContextType, RequireFields<APIMutationAddSubResourceToSeriesArgs, 'parentResourceId' | 'previousResourceId' | 'subResourceId'>>,
   addTagsToLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddTagsToLearningMaterialArgs, 'learningMaterialId' | 'tags'>>,
-  addTopicHasPrerequisiteTopic?: Resolver<APIResolversTypes['UpdateTopicHasPrerequisiteTopicResult'], ParentType, ContextType, RequireFields<APIMutationAddTopicHasPrerequisiteTopicArgs, 'topicId' | 'prerequisiteTopicId'>>,
+  addTopicHasPrerequisiteTopic?: Resolver<APIResolversTypes['AddTopicHasPrerequisiteTopicResult'], ParentType, ContextType, RequireFields<APIMutationAddTopicHasPrerequisiteTopicArgs, 'topicId' | 'prerequisiteTopicId'>>,
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>,
   attachLearningGoalDependency?: Resolver<APIResolversTypes['UpdateLearningGoalDependenciesResult'], ParentType, ContextType, RequireFields<APIMutationAttachLearningGoalDependencyArgs, 'learningGoalDependencyId' | 'learningGoalId' | 'parentLearningGoalId'>>,
   attachLearningGoalRequiresSubGoal?: Resolver<APIResolversTypes['AttachLearningGoalRequiresSubGoalResult'], ParentType, ContextType, RequireFields<APIMutationAttachLearningGoalRequiresSubGoalArgs, 'learningGoalId' | 'payload' | 'subGoalId'>>,
@@ -1914,7 +1923,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   removeLearningMaterialOutcome?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialOutcomeArgs, 'learningMaterialId' | 'outcomeSubGoalId'>>,
   removeLearningMaterialPrerequisite?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialPrerequisiteArgs, 'learningMaterialId' | 'prerequisiteSubGoalId'>>,
   removeTagsFromLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveTagsFromLearningMaterialArgs, 'learningMaterialId' | 'tags'>>,
-  removeTopicHasPrerequisiteTopic?: Resolver<APIResolversTypes['UpdateTopicHasPrerequisiteTopicResult'], ParentType, ContextType, RequireFields<APIMutationRemoveTopicHasPrerequisiteTopicArgs, 'topicId' | 'prerequisiteTopicId'>>,
+  removeTopicHasPrerequisiteTopic?: Resolver<APIResolversTypes['RemoveTopicHasPrerequisiteTopicResult'], ParentType, ContextType, RequireFields<APIMutationRemoveTopicHasPrerequisiteTopicArgs, 'topicId' | 'prerequisiteTopicId'>>,
   resetPassword?: Resolver<APIResolversTypes['ResetPasswordResponse'], ParentType, ContextType, RequireFields<APIMutationResetPasswordArgs, 'payload'>>,
   setResourcesConsumed?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType, RequireFields<APIMutationSetResourcesConsumedArgs, 'payload'>>,
   setTopicsKnown?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType, RequireFields<APIMutationSetTopicsKnownArgs, 'payload'>>,
@@ -2264,14 +2273,13 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
-  isPrerequisiteForTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopicItem']>>, ParentType, ContextType>,
+  followUps?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopicItem']>>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
-  known?: Resolver<Maybe<APIResolversTypes['KnownTopic']>, ParentType, ContextType>,
   learningMaterials?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APITopicLearningMaterialsArgs, 'options'>>,
   learningMaterialsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   parentTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>,
-  prerequisiteTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopicItem']>>, ParentType, ContextType>,
+  prerequisites?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopicItem']>>, ParentType, ContextType>,
   subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType, RequireFields<APITopicSubTopicsArgs, 'options'>>,
   subTopicsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
@@ -2426,8 +2434,9 @@ export interface APIDateScalarConfig extends GraphQLScalarTypeConfig<APIResolver
   name: 'Date'
 }
 
-export type APIUpdateTopicHasPrerequisiteTopicResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['UpdateTopicHasPrerequisiteTopicResult'] = APIResolversParentTypes['UpdateTopicHasPrerequisiteTopicResult']> = ResolversObject<{
+export type APIAddTopicHasPrerequisiteTopicResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['AddTopicHasPrerequisiteTopicResult'] = APIResolversParentTypes['AddTopicHasPrerequisiteTopicResult']> = ResolversObject<{
   topic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
+  strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
   prerequisiteTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2444,6 +2453,12 @@ export type APITopicIsSubTopicOfTopicResolvers<ContextType = APIContext, ParentT
 export type APIDetachTopicIsSubTopicOfTopicResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DetachTopicIsSubTopicOfTopicResult'] = APIResolversParentTypes['DetachTopicIsSubTopicOfTopicResult']> = ResolversObject<{
   parentTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
   subTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIRemoveTopicHasPrerequisiteTopicResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['RemoveTopicHasPrerequisiteTopicResult'] = APIResolversParentTypes['RemoveTopicHasPrerequisiteTopicResult']> = ResolversObject<{
+  topic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
+  prerequisiteTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2525,9 +2540,10 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   GlobalSearchResults?: APIGlobalSearchResultsResolvers<ContextType>,
   GetTopLevelTopicsResults?: APIGetTopLevelTopicsResultsResolvers<ContextType>,
   Date?: GraphQLScalarType,
-  UpdateTopicHasPrerequisiteTopicResult?: APIUpdateTopicHasPrerequisiteTopicResultResolvers<ContextType>,
+  AddTopicHasPrerequisiteTopicResult?: APIAddTopicHasPrerequisiteTopicResultResolvers<ContextType>,
   TopicIsSubTopicOfTopic?: APITopicIsSubTopicOfTopicResolvers<ContextType>,
   DetachTopicIsSubTopicOfTopicResult?: APIDetachTopicIsSubTopicOfTopicResultResolvers<ContextType>,
+  RemoveTopicHasPrerequisiteTopicResult?: APIRemoveTopicHasPrerequisiteTopicResultResolvers<ContextType>,
   TopicHasPrerequisiteTopic?: APITopicHasPrerequisiteTopicResolvers<ContextType>,
 }>;
 

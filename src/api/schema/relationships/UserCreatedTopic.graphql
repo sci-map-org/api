@@ -1,0 +1,5 @@
+type UserCreatedTopic {
+    user: User
+    topic: Topic
+    createdAt: Date!
+}
