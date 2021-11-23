@@ -176,21 +176,6 @@ export const getResourceUpvoteCount = async (resourceId: string): Promise<number
   return Number(record.get('upvoteCount').toString());
 };
 
-export const getResourceCreator = (resourceFilter: { _id: string }) =>
-  getRelatedNode<User>({
-    originNode: {
-      label: ResourceLabel,
-      filter: resourceFilter,
-    },
-    relationship: {
-      label: UserCreatedLearningMaterialLabel,
-      filter: {},
-    },
-    destinationNode: {
-      label: UserLabel,
-      filter: {},
-    },
-  });
 
 export const getResourceSubResources = (parentResourceId: string) =>
   getRelatedNodes<Resource, ResourceBelongsToResource, Resource>({

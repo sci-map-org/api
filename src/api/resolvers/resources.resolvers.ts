@@ -12,7 +12,6 @@ import {
   deleteResource,
   deleteResourceCreatedBy,
   findResource,
-  getResourceCreator,
   getResourceNextResource,
   getResourceParentResources,
   getResourcePreviousResource,
@@ -160,12 +159,6 @@ export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async
 
 export const getResourceRatingResolver: APIResourceResolvers['rating'] = async resource =>
   getLearningMaterialRating(resource._id);
-
-export const getResourceCreatorResolver: APIResourceResolvers['creator'] = async resource => {
-  const creator = await getResourceCreator({ _id: resource._id });
-
-  return toAPIUser(creator);
-};
 
 export const getResourceSubResourcesResolver: APIResourceResolvers['subResources'] = async resource => {
   return getResourceSubResources(resource._id);

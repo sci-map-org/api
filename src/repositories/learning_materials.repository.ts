@@ -13,11 +13,13 @@ import {
   LearningMaterialLeadsToLearningGoalLabel,
 } from '../entities/relationships/LearningMaterialLeadsToLearningGoal';
 import { LearningMaterialShowedInTopic, LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
+import { UserCreatedLearningMaterialLabel } from '../entities/relationships/UserCreatedLearningMaterial';
 import {
   UserRatedLearningMaterial,
   UserRatedLearningMaterialLabel,
 } from '../entities/relationships/UserRatedLearningMaterial';
 import { Topic, TopicLabel } from '../entities/Topic';
+import { User, UserLabel } from '../entities/User';
 import { NotFoundError } from '../errors/NotFoundError';
 import { logger } from '../infra/logger';
 import { neo4jQb } from '../infra/neo4j';
@@ -28,6 +30,7 @@ import {
   attachNodes,
   detachNodes,
   getRelatedNodes,
+  getRelatedNode,
 } from './util/abstract_graph_repo';
 import { generateGetRatingMethod, generateRateEntityMethod } from './util/rating';
 
@@ -312,3 +315,20 @@ export const getLearningMaterialOutcomes = (
       filter: { hidden: false },
     },
   }).then(items => items.map(({ destinationNode, relationship }) => ({ relationship, learningGoal: destinationNode })));
+
+
+export const getLearningMaterialCreator = (learningMaterialFilter: { _id: string }) =>
+getRelatedNode<User>({
+  originNode: {
+    label: LearningMaterialLabel,
+    filter: learningMaterialFilter,
+  },
+  relationship: {
+    label: UserCreatedLearningMaterialLabel,
+    filter: {},
+  },
+  destinationNode: {
+    label: UserLabel,
+    filter: {},
+  },
+});

@@ -10,7 +10,6 @@ import {
   findLearningPath,
   findLearningPathCreatedBy,
   getLearningPathComplementaryResources,
-  getLearningPathCreator,
   getLearningPathResourceItems,
   getLearningPathStartedBy,
   getUserStartedLearningPath,
@@ -166,10 +165,6 @@ export const getLearningPathStartedResolver: APILearningPathResolvers['started']
 
   const started = await getUserStartedLearningPath(user._id, learningPath._id);
   return started;
-};
-
-export const getLearningPathCreatedByResolver: APILearningPathResolvers['createdBy'] = async learningPath => {
-  return await getLearningPathCreator(learningPath._id);
 };
 
 export const getLearningPathStartedByResolver: APILearningPathResolvers['startedBy'] = async (

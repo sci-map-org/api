@@ -5,6 +5,7 @@ import {
   detachLearningMaterialHasPrerequisiteLearningGoal,
   detachLearningMaterialLeadsToLearningGoal,
   getLearningMaterialCoveredTopics,
+  getLearningMaterialCreator,
   getLearningMaterialOutcomes,
   getLearningMaterialPrerequisites,
   getLearningMaterialTopicsShowedIn,
@@ -138,4 +139,6 @@ export const getLearningMaterialCoveredSubTopicsResolver: APILearningMaterialRes
   };
 };
 
-
+export const getLearningMaterialCreatedByResolver: APILearningMaterialResolvers['createdBy'] = async learningMaterial => {
+  return getLearningMaterialCreator({ _id: learningMaterial._id });
+}
