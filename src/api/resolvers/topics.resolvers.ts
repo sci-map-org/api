@@ -6,6 +6,7 @@ import {
   detachTopicIsSubTopicOfTopic,
   getTopicById,
   getTopicByKey,
+  getTopicCreator,
   getTopicFollowUps,
   getTopicParentTopic,
   getTopicPrerequisites,
@@ -145,4 +146,8 @@ export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] =
 
 export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async (topic) => {
   return getTopicFollowUps({_id: topic._id})
+}
+
+export const getTopicsCreatedByResolver: APITopicResolvers['createdBy'] = async (topic) => {
+  return getTopicCreator({ _id: topic._id });
 }

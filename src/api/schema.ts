@@ -26,23 +26,23 @@ import {
 //   updateConceptBelongsToDomainResolver,
 //   updateConceptResolver
 // } from './resolvers/concepts.resolvers';
-import {
-  createDomainResolver,
-  deleteDomainResolver,
-  getDomainByKeyResolver,
-  getDomainConceptsResolver,
-  getDomainConceptTotalCountResolver,
-  getDomainLearningGoalsResolver,
-  getDomainLearningMaterialsResolver,
-  getDomainLearningMaterialsTotalCountResolver,
-  getDomainLearningPathsResolver,
-  getDomainParentTopicsResolver,
-  getDomainResourcesResolver,
-  getDomainSizeResolver,
-  getDomainSubTopicsResolver,
-  searchDomainsResolver,
-  updateDomainResolver
-} from './resolvers/domains.resolvers';
+// import {
+//   createDomainResolver,
+//   deleteDomainResolver,
+//   getDomainByKeyResolver,
+//   getDomainConceptsResolver,
+//   getDomainConceptTotalCountResolver,
+//   getDomainLearningGoalsResolver,
+//   getDomainLearningMaterialsResolver,
+//   getDomainLearningMaterialsTotalCountResolver,
+//   getDomainLearningPathsResolver,
+//   getDomainParentTopicsResolver,
+//   getDomainResourcesResolver,
+//   getDomainSizeResolver,
+//   getDomainSubTopicsResolver,
+//   searchDomainsResolver,
+//   updateDomainResolver
+// } from './resolvers/domains.resolvers';
 import {
   attachLearningGoalDependencyResolver,
   attachLearningGoalRequiresSubGoalResolver,
@@ -131,7 +131,7 @@ import {
 import {
   attachTopicIsSubTopicOfTopicResolver, checkTopicKeyAvailabilityResolver, detachTopicIsSubTopicOfTopicResolver,
   getTopicByIdResolver, getTopicFollowUpsResolver, getTopicLearningMaterialsResolver,
-  getTopicLearningMaterialsTotalCountResolver, getTopicParentTopicResolver, getTopicPrerequisitesResolver, getTopicSubTopicsResolver,
+  getTopicLearningMaterialsTotalCountResolver, getTopicParentTopicResolver, getTopicPrerequisitesResolver, getTopicsCreatedByResolver, getTopicSubTopicsResolver,
   getTopicSubTopicsTotalCountResolver, searchSubTopicsResolver,
   searchTopicsResolver, updateTopicIsSubTopicOfTopicResolver
 } from './resolvers/topics.resolvers';
@@ -167,9 +167,9 @@ const resolvers: APIResolvers<APIContext> = {
     updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,
     deleteArticle: deleteArticleResolver,
-    createDomain: createDomainResolver,
-    updateDomain: updateDomainResolver,
-    deleteDomain: deleteDomainResolver,
+    // createDomain: createDomainResolver,
+    // updateDomain: updateDomainResolver,
+    // deleteDomain: deleteDomainResolver,
     createResource: createResourceResolver,
     updateResource: updateResourceResolver,
     deleteResource: deleteResourceResolver,
@@ -222,8 +222,8 @@ const resolvers: APIResolvers<APIContext> = {
     getArticleByKey: getArticleByKeyResolver,
     listArticles: listArticlesResolver,
     getUser: getUserResolver,
-    searchDomains: searchDomainsResolver,
-    getDomainByKey: getDomainByKeyResolver,
+    // searchDomains: searchDomainsResolver,
+    // getDomainByKey: getDomainByKeyResolver,
     getResourceById: getResourceByIdResolver,
     searchLearningMaterialTags: searchLearningMaterialTagsResolver,
     searchResources: searchResourcesResolver,
@@ -255,18 +255,18 @@ const resolvers: APIResolvers<APIContext> = {
     startedLearningGoals: getCurrentUserStartedLearningGoalsResolver,
     consumedResources: getCurrentUserConsumedResourcesResolver,
   },
-  Domain: {
-    concepts: getDomainConceptsResolver,
-    conceptTotalCount: getDomainConceptTotalCountResolver,
-    resources: getDomainResourcesResolver,
-    learningPaths: getDomainLearningPathsResolver,
-    learningMaterials: getDomainLearningMaterialsResolver,
-    learningMaterialsTotalCount: getDomainLearningMaterialsTotalCountResolver,
-    learningGoals: getDomainLearningGoalsResolver,
-    subTopics: getDomainSubTopicsResolver,
-    parentTopics: getDomainParentTopicsResolver,
-    size: getDomainSizeResolver,
-  },
+  // Domain: {
+  //   concepts: getDomainConceptsResolver,
+  //   conceptTotalCount: getDomainConceptTotalCountResolver,
+  //   resources: getDomainResourcesResolver,
+  //   learningPaths: getDomainLearningPathsResolver,
+  //   learningMaterials: getDomainLearningMaterialsResolver,
+  //   learningMaterialsTotalCount: getDomainLearningMaterialsTotalCountResolver,
+  //   learningGoals: getDomainLearningGoalsResolver,
+  //   subTopics: getDomainSubTopicsResolver,
+  //   parentTopics: getDomainParentTopicsResolver,
+  //   size: getDomainSizeResolver,
+  // },
   Resource: {
     coveredSubTopics: getLearningMaterialCoveredSubTopicsResolver,
     showedIn: getLearningMaterialShowedInResolver,
@@ -324,7 +324,8 @@ const resolvers: APIResolvers<APIContext> = {
     learningMaterials: getTopicLearningMaterialsResolver,
     learningMaterialsTotalCount: getTopicLearningMaterialsTotalCountResolver,
     prerequisites: getTopicPrerequisitesResolver,
-    followUps: getTopicFollowUpsResolver
+    followUps: getTopicFollowUpsResolver,
+    createdBy: getTopicsCreatedByResolver
   },
   SubGoal: {
     __resolveType: obj => {

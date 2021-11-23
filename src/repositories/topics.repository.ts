@@ -1,9 +1,11 @@
 import { node, Query, relation } from 'cypher-query-builder';
 import { TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE, TopicHasPrerequisiteTopic, TopicHasPrerequisiteTopicLabel } from '../entities/relationships/TopicHasPrerequisiteTopic';
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
+import { UserCreatedTopicLabel } from '../entities/relationships/UserCreatedTopic';
 import { Topic, TopicLabel } from '../entities/Topic';
+import { User, UserLabel } from '../entities/User';
 import { neo4jQb, neo4jDriver } from '../infra/neo4j';
-import { attachUniqueNodes, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNodes } from './util/abstract_graph_repo';
+import { attachUniqueNodes, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes } from './util/abstract_graph_repo';
 import { SortingDirection } from './util/sorting';
 
 const findTopic = findOne<Topic, { _id: string } | {key: string}>({ label: TopicLabel })
@@ -286,3 +288,19 @@ export const getSubTopicsMaxIndex = async (topicId: string): Promise<number | nu
 
   return maxIndex;
 };
+
+export const getTopicCreator = (topicFilter: { _id: string }) =>
+getRelatedNode<User>({
+  originNode: {
+    label: TopicLabel,
+    filter: topicFilter,
+  },
+  relationship: {
+    label: UserCreatedTopicLabel,
+    filter: {},
+  },
+  destinationNode: {
+    label: UserLabel,
+    filter: {},
+  },
+});
