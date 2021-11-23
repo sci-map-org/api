@@ -70,7 +70,8 @@ input CreateSubResourcePayload {
   description: String
   durationSeconds: Int
   tags: [String!]
-  showInTopics: [String!]!
+  showInTopicsIds: [String!]!
+  coveredSubTopicsIds: [String!]
   # covered subtopics TODO
   prerequisitesSubGoalsIds: [String!]
   outcomesSubGoalsIds: [String!]
@@ -84,7 +85,8 @@ input CreateResourcePayload {
   description: String
   durationSeconds: Int
   tags: [String!]
-  showInTopics: [String!]!
+  showInTopicsIds: [String!]!
+  coveredSubTopicsIds: [String!]
   # covered subtopics TODO
   prerequisitesSubGoalsIds: [String!]
   outcomesSubGoalsIds: [String!]

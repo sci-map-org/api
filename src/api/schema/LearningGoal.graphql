@@ -15,8 +15,6 @@ type LearningGoal  {
   progress: LearningGoalProgress
   createdBy: User
   showedIn: [Topic!]
-  # subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-  # parentTopic: TopicIsSubTopicOfTopic
   size: Float
   requiredInGoals: [RequiredInGoalItem!]
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?

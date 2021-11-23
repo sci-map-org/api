@@ -42,8 +42,6 @@ type Mutation {
   recommendLearningMaterial(learningMaterialId: String!): LearningMaterial!
   showLearningMaterialInTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
   hideLearningMaterialFromTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
-  attachLearningMaterialCoversSubTopics(learningMaterialId: String!, subTopicIds: [String!]!): LearningMaterial!
-  detachLearningMaterialCoversSubTopics(learningMaterialId: String!, subTopicIds: [String!]!): LearningMaterial!
   rateLearningMaterial(learningMaterialId: String!, value: Float!): LearningMaterial!
   addLearningMaterialPrerequisite(learningMaterialId: String!, prerequisiteSubGoalId: String!): LearningMaterial!
   removeLearningMaterialPrerequisite(

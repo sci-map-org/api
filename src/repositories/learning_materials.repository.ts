@@ -1,18 +1,9 @@
 import { node, Query, relation } from 'cypher-query-builder';
 import { map, prop } from 'ramda';
-import { Concept, ConceptLabel } from '../entities/Concept';
-import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterial, LearningMaterialLabel } from '../entities/LearningMaterial';
-import { ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import {
-  LearningMaterialBelongsToDomain,
-  LearningMaterialBelongsToDomainLabel,
-} from '../entities/relationships/LearningMaterialBelongsToDomain';
-import {
-  LearningMaterialCoversConcept,
-  LearningMaterialCoversConceptLabel,
-} from '../entities/relationships/LearningMaterialCoversConcept';
+import { LearningGoalShowedInTopicLabel } from '../entities/relationships/LearningGoalShowedInTopic';
+import { LearningMaterialCoversTopic, LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
 import {
   LearningMaterialHasPrerequisiteLearningGoal,
   LearningMaterialHasPrerequisiteLearningGoalLabel,
@@ -21,11 +12,12 @@ import {
   LearningMaterialLeadsToLearningGoal,
   LearningMaterialLeadsToLearningGoalLabel,
 } from '../entities/relationships/LearningMaterialLeadsToLearningGoal';
+import { LearningMaterialShowedInTopic, LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
 import {
   UserRatedLearningMaterial,
   UserRatedLearningMaterialLabel,
 } from '../entities/relationships/UserRatedLearningMaterial';
-import { User, UserLabel } from '../entities/User';
+import { Topic, TopicLabel } from '../entities/Topic';
 import { NotFoundError } from '../errors/NotFoundError';
 import { logger } from '../infra/logger';
 import { neo4jQb } from '../infra/neo4j';
@@ -49,71 +41,105 @@ export const rateLearningMaterial = generateRateEntityMethod<LearningMaterial, U
 
 export const getLearningMaterialRating = generateGetRatingMethod(LearningMaterialLabel, UserRatedLearningMaterialLabel);
 
-export const attachLearningMaterialToDomain = (learningMaterialId: string, domainId: string) =>
-  attachUniqueNodes<LearningMaterial, LearningMaterialBelongsToDomain, Domain>({
+export const showLearningMaterialInTopics = (learningMaterialId: string, topicsIds: string[]): Promise<{learningMaterial: LearningMaterial, topics: Topic[]}> =>
+  attachNodes<LearningMaterial, LearningMaterialShowedInTopic, Topic>({
     originNode: { label: LearningMaterialLabel, filter: { _id: learningMaterialId } },
-    relationship: { label: LearningMaterialBelongsToDomainLabel },
-    destinationNode: { label: DomainLabel, filter: { _id: domainId } },
-  }).then(({ originNode, destinationNode }) => ({ domain: destinationNode, learningMaterial: originNode }));
-
-export const detachLearningMaterialFromDomain = (learningMaterialId: string, domainId: string) =>
-  detachUniqueNodes<LearningMaterial, LearningMaterialBelongsToDomain, Domain>({
-    originNode: {
-      label: LearningMaterialLabel,
-      filter: { _id: learningMaterialId },
-    },
-    relationship: {
-      label: LearningMaterialBelongsToDomainLabel,
-      filter: {},
-    },
-    destinationNode: {
-      label: DomainLabel,
-      filter: { _id: domainId },
-    },
-  }).then(({ originNode, destinationNode }) => ({ domain: destinationNode, learningMaterial: originNode }));
-
-export const attachLearningMaterialCoversConcepts = (
-  learningMaterialId: string,
-  conceptIds: string[],
-  props: { userId: string }
-): Promise<{ learningMaterial: LearningMaterial; concepts: Concept[] }> =>
-  attachNodes<LearningMaterial, LearningMaterialCoversConcept, Concept>({
-    originNode: { label: LearningMaterialLabel, filter: { _id: learningMaterialId } },
-    relationship: { label: LearningMaterialCoversConceptLabel, onCreateProps: props },
-    destinationNode: { label: ConceptLabel, filter: { _id: { $in: conceptIds } } },
-  }).then(items => {
-    if (items.length !== conceptIds.length)
+    relationship: { label: LearningGoalShowedInTopicLabel },
+    destinationNode: { label: TopicLabel, filter: {  _id: {$in: topicsIds} } },
+  }).then((items) => {
+    if (items.length !== topicsIds.length)
       logger.warn(
-        'attachLearningMaterialCoversConcepts: some concepts in ' + JSON.stringify(conceptIds) + ' not found'
+        'showLearningMaterialInTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found'
       );
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no concepts are passed
     return {
       learningMaterial: items[0].originNode,
-      concepts: items.map(({ destinationNode }) => destinationNode),
+      topics: items.map(({ destinationNode }) => destinationNode),
     };
   });
 
-export const detachLearningMaterialCoversConcepts = (
-  learningMaterialId: string,
-  conceptIds: string[]
-): Promise<{ learningMaterial: LearningMaterial; concepts: Concept[] }> =>
-  detachNodes<LearningMaterial, LearningMaterialCoversConcept, Concept>({
+export const hideLearningMaterialFromTopics = (learningMaterialId: string, topicsIds: string[]): Promise<{learningMaterial: LearningMaterial, topics: Topic[]}> =>
+  detachNodes<LearningMaterial, LearningMaterialShowedInTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
       filter: { _id: learningMaterialId },
     },
     relationship: {
-      label: LearningMaterialCoversConceptLabel,
+      label: LearningGoalShowedInTopicLabel,
       filter: {},
     },
     destinationNode: {
-      label: ConceptLabel,
-      filter: { _id: { $in: conceptIds } },
+      label: TopicLabel,
+      filter: { _id: {$in: topicsIds} },
     },
   }).then(items => {
-    if (items.length !== conceptIds.length)
+    if (items.length !== topicsIds.length)
       logger.warn(
-        'attachLearningMaterialCoversConcepts: some concepts in ' + JSON.stringify(conceptIds) + ' not found'
+        'hideLearningMaterialFromTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found'
+      );
+    if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId);
+    return {
+      learningMaterial: items[0].originNode,
+      topics: items.map(({ destinationNode }) => destinationNode),
+    };
+  });
+
+  export const getLearningMaterialTopicsShowedIn = (learningMaterialId: string): Promise<Topic[]> =>
+  getRelatedNodes<LearningMaterial, LearningMaterialShowedInTopic, Topic>({
+    originNode: {
+      label: LearningMaterialLabel,
+      filter: { _id: learningMaterialId },
+    },
+    relationship: {
+      label: LearningMaterialShowedInTopicLabel,
+    },
+    destinationNode: {
+      label: TopicLabel,
+    },
+  }).then(map(prop('destinationNode')));
+  
+export const attachLearningMaterialCoversTopics = (
+  learningMaterialId: string,
+  topicsIds: string[],
+  props: { userId: string }
+): Promise<{ learningMaterial: LearningMaterial; topics: Topic[] }> =>
+  attachNodes<LearningMaterial, LearningMaterialCoversTopic, Topic>({
+    originNode: { label: LearningMaterialLabel, filter: { _id: learningMaterialId } },
+    relationship: { label: LearningMaterialCoversTopicLabel, onCreateProps: {createdAt: Date.now(), createdByUserId: props.userId} },
+    destinationNode: { label: TopicLabel, filter: { _id: { $in: topicsIds } } },
+  }).then(items => {
+    if (items.length !== topicsIds.length)
+      logger.warn(
+        'attachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found'
+      );
+    if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no concepts are passed
+    return {
+      learningMaterial: items[0].originNode,
+      topics: items.map(({ destinationNode }) => destinationNode),
+    };
+  });
+
+export const detachLearningMaterialCoversTopics = (
+  learningMaterialId: string,
+  topicsIds: string[]
+): Promise<{ learningMaterial: LearningMaterial; concepts: Topic[] }> =>
+  detachNodes<LearningMaterial, LearningMaterialCoversTopic, Topic>({
+    originNode: {
+      label: LearningMaterialLabel,
+      filter: { _id: learningMaterialId },
+    },
+    relationship: {
+      label: LearningMaterialCoversTopicLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: TopicLabel,
+      filter: { _id: { $in: topicsIds } },
+    },
+  }).then(items => {
+    if (items.length !== topicsIds.length)
+      logger.warn(
+        'detachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found'
       );
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId);
     return {
@@ -122,58 +148,50 @@ export const detachLearningMaterialCoversConcepts = (
     };
   });
 
-export const getLearningMaterialCoveredConcepts = (_id: string): Promise<Concept[]> =>
-  getRelatedNodes<LearningMaterial, LearningMaterialCoversConcept, Concept>({
+export const getLearningMaterialCoveredTopics = (_id: string): Promise<{learningMaterial: LearningMaterial, relationship:LearningMaterialCoversTopic,  topic:Topic}[]> =>
+  getRelatedNodes<LearningMaterial, LearningMaterialCoversTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
       filter: { _id },
     },
     relationship: {
-      label: LearningMaterialCoversConceptLabel,
+      label: LearningMaterialCoversTopicLabel,
     },
     destinationNode: {
-      label: ConceptLabel,
+      label: TopicLabel,
     },
-  }).then(map(prop('destinationNode')));
+  }).then(items => items.map(({originNode, relationship, destinationNode}) => ({
+    learningMaterial: originNode,
+    relationship,
+    topic: destinationNode
+  })))
 
-export const getLearningMaterialCoveredConceptsByDomain = async (
-  learningMaterialId: string
-): Promise<{ domain: Domain; coveredConcepts: Concept[] }[]> => {
-  const q = new Query(neo4jQb);
-  q.match([
-    node('learningMaterial', LearningMaterialLabel, { _id: learningMaterialId }),
-    relation('out', '', LearningMaterialBelongsToDomainLabel),
-    node('domain', DomainLabel),
-  ]);
-  q.optionalMatch([
-    node('learningMaterial'),
-    relation('out', '', LearningMaterialCoversConceptLabel),
-    node('concept', ConceptLabel),
-    relation('out', '', ConceptBelongsToDomainLabel),
-    node('domain', DomainLabel),
-  ]);
-  q.raw('WITH DISTINCT domain, collect(concept) as concepts RETURN *');
+// export const getLearningMaterialCoveredConceptsByDomain = async (
+//   learningMaterialId: string
+// ): Promise<{ domain: Domain; coveredConcepts: Concept[] }[]> => {
+//   const q = new Query(neo4jQb);
+//   q.match([
+//     node('learningMaterial', LearningMaterialLabel, { _id: learningMaterialId }),
+//     relation('out', '', LearningMaterialBelongsToDomainLabel),
+//     node('domain', DomainLabel),
+//   ]);
+//   q.optionalMatch([
+//     node('learningMaterial'),
+//     relation('out', '', LearningMaterialCoversConceptLabel),
+//     node('concept', ConceptLabel),
+//     relation('out', '', ConceptBelongsToDomainLabel),
+//     node('domain', DomainLabel),
+//   ]);
+//   q.raw('WITH DISTINCT domain, collect(concept) as concepts RETURN *');
 
-  const results = await q.run();
-  return results.map(r => ({
-    domain: r.domain.properties,
-    coveredConcepts: r.concepts.map(c => c.properties),
-  }));
-};
+//   const results = await q.run();
+//   return results.map(r => ({
+//     domain: r.domain.properties,
+//     coveredConcepts: r.concepts.map(c => c.properties),
+//   }));
+// };
 
-export const getLearningMaterialDomains = (_id: string) =>
-  getRelatedNodes<LearningMaterial, LearningMaterialBelongsToDomain, Domain>({
-    originNode: {
-      label: LearningMaterialLabel,
-      filter: { _id },
-    },
-    relationship: {
-      label: LearningMaterialBelongsToDomainLabel,
-    },
-    destinationNode: {
-      label: DomainLabel,
-    },
-  }).then(map(prop('destinationNode')));
+
 
 // TODO: optimize by attaching several learning goals to an lm in one query
 export const attachLearningMaterialHasPrerequisiteLearningGoal = async (

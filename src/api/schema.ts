@@ -1,13 +1,14 @@
 import { makeExecutableSchema } from 'apollo-server-koa';
 import { GraphQLScalarType } from 'graphql';
 import { importSchema } from 'graphql-import';
+import { LearningGoalType } from '../entities/LearningGoal';
 import {
   createArticleResolver,
   deleteArticleResolver,
   getArticleAuthorResolver,
   getArticleByKeyResolver,
   listArticlesResolver,
-  updateArticleResolver,
+  updateArticleResolver
 } from './resolvers/articles.resolvers';
 import {
   addConceptReferencesConceptResolver,
@@ -15,19 +16,15 @@ import {
   deleteConceptResolver,
   getConceptCoveredByResourcesResolver,
   getConceptDomainResolver,
-  getConceptKnownResolver,
-  getConceptReferencedByConceptsResolver,
+  getConceptKnownResolver, getConceptParentTopicResolver, getConceptReferencedByConceptsResolver,
   getConceptReferencingConceptsResolver,
   getConceptResolver,
-  getConceptSizeResolver,
-  getDomainConceptByKeyResolver,
+  getConceptSizeResolver, getConceptSubTopicsResolver, getDomainConceptByKeyResolver,
   removeConceptReferencesConceptResolver,
   setConceptsKnownResolver,
   setConceptsUnKnownResolver,
   updateConceptBelongsToDomainResolver,
-  updateConceptResolver,
-  getConceptSubTopicsResolver,
-  getConceptParentTopicResolver,
+  updateConceptResolver
 } from './resolvers/concepts.resolvers';
 import {
   createDomainResolver,
@@ -44,7 +41,7 @@ import {
   getDomainSizeResolver,
   getDomainSubTopicsResolver,
   searchDomainsResolver,
-  updateDomainResolver,
+  updateDomainResolver
 } from './resolvers/domains.resolvers';
 import {
   attachLearningGoalDependencyResolver,
@@ -66,35 +63,27 @@ import {
   getLearningGoalRelevantLearningMaterialsResolver,
   getLearningGoalRequiredInGoalsResolver,
   getLearningGoalRequiredSubGoalsResolver,
-  getLearningGoalSizeResolver,
   getLearningGoalStartedByResolver,
   getLearningGoalStartedResolver,
-  getLearningGoalSubTopicsResolver,
   indexLearningGoalResolver,
   publishLearningGoalResolver,
   rateLearningGoalResolver,
   searchLearningGoalsResolver,
   startLearningGoalResolver,
-  updateLearningGoalResolver,
+  updateLearningGoalResolver
 } from './resolvers/learning_goals.resolvers';
 import {
-  addLearningMaterialOutcomeResolver,
-  addLearningMaterialPrerequisiteResolver,
-  attachLearningMaterialCoversConceptsResolver,
-  attachLearningMaterialToDomainResolver,
-  detachLearningMaterialCoversConceptsResolver,
-  detachLearningMaterialFromDomainResolver,
-  getLearningMaterialOutcomesResolver,
-  getLearningMaterialPrerequisitesResolver,
+  getLearningMaterialCoveredSubTopicsResolver,
+  getLearningMaterialShowedInResolver,
+  hideLearningMaterialFromTopicResolver,
   learningMaterialResolveType,
   rateLearningMaterialResolver,
-  removeLearningMaterialOutcomeResolver,
-  removeLearningMaterialPrerequisiteResolver,
+  showLearningMaterialInTopicResolver
 } from './resolvers/learning_materials.resolvers';
 import {
   addTagsToLearningMaterialResolver,
   removeTagsFromLearningMaterialResolver,
-  searchLearningMaterialTagsResolver,
+  searchLearningMaterialTagsResolver
 } from './resolvers/learning_material_tags.resolvers';
 import {
   addComplementaryResourceToLearningPathResolver,
@@ -115,9 +104,11 @@ import {
   getLearningPathTagsResolver,
   removeComplementaryResourceFromLearningPathResolver,
   startLearningPathResolver,
-  updateLearningPathResolver,
+  updateLearningPathResolver
 } from './resolvers/learning_paths.resolvers';
-import { getHomePageDataResolver, globalSearchResolver, getTopLevelDomainsResolver } from './resolvers/misc.resolvers';
+import { getHomePageDataResolver, getTopLevelDomainsResolver, globalSearchResolver } from './resolvers/misc.resolvers';
+import { attachLearningMaterialCoversTopicsResolver, detachLearningMaterialCoversTopicsResolver } from './resolvers/relationships/learning_material_covers_topic.resolvers';
+import { addTopicHasPrerequisiteTopicResolver, removeTopicHasPrerequisiteTopicResolver } from './resolvers/relationships/topic_has_prerequisite_topic.resolvers';
 import {
   addSubResourceResolver,
   addSubResourceToSeriesResolver,
@@ -127,10 +118,7 @@ import {
   deleteResourceResolver,
   getResourceByIdResolver,
   getResourceConsumedResolver,
-  getResourceCoveredConceptsByDomainResolver,
-  getResourceCoveredConceptsResolver,
   getResourceCreatorResolver,
-  getResourceDomainsResolver,
   getResourceNextResourceResolver,
   getResourceParentResourcesResolver,
   getResourcePreviousResourceResolver,
@@ -142,26 +130,15 @@ import {
   getResourceUpvotesResolver,
   searchResourcesResolver,
   setResourcesConsumedResolver,
-  updateResourceResolver,
-  voteResourceResolver,
+  updateResourceResolver
 } from './resolvers/resources.resolvers';
 import {
-  checkTopicKeyAvailabilityResolver,
-  searchSubTopicsResolver,
-  searchTopicsResolver,
-  attachTopicIsSubTopicOfTopicResolver,
-  updateTopicIsSubTopicOfTopicResolver,
-  detachTopicIsSubTopicOfTopicResolver,
-  getTopicByIdResolver,
-  getTopicParentTopicResolver,
-  getTopicSubTopicsResolver,
-  getTopicSubTopicsTotalCountResolver,
-  getTopicLearningMaterialsResolver,
-  getTopicLearningMaterialsTotalCountResolver,
-  getTopicPrerequisitesResolver,
-  getTopicFollowUpsResolver,
+  attachTopicIsSubTopicOfTopicResolver, checkTopicKeyAvailabilityResolver, detachTopicIsSubTopicOfTopicResolver,
+  getTopicByIdResolver, getTopicFollowUpsResolver, getTopicLearningMaterialsResolver,
+  getTopicLearningMaterialsTotalCountResolver, getTopicParentTopicResolver, getTopicPrerequisitesResolver, getTopicSubTopicsResolver,
+  getTopicSubTopicsTotalCountResolver, searchSubTopicsResolver,
+  searchTopicsResolver, updateTopicIsSubTopicOfTopicResolver
 } from './resolvers/topics.resolvers';
-import { addTopicHasPrerequisiteTopicResolver, removeTopicHasPrerequisiteTopicResolver } from './resolvers/relationships/topic_has_prerequisite_topic.resolvers';
 import {
   adminUpdateUserResolver,
   currentUserResolver,
@@ -176,15 +153,10 @@ import {
   loginGoogleResolver,
   loginResolver,
   registerGoogleResolver,
-  registerResolver,
-  verifyEmailAddressResolver,
-  triggerResetPasswordResolver,
-  resetPasswordResolver,
-  updateCurrentUserResolver,
+  registerResolver, resetPasswordResolver, triggerResetPasswordResolver, updateCurrentUserResolver, verifyEmailAddressResolver
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
-import { LearningGoalType } from '../entities/LearningGoal';
 
 export const typeDefs = importSchema('./src/api/schema/schema.graphql');
 
@@ -205,20 +177,19 @@ const resolvers: APIResolvers<APIContext> = {
     createResource: createResourceResolver,
     updateResource: updateResourceResolver,
     deleteResource: deleteResourceResolver,
-    attachLearningMaterialToDomain: attachLearningMaterialToDomainResolver,
-    detachLearningMaterialFromDomain: detachLearningMaterialFromDomainResolver,
+    showLearningMaterialInTopic: showLearningMaterialInTopicResolver,
+    hideLearningMaterialFromTopic: hideLearningMaterialFromTopicResolver,
     addConceptToDomain: addConceptToDomainResolver,
     updateConceptBelongsToDomain: updateConceptBelongsToDomainResolver,
     updateConcept: updateConceptResolver,
     deleteConcept: deleteConceptResolver,
-    attachLearningMaterialCoversConcepts: attachLearningMaterialCoversConceptsResolver,
-    detachLearningMaterialCoversConcepts: detachLearningMaterialCoversConceptsResolver,
+    attachLearningMaterialCoversTopics: attachLearningMaterialCoversTopicsResolver,
+    detachLearningMaterialCoversTopics: detachLearningMaterialCoversTopicsResolver,
     addTagsToLearningMaterial: addTagsToLearningMaterialResolver,
     removeTagsFromLearningMaterial: removeTagsFromLearningMaterialResolver,
     setConceptsKnown: setConceptsKnownResolver,
     setConceptsUnknown: setConceptsUnKnownResolver,
     setResourcesConsumed: setResourcesConsumedResolver,
-    voteResource: voteResourceResolver,
     addConceptReferencesConcept: addConceptReferencesConceptResolver,
     removeConceptReferencesConcept: removeConceptReferencesConceptResolver,
     addSubResource: addSubResourceResolver,
@@ -237,10 +208,10 @@ const resolvers: APIResolvers<APIContext> = {
     deleteLearningGoal: deleteLearningGoalResolver,
     attachLearningGoalToDomain: attachLearningGoalToDomainResolver,
     detachLearningGoalFromDomain: detachLearningGoalFromDomainResolver,
-    addLearningMaterialPrerequisite: addLearningMaterialPrerequisiteResolver,
-    removeLearningMaterialPrerequisite: removeLearningMaterialPrerequisiteResolver,
-    addLearningMaterialOutcome: addLearningMaterialOutcomeResolver,
-    removeLearningMaterialOutcome: removeLearningMaterialOutcomeResolver,
+    // addLearningMaterialPrerequisite: addLearningMaterialPrerequisiteResolver,
+    // removeLearningMaterialPrerequisite: removeLearningMaterialPrerequisiteResolver,
+    // addLearningMaterialOutcome: addLearningMaterialOutcomeResolver,
+    // removeLearningMaterialOutcome: removeLearningMaterialOutcomeResolver,
     attachLearningGoalRequiresSubGoal: attachLearningGoalRequiresSubGoalResolver,
     detachLearningGoalRequiresSubGoal: detachLearningGoalRequiresSubGoalResolver,
     startLearningGoal: startLearningGoalResolver,
@@ -321,9 +292,8 @@ const resolvers: APIResolvers<APIContext> = {
     size: getConceptSizeResolver,
   },
   Resource: {
-    coveredConcepts: getResourceCoveredConceptsResolver,
-    coveredConceptsByDomain: getResourceCoveredConceptsByDomainResolver,
-    domains: getResourceDomainsResolver,
+    coveredSubTopics: getLearningMaterialCoveredSubTopicsResolver,
+    showedIn: getLearningMaterialShowedInResolver,
     tags: getResourceTagsResolver,
     upvotes: getResourceUpvotesResolver,
     rating: getResourceRatingResolver,
@@ -335,10 +305,12 @@ const resolvers: APIResolvers<APIContext> = {
     subResourceSeries: getResourceSubResourceSeriesResolver,
     previousResource: getResourcePreviousResourceResolver,
     nextResource: getResourceNextResourceResolver,
-    prerequisites: getLearningMaterialPrerequisitesResolver,
-    outcomes: getLearningMaterialOutcomesResolver,
+    // prerequisites: getLearningMaterialPrerequisitesResolver,
+    // outcomes: getLearningMaterialOutcomesResolver,
   },
   LearningPath: {
+    coveredSubTopics: getLearningMaterialCoveredSubTopicsResolver,
+    showedIn: getLearningMaterialShowedInResolver,
     resourceItems: getLearningPathResourceItemsResolver,
     complementaryResources: getLearningPathComplementaryResourcesResolver,
     rating: getLearningPathRatingResolver,
@@ -349,8 +321,8 @@ const resolvers: APIResolvers<APIContext> = {
     started: getLearningPathStartedResolver,
     createdBy: getLearningPathCreatedByResolver,
     startedBy: getLearningPathStartedByResolver,
-    prerequisites: getLearningMaterialPrerequisitesResolver,
-    outcomes: getLearningMaterialOutcomesResolver,
+    // prerequisites: getLearningMaterialPrerequisitesResolver,
+    // outcomes: getLearningMaterialOutcomesResolver,
   },
   LearningGoal: {
     domain: getLearningGoalDomainResolver,
@@ -364,8 +336,8 @@ const resolvers: APIResolvers<APIContext> = {
     relevantLearningMaterials: getLearningGoalRelevantLearningMaterialsResolver,
     dependsOnLearningGoals: getLearningGoalDependsOnLearningGoalsResolver,
     dependantLearningGoals: getLearningGoalDependantsLearningGoalsResolver,
-    size: getLearningGoalSizeResolver,
-    subTopics: getLearningGoalSubTopicsResolver,
+    // size: getLearningGoalSizeResolver,
+    // subTopics: getLearningGoalSubTopicsResolver,
   },
   LearningMaterial: {
     __resolveType: learningMaterialResolveType,
@@ -381,8 +353,10 @@ const resolvers: APIResolvers<APIContext> = {
   },
   SubGoal: {
     __resolveType: obj => {
-      if (obj.topicType === TopicType.Concept) return 'Concept';
-      if (obj.topicType === TopicType.LearningGoal) return 'LearningGoal';
+      // if (obj.topicType === TopicType.Concept) return 'Concept';
+      //@ts-ignore
+      if (Object.values(LearningGoalType).indexOf(obj.type) > -1) return 'LearningGoal';
+      return 'Topic'
       throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },

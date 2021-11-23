@@ -2,10 +2,7 @@ import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
-  getLearningMaterialCoveredConcepts,
-  getLearningMaterialCoveredConceptsByDomain,
-  getLearningMaterialDomains,
-  getLearningMaterialRating,
+  getLearningMaterialRating
 } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import {
@@ -25,8 +22,7 @@ import {
   getResourceUpvoteCount,
   getUserConsumedResource,
   searchResources,
-  updateResource,
-  voteResource,
+  updateResource
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
@@ -37,8 +33,7 @@ import {
   APIMutationResolvers,
   APIQueryResolvers,
   APIResource,
-  APIResourceResolvers,
-  APIResourceVoteValue,
+  APIResourceResolvers
 } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
@@ -103,19 +98,11 @@ export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = asy
   return toAPIResource(resource);
 };
 
-export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredConcepts'] = async resource => {
-  return {
-    items: await getLearningMaterialCoveredConcepts(resource._id),
-  };
-};
 
-export const getResourceCoveredConceptsByDomainResolver: APIResourceResolvers['coveredConceptsByDomain'] = async resource => {
-  return await getLearningMaterialCoveredConceptsByDomain(resource._id);
-};
+// export const getResourceCoveredConceptsByDomainResolver: APIResourceResolvers['coveredConceptsByDomain'] = async resource => {
+//   return await getLearningMaterialCoveredConceptsByDomain(resource._id);
+// };
 
-export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async resource => {
-  return await getLearningMaterialDomains(resource._id);
-};
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
   return await getLearningMaterialTags(resource._id);
@@ -157,15 +144,15 @@ export const getResourceConsumedResolver: APIResourceResolvers['consumed'] = asy
   return await getUserConsumedResource(user._id, resource._id);
 };
 
-export const voteResourceResolver: APIMutationResolvers['voteResource'] = async (
-  _parent,
-  { resourceId, value },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to vote on a resource');
-  const resource = await voteResource(user._id, resourceId, value === APIResourceVoteValue.Up ? 1 : -1);
-  return toAPIResource(resource);
-};
+// export const voteResourceResolver: APIMutationResolvers['voteResource'] = async (
+//   _parent,
+//   { resourceId, value },
+//   { user }
+// ) => {
+//   if (!user) throw new UnauthenticatedError('Must be logged in to vote on a resource');
+//   const resource = await voteResource(user._id, resourceId, value === APIResourceVoteValue.Up ? 1 : -1);
+//   return toAPIResource(resource);
+// };
 
 export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
   return getResourceUpvoteCount(resource._id);

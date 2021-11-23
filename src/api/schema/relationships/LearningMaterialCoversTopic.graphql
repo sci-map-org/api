@@ -1,0 +1,11 @@
+type LearningMaterialCoversTopic {
+  createdAt: Date!
+  createdByUserId: String
+  learningMaterial: LearningMaterial!
+  topic: Topic!
+}
+
+type Mutation {
+  attachLearningMaterialCoversTopics(learningMaterialId: String!, topicsIds: [String!]!): LearningMaterial!
+  detachLearningMaterialCoversTopics(learningMaterialId: String!, topicsIds: [String!]!): LearningMaterial!
+}

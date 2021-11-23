@@ -1,11 +1,11 @@
 import { omit } from 'lodash';
-import { APIDomainAndCoveredConcepts, ResourceMediaType, ResourceType } from '../api/schema/types';
+import {  ResourceMediaType, ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import {
-  attachLearningMaterialCoversConcepts,
+  attachLearningMaterialCoversTopics,
   attachLearningMaterialHasPrerequisiteLearningGoal,
   attachLearningMaterialLeadsToLearningGoal,
-  attachLearningMaterialToDomain,
+  showLearningMaterialInTopics,
 } from '../repositories/learning_materials.repository';
 import {
   attachTagsToLearningMaterial,
@@ -23,27 +23,28 @@ interface CreateAndSaveResourceBaseData {
   tags?: string[];
   prerequisitesLearningGoalsIds?: string[];
   outcomesLearningGoalsIds?: string[];
-  domainsAndCoveredConcepts?: APIDomainAndCoveredConcepts[];
+  showInTopicsIds: string[]
+  coveredSubTopicsIds?: string[]
 }
 interface CreateAndSaveResourceData extends CreateAndSaveResourceBaseData {
   subResourceSeries?: CreateAndSaveResourceBaseData[]; // limit to one level for now
 }
 
-const attachDomainsAndCoveredConcepts = async (
-  resourceId: string,
-  domainsAndCoveredConcepts: APIDomainAndCoveredConcepts[],
-  userId: string
-): Promise<any> => {
-  return Promise.all(
-    domainsAndCoveredConcepts.map(async ({ domainId, conceptsIds }) => {
-      await attachLearningMaterialToDomain(resourceId, domainId);
-      conceptsIds.length &&
-        (await attachLearningMaterialCoversConcepts(resourceId, conceptsIds, {
-          userId,
-        }));
-    })
-  );
-};
+// const attachDomainsAndCoveredConcepts = async (
+//   resourceId: string,
+//   domainsAndCoveredConcepts: APIDomainAndCoveredConcepts[],
+//   userId: string
+// ): Promise<any> => {
+//   return Promise.all(
+//     domainsAndCoveredConcepts.map(async ({ domainId, conceptsIds }) => {
+//       await attachLearningMaterialToDomain(resourceId, domainId);
+//       conceptsIds.length &&
+//         (await attachLearningMaterialCoversConcepts(resourceId, conceptsIds, {
+//           userId,
+//         }));
+//     })
+//   );
+// };
 
 const attachResourceTags = async (resourceId: string, tags?: string[]): Promise<void> => {
   if (!tags || !tags.length) return;
@@ -91,7 +92,8 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
     omit(data, [
       'tags',
       'subResourceSeries',
-      'domainsAndCoveredConcepts',
+      'showInTopicsIds',
+      'coveredSubTopicsIds',
       'outcomesLearningGoalsIds',
       'prerequisitesLearningGoalsIds',
     ])
@@ -100,9 +102,8 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
     attachResourceTags(createdResource._id, data.tags),
     attachPrerequisites(createdResource._id, userId, data.prerequisitesLearningGoalsIds),
     attachOutcomes(createdResource._id, userId, data.outcomesLearningGoalsIds),
-    data.domainsAndCoveredConcepts &&
-      data.domainsAndCoveredConcepts.length &&
-      attachDomainsAndCoveredConcepts(createdResource._id, data.domainsAndCoveredConcepts, userId),
+    data.showInTopicsIds.length ? showLearningMaterialInTopics(createdResource._id, data.showInTopicsIds) : undefined,
+    data.coveredSubTopicsIds?.length ? attachLearningMaterialCoversTopics(createdResource._id, data.coveredSubTopicsIds, {userId}): undefined,
   ]);
   if (data.subResourceSeries && data.subResourceSeries.length) {
     const createdSubResources = await Promise.all(
