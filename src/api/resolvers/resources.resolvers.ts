@@ -67,34 +67,34 @@ export const createResourceResolver: APIMutationResolvers['createResource'] = as
 
 export const updateResourceResolver: APIMutationResolvers['updateResource'] = async (
   _parent,
-  { _id, payload },
+  { resourceId, payload },
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to update a resource');
   const updatedResource = await updateResource(
-    { _id },
+    { _id: resourceId },
     { ...nullToUndefined(payload), durationSeconds: payload.durationSeconds }
   );
-  if (!updatedResource) throw new NotFoundError('Resource', _id, 'id');
+  if (!updatedResource) throw new NotFoundError('Resource', resourceId);
   return toAPIResource(updatedResource);
 };
 
-export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (_parent, { _id }, { user }) => {
+export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (_parent, { resourceId }, { user }) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to delete a resource');
 
   const { deletedCount } = hasAccess('contributorOrAdmin', user)
-    ? await deleteResource({ _id })
-    : await deleteResourceCreatedBy({ _id: user._id }, _id);
-  if (!deletedCount) throw new NotFoundError('Resource', _id, '_id');
+    ? await deleteResource({ _id: resourceId })
+    : await deleteResourceCreatedBy({ _id: user._id }, resourceId);
+  if (!deletedCount) throw new NotFoundError('Resource', resourceId);
   return {
     success: true,
-    _id,
+    _id: resourceId,
   };
 };
 
-export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { id }) => {
-  const resource = await findResource({ _id: id });
-  if (!resource) throw new NotFoundError('Resource', id, '_id');
+export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { resourceId }) => {
+  const resource = await findResource({ _id: resourceId });
+  if (!resource) throw new NotFoundError('Resource', resourceId);
   return toAPIResource(resource);
 };
 

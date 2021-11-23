@@ -91,8 +91,8 @@ type LearningPathCompletedResult {
 
 type Mutation {
   createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
-  updateLearningPath(_id: String!, payload: UpdateLearningPathPayload!): LearningPath!
-  deleteLearningPath(_id: String!): DeleteLearningPathResult!
+  updateLearningPath(learningPathId: String!, payload: UpdateLearningPathPayload!): LearningPath!
+  deleteLearningPath(learningPathId: String!): DeleteLearningPathResult!
   addComplementaryResourceToLearningPath(
     learningPathId: String!
     resourceId: String!
@@ -106,6 +106,6 @@ type Mutation {
 }
 
 type Query {
-  getLearningPath(_id: String!): LearningPath!
-  getLearningPathByKey(key: String!): LearningPath!
+  getLearningPathById(learningPathId: String!): LearningPath!
+  getLearningPathByKey(learningPathKey: String!): LearningPath!
 }

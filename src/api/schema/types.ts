@@ -53,9 +53,10 @@ export type APIQuery = {
   getArticleByKey: APIArticle;
   getHomePageData: APIGetHomePageDataResults;
   getLearningGoalByKey: APILearningGoal;
-  getLearningPath: APILearningPath;
+  getLearningPathById: APILearningPath;
   getLearningPathByKey: APILearningPath;
   getResourceById: APIResource;
+  getResourceByKey: APIResource;
   getTopLevelTopics: APIGetTopLevelTopicsResults;
   getTopicById: APITopic;
   getTopicByKey: APITopic;
@@ -90,18 +91,23 @@ export type APIQueryGetLearningGoalByKeyArgs = {
 };
 
 
-export type APIQueryGetLearningPathArgs = {
-  _id: Scalars['String'];
+export type APIQueryGetLearningPathByIdArgs = {
+  learningPathId: Scalars['String'];
 };
 
 
 export type APIQueryGetLearningPathByKeyArgs = {
-  key: Scalars['String'];
+  learningPathKey: Scalars['String'];
 };
 
 
 export type APIQueryGetResourceByIdArgs = {
-  id: Scalars['String'];
+  resourceId: Scalars['String'];
+};
+
+
+export type APIQueryGetResourceByKeyArgs = {
+  resourceKey: Scalars['String'];
 };
 
 
@@ -372,12 +378,12 @@ export type APIMutationDeleteLearningGoalArgs = {
 
 
 export type APIMutationDeleteLearningPathArgs = {
-  _id: Scalars['String'];
+  learningPathId: Scalars['String'];
 };
 
 
 export type APIMutationDeleteResourceArgs = {
-  _id: Scalars['String'];
+  resourceId: Scalars['String'];
 };
 
 
@@ -556,14 +562,14 @@ export type APIMutationUpdateLearningGoalArgs = {
 
 
 export type APIMutationUpdateLearningPathArgs = {
-  _id: Scalars['String'];
+  learningPathId: Scalars['String'];
   payload: APIUpdateLearningPathPayload;
 };
 
 
 export type APIMutationUpdateResourceArgs = {
-  _id: Scalars['String'];
   payload: APIUpdateResourcePayload;
+  resourceId: Scalars['String'];
 };
 
 
@@ -1853,9 +1859,10 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>,
   getHomePageData?: Resolver<APIResolversTypes['GetHomePageDataResults'], ParentType, ContextType>,
   getLearningGoalByKey?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIQueryGetLearningGoalByKeyArgs, 'key'>>,
-  getLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathArgs, '_id'>>,
-  getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'key'>>,
-  getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'id'>>,
+  getLearningPathById?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByIdArgs, 'learningPathId'>>,
+  getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'learningPathKey'>>,
+  getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'resourceId'>>,
+  getResourceByKey?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByKeyArgs, 'resourceKey'>>,
   getTopLevelTopics?: Resolver<APIResolversTypes['GetTopLevelTopicsResults'], ParentType, ContextType>,
   getTopicById?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByIdArgs, 'topicId'>>,
   getTopicByKey?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByKeyArgs, 'topicKey'>>,
@@ -1897,8 +1904,8 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   createTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationCreateTopicArgs, 'payload'>>,
   deleteArticle?: Resolver<APIResolversTypes['DeleteArticleResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteArticleArgs, 'id'>>,
   deleteLearningGoal?: Resolver<APIResolversTypes['DeleteLearningGoalMutationResult'], ParentType, ContextType, RequireFields<APIMutationDeleteLearningGoalArgs, '_id'>>,
-  deleteLearningPath?: Resolver<APIResolversTypes['DeleteLearningPathResult'], ParentType, ContextType, RequireFields<APIMutationDeleteLearningPathArgs, '_id'>>,
-  deleteResource?: Resolver<APIResolversTypes['DeleteResourceResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteResourceArgs, '_id'>>,
+  deleteLearningPath?: Resolver<APIResolversTypes['DeleteLearningPathResult'], ParentType, ContextType, RequireFields<APIMutationDeleteLearningPathArgs, 'learningPathId'>>,
+  deleteResource?: Resolver<APIResolversTypes['DeleteResourceResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteResourceArgs, 'resourceId'>>,
   deleteTopic?: Resolver<APIResolversTypes['DeleteTopicResponse'], ParentType, ContextType, RequireFields<APIMutationDeleteTopicArgs, 'id'>>,
   detachLearningGoalDependency?: Resolver<APIResolversTypes['UpdateLearningGoalDependenciesResult'], ParentType, ContextType, RequireFields<APIMutationDetachLearningGoalDependencyArgs, 'learningGoalDependencyId' | 'learningGoalId' | 'parentLearningGoalId'>>,
   detachLearningGoalRequiresSubGoal?: Resolver<APIResolversTypes['DetachLearningGoalRequiresSubGoalResult'], ParentType, ContextType, RequireFields<APIMutationDetachLearningGoalRequiresSubGoalArgs, 'learningGoalId' | 'subGoalId'>>,
@@ -1930,8 +1937,8 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationUpdateArticleArgs, 'id' | 'payload'>>,
   updateCurrentUser?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationUpdateCurrentUserArgs, 'payload'>>,
   updateLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningGoalArgs, '_id' | 'payload'>>,
-  updateLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningPathArgs, '_id' | 'payload'>>,
-  updateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationUpdateResourceArgs, '_id' | 'payload'>>,
+  updateLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningPathArgs, 'learningPathId' | 'payload'>>,
+  updateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationUpdateResourceArgs, 'payload' | 'resourceId'>>,
   updateTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicArgs, 'id' | 'payload'>>,
   updateTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['TopicIsSubTopicOfTopic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId' | 'payload'>>,
   verifyEmailAddress?: Resolver<APIResolversTypes['VerifyEmailResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>,

@@ -163,14 +163,15 @@ type AnalyzeResourceUrlResult {
 
 type Query {
   searchResources(query: String!, options: SearchResourcesOptions!): SearchResourcesResult!
-  getResourceById(id: String!): Resource!
+  getResourceById(resourceId: String!): Resource!
+  getResourceByKey(resourceKey: String!): Resource!
   analyzeResourceUrl(url: String!): AnalyzeResourceUrlResult!
 }
 
 type Mutation {
   createResource(payload: CreateResourcePayload!): Resource!
-  updateResource(_id: String!, payload: UpdateResourcePayload!): Resource!
-  deleteResource(_id: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
+  updateResource(resourceId: String!, payload: UpdateResourcePayload!): Resource!
+  deleteResource(resourceId: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!
   addSubResource(parentResourceId: String!, subResourceId: String!): SubResourceCreatedResult!
   createSubResourceSeries(parentResourceId: String!, subResourceId: String!): SubResourceSeriesCreatedResult!
