@@ -5,8 +5,8 @@ interface LearningMaterial {
   coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults
   coveredSubTopicsTree: [Topic!]
   showedIn: [Topic!]
-  prerequisites: [LearningMaterialPrerequisiteItem!]
-  outcomes: [LearningMaterialOutcomeItem!]
+  prerequisites: [LearningMaterialHasPrerequisiteTopic!]
+  # outcomes: [LearningMaterialOutcomeItem!]
   createdBy: User
   createdAt: Date!
 }
@@ -24,30 +24,12 @@ type LearningMaterialCoveredSubTopicsResults {
   items: [Topic!]!
 }
 
-type LearningMaterialPrerequisiteItem {
-  prerequisite: SubGoal!
-  strength: Float!
-  createdBy: String!
-  createdAt: Date!
-}
-
-type LearningMaterialOutcomeItem {
-  outcome: SubGoal!
-  strength: Float!
-  createdBy: String!
-  createdAt: Date!
-}
 
 type Mutation {
   recommendLearningMaterial(learningMaterialId: String!): LearningMaterial!
   showLearningMaterialInTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
   hideLearningMaterialFromTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
   rateLearningMaterial(learningMaterialId: String!, value: Float!): LearningMaterial!
-  addLearningMaterialPrerequisite(learningMaterialId: String!, prerequisiteSubGoalId: String!): LearningMaterial!
-  removeLearningMaterialPrerequisite(
-    learningMaterialId: String!
-    prerequisiteSubGoalId: String!
-  ): LearningMaterial!
-  addLearningMaterialOutcome(learningMaterialId: String!, outcomeSubGoalId: String!): LearningMaterial!
-  removeLearningMaterialOutcome(learningMaterialId: String!, outcomeSubGoalId: String!): LearningMaterial!
+  # addLearningMaterialOutcome(learningMaterialId: String!, outcomeSubGoalId: String!): LearningMaterial!
+  # removeLearningMaterialOutcome(learningMaterialId: String!, outcomeSubGoalId: String!): LearningMaterial!
 }

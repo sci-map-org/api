@@ -2,6 +2,6 @@ export const LearningMaterialHasPrerequisiteLearningGoalLabel = 'HAS_PREREQUISIT
 
 export interface LearningMaterialHasPrerequisiteLearningGoal {
   strength: number; // 0 to 100
-  createdBy: string;
+  createdByUserId: string;
   createdAt: number;
 }

@@ -12,5 +12,6 @@
 # import Mutation.* from "./relationships/TopicHasPrerequisiteTopic.graphql"
 # import Mutation.* from "./relationships/TopicIsSubTopicOfTopic.graphql"
 # import Mutation.* from "./relationships/LearningMaterialCoversTopic.graphql"
+# import Mutation.* from "./relationships/LearningMaterialHasPrerequisiteTopic.graphql"
 
 scalar Date

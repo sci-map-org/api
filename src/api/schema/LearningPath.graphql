@@ -14,8 +14,7 @@ type LearningPath implements LearningMaterial {
   coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults
   coveredSubTopicsTree: [Topic!]
   showedIn: [Topic!]
-  prerequisites: [LearningMaterialPrerequisiteItem!]
-  outcomes: [LearningMaterialOutcomeItem!]
+  prerequisites: [LearningMaterialHasPrerequisiteTopic!]
   createdBy: User
   createdAt: Date!
 }
