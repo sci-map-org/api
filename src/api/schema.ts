@@ -75,6 +75,7 @@ import {
 import {
   getLearningMaterialCoveredSubTopicsResolver,
   getLearningMaterialCreatedByResolver,
+  getLearningMaterialPrerequisitesResolver,
   getLearningMaterialShowedInResolver,
   hideLearningMaterialFromTopicResolver,
   learningMaterialResolveType,
@@ -105,6 +106,7 @@ import {
 } from './resolvers/learning_paths.resolvers';
 import { getHomePageDataResolver, getTopLevelDomainsResolver, globalSearchResolver } from './resolvers/misc.resolvers';
 import { attachLearningMaterialCoversTopicsResolver, detachLearningMaterialCoversTopicsResolver } from './resolvers/relationships/learning_material_covers_topic.resolvers';
+import { addLearningMaterialHasPrerequisiteTopicResolver, removeLearningMaterialHasPrerequisiteTopicResolver } from './resolvers/relationships/learning_material_has_prerequisite_topic.resolvers';
 import { addTopicHasPrerequisiteTopicResolver, removeTopicHasPrerequisiteTopicResolver } from './resolvers/relationships/topic_has_prerequisite_topic.resolvers';
 import {
   addSubResourceResolver,
@@ -196,8 +198,8 @@ const resolvers: APIResolvers<APIContext> = {
     deleteLearningGoal: deleteLearningGoalResolver,
     attachLearningGoalToDomain: attachLearningGoalToDomainResolver,
     detachLearningGoalFromDomain: detachLearningGoalFromDomainResolver,
-    // addLearningMaterialPrerequisite: addLearningMaterialPrerequisiteResolver,
-    // removeLearningMaterialPrerequisite: removeLearningMaterialPrerequisiteResolver,
+    addLearningMaterialHasPrerequisiteTopic: addLearningMaterialHasPrerequisiteTopicResolver,
+    removeLearningMaterialHasPrerequisiteTopic: removeLearningMaterialHasPrerequisiteTopicResolver,
     // addLearningMaterialOutcome: addLearningMaterialOutcomeResolver,
     // removeLearningMaterialOutcome: removeLearningMaterialOutcomeResolver,
     attachLearningGoalRequiresSubGoal: attachLearningGoalRequiresSubGoalResolver,
@@ -280,9 +282,9 @@ const resolvers: APIResolvers<APIContext> = {
     subResourceSeries: getResourceSubResourceSeriesResolver,
     previousResource: getResourcePreviousResourceResolver,
     nextResource: getResourceNextResourceResolver,
-    createdBy: getLearningMaterialCreatedByResolver
-    // prerequisites: getLearningMaterialPrerequisitesResolver,
+    prerequisites: getLearningMaterialPrerequisitesResolver,
     // outcomes: getLearningMaterialOutcomesResolver,
+    createdBy: getLearningMaterialCreatedByResolver,
   },
   LearningPath: {
     coveredSubTopics: getLearningMaterialCoveredSubTopicsResolver,
@@ -293,11 +295,11 @@ const resolvers: APIResolvers<APIContext> = {
     tags: getLearningPathTagsResolver,
     // coveredConcepts: getLearningPathCoveredConceptsResolver,
     // coveredConceptsByDomain: getLearningPathCoveredConceptsByDomainResolver,
+    prerequisites: getLearningMaterialPrerequisitesResolver,
+    // outcomes: getLearningMaterialOutcomesResolver,
     started: getLearningPathStartedResolver,
     createdBy: getLearningMaterialCreatedByResolver,
     startedBy: getLearningPathStartedByResolver,
-    // prerequisites: getLearningMaterialPrerequisitesResolver,
-    // outcomes: getLearningMaterialOutcomesResolver,
   },
   LearningGoal: {
     domain: getLearningGoalDomainResolver,

@@ -8,6 +8,7 @@ import {
   LearningMaterialHasPrerequisiteLearningGoal,
   LearningMaterialHasPrerequisiteLearningGoalLabel,
 } from '../entities/relationships/LearningMaterialHasPrerequisiteLearningGoal';
+import { LearningMaterialHasPrerequisiteTopic, LearningMaterialHasPrerequisiteTopicLabel } from '../entities/relationships/LearningMaterialHasPrerequisiteTopic';
 import {
   LearningMaterialLeadsToLearningGoal,
   LearningMaterialLeadsToLearningGoalLabel,
@@ -197,124 +198,124 @@ export const getLearningMaterialCoveredTopics = (_id: string): Promise<{learning
 
 
 // TODO: optimize by attaching several learning goals to an lm in one query
-export const attachLearningMaterialHasPrerequisiteLearningGoal = async (
+export const attachLearningMaterialHasPrerequisiteTopic = async (
   learningMaterialId: string,
-  learningGoalId: string,
-  data: Omit<LearningMaterialHasPrerequisiteLearningGoal, 'createdAt'>
-): Promise<{ learningMaterial: LearningMaterial; learningGoal: LearningGoal }> =>
-  attachUniqueNodes<LearningMaterial, LearningMaterialHasPrerequisiteLearningGoal, LearningGoal>({
+  prerequisiteTopicId: string,
+  data: Omit<LearningMaterialHasPrerequisiteTopic, 'createdAt'>
+): Promise<{ learningMaterial: LearningMaterial; relationship:LearningMaterialHasPrerequisiteTopic; topic: Topic}> =>
+  attachUniqueNodes<LearningMaterial, LearningMaterialHasPrerequisiteTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
       filter: { _id: learningMaterialId },
     },
     relationship: {
-      label: LearningMaterialHasPrerequisiteLearningGoalLabel,
+      label: LearningMaterialHasPrerequisiteTopicLabel,
       onCreateProps: {
         ...data,
         createdAt: Date.now(),
       },
     },
     destinationNode: {
-      label: LearningGoalLabel,
-      filter: { _id: learningGoalId },
+      label: TopicLabel,
+      filter: { _id: prerequisiteTopicId },
     },
-  }).then(({ destinationNode, originNode }) => ({ learningMaterial: originNode, learningGoal: destinationNode }));
+  }).then(({ destinationNode,relationship, originNode }) => ({ learningMaterial: originNode, relationship, topic: destinationNode }));
 
-export const detachLearningMaterialHasPrerequisiteLearningGoal = (
+export const detachLearningMaterialHasPrerequisiteTopic = (
   learningMaterialId: string,
-  learningGoalId: string
-): Promise<{ learningMaterial: LearningMaterial; learningGoal: LearningGoal }> =>
-  detachUniqueNodes<LearningMaterial, LearningMaterialHasPrerequisiteLearningGoal, LearningGoal>({
+  prerequisiteTopicId: string
+      ): Promise<{ learningMaterial: LearningMaterial; topic: Topic }> =>
+  detachUniqueNodes<LearningMaterial, LearningMaterialHasPrerequisiteTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
       filter: { _id: learningMaterialId },
     },
     relationship: {
-      label: LearningMaterialHasPrerequisiteLearningGoalLabel,
+      label: LearningMaterialHasPrerequisiteTopicLabel,
       filter: {},
     },
     destinationNode: {
-      label: LearningGoalLabel,
-      filter: { _id: learningGoalId },
+      label: TopicLabel,
+      filter: { _id: prerequisiteTopicId },
     },
-  }).then(({ originNode, destinationNode }) => ({ learningMaterial: originNode, learningGoal: destinationNode }));
+  }).then(({ originNode, destinationNode }) => ({ learningMaterial: originNode, topic: destinationNode }));
 
 // TODO: optimize by attaching several learning goals to an lm in one query
-export const attachLearningMaterialLeadsToLearningGoal = async (
-  learningMaterialId: string,
-  learningGoalId: string,
-  data: Omit<LearningMaterialLeadsToLearningGoal, 'createdAt'>
-): Promise<{ learningMaterial: LearningMaterial; learningGoal: LearningGoal }> =>
-  attachUniqueNodes<LearningMaterial, LearningMaterialLeadsToLearningGoal, LearningGoal>({
-    originNode: {
-      label: LearningMaterialLabel,
-      filter: { _id: learningMaterialId },
-    },
-    relationship: {
-      label: LearningMaterialLeadsToLearningGoalLabel,
-      onCreateProps: {
-        ...data,
-        createdAt: Date.now(),
-      },
-    },
-    destinationNode: {
-      label: LearningGoalLabel,
-      filter: { _id: learningGoalId },
-    },
-  }).then(({ destinationNode, originNode }) => ({ learningMaterial: originNode, learningGoal: destinationNode }));
+// export const attachLearningMaterialLeadsToLearningGoal = async (
+//   learningMaterialId: string,
+//   learningGoalId: string,
+//   data: Omit<LearningMaterialLeadsToLearningGoal, 'createdAt'>
+// ): Promise<{ learningMaterial: LearningMaterial; learningGoal: LearningGoal }> =>
+//   attachUniqueNodes<LearningMaterial, LearningMaterialLeadsToLearningGoal, LearningGoal>({
+//     originNode: {
+//       label: LearningMaterialLabel,
+//       filter: { _id: learningMaterialId },
+//     },
+//     relationship: {
+//       label: LearningMaterialLeadsToLearningGoalLabel,
+//       onCreateProps: {
+//         ...data,
+//         createdAt: Date.now(),
+//       },
+//     },
+//     destinationNode: {
+//       label: LearningGoalLabel,
+//       filter: { _id: learningGoalId },
+//     },
+//   }).then(({ destinationNode, originNode }) => ({ learningMaterial: originNode, learningGoal: destinationNode }));
 
-export const detachLearningMaterialLeadsToLearningGoal = (
-  learningMaterialId: string,
-  learningGoalId: string
-): Promise<{ learningMaterial: LearningMaterial; learningGoal: LearningGoal }> =>
-  detachUniqueNodes<LearningMaterial, LearningMaterialLeadsToLearningGoal, LearningGoal>({
-    originNode: {
-      label: LearningMaterialLabel,
-      filter: { _id: learningMaterialId },
-    },
-    relationship: {
-      label: LearningMaterialLeadsToLearningGoalLabel,
-      filter: {},
-    },
-    destinationNode: {
-      label: LearningGoalLabel,
-      filter: { _id: learningGoalId },
-    },
-  }).then(({ originNode, destinationNode }) => ({ learningMaterial: originNode, learningGoal: destinationNode }));
+// export const detachLearningMaterialLeadsToLearningGoal = (
+//   learningMaterialId: string,
+//   learningGoalId: string
+// ): Promise<{ learningMaterial: LearningMaterial; learningGoal: LearningGoal }> =>
+//   detachUniqueNodes<LearningMaterial, LearningMaterialLeadsToLearningGoal, LearningGoal>({
+//     originNode: {
+//       label: LearningMaterialLabel,
+//       filter: { _id: learningMaterialId },
+//     },
+//     relationship: {
+//       label: LearningMaterialLeadsToLearningGoalLabel,
+//       filter: {},
+//     },
+//     destinationNode: {
+//       label: LearningGoalLabel,
+//       filter: { _id: learningGoalId },
+//     },
+//   }).then(({ originNode, destinationNode }) => ({ learningMaterial: originNode, learningGoal: destinationNode }));
 
 export const getLearningMaterialPrerequisites = (
   learningMaterialId: string
-): Promise<{ learningGoal: LearningGoal; relationship: LearningMaterialHasPrerequisiteLearningGoal }[]> =>
-  getRelatedNodes<LearningMaterial, LearningMaterialHasPrerequisiteLearningGoal, LearningGoal>({
+): Promise<{ learningMaterial:LearningMaterial; relationship: LearningMaterialHasPrerequisiteTopic; topic: Topic}[]> =>
+  getRelatedNodes<LearningMaterial, LearningMaterialHasPrerequisiteTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
       filter: { _id: learningMaterialId },
     },
     relationship: {
-      label: LearningMaterialHasPrerequisiteLearningGoalLabel,
+      label: LearningMaterialHasPrerequisiteTopicLabel,
     },
     destinationNode: {
-      label: LearningGoalLabel,
-      filter: { hidden: false },
+      label: TopicLabel,
+      // filter: { hidden: false },
     },
-  }).then(items => items.map(({ destinationNode, relationship }) => ({ relationship, learningGoal: destinationNode })));
+  }).then(items => items.map(({ destinationNode, relationship, originNode }) => ({ learningMaterial: originNode, relationship, topic: destinationNode })));
 
-export const getLearningMaterialOutcomes = (
-  learningMaterialId: string
-): Promise<{ learningGoal: LearningGoal; relationship: LearningMaterialLeadsToLearningGoal }[]> =>
-  getRelatedNodes<LearningMaterial, LearningMaterialLeadsToLearningGoal, LearningGoal>({
-    originNode: {
-      label: LearningMaterialLabel,
-      filter: { _id: learningMaterialId },
-    },
-    relationship: {
-      label: LearningMaterialLeadsToLearningGoalLabel,
-    },
-    destinationNode: {
-      label: LearningGoalLabel,
-      filter: { hidden: false },
-    },
-  }).then(items => items.map(({ destinationNode, relationship }) => ({ relationship, learningGoal: destinationNode })));
+// export const getLearningMaterialOutcomes = (
+//   learningMaterialId: string
+// ): Promise<{ learningGoal: LearningGoal; relationship: LearningMaterialLeadsToLearningGoal }[]> =>
+//   getRelatedNodes<LearningMaterial, LearningMaterialLeadsToLearningGoal, LearningGoal>({
+//     originNode: {
+//       label: LearningMaterialLabel,
+//       filter: { _id: learningMaterialId },
+//     },
+//     relationship: {
+//       label: LearningMaterialLeadsToLearningGoalLabel,
+//     },
+//     destinationNode: {
+//       label: LearningGoalLabel,
+//       filter: { hidden: false },
+//     },
+//   }).then(items => items.map(({ destinationNode, relationship }) => ({ relationship, learningGoal: destinationNode })));
 
 
 export const getLearningMaterialCreator = (learningMaterialFilter: { _id: string }) =>

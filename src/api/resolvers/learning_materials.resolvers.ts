@@ -1,17 +1,12 @@
 import { UserInputError } from 'apollo-server-koa';
 import {
-  attachLearningMaterialHasPrerequisiteLearningGoal,
-  attachLearningMaterialLeadsToLearningGoal,
-  detachLearningMaterialHasPrerequisiteLearningGoal,
-  detachLearningMaterialLeadsToLearningGoal,
   getLearningMaterialCoveredTopics,
   getLearningMaterialCreator,
-  getLearningMaterialOutcomes,
   getLearningMaterialPrerequisites,
   getLearningMaterialTopicsShowedIn,
   hideLearningMaterialFromTopics,
   rateLearningMaterial,
-  showLearningMaterialInTopics,
+  showLearningMaterialInTopics
 } from '../../repositories/learning_materials.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APILearningMaterialResolvers, APIMutationResolvers } from '../schema/types';
@@ -114,12 +109,13 @@ export const hideLearningMaterialFromTopicResolver: APIMutationResolvers['hideLe
 //   return learningMaterial;
 // };
 
-// export const getLearningMaterialPrerequisitesResolver: APILearningMaterialResolvers['prerequisites'] = async learningMaterial => {
-//   return (await getLearningMaterialPrerequisites(learningMaterial._id)).map(({ relationship, learningGoal }) => ({
-//     learningGoal,
-//     ...relationship,
-//   }));
-// };
+export const getLearningMaterialPrerequisitesResolver: APILearningMaterialResolvers['prerequisites'] = async learningMaterial => {
+  return (await getLearningMaterialPrerequisites(learningMaterial._id)).map(({ relationship, topic }) => ({
+    topic,
+    learningMaterial,
+    ...relationship,
+  }));
+};
 
 // export const getLearningMaterialOutcomesResolver: APILearningMaterialResolvers['outcomes'] = async learningMaterial => {
 //   return (await getLearningMaterialOutcomes(learningMaterial._id)).map(({ relationship, learningGoal }) => ({
