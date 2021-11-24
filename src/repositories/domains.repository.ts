@@ -1,36 +1,36 @@
-import { inArray, node, Query, relation } from 'cypher-query-builder';
-import { map } from 'ramda';
-import * as shortid from 'shortid';
-import { recommendationEngineConfig } from '../config';
-import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
-import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
-import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
-import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
-import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
-import { TopicLabel} from '../entities/Topic';
-import { User, UserLabel } from '../entities/User';
-import { neo4jDriver, neo4jQb } from '../infra/neo4j';
-import {
-  countRelatedNodes,
-  createRelatedNode,
-  deleteOne,
-  findOne,
-  getRelatedNodes,
-  updateOne,
-} from './util/abstract_graph_repo';
-import { SortingDirection } from './util/sorting';
+// import { inArray, node, Query, relation } from 'cypher-query-builder';
+// import { map } from 'ramda';
+// import * as shortid from 'shortid';
+// import { recommendationEngineConfig } from '../config';
+// import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
+// import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
+// import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
+// import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
+// import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
+// import { TopicLabel} from '../entities/Topic';
+// import { User, UserLabel } from '../entities/User';
+// import { neo4jDriver, neo4jQb } from '../infra/neo4j';
+// import {
+//   countRelatedNodes,
+//   createRelatedNode,
+//   deleteOne,
+//   findOne,
+//   getRelatedNodes,
+//   updateOne,
+// } from './util/abstract_graph_repo';
+// import { SortingDirection } from './util/sorting';
 
-interface CreateDomainData {
-  key: string;
-  name: string;
-  description?: string;
-}
+// interface CreateDomainData {
+//   key: string;
+//   name: string;
+//   description?: string;
+// }
 
-interface UpdateDomainData {
-  key?: string;
-  name?: string;
-  description?: string;
-}
+// interface UpdateDomainData {
+//   key?: string;
+//   name?: string;
+//   description?: string;
+// }
 
 // export const createDomain = (user: { _id: string } | { key: string }, data: CreateDomainData): Promise<Domain> =>
 //   createRelatedNode<User, UserCreatedDomain, Domain>({
@@ -136,245 +136,245 @@ interface UpdateDomainData {
 //       },
 //     }),
 //   }).then(map(item => item.destinationNode));
-interface DomainResourcesFilter {
-  resourceTypeIn?: ResourceType[];
-  consumedByUser: Boolean;
-}
+// interface DomainResourcesFilter {
+//   resourceTypeIn?: ResourceType[];
+//   consumedByUser: Boolean;
+// }
 
-export const getDomainResources = async (
-  domainId: string,
-  userId: string | undefined,
-  {
-    query,
-    filter,
-    sortingType,
-  }: { query?: string; filter: DomainResourcesFilter; sortingType: APIDomainResourcesSortingType }
-): Promise<Resource[]> => {
-  const q = new Query(neo4jQb);
-  if (userId) q.matchNode('u', 'User', { _id: userId });
+// export const getDomainResources = async (
+//   domainId: string,
+//   userId: string | undefined,
+//   {
+//     query,
+//     filter,
+//     sortingType,
+//   }: { query?: string; filter: DomainResourcesFilter; sortingType: APIDomainResourcesSortingType }
+// ): Promise<Resource[]> => {
+//   const q = new Query(neo4jQb);
+//   if (userId) q.matchNode('u', 'User', { _id: userId });
 
-  q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('r', 'Resource')]);
+//   q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('r', 'Resource')]);
 
-  let whereClauseStarted = false;
-  if (!!filter.resourceTypeIn) {
-    q.where({
-      r: {
-        ...(!!filter?.resourceTypeIn && { type: inArray(filter.resourceTypeIn) }),
-      },
-    });
-    whereClauseStarted = true;
-  }
+//   let whereClauseStarted = false;
+//   if (!!filter.resourceTypeIn) {
+//     q.where({
+//       r: {
+//         ...(!!filter?.resourceTypeIn && { type: inArray(filter.resourceTypeIn) }),
+//       },
+//     });
+//     whereClauseStarted = true;
+//   }
 
-  if (query) {
-    q.raw(
-      `${
-        whereClauseStarted ? ' AND ' : 'WHERE '
-      } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
-      { query }
-    );
-    whereClauseStarted = true;
-  }
+//   if (query) {
+//     q.raw(
+//       `${
+//         whereClauseStarted ? ' AND ' : 'WHERE '
+//       } (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
+//       { query }
+//     );
+//     whereClauseStarted = true;
+//   }
 
-  if (userId) {
-    if (filter.consumedByUser === true) {
-      q.raw(
-        `${
-          whereClauseStarted ? ' AND ' : 'WHERE '
-        } EXISTS { (u)-[consumed_r:CONSUMED]->(r) WHERE exists(consumed_r.consumedAt) }`
-      );
-    } else {
-      q.raw(
-        `${
-          whereClauseStarted ? ' AND ' : 'WHERE '
-        } (NOT (u)-[:CONSUMED]->(r) OR EXISTS { (u)-[consumed_r:CONSUMED]->(r)  where consumed_r.consumedAt IS NULL })`
-      );
-    }
-  }
+//   if (userId) {
+//     if (filter.consumedByUser === true) {
+//       q.raw(
+//         `${
+//           whereClauseStarted ? ' AND ' : 'WHERE '
+//         } EXISTS { (u)-[consumed_r:CONSUMED]->(r) WHERE exists(consumed_r.consumedAt) }`
+//       );
+//     } else {
+//       q.raw(
+//         `${
+//           whereClauseStarted ? ' AND ' : 'WHERE '
+//         } (NOT (u)-[:CONSUMED]->(r) OR EXISTS { (u)-[consumed_r:CONSUMED]->(r)  where consumed_r.consumedAt IS NULL })`
+//       );
+//     }
+//   }
 
-  if (sortingType === APIDomainResourcesSortingType.Recommended) {
-    q.optionalMatch([node('r'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
-    q.optionalMatch([node('cc'), relation('out', 'dpc', 'REFERENCES', [0, 5]), node('mpc', 'Concept')]);
-    q.raw('WHERE NOT (r)-[:COVERS]->(mpc)');
-    if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
-    if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
-    if (userId)
-      q.with([
-        'DISTINCT r',
-        'u',
-        'count(cc) as ccc',
-        'count(distinct mpc) as cmpc',
-        '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
-      ]);
-    else q.with(['DISTINCT r', 'count(cc) as ccc', 'count(distinct mpc) as cmpc']);
+//   if (sortingType === APIDomainResourcesSortingType.Recommended) {
+//     q.optionalMatch([node('r'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
+//     q.optionalMatch([node('cc'), relation('out', 'dpc', 'REFERENCES', [0, 5]), node('mpc', 'Concept')]);
+//     q.raw('WHERE NOT (r)-[:COVERS]->(mpc)');
+//     if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
+//     if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
+//     if (userId)
+//       q.with([
+//         'DISTINCT r',
+//         'u',
+//         'count(cc) as ccc',
+//         'count(distinct mpc) as cmpc',
+//         '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
+//       ]);
+//     else q.with(['DISTINCT r', 'count(cc) as ccc', 'count(distinct mpc) as cmpc']);
 
-    if (userId && filter.consumedByUser === false) {
-      q.raw(`CALL {
-        WITH r,u
-          MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
-          WHERE (NOT (u)-[:CONSUMED]->(nextToConsume) OR EXISTS { (u)-[consumed_r:CONSUMED]->(nextToConsume)  where consumed_r.consumedAt IS NULL })
-          AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
-          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((r)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
-          return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
-      }`);
-      q.return([
-        'r',
-        'properties(r) as resource',
-        'cmpc',
-        ' usefulness',
-        'sign(ccc)*usefulness/(0.1+cmpc) + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) as score',
-      ]);
-    } else {
-      q.raw(`CALL {
-        WITH r
-          MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
-          WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
-          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
-          return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
-      }`);
-      q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) -1*cprnc as score']);
-    }
-    q.orderBy('score', 'DESC');
-  } else {
-    q.match([node('r'), relation('in', 'createdResource', 'CREATED'), node('', 'User')]);
-    q.return(['r']);
-    q.orderBy('createdResource.createdAt', 'DESC');
-  }
+//     if (userId && filter.consumedByUser === false) {
+//       q.raw(`CALL {
+//         WITH r,u
+//           MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
+//           WHERE (NOT (u)-[:CONSUMED]->(nextToConsume) OR EXISTS { (u)-[consumed_r:CONSUMED]->(nextToConsume)  where consumed_r.consumedAt IS NULL })
+//           AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
+//           WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((r)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
+//           return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+//       }`);
+//       q.return([
+//         'r',
+//         'properties(r) as resource',
+//         'cmpc',
+//         ' usefulness',
+//         'sign(ccc)*usefulness/(0.1+cmpc) + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) as score',
+//       ]);
+//     } else {
+//       q.raw(`CALL {
+//         WITH r
+//           MATCH (nextToConsume:Resource)-[rel:HAS_NEXT|STARTS_WITH*0..100]->(r)
+//           WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
+//           WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
+//           return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+//       }`);
+//       q.return(['r', 'cmpc', 'sign(ccc)/(0.1+cmpc) -1*cprnc as score']);
+//     }
+//     q.orderBy('score', 'DESC');
+//   } else {
+//     q.match([node('r'), relation('in', 'createdResource', 'CREATED'), node('', 'User')]);
+//     q.return(['r']);
+//     q.orderBy('createdResource.createdAt', 'DESC');
+//   }
 
-  const r = await q.run();
-  const resources = r.map(i => i.r.properties);
-  return resources;
-};
+//   const r = await q.run();
+//   const resources = r.map(i => i.r.properties);
+//   return resources;
+// };
 
-interface DomainLearningMaterialsFilter {
-  resourceTypeIn?: ResourceType[];
-  completedByUser: Boolean;
-  learningMaterialTypeIn?: LearningMaterialType[];
-}
+// interface DomainLearningMaterialsFilter {
+//   resourceTypeIn?: ResourceType[];
+//   completedByUser: Boolean;
+//   learningMaterialTypeIn?: LearningMaterialType[];
+// }
 
-export const getDomainLearningMaterials = async (
-  domainId: string,
-  userId: string | undefined,
-  {
-    query,
-    filter,
-    sortingType,
-  }: { query?: string; filter: DomainLearningMaterialsFilter; sortingType: APIDomainLearningMaterialsSortingType }
-): Promise<Resource[]> => {
-  const lmLabel =
-    !!filter.learningMaterialTypeIn && filter.learningMaterialTypeIn.length === 1
-      ? filter.learningMaterialTypeIn[0]
-      : LearningMaterialLabel;
+// export const getDomainLearningMaterials = async (
+//   domainId: string,
+//   userId: string | undefined,
+//   {
+//     query,
+//     filter,
+//     sortingType,
+//   }: { query?: string; filter: DomainLearningMaterialsFilter; sortingType: APIDomainLearningMaterialsSortingType }
+// ): Promise<Resource[]> => {
+//   const lmLabel =
+//     !!filter.learningMaterialTypeIn && filter.learningMaterialTypeIn.length === 1
+//       ? filter.learningMaterialTypeIn[0]
+//       : LearningMaterialLabel;
 
-  const q = new Query(neo4jQb);
-  if (userId) q.matchNode('u', 'User', { _id: userId });
+//   const q = new Query(neo4jQb);
+//   if (userId) q.matchNode('u', 'User', { _id: userId });
 
-  q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('lm', lmLabel)]);
+//   q.match([node('d', 'Domain', { _id: domainId }), relation('in', '', 'BELONGS_TO'), node('lm', lmLabel)]);
 
-  q.raw(`WHERE (NOT lm:${LearningPathLabel} OR lm.public = true)`);
+//   q.raw(`WHERE (NOT lm:${LearningPathLabel} OR lm.public = true)`);
 
-  if (filter.resourceTypeIn) {
-    q.raw(`AND (NOT lm:${ResourceLabel} OR lm.type IN $resourceTypeIn)`, {
-      resourceTypeIn: filter.resourceTypeIn,
-    });
-  }
+//   if (filter.resourceTypeIn) {
+//     q.raw(`AND (NOT lm:${ResourceLabel} OR lm.type IN $resourceTypeIn)`, {
+//       resourceTypeIn: filter.resourceTypeIn,
+//     });
+//   }
 
-  if (query) {
-    q.raw(
-      ` AND (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR toLower(lm.type) CONTAINS toLower($query))`,
-      { query }
-    );
-  }
+//   if (query) {
+//     q.raw(
+//       ` AND (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR toLower(lm.type) CONTAINS toLower($query))`,
+//       { query }
+//     );
+//   }
 
-  if (userId) {
-    if (filter.completedByUser) {
-      q.raw(
-        ` AND ((NOT lm:${ResourceLabel} OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm) WHERE exists(consumed_r.consumedAt) }) 
-        AND (NOT lm:${LearningPathLabel} OR EXISTS { (u)-[started_r:STARTED]->(lm) WHERE exists(started_r.completedAt) }))` // TODO add completion for lps
-      );
-    } else {
-      q.raw(
-        ` AND (NOT lm:${ResourceLabel} OR (NOT (u)-[:CONSUMED]->(lm) OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm)  where consumed_r.consumedAt IS NULL }))
-        AND (NOT lm:${LearningPathLabel} OR (NOT (u)-[:STARTED]->(lm) OR EXISTS { (u)-[started_r:STARTED]->(lm)  where started_r.completedAt IS NULL }))`
-      );
-    }
-  }
+//   if (userId) {
+//     if (filter.completedByUser) {
+//       q.raw(
+//         ` AND ((NOT lm:${ResourceLabel} OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm) WHERE exists(consumed_r.consumedAt) }) 
+//         AND (NOT lm:${LearningPathLabel} OR EXISTS { (u)-[started_r:STARTED]->(lm) WHERE exists(started_r.completedAt) }))` // TODO add completion for lps
+//       );
+//     } else {
+//       q.raw(
+//         ` AND (NOT lm:${ResourceLabel} OR (NOT (u)-[:CONSUMED]->(lm) OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm)  where consumed_r.consumedAt IS NULL }))
+//         AND (NOT lm:${LearningPathLabel} OR (NOT (u)-[:STARTED]->(lm) OR EXISTS { (u)-[started_r:STARTED]->(lm)  where started_r.completedAt IS NULL }))`
+//       );
+//     }
+//   }
 
-  if (sortingType === APIDomainLearningMaterialsSortingType.Recommended) {
-    q.optionalMatch([node('lm'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
-    q.optionalMatch([node('cc'), relation('out', 'dpc', 'REFERENCES', [0, 5]), node('mpc', 'Concept')]);
-    q.raw('WHERE NOT (lm)-[:COVERS]->(mpc)');
-    if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
-    if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
-    if (userId)
-      q.with([
-        'DISTINCT lm',
-        'CASE WHEN lm:LearningPath THEN 1 ELSE 0 END as isLearningPath',
-        'u',
-        'count(cc) as ccc',
-        'count(distinct mpc) as cmpc',
-        '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
-      ]);
-    else
-      q.with([
-        'DISTINCT lm',
-        'CASE WHEN lm:LearningPath THEN 1 ELSE 0 END as isLearningPath',
-        'count(cc) as ccc',
-        'count(distinct mpc) as cmpc',
-      ]);
+//   if (sortingType === APIDomainLearningMaterialsSortingType.Recommended) {
+//     q.optionalMatch([node('lm'), relation('out', '', 'COVERS'), node('cc', 'Concept')]);
+//     q.optionalMatch([node('cc'), relation('out', 'dpc', 'REFERENCES', [0, 5]), node('mpc', 'Concept')]);
+//     q.raw('WHERE NOT (lm)-[:COVERS]->(mpc)');
+//     if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
+//     if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
+//     if (userId)
+//       q.with([
+//         'DISTINCT lm',
+//         'CASE WHEN lm:LearningPath THEN 1 ELSE 0 END as isLearningPath',
+//         'u',
+//         'count(cc) as ccc',
+//         'count(distinct mpc) as cmpc',
+//         '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
+//       ]);
+//     else
+//       q.with([
+//         'DISTINCT lm',
+//         'CASE WHEN lm:LearningPath THEN 1 ELSE 0 END as isLearningPath',
+//         'count(cc) as ccc',
+//         'count(distinct mpc) as cmpc',
+//       ]);
 
-    if (userId && filter.completedByUser === false) {
-      // can avoid doing that for lps
-      // undefined case: cprnc = 0 and npr =0
-      q.raw(`CALL {
-        WITH lm,u
-          MATCH (nextToConsume:${lmLabel})-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
-          WHERE (NOT (u)-[:CONSUMED]->(nextToConsume) OR EXISTS { (u)-[consumed_r:CONSUMED]->(nextToConsume)  where consumed_r.consumedAt IS NULL })
-          AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
-          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((lm)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
-          return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
-      }`);
-      q.return([
-        'lm',
-        'isLearningPath',
-        'cmpc',
-        ' usefulness',
-        `sign(ccc)*usefulness/(0.1+cmpc)  + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) + isLearningPath*${recommendationEngineConfig.learningMaterials.learningPathBonus} as score`,
-      ]);
-    } else {
-      // when not logged in, find the first one of series, return cprnc for each of them in order to order them
-      q.raw(`CALL {
-        WITH lm
-          MATCH (nextToConsume:${lmLabel})-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
-          WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
-          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
-          return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
-      }`);
-      q.return([
-        'lm',
-        'cmpc',
-        `sign(ccc)/(0.1+cmpc) -1*cprnc + isLearningPath*${recommendationEngineConfig.learningMaterials.learningPathBonus} as score`,
-      ]);
-    }
-    q.orderBy('score', 'DESC');
-  } else if (sortingType === APIDomainLearningMaterialsSortingType.Rating) {
-    q.optionalMatch([
-      node('lm'),
-      relation('in', 'ratedLearningMaterial', UserRatedLearningMaterialLabel),
-      node('', 'User'),
-    ]);
-    q.with(['DISTINCT lm', 'avg(ratedLearningMaterial.value) AS rating']);
-    q.return(['lm', 'rating']);
-    q.raw(' ORDER BY rating IS NOT NULL DESC, rating DESC');
-  } else {
-    q.match([node('lm'), relation('in', 'createdLearningMaterial', 'CREATED'), node('', 'User')]);
-    q.return(['lm']);
-    q.orderBy('createdLearningMaterial.createdAt', 'DESC');
-  }
+//     if (userId && filter.completedByUser === false) {
+//       // can avoid doing that for lps
+//       // undefined case: cprnc = 0 and npr =0
+//       q.raw(`CALL {
+//         WITH lm,u
+//           MATCH (nextToConsume:${lmLabel})-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
+//           WHERE (NOT (u)-[:CONSUMED]->(nextToConsume) OR EXISTS { (u)-[consumed_r:CONSUMED]->(nextToConsume)  where consumed_r.consumedAt IS NULL })
+//           AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
+//           WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((lm)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
+//           return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+//       }`);
+//       q.return([
+//         'lm',
+//         'isLearningPath',
+//         'cmpc',
+//         ' usefulness',
+//         `sign(ccc)*usefulness/(0.1+cmpc)  + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) + isLearningPath*${recommendationEngineConfig.learningMaterials.learningPathBonus} as score`,
+//       ]);
+//     } else {
+//       // when not logged in, find the first one of series, return cprnc for each of them in order to order them
+//       q.raw(`CALL {
+//         WITH lm
+//           MATCH (nextToConsume:${lmLabel})-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
+//           WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
+//           WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
+//           return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+//       }`);
+//       q.return([
+//         'lm',
+//         'cmpc',
+//         `sign(ccc)/(0.1+cmpc) -1*cprnc + isLearningPath*${recommendationEngineConfig.learningMaterials.learningPathBonus} as score`,
+//       ]);
+//     }
+//     q.orderBy('score', 'DESC');
+//   } else if (sortingType === APIDomainLearningMaterialsSortingType.Rating) {
+//     q.optionalMatch([
+//       node('lm'),
+//       relation('in', 'ratedLearningMaterial', UserRatedLearningMaterialLabel),
+//       node('', 'User'),
+//     ]);
+//     q.with(['DISTINCT lm', 'avg(ratedLearningMaterial.value) AS rating']);
+//     q.return(['lm', 'rating']);
+//     q.raw(' ORDER BY rating IS NOT NULL DESC, rating DESC');
+//   } else {
+//     q.match([node('lm'), relation('in', 'createdLearningMaterial', 'CREATED'), node('', 'User')]);
+//     q.return(['lm']);
+//     q.orderBy('createdLearningMaterial.createdAt', 'DESC');
+//   }
 
-  const r = await q.run();
-  const learningMaterials = r.map(i => i.lm.properties);
-  return learningMaterials;
-};
+//   const r = await q.run();
+//   const learningMaterials = r.map(i => i.lm.properties);
+//   return learningMaterials;
+// };
 
 // export const countDomainLearningMaterials = (domainId: string): Promise<number> =>
 //   countRelatedNodes<Domain, LearningMaterialBelongsToDomain, LearningMaterial>({

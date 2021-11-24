@@ -3,6 +3,7 @@ import { TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachTopicIsSubTopicOfTopic,
+  countLearningMaterialsShowedInTopic,
   createTopic,
   deleteTopic,
   detachTopicIsSubTopicOfTopic,
@@ -10,6 +11,7 @@ import {
   getTopicByKey,
   getTopicCreator,
   getTopicFollowUps,
+  getTopicLearningMaterials,
   getTopicParentTopic,
   getTopicPrerequisites,
   getTopicSubTopics,
@@ -20,7 +22,7 @@ import {
   updateTopicIsSubTopicOfTopic
 } from '../../repositories/topics.repository';
 import { initSubtopicIndexValue } from '../../services/topics.service';
-import { APIMutationResolvers, APIQueryResolvers, APITopicResolvers } from '../schema/types';
+import { APIMutationResolvers, APIQueryResolvers, APITopicLearningMaterialsSortingType, APITopicResolvers } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 
@@ -165,16 +167,22 @@ export const getTopicSubTopicsTotalCountResolver: APITopicResolvers['subTopicsTo
   return size
 }
 
-// TODO
-export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMaterials'] = async (topic, {options}) => {
+export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMaterials'] = async (topic, {options}, {user}) => {
+  if (!user && options.filter.completedByUser === true) return { items: [] };
+  if (
+    options.sortingType === APITopicLearningMaterialsSortingType.Recommended &&
+    options.filter.completedByUser === undefined
+  )
+    throw new UserInputError(
+      'getTopicLearningMaterials : when using recommendations, completedByUser Filter must be set'
+    );
   return {
-    items: []
-  }
+    items: (await getTopicLearningMaterials(topic._id, user?._id, nullToUndefined(options))),
+  };
 }
 
-// TODO
 export const getTopicLearningMaterialsTotalCountResolver: APITopicResolvers['learningMaterialsTotalCount'] = async (topic) => {
-  return 0
+  return await countLearningMaterialsShowedInTopic(topic._id);
 }
 
 export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] = async (topic) => {

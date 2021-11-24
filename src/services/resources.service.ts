@@ -3,8 +3,7 @@ import {  ResourceMediaType, ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import {
   attachLearningMaterialCoversTopics,
-  attachLearningMaterialHasPrerequisiteLearningGoal,
-  attachLearningMaterialLeadsToLearningGoal,
+  attachLearningMaterialHasPrerequisiteTopic,
   showLearningMaterialInTopics,
 } from '../repositories/learning_materials.repository';
 import {
@@ -21,8 +20,8 @@ interface CreateAndSaveResourceBaseData {
   url: string;
   description?: string;
   tags?: string[];
-  prerequisitesLearningGoalsIds?: string[];
-  outcomesLearningGoalsIds?: string[];
+  prerequisitesTopicsIds?: string[];
+  // outcomesLearningGoalsIds?: string[];
   showInTopicsIds: string[]
   coveredSubTopicsIds?: string[]
 }
@@ -58,34 +57,35 @@ const attachResourceTags = async (resourceId: string, tags?: string[]): Promise<
 const attachPrerequisites = async (
   resourceId: string,
   userId: string,
-  prerequisitesLearningGoalsIds?: string[]
+  prerequisitesTopicsIds?: string[]
 ): Promise<void> => {
-  if (!prerequisitesLearningGoalsIds || !prerequisitesLearningGoalsIds.length) return;
+  if (!prerequisitesTopicsIds || !prerequisitesTopicsIds.length) return;
   await Promise.all(
-    prerequisitesLearningGoalsIds.map(async prerequisiteId =>
-      attachLearningMaterialHasPrerequisiteLearningGoal(resourceId, prerequisiteId, {
+    prerequisitesTopicsIds.map(async prerequisiteId =>
+      attachLearningMaterialHasPrerequisiteTopic(resourceId, prerequisiteId, {
         strength: 100,
-        createdBy: userId,
+        createdByUserId: userId,
       })
     )
   );
 };
-const attachOutcomes = async (
-  resourceId: string,
-  userId: string,
-  outcomesLearningGoalsIds?: string[]
-): Promise<void> => {
-  if (!outcomesLearningGoalsIds || !outcomesLearningGoalsIds.length) return;
-  await Promise.all(
-    outcomesLearningGoalsIds.map(outcomeId =>
-      attachLearningMaterialLeadsToLearningGoal(resourceId, outcomeId, {
-        strength: 100,
-        createdBy: userId,
-      })
-    )
-  );
-};
+// const attachOutcomes = async (
+//   resourceId: string,
+//   userId: string,
+//   outcomesLearningGoalsIds?: string[]
+// ): Promise<void> => {
+//   if (!outcomesLearningGoalsIds || !outcomesLearningGoalsIds.length) return;
+//   await Promise.all(
+//     outcomesLearningGoalsIds.map(outcomeId =>
+//       attachLearningMaterialLeadsToLearningGoal(resourceId, outcomeId, {
+//         strength: 100,
+//         createdBy: userId,
+//       })
+//     )
+//   );
+// };
 
+// TODO: make type safe
 export const createAndSaveResource = async (data: CreateAndSaveResourceData, userId: string): Promise<Resource> => {
   const createdResource = await createResource(
     { _id: userId },
@@ -94,14 +94,14 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
       'subResourceSeries',
       'showInTopicsIds',
       'coveredSubTopicsIds',
-      'outcomesLearningGoalsIds',
-      'prerequisitesLearningGoalsIds',
+      // 'outcomesLearningGoalsIds',
+      'prerequisitesTopicsIds',
     ])
   );
   await Promise.all([
     attachResourceTags(createdResource._id, data.tags),
-    attachPrerequisites(createdResource._id, userId, data.prerequisitesLearningGoalsIds),
-    attachOutcomes(createdResource._id, userId, data.outcomesLearningGoalsIds),
+    attachPrerequisites(createdResource._id, userId, data.prerequisitesTopicsIds),
+    // attachOutcomes(createdResource._id, userId, data.outcomesLearningGoalsIds),
     data.showInTopicsIds.length ? showLearningMaterialInTopics(createdResource._id, data.showInTopicsIds) : undefined,
     data.coveredSubTopicsIds?.length ? attachLearningMaterialCoversTopics(createdResource._id, data.coveredSubTopicsIds, {userId}): undefined,
   ]);

@@ -1,8 +1,10 @@
 import { node, Query, relation } from 'cypher-query-builder';
 import shortid from 'shortid';
+import { APITopicLearningMaterialsSortingType } from '../api/schema/types';
 import { generateUrlKey } from '../api/util/urlKey';
-import { LearningMaterial, LearningMaterialLabel } from '../entities/LearningMaterial';
-import { LearningGoalShowedInTopic } from '../entities/relationships/LearningGoalShowedInTopic';
+import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
+import { ResourceLabel, ResourceType } from '../entities/Resource'
+import { LearningGoalShowedInTopic, LearningGoalShowedInTopicLabel } from '../entities/relationships/LearningGoalShowedInTopic';
 import { LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
 import { TopicHasPrerequisiteTopic, TopicHasPrerequisiteTopicLabel, TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE } from '../entities/relationships/TopicHasPrerequisiteTopic';
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
@@ -12,6 +14,10 @@ import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import { attachUniqueNodes, countRelatedNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
 import { SortingDirection } from './util/sorting';
+import { LearningPathLabel } from '../entities/LearningPath';
+import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
+import { recommendationEngineConfig } from '../config';
+import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 
 interface CreateTopicData {
   name: string;
@@ -81,6 +87,136 @@ export const searchTopics = async (
 };
 
 // ========= Learning materials =======
+interface TopicLearningMaterialsFilter {
+  resourceTypeIn?: ResourceType[];
+  completedByUser: Boolean;
+  learningMaterialTypeIn?: LearningMaterialType[];
+}
+export const getTopicLearningMaterials = async (
+  topicId: string,
+  userId: string | undefined,
+  {
+    query,
+    filter,
+    sortingType,
+  }: { query?: string; filter: TopicLearningMaterialsFilter; sortingType: APITopicLearningMaterialsSortingType }
+): Promise<LearningMaterial[]> => {
+  const lmLabel =
+    !!filter.learningMaterialTypeIn && filter.learningMaterialTypeIn.length === 1
+      ? filter.learningMaterialTypeIn[0]
+      : LearningMaterialLabel;
+
+  const q = new Query(neo4jQb);
+  if (userId) q.matchNode('u', 'User', { _id: userId });
+
+  q.match([node('d', TopicLabel, { _id: topicId }), relation('in', '', LearningGoalShowedInTopicLabel), node('lm', lmLabel)]);
+
+  q.raw(`WHERE (NOT lm:${LearningPathLabel} OR lm.public = true)`);
+
+  if (filter.resourceTypeIn) {
+    q.raw(`AND (NOT lm:${ResourceLabel} OR lm.type IN $resourceTypeIn)`, {
+      resourceTypeIn: filter.resourceTypeIn,
+    });
+  }
+
+  if (query) {
+    q.raw(
+      ` AND (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR toLower(lm.type) CONTAINS toLower($query))`,
+      { query }
+    );
+  }
+
+  if (userId) {
+    if (filter.completedByUser) {
+      q.raw(
+        ` AND ((NOT lm:${ResourceLabel} OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm) WHERE exists(consumed_r.consumedAt) }) 
+        AND (NOT lm:${LearningPathLabel} OR EXISTS { (u)-[started_r:STARTED]->(lm) WHERE exists(started_r.completedAt) }))` // TODO add completion for lps
+      );
+    } else {
+      q.raw(
+        ` AND (NOT lm:${ResourceLabel} OR (NOT (u)-[:CONSUMED]->(lm) OR EXISTS { (u)-[consumed_r:CONSUMED]->(lm)  where consumed_r.consumedAt IS NULL }))
+        AND (NOT lm:${LearningPathLabel} OR (NOT (u)-[:STARTED]->(lm) OR EXISTS { (u)-[started_r:STARTED]->(lm)  where started_r.completedAt IS NULL }))`
+      );
+    }
+  }
+
+  if (sortingType === APITopicLearningMaterialsSortingType.Recommended) {
+    q.optionalMatch([node('lm'), relation('out', '', LearningMaterialCoversTopicLabel), node('cc', TopicLabel)]);
+    q.optionalMatch([node('cc'), relation('out', 'dpc', TopicHasPrerequisiteTopicLabel, [0, 5]), node('mpc', TopicLabel)]);
+    q.raw(`WHERE NOT (lm)-[:${LearningMaterialCoversTopicLabel}]->(mpc)`);
+    if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
+    if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
+    if (userId)
+      q.with([
+        'DISTINCT lm',
+        'CASE WHEN lm:LearningPath THEN 1 ELSE 0 END as isLearningPath',
+        'u',
+        'count(cc) as ccc',
+        'count(distinct mpc) as cmpc',
+        '1 - toFloat(count(rkc)+0.0001)/(count(cc)+0.0001) as usefulness',
+      ]);
+    else
+      q.with([
+        'DISTINCT lm',
+        'CASE WHEN lm:LearningPath THEN 1 ELSE 0 END as isLearningPath',
+        'count(cc) as ccc',
+        'count(distinct mpc) as cmpc',
+      ]);
+
+    if (userId && filter.completedByUser === false) {
+      // can avoid doing that for lps
+      // undefined case: cprnc = 0 and npr =0
+      q.raw(`CALL {
+        WITH lm,u
+          MATCH (nextToConsume:${lmLabel})-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
+          WHERE (NOT (u)-[:CONSUMED]->(nextToConsume) OR EXISTS { (u)-[consumed_r:CONSUMED]->(nextToConsume)  where consumed_r.consumedAt IS NULL })
+          AND ((NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)) OR EXISTS { (u)-[consumed_r:CONSUMED]->(previous:Resource)-[:HAS_NEXT|:STARTS_WITH]->(nextToConsume)  where consumed_r.consumedAt IS NOT NULL })
+          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel, (1-sign(size((lm)<-[:HAS_NEXT]-(:Resource)))) as npr ORDER BY countRel DESC LIMIT 1
+          return nextToConsume[0] as nextToConsumeInSeries, npr,  size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+      }`);
+      q.return([
+        'lm',
+        'isLearningPath',
+        'cmpc',
+        ' usefulness',
+        `sign(ccc)*usefulness/(0.1+cmpc)  + (-1*cprnc) + (1 -sign(cprnc))*((1-npr)*0.5) + isLearningPath*${recommendationEngineConfig.learningMaterials.learningPathBonus} as score`,
+      ]);
+    } else {
+      // when not logged in, find the first one of series, return cprnc for each of them in order to order them
+      q.raw(`CALL {
+        WITH lm
+          MATCH (nextToConsume:${lmLabel})-[rel:HAS_NEXT|STARTS_WITH*0..100]->(lm)
+          WHERE NOT (nextToConsume)<-[:HAS_NEXT|:STARTS_WITH]-(:Resource)
+          WITH collect(nextToConsume) as nextToConsume, rel, count(rel) as countRel ORDER BY countRel DESC LIMIT 1
+          return nextToConsume[0] as nextToConsumeInSeries, size([x in rel where type(x) = 'HAS_NEXT']) as cprnc
+      }`);
+      q.return([
+        'lm',
+        'cmpc',
+        `sign(ccc)/(0.1+cmpc) -1*cprnc + isLearningPath*${recommendationEngineConfig.learningMaterials.learningPathBonus} as score`,
+      ]);
+    }
+    q.orderBy('score', 'DESC');
+  } else if (sortingType === APITopicLearningMaterialsSortingType.Rating) {
+    q.optionalMatch([
+      node('lm'),
+      relation('in', 'ratedLearningMaterial', UserRatedLearningMaterialLabel),
+      node('', 'User'),
+    ]);
+    q.with(['DISTINCT lm', 'avg(ratedLearningMaterial.value) AS rating']);
+    q.return(['lm', 'rating']);
+    q.raw(' ORDER BY rating IS NOT NULL DESC, rating DESC');
+  } else {
+    q.match([node('lm'), relation('in', 'createdLearningMaterial', 'CREATED'), node('', 'User')]);
+    q.return(['lm']);
+    q.orderBy('createdLearningMaterial.createdAt', 'DESC');
+  }
+
+  const r = await q.run();
+  const learningMaterials = r.map(i => i.lm.properties);
+  return learningMaterials;
+};
+
 export const countLearningMaterialsShowedInTopic = (topicId: string): Promise<number> =>
   countRelatedNodes<Topic, LearningGoalShowedInTopic, LearningMaterial>({
     originNode: {

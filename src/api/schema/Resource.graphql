@@ -72,8 +72,8 @@ input CreateSubResourcePayload {
   showInTopicsIds: [String!]!
   coveredSubTopicsIds: [String!]
   # covered subtopics TODO
-  prerequisitesSubGoalsIds: [String!]
-  outcomesSubGoalsIds: [String!]
+  prerequisitesTopicsIds: [String!]
+  # outcomesSubGoalsIds: [String!]
 }
 
 input CreateResourcePayload {
@@ -87,8 +87,8 @@ input CreateResourcePayload {
   showInTopicsIds: [String!]!
   coveredSubTopicsIds: [String!]
   # covered subtopics TODO
-  prerequisitesSubGoalsIds: [String!]
-  outcomesSubGoalsIds: [String!]
+  prerequisitesTopicsIds: [String!]
+  # outcomesSubGoalsIds: [String!]
   subResourceSeries: [CreateSubResourcePayload!]
 }
 

@@ -975,9 +975,8 @@ export type APICreateSubResourcePayload = {
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
-  outcomesSubGoalsIds?: Maybe<Array<Scalars['String']>>;
   /** covered subtopics TODO */
-  prerequisitesSubGoalsIds?: Maybe<Array<Scalars['String']>>;
+  prerequisitesTopicsIds?: Maybe<Array<Scalars['String']>>;
   showInTopicsIds: Array<Scalars['String']>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;
@@ -990,10 +989,10 @@ export type APICreateResourcePayload = {
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
-  outcomesSubGoalsIds?: Maybe<Array<Scalars['String']>>;
   /** covered subtopics TODO */
-  prerequisitesSubGoalsIds?: Maybe<Array<Scalars['String']>>;
+  prerequisitesTopicsIds?: Maybe<Array<Scalars['String']>>;
   showInTopicsIds: Array<Scalars['String']>;
+  /** outcomesSubGoalsIds: [String!] */
   subResourceSeries?: Maybe<Array<APICreateSubResourcePayload>>;
   tags?: Maybe<Array<Scalars['String']>>;
   type: ResourceType;
