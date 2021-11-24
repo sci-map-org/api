@@ -1,33 +1,33 @@
 import { omit } from 'lodash';
 import { map, prop } from 'ramda';
+import * as shortid from 'shortid';
 import { nullToUndefined } from '../api/util/nullToUndefined';
+import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import {
+  UserCreatedLearningGoal,
+  UserCreatedLearningGoalLabel
+} from '../entities/relationships/UserCreatedLearningGoal';
+import {
   UserCreatedLearningMaterial,
-  UserCreatedLearningMaterialLabel,
+  UserCreatedLearningMaterialLabel
 } from '../entities/relationships/UserCreatedLearningMaterial';
+import { UserKnowsTopic, UserKnowsTopicLabel } from '../entities/relationships/UserKnowsTopic';
+import {
+  UserStartedLearningGoal,
+  UserStartedLearningGoalLabel
+} from '../entities/relationships/UserStartedLearningGoal';
 import {
   UserStartedLearningPath,
-  UserStartedLearningPathLabel,
+  UserStartedLearningPathLabel
 } from '../entities/relationships/UserStartedLearningPath';
 import { Resource, ResourceLabel } from '../entities/Resource';
+import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel, UserRole } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import { attachNodes, detachNodes, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
 
-import shortid = require('shortid');
-import {
-  UserStartedLearningGoal,
-  UserStartedLearningGoalLabel,
-} from '../entities/relationships/UserStartedLearningGoal';
-import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
-import {
-  UserCreatedLearningGoal,
-  UserCreatedLearningGoalLabel,
-} from '../entities/relationships/UserCreatedLearningGoal';
-import { Topic, TopicLabel } from '../entities/Topic';
-import { UserKnowsTopic, UserKnowsTopicLabel } from '../entities/relationships/UserKnowsTopic';
 
 interface UpdateUserData {
   displayName?: string;

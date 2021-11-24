@@ -1,23 +1,22 @@
 import { node, Query, relation } from 'cypher-query-builder';
-import shortid from 'shortid';
+import * as shortid from 'shortid';
 import { APITopicLearningMaterialsSortingType } from '../api/schema/types';
 import { generateUrlKey } from '../api/util/urlKey';
+import { recommendationEngineConfig } from '../config';
 import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
-import { ResourceLabel, ResourceType } from '../entities/Resource'
+import { LearningPathLabel } from '../entities/LearningPath';
 import { LearningGoalShowedInTopic, LearningGoalShowedInTopicLabel } from '../entities/relationships/LearningGoalShowedInTopic';
+import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
 import { LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
 import { TopicHasPrerequisiteTopic, TopicHasPrerequisiteTopicLabel, TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE } from '../entities/relationships/TopicHasPrerequisiteTopic';
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
 import { UserCreatedTopic, UserCreatedTopicLabel } from '../entities/relationships/UserCreatedTopic';
+import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
+import { ResourceLabel, ResourceType } from '../entities/Resource';
 import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import { attachUniqueNodes, countRelatedNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
-import { SortingDirection } from './util/sorting';
-import { LearningPathLabel } from '../entities/LearningPath';
-import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
-import { recommendationEngineConfig } from '../config';
-import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 
 interface CreateTopicData {
   name: string;
