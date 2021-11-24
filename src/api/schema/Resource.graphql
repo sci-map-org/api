@@ -43,7 +43,7 @@ type Resource implements LearningMaterial {
   tags: [LearningMaterialTag!]
   url: String!
   upvotes: Int
-  # rating: Float
+  rating: Float
   description: String
   durationSeconds: Int
   consumed: ConsumedResource

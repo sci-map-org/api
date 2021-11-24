@@ -8,7 +8,7 @@ type LearningPath implements LearningMaterial {
   resourceItems: [LearningPathResourceItem!]
   complementaryResources: [Resource!]
   tags: [LearningMaterialTag!]
-  # rating: Float
+  rating: Float
   started: LearningPathStarted
   startedBy(options: LearningPathStartedByOptions!): LearningPathStartedByResults
   coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults

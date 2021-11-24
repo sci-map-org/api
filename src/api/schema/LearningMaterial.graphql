@@ -1,7 +1,9 @@
 interface LearningMaterial {
   _id: String!
+  name: String!
+  description: String
   tags: [LearningMaterialTag!]
-  # rating: Float
+  rating: Float
   coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults
   coveredSubTopicsTree: [Topic!]
   showedIn: [Topic!]

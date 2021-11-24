@@ -1,5 +1,7 @@
 type TopicHasPrerequisiteTopic {
+  followUpTopic: Topic!
   strength: Float!
+  prerequisiteTopic: Topic!
 }
 
 type AddTopicHasPrerequisiteTopicResult {

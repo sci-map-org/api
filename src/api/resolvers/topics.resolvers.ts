@@ -144,16 +144,49 @@ export const deleteTopicResolver: APIMutationResolvers['deleteTopic'] = async (_
 };
 
 // TODO : set known / unknown
+// export const getTopicKnownResolver: APIConceptResolvers['known'] = async (parentConcept, _args, { user }) => {
+//   if (!user) return null;
+//   return await getUserKnowsConcept(user._id, parentConcept._id);
+// };
+
+// export const setConceptsKnownResolver: APIMutationResolvers['setConceptsKnown'] = async (_p, { payload }, { user }) => {
+//   restrictAccess('loggedInUser', user, 'Must be logged in to know a concept');
+//   const concepts = await Promise.all(
+//     payload.concepts.map(async c => {
+//       const foundConcept = await findConcept({ _id: c.conceptId });
+//       if (!foundConcept) throw new NotFoundError('Concept', c.conceptId);
+//       return foundConcept;
+//     })
+//   );
+//   await attachUserKnowsConcepts(user!._id, payload.concepts);
+//   return concepts.map(toAPIConcept);
+// };
+
+// export const setConceptsUnKnownResolver: APIMutationResolvers['setConceptsUnknown'] = async (
+//   _p,
+//   { conceptIds },
+//   { user }
+// ) => {
+//   restrictAccess('loggedInUser', user, 'Must be logged in to unknow a concept');
+//   const concepts = await Promise.all(
+//     conceptIds.map(async conceptId => {
+//       const foundConcept = await findConcept({ _id: conceptId });
+//       if (!foundConcept) throw new NotFoundError('Concept', conceptId);
+//       return foundConcept;
+//     })
+//   );
+//   await detachUserKnowsConcepts(user!._id, conceptIds);
+//   return concepts.map(toAPIConcept);
+// };
 
 export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] =async (topic) => {
    const parent = await getTopicParentTopic(topic._id)
    return parent?.parentTopic || null
 }
 
-export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic, { options }) => {
+export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic) => {
   const result = await getTopicSubTopics(
     topic._id,
-    options.sorting,
   );
   return result.map(({ parentTopic, subTopic, relationship }) => ({
     subTopic,
@@ -186,11 +219,19 @@ export const getTopicLearningMaterialsTotalCountResolver: APITopicResolvers['lea
 }
 
 export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] = async (topic) => {
-  return getTopicPrerequisites({_id: topic._id})
+  return (await getTopicPrerequisites({_id: topic._id})).map(({followUpTopic, prerequisiteTopic, relationship}) => ({
+    prerequisiteTopic,
+    followUpTopic,
+    ...relationship
+  }))
 }
 
 export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async (topic) => {
-  return getTopicFollowUps({_id: topic._id})
+  return (await getTopicFollowUps({_id: topic._id})).map(({followUpTopic, prerequisiteTopic, relationship}) => ({
+    prerequisiteTopic,
+    followUpTopic,
+    ...relationship
+  }))
 }
 
 export const getTopicsCreatedByResolver: APITopicResolvers['createdBy'] = async (topic) => {

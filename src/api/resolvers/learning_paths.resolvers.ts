@@ -75,7 +75,7 @@ export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPat
   };
 };
 
-export const getLearningPathResolver: APIQueryResolvers['getLearningPathById'] = async (_ctx, { learningPathId }, { user }) => {
+export const getLearningPathByIdResolver: APIQueryResolvers['getLearningPathById'] = async (_ctx, { learningPathId }, { user }) => {
   const learningPath = await findLearningPathIfAuthorized({ _id: learningPathId }, user?._id);
   return learningPath;
 };

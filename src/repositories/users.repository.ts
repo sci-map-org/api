@@ -1,14 +1,12 @@
 import { omit } from 'lodash';
 import { map, prop } from 'ramda';
 import { nullToUndefined } from '../api/util/nullToUndefined';
-import { Concept, ConceptLabel } from '../entities/Concept';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import {
   UserCreatedLearningMaterial,
   UserCreatedLearningMaterialLabel,
 } from '../entities/relationships/UserCreatedLearningMaterial';
-import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
 import {
   UserStartedLearningPath,
   UserStartedLearningPathLabel,
@@ -28,6 +26,8 @@ import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
+import { Topic, TopicLabel } from '../entities/Topic';
+import { UserKnowsTopic, UserKnowsTopicLabel } from '../entities/relationships/UserKnowsTopic';
 
 interface UpdateUserData {
   displayName?: string;
@@ -75,44 +75,44 @@ export const findUser = findOne<User, { key: string } | { email: string }>({ lab
 
 export const updateUser = updateOne<User, { _id: string } | { email: string }, UpdateUserData>({ label: 'User' });
 
-export const attachUserKnowsConcepts = (
+export const attachUserKnowsTopics = (
   userId: string,
-  conceptsToKnow: Array<{ conceptId: string; level?: number | null }>
+  topicsToKnow: Array<{ topicId: string; level?: number | null }>
 ) =>
   Promise.all(
-    conceptsToKnow.map(conceptToKnow =>
-      attachNodes<User, UserKnowsConcept, Concept>({
+    topicsToKnow.map(topicToKnow =>
+      attachNodes<User, UserKnowsTopic, Topic>({
         originNode: {
           label: UserLabel,
           filter: { _id: userId },
         },
         relationship: {
-          label: UserKnowsConceptLabel,
+          label: UserKnowsTopicLabel,
           onCreateProps: {
-            level: conceptToKnow.level || 100,
+            level: topicToKnow.level || 100,
           },
         },
         destinationNode: {
-          label: ConceptLabel,
-          filter: { _id: conceptToKnow.conceptId }, // can't user $in cause different values based on the conceptId
+          label: TopicLabel,
+          filter: { _id: topicToKnow.topicId }, // can't user $in cause different values based on the conceptId
         },
       })
     )
   );
 
-export const detachUserKnowsConcepts = (userId: string, conceptIds: string[]) =>
-  detachNodes<User, UserKnowsConcept, Concept>({
+export const detachUserKnowsTopics = (userId: string, topicsIds: string[]) =>
+  detachNodes<User, UserKnowsTopic, Topic>({
     originNode: {
       label: UserLabel,
       filter: { _id: userId },
     },
     relationship: {
-      label: UserKnowsConceptLabel,
+      label: UserKnowsTopicLabel,
       filter: {},
     },
     destinationNode: {
-      label: ConceptLabel,
-      filter: { _id: { $in: conceptIds } },
+      label: TopicLabel,
+      filter: { _id: { $in: topicsIds } },
     },
   });
 

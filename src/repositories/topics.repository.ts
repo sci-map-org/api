@@ -298,7 +298,6 @@ export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> 
 
 export const getTopicSubTopics = (
   topicId: string,
-  sortingOptions: { type: 'index'; direction: SortingDirection },
 ): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> =>
   getRelatedNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
     originNode: {
@@ -315,8 +314,8 @@ export const getTopicSubTopics = (
     },
     sorting: {
       entity: 'relationship',
-      field: sortingOptions.type,
-      direction: sortingOptions.direction,
+      field: 'index',
+      direction: 'ASC',
     },
   }).then(items =>
     items.map(({ relationship, destinationNode, originNode }) => ({
@@ -465,7 +464,7 @@ export const detachTopicHasPrerequisiteTopic = (
     };
   });
 
-const getTopicPrerequisiteRelations = (filter: { _id: string } | { key: string }, direction: 'OUT' | 'IN'): Promise<{topic: Topic, relationship: TopicHasPrerequisiteTopic}[]> =>
+const getTopicPrerequisiteRelations = (filter: { _id: string } | { key: string }, direction: 'OUT' | 'IN'): Promise<{originTopic: Topic, destinationTopic: Topic, relationship: TopicHasPrerequisiteTopic}[]> =>
   getRelatedNodes<Topic, TopicHasPrerequisiteTopic, Topic>({
     originNode: {
       label: TopicLabel,
@@ -478,13 +477,17 @@ const getTopicPrerequisiteRelations = (filter: { _id: string } | { key: string }
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items => items.map(item => ({ topic: item.destinationNode, relationship: item.relationship })));
+  }).then(items => items.map(item => ({ originTopic: item.originNode, destinationTopic: item.destinationNode, relationship: item.relationship })));
 
-export const getTopicPrerequisites = (filter: { _id: string } | { key: string }) =>
-getTopicPrerequisiteRelations(filter, 'OUT');
+export const getTopicPrerequisites = (filter: { _id: string } | { key: string }): Promise<{prerequisiteTopic: Topic, relationship: TopicHasPrerequisiteTopic, followUpTopic: Topic}[]> =>
+getTopicPrerequisiteRelations(filter, 'OUT').then(items => items.map(({originTopic, relationship, destinationTopic}) => ({
+  prerequisiteTopic:destinationTopic , relationship, followUpTopic:originTopic
+})));
 
-export const getTopicFollowUps = (filter: { _id: string } | { key: string }) =>
-getTopicPrerequisiteRelations(filter, 'IN');
+export const getTopicFollowUps = (filter: { _id: string } | { key: string }) : Promise<{prerequisiteTopic: Topic, relationship: TopicHasPrerequisiteTopic, followUpTopic: Topic}[]>=>
+getTopicPrerequisiteRelations(filter, 'IN').then(items => items.map(({originTopic, relationship, destinationTopic}) => ({
+  prerequisiteTopic:originTopic , relationship, followUpTopic: destinationTopic
+})));;
 
 
 

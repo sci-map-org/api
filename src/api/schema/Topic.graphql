@@ -4,35 +4,18 @@ type Topic {
   key: String!
   description: String
   parentTopic: Topic
-  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
+  subTopics: [TopicIsSubTopicOfTopic!]
   subTopicsTotalCount: Int
   learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults
   learningMaterialsTotalCount: Int
   # learningGoals: [LearningGoalBelongsToDomain!] => TODO
   # progress | completion
   # known: KnownTopic TODO -> change schema, both progress and wether marked as known or not
-  prerequisites: [TopicHasPrerequisiteTopicItem!]
-  followUps: [TopicHasPrerequisiteTopicItem!]
+  prerequisites: [TopicHasPrerequisiteTopic!]
+  followUps: [TopicHasPrerequisiteTopic!]
   createdBy: User
   createdAt: Date!
 }
-
-enum TopicSubTopicsSortingType {
-  index
-}
-
-input TopicSubTopicsSortingOptions {
-  type: TopicSubTopicsSortingType!
-  direction: SortingDirection!
-}
-
-input TopicSubTopicsOptions {
-  sorting: TopicSubTopicsSortingOptions!
-}
-
-# input SearchTopicsFilterOptions {
-#   topicTypeIn: [TopicType!]
-# }
 
 input SearchTopicsOptions {
   query: String!
@@ -68,10 +51,10 @@ type TopicLearningMaterialsResults {
 }
 
 # prereq
-type TopicHasPrerequisiteTopicItem {
-  topic: Topic!
-  relationship: TopicHasPrerequisiteTopic!
-}
+# type TopicHasPrerequisiteTopicItem {
+#   topic: Topic!
+#   relationship: TopicHasPrerequisiteTopic!
+# }
 
 type CheckTopicKeyAvailabilityResult {
   available: Boolean!
