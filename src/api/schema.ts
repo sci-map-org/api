@@ -104,7 +104,7 @@ import {
   startLearningPathResolver,
   updateLearningPathResolver
 } from './resolvers/learning_paths.resolvers';
-import { getHomePageDataResolver, getTopLevelDomainsResolver, globalSearchResolver } from './resolvers/misc.resolvers';
+import { getHomePageDataResolver, getTopLevelTopicsResolver, globalSearchResolver } from './resolvers/misc.resolvers';
 import { attachLearningMaterialCoversTopicsResolver, detachLearningMaterialCoversTopicsResolver } from './resolvers/relationships/learning_material_covers_topic.resolvers';
 import { addLearningMaterialHasPrerequisiteTopicResolver, removeLearningMaterialHasPrerequisiteTopicResolver } from './resolvers/relationships/learning_material_has_prerequisite_topic.resolvers';
 import { addTopicHasPrerequisiteTopicResolver, removeTopicHasPrerequisiteTopicResolver } from './resolvers/relationships/topic_has_prerequisite_topic.resolvers';
@@ -243,7 +243,7 @@ const resolvers: APIResolvers<APIContext> = {
     analyzeResourceUrl: analyzeResourceUrlResolver,
     getHomePageData: getHomePageDataResolver,
     globalSearch: globalSearchResolver,
-    getTopLevelDomains: getTopLevelDomainsResolver,
+    getTopLevelTopics: getTopLevelTopicsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

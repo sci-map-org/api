@@ -3,6 +3,7 @@ import { LearningPath } from '../../entities/LearningPath';
 import { env } from '../../env';
 import { findLearningGoal } from '../../repositories/learning_goals.repository';
 import { findLearningPath } from '../../repositories/learning_paths.repository';
+import { getTopicById, getTopicByKey } from '../../repositories/topics.repository';
 import { findUser } from '../../repositories/users.repository';
 import { searchEntities } from '../../services/search.service';
 import { APIQueryResolvers } from '../schema/types';
@@ -30,13 +31,13 @@ export const globalSearchResolver: APIQueryResolvers['globalSearch'] = async (_,
   };
 };
 
-export const getTopLevelDomainsResolver: APIQueryResolvers['getTopLevelDomains'] = async (_, {}) => {
+export const getTopLevelTopicsResolver: APIQueryResolvers['getTopLevelTopics'] = async (_, {}) => {
   const topLevelDomainKeys = env.OTHER.TOP_LEVEL_DOMAINS_KEYS.split(',');
   return {
     items: await Promise.all(
       topLevelDomainKeys.map(async key => {
-        const d = await findDomain({ key });
-        if (!d) throw new Error(`Domain with key ${key} not found`);
+        const d = await getTopicByKey(key);
+        if (!d) throw new Error(`Topic with key ${key} not found`);
         return d;
       })
     ),
