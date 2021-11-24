@@ -35,9 +35,9 @@ enum TopicLearningMaterialsSortingType {
 }
 
 input TopicLearningMaterialsFilterOptions {
-  # resourceTypeIn: [ResourceType!]
+  resourceTypeIn: [ResourceType!]
   completedByUser: Boolean!
-  # learningMaterialTypeIn: [LearningMaterialType!] TODO
+  learningMaterialTypeIn: [LearningMaterialType!]
 }
 
 input TopicLearningMaterialsOptions {

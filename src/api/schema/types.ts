@@ -802,8 +802,8 @@ export type APILearningMaterialCoveredSubTopicsArgs = {
 };
 
 export enum APILearningMaterialType {
-  Resource = 'Resource',
-  LearningPath = 'LearningPath'
+  LearningPath = 'LearningPath',
+  Resource = 'Resource'
 }
 
 export type APILearningMaterialCoveredSubTopicsOptions = {
@@ -1129,8 +1129,9 @@ export enum APITopicLearningMaterialsSortingType {
 }
 
 export type APITopicLearningMaterialsFilterOptions = {
-  /** resourceTypeIn: [ResourceType!] */
   completedByUser: Scalars['Boolean'];
+  learningMaterialTypeIn?: Maybe<Array<APILearningMaterialType>>;
+  resourceTypeIn?: Maybe<Array<ResourceType>>;
 };
 
 export type APITopicLearningMaterialsOptions = {
