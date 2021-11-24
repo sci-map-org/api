@@ -210,6 +210,7 @@ export type APIMutation = {
   detachLearningGoalRequiresSubGoal: APIDetachLearningGoalRequiresSubGoalResult;
   detachLearningMaterialCoversTopics: APILearningMaterial;
   detachTopicIsSubTopicOfTopic: APIDetachTopicIsSubTopicOfTopicResult;
+  hideLearningGoalFromTopic: APIShowLearningGoalInTopicResult;
   hideLearningMaterialFromTopic: APILearningMaterial;
   indexLearningGoal: APILearningGoalIndexedResult;
   login: APILoginResponse;
@@ -228,6 +229,7 @@ export type APIMutation = {
   setResourcesConsumed: Array<APIResource>;
   setTopicsKnown: Array<APITopic>;
   setTopicsUnknown: Array<APITopic>;
+  showLearningGoalInTopic: APIShowLearningGoalInTopicResult;
   showLearningMaterialInTopic: APILearningMaterial;
   startLearningGoal: APILearningGoalStartedResult;
   startLearningPath: APILearningPathStartedResult;
@@ -417,6 +419,12 @@ export type APIMutationDetachTopicIsSubTopicOfTopicArgs = {
 };
 
 
+export type APIMutationHideLearningGoalFromTopicArgs = {
+  learningGoalId: Scalars['String'];
+  topicId: Scalars['String'];
+};
+
+
 export type APIMutationHideLearningMaterialFromTopicArgs = {
   learningMaterialId: Scalars['String'];
   topicId: Scalars['String'];
@@ -514,6 +522,13 @@ export type APIMutationSetTopicsKnownArgs = {
 
 export type APIMutationSetTopicsUnknownArgs = {
   topicIds: Array<Scalars['String']>;
+};
+
+
+export type APIMutationShowLearningGoalInTopicArgs = {
+  learningGoalId: Scalars['String'];
+  payload: APIShowLearningGoalInTopicPayload;
+  topicId: Scalars['String'];
 };
 
 
@@ -699,8 +714,8 @@ export type APICreateLearningGoalPayload = {
 };
 
 export type APICreateLearningGoalOptions = {
-  domainId?: Maybe<Scalars['String']>;
   public?: Maybe<Scalars['Boolean']>;
+  topicId?: Maybe<Scalars['String']>;
 };
 
 export type APIUpdateLearningGoalPayload = {
@@ -710,7 +725,7 @@ export type APIUpdateLearningGoalPayload = {
   type?: Maybe<LearningGoalType>;
 };
 
-export type APIAttachLearningGoalToDomainPayload = {
+export type APIShowLearningGoalInTopicPayload = {
   index?: Maybe<Scalars['Float']>;
 };
 
@@ -767,6 +782,12 @@ export type APIUpdateLearningGoalDependenciesResult = {
   learningGoal: APILearningGoal;
   learningGoalDependency: APILearningGoal;
   parentLearningGoal: APILearningGoal;
+};
+
+export type APIShowLearningGoalInTopicResult = {
+   __typename?: 'ShowLearningGoalInTopicResult';
+  learningGoal: APILearningGoal;
+  topic: APITopic;
 };
 
 export type APILearningMaterial = {
@@ -1570,7 +1591,7 @@ export type APIResolversTypes = ResolversObject<{
   CreateLearningGoalPayload: APICreateLearningGoalPayload,
   CreateLearningGoalOptions: APICreateLearningGoalOptions,
   UpdateLearningGoalPayload: APIUpdateLearningGoalPayload,
-  AttachLearningGoalToDomainPayload: APIAttachLearningGoalToDomainPayload,
+  ShowLearningGoalInTopicPayload: APIShowLearningGoalInTopicPayload,
   DeleteLearningGoalMutationResult: ResolverTypeWrapper<APIDeleteLearningGoalMutationResult>,
   SearchLearningGoalsOptions: APISearchLearningGoalsOptions,
   SearchLearningGoalsResult: ResolverTypeWrapper<APISearchLearningGoalsResult>,
@@ -1581,6 +1602,7 @@ export type APIResolversTypes = ResolversObject<{
   LearningGoalPublishedResult: ResolverTypeWrapper<APILearningGoalPublishedResult>,
   LearningGoalIndexedResult: ResolverTypeWrapper<APILearningGoalIndexedResult>,
   UpdateLearningGoalDependenciesResult: ResolverTypeWrapper<APIUpdateLearningGoalDependenciesResult>,
+  ShowLearningGoalInTopicResult: ResolverTypeWrapper<APIShowLearningGoalInTopicResult>,
   LearningMaterial: APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
   LearningMaterialType: APILearningMaterialType,
   LearningMaterialCoveredSubTopicsOptions: APILearningMaterialCoveredSubTopicsOptions,
@@ -1711,7 +1733,7 @@ export type APIResolversParentTypes = ResolversObject<{
   CreateLearningGoalPayload: APICreateLearningGoalPayload,
   CreateLearningGoalOptions: APICreateLearningGoalOptions,
   UpdateLearningGoalPayload: APIUpdateLearningGoalPayload,
-  AttachLearningGoalToDomainPayload: APIAttachLearningGoalToDomainPayload,
+  ShowLearningGoalInTopicPayload: APIShowLearningGoalInTopicPayload,
   DeleteLearningGoalMutationResult: APIDeleteLearningGoalMutationResult,
   SearchLearningGoalsOptions: APISearchLearningGoalsOptions,
   SearchLearningGoalsResult: APISearchLearningGoalsResult,
@@ -1722,6 +1744,7 @@ export type APIResolversParentTypes = ResolversObject<{
   LearningGoalPublishedResult: APILearningGoalPublishedResult,
   LearningGoalIndexedResult: APILearningGoalIndexedResult,
   UpdateLearningGoalDependenciesResult: APIUpdateLearningGoalDependenciesResult,
+  ShowLearningGoalInTopicResult: APIShowLearningGoalInTopicResult,
   LearningMaterial: APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
   LearningMaterialType: APILearningMaterialType,
   LearningMaterialCoveredSubTopicsOptions: APILearningMaterialCoveredSubTopicsOptions,
@@ -1893,6 +1916,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   detachLearningGoalRequiresSubGoal?: Resolver<APIResolversTypes['DetachLearningGoalRequiresSubGoalResult'], ParentType, ContextType, RequireFields<APIMutationDetachLearningGoalRequiresSubGoalArgs, 'learningGoalId' | 'subGoalId'>>,
   detachLearningMaterialCoversTopics?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialCoversTopicsArgs, 'learningMaterialId' | 'topicsIds'>>,
   detachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['DetachTopicIsSubTopicOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId'>>,
+  hideLearningGoalFromTopic?: Resolver<APIResolversTypes['ShowLearningGoalInTopicResult'], ParentType, ContextType, RequireFields<APIMutationHideLearningGoalFromTopicArgs, 'learningGoalId' | 'topicId'>>,
   hideLearningMaterialFromTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationHideLearningMaterialFromTopicArgs, 'learningMaterialId' | 'topicId'>>,
   indexLearningGoal?: Resolver<APIResolversTypes['LearningGoalIndexedResult'], ParentType, ContextType, RequireFields<APIMutationIndexLearningGoalArgs, 'learningGoalId'>>,
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>,
@@ -1911,6 +1935,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   setResourcesConsumed?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType, RequireFields<APIMutationSetResourcesConsumedArgs, 'payload'>>,
   setTopicsKnown?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType, RequireFields<APIMutationSetTopicsKnownArgs, 'payload'>>,
   setTopicsUnknown?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType, RequireFields<APIMutationSetTopicsUnknownArgs, 'topicIds'>>,
+  showLearningGoalInTopic?: Resolver<APIResolversTypes['ShowLearningGoalInTopicResult'], ParentType, ContextType, RequireFields<APIMutationShowLearningGoalInTopicArgs, 'learningGoalId' | 'payload' | 'topicId'>>,
   showLearningMaterialInTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationShowLearningMaterialInTopicArgs, 'learningMaterialId' | 'topicId'>>,
   startLearningGoal?: Resolver<APIResolversTypes['LearningGoalStartedResult'], ParentType, ContextType, RequireFields<APIMutationStartLearningGoalArgs, 'learningGoalId'>>,
   startLearningPath?: Resolver<APIResolversTypes['LearningPathStartedResult'], ParentType, ContextType, RequireFields<APIMutationStartLearningPathArgs, 'learningPathId'>>,
@@ -2047,6 +2072,12 @@ export type APIUpdateLearningGoalDependenciesResultResolvers<ContextType = APICo
   learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
   learningGoalDependency?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
   parentLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIShowLearningGoalInTopicResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ShowLearningGoalInTopicResult'] = APIResolversParentTypes['ShowLearningGoalInTopicResult']> = ResolversObject<{
+  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
+  topic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2463,6 +2494,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningGoalPublishedResult?: APILearningGoalPublishedResultResolvers<ContextType>,
   LearningGoalIndexedResult?: APILearningGoalIndexedResultResolvers<ContextType>,
   UpdateLearningGoalDependenciesResult?: APIUpdateLearningGoalDependenciesResultResolvers<ContextType>,
+  ShowLearningGoalInTopicResult?: APIShowLearningGoalInTopicResultResolvers<ContextType>,
   LearningMaterial?: APILearningMaterialResolvers,
   LearningMaterialCoveredSubTopicsResults?: APILearningMaterialCoveredSubTopicsResultsResolvers<ContextType>,
   LearningMaterialTag?: APILearningMaterialTagResolvers<ContextType>,
