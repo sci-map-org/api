@@ -122,8 +122,9 @@ type Query {
 
 type Mutation {
   createTopic(payload: CreateTopicPayload!): Topic!
-  updateTopic(id: String!, payload: UpdateTopicPayload!): Topic!
-  deleteTopic(id: String!): DeleteTopicResponse!
+  addSubTopic(parentTopicId: String!, payload: CreateTopicPayload!): Topic!
+  updateTopic(topicId: String!, payload: UpdateTopicPayload!): Topic!
+  deleteTopic(topicId: String!): DeleteTopicResponse!
   setTopicsKnown(payload: SetTopicsKnownPayload!): [Topic!]! # TODO: better API, one mutation ?
   setTopicsUnknown(topicIds: [String!]!): [Topic!]!
 }

@@ -1,12 +1,57 @@
 import { node, Query, relation } from 'cypher-query-builder';
-import { TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE, TopicHasPrerequisiteTopic, TopicHasPrerequisiteTopicLabel } from '../entities/relationships/TopicHasPrerequisiteTopic';
+import shortid from 'shortid';
+import { generateUrlKey } from '../api/util/urlKey';
+import { LearningMaterial, LearningMaterialLabel } from '../entities/LearningMaterial';
+import { LearningGoalShowedInTopic } from '../entities/relationships/LearningGoalShowedInTopic';
+import { LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
+import { TopicHasPrerequisiteTopic, TopicHasPrerequisiteTopicLabel, TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE } from '../entities/relationships/TopicHasPrerequisiteTopic';
 import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
-import { UserCreatedTopicLabel } from '../entities/relationships/UserCreatedTopic';
+import { UserCreatedTopic, UserCreatedTopicLabel } from '../entities/relationships/UserCreatedTopic';
 import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
-import { neo4jQb, neo4jDriver } from '../infra/neo4j';
-import { attachUniqueNodes, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes } from './util/abstract_graph_repo';
+import { neo4jDriver, neo4jQb } from '../infra/neo4j';
+import { attachUniqueNodes, countRelatedNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
 import { SortingDirection } from './util/sorting';
+
+interface CreateTopicData {
+  name: string;
+  key?: string;
+  description?: string;
+}
+
+export const createTopic = (user: { _id: string } | { key: string }, data: CreateTopicData): Promise<Topic> =>
+  createRelatedNode<User, UserCreatedTopic, Topic>({
+    originNode: { label: UserLabel, filter: user },
+    relationship: { label: UserCreatedTopicLabel, props: { createdAt: Date.now() } },
+    newNode: {
+      labels: [TopicLabel],
+      props: {
+        ...data,
+        key: generateUrlKey(data.key || data.name), // a bit ugly
+        _id: shortid.generate(),
+        updatedAt: Date.now(),
+        createdAt: Date.now()
+      },
+    },
+  });
+
+
+interface UpdateTopicData {
+  key?: string;
+  name?: string;
+  description?: string;
+}
+
+type TopicFilter =  { _id: string } | { key: string }
+
+export const updateTopic = (topicFilter: TopicFilter, data: UpdateTopicData) => updateOne<Topic,TopicFilter, UpdateTopicData & {updatedAt: number}>({
+    label: TopicLabel,
+  })(topicFilter, {
+    ...data,
+    updatedAt: Date.now()
+  });
+  
+export const deleteTopic = deleteOne<Topic, { _id: string } | { key: string }>({ label: TopicLabel });
 
 const findTopic = findOne<Topic, { _id: string } | {key: string}>({ label: TopicLabel })
 
@@ -35,6 +80,45 @@ export const searchTopics = async (
   return records.map(r => r.get('node'));
 };
 
+// ========= Learning materials =======
+export const countLearningMaterialsShowedInTopic = (topicId: string): Promise<number> =>
+  countRelatedNodes<Topic, LearningGoalShowedInTopic, LearningMaterial>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: topicId },
+    },
+    relationship: {
+      label: LearningMaterialShowedInTopicLabel,
+    },
+    destinationNode: {
+      label: LearningMaterialLabel,
+    },
+  });
+
+  // TODO
+  // export const getLearningGoalsShowedInTopic = (
+  //   domainId: string
+  // ): Promise<{ learningGoal: LearningGoal; relationship: LearningGoalBelongsToDomain; domain: Domain }[]> =>
+  //   getRelatedNodes<Domain, LearningGoalBelongsToDomain, LearningGoal>({
+  //     originNode: {
+  //       label: DomainLabel,
+  //       filter: { _id: domainId },
+  //     },
+  //     relationship: {
+  //       label: LearningGoalBelongsToDomainLabel,
+  //       direction: 'IN',
+  //     },
+  //     destinationNode: {
+  //       label: LearningGoalLabel,
+  //       filter: { hidden: false },
+  //     },
+  //   }).then(items =>
+  //     items.map(({ destinationNode, relationship, originNode }) => ({
+  //       learningGoal: destinationNode,
+  //       relationship,
+  //       domain: originNode,
+  //     }))
+  //   );
 // ======== SUBTOPICS =========
 
 // TODO include "part_of" topics

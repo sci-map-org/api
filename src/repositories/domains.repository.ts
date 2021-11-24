@@ -1,26 +1,13 @@
 import { inArray, node, Query, relation } from 'cypher-query-builder';
 import { map } from 'ramda';
 import * as shortid from 'shortid';
-import { APIDomainLearningMaterialsSortingType, APIDomainResourcesSortingType } from '../api/schema/types';
 import { recommendationEngineConfig } from '../config';
-import { Concept, ConceptLabel } from '../entities/Concept';
-import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
-import { ConceptBelongsToDomain, ConceptBelongsToDomainLabel } from '../entities/relationships/ConceptBelongsToDomain';
-import {
-  LearningGoalBelongsToDomain,
-  LearningGoalBelongsToDomainLabel,
-} from '../entities/relationships/LearningGoalBelongsToDomain';
-import {
-  LearningMaterialBelongsToDomain,
-  LearningMaterialBelongsToDomainLabel,
-} from '../entities/relationships/LearningMaterialBelongsToDomain';
-import { UserCreatedDomain, UserCreatedDomainLabel } from '../entities/relationships/UserCreatedDomain';
 import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
-import { TopicLabel, TopicType } from '../entities/Topic';
+import { TopicLabel} from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
@@ -45,110 +32,110 @@ interface UpdateDomainData {
   description?: string;
 }
 
-export const createDomain = (user: { _id: string } | { key: string }, data: CreateDomainData): Promise<Domain> =>
-  createRelatedNode<User, UserCreatedDomain, Domain>({
-    originNode: { label: UserLabel, filter: user },
-    relationship: { label: UserCreatedDomainLabel, props: { createdAt: Date.now() } },
-    newNode: {
-      labels: [DomainLabel, TopicLabel],
-      props: { ...data, _id: shortid.generate(), topicType: TopicType.Domain },
-    },
-  });
+// export const createDomain = (user: { _id: string } | { key: string }, data: CreateDomainData): Promise<Domain> =>
+//   createRelatedNode<User, UserCreatedDomain, Domain>({
+//     originNode: { label: UserLabel, filter: user },
+//     relationship: { label: UserCreatedDomainLabel, props: { createdAt: Date.now() } },
+//     newNode: {
+//       labels: [DomainLabel, TopicLabel],
+//       props: { ...data, _id: shortid.generate(), topicType: TopicType.Domain },
+//     },
+//   });
 
-export const searchDomains = async (
-  { query }: { query?: string },
-  pagination: { offset?: number; limit?: number }
-): Promise<Domain[]> => {
-  const session = neo4jDriver.session();
-  const { records } = await session.run(
-    `MATCH (node:${DomainLabel}) ${
-      query ? 'WHERE toLower(node.name) CONTAINS toLower($query) ' : ''
-    }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
-      pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
-    }`,
-    {
-      query,
-    }
-  );
-  session.close();
-  return records.map(r => r.get('node'));
-};
+// export const searchDomains = async (
+//   { query }: { query?: string },
+//   pagination: { offset?: number; limit?: number }
+// ): Promise<Domain[]> => {
+//   const session = neo4jDriver.session();
+//   const { records } = await session.run(
+//     `MATCH (node:${DomainLabel}) ${
+//       query ? 'WHERE toLower(node.name) CONTAINS toLower($query) ' : ''
+//     }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
+//       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
+//     }`,
+//     {
+//       query,
+//     }
+//   );
+//   session.close();
+//   return records.map(r => r.get('node'));
+// };
 
-export const findDomain = findOne<Domain, { key: string } | { _id: string }>({ label: DomainLabel });
+// export const findDomain = findOne<Domain, { key: string } | { _id: string }>({ label: DomainLabel });
 
-export const updateDomain = updateOne<Domain, { _id: string } | { key: string }, UpdateDomainData>({
-  label: DomainLabel,
-});
+// export const updateDomain = updateOne<Domain, { _id: string } | { key: string }, UpdateDomainData>({
+//   label: DomainLabel,
+// });
 
-export const deleteDomain = deleteOne<Domain, { _id: string } | { key: string }>({ label: DomainLabel });
+// export const deleteDomain = deleteOne<Domain, { _id: string } | { key: string }>({ label: DomainLabel });
 
-export const getDomainConcepts = (
-  domainFilter: { key: string } | { _id: string },
-  sorting?: { direction: SortingDirection; entity: 'relationship' | 'concept'; field: 'index' | '_id' }
-): Promise<{ concept: Concept; relationship: ConceptBelongsToDomain }[]> =>
-  getRelatedNodes<Domain, ConceptBelongsToDomain, Concept>({
-    originNode: {
-      label: DomainLabel,
-      filter: domainFilter,
-    },
-    relationship: {
-      label: ConceptBelongsToDomainLabel,
-    },
-    destinationNode: {
-      label: ConceptLabel,
-    },
-    ...(sorting && {
-      sorting: {
-        entity: sorting.entity === 'concept' ? 'destinationNode' : sorting.entity,
-        direction: sorting.direction,
-        field: sorting.field,
-      },
-    }),
-  }).then(
-    map(item => ({
-      relationship: item.relationship,
-      concept: item.destinationNode,
-    }))
-  );
+// export const getDomainConcepts = (
+//   domainFilter: { key: string } | { _id: string },
+//   sorting?: { direction: SortingDirection; entity: 'relationship' | 'concept'; field: 'index' | '_id' }
+// ): Promise<{ concept: Concept; relationship: ConceptBelongsToDomain }[]> =>
+//   getRelatedNodes<Domain, ConceptBelongsToDomain, Concept>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: domainFilter,
+//     },
+//     relationship: {
+//       label: ConceptBelongsToDomainLabel,
+//     },
+//     destinationNode: {
+//       label: ConceptLabel,
+//     },
+//     ...(sorting && {
+//       sorting: {
+//         entity: sorting.entity === 'concept' ? 'destinationNode' : sorting.entity,
+//         direction: sorting.direction,
+//         field: sorting.field,
+//       },
+//     }),
+//   }).then(
+//     map(item => ({
+//       relationship: item.relationship,
+//       concept: item.destinationNode,
+//     }))
+//   );
 
-export const countDomainConcepts = (domainFilter: { key: string } | { _id: string }): Promise<number> =>
-  countRelatedNodes<Domain, ConceptBelongsToDomain, Concept>({
-    originNode: {
-      label: DomainLabel,
-      filter: domainFilter,
-    },
-    relationship: {
-      label: ConceptBelongsToDomainLabel,
-    },
-    destinationNode: {
-      label: ConceptLabel,
-    },
-  });
+// export const countDomainConcepts = (domainFilter: { key: string } | { _id: string }): Promise<number> =>
+//   countRelatedNodes<Domain, ConceptBelongsToDomain, Concept>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: domainFilter,
+//     },
+//     relationship: {
+//       label: ConceptBelongsToDomainLabel,
+//     },
+//     destinationNode: {
+//       label: ConceptLabel,
+//     },
+//   });
 
-export const getDomainPublicLearningPaths = (
-  domainFilter: { key: string } | { _id: string },
-  sorting?: { direction: SortingDirection; field: 'createdAt' }
-): Promise<LearningPath[]> =>
-  getRelatedNodes<Domain, LearningMaterialBelongsToDomain, LearningPath>({
-    originNode: {
-      label: DomainLabel,
-      filter: domainFilter,
-    },
-    relationship: {
-      label: LearningMaterialBelongsToDomainLabel,
-    },
-    destinationNode: {
-      label: LearningPathLabel,
-      filter: { public: true },
-    },
-    ...(sorting && {
-      sorting: {
-        entity: 'destinationNode',
-        direction: sorting.direction,
-        field: sorting.field,
-      },
-    }),
-  }).then(map(item => item.destinationNode));
+// export const getDomainPublicLearningPaths = (
+//   domainFilter: { key: string } | { _id: string },
+//   sorting?: { direction: SortingDirection; field: 'createdAt' }
+// ): Promise<LearningPath[]> =>
+//   getRelatedNodes<Domain, LearningMaterialBelongsToDomain, LearningPath>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: domainFilter,
+//     },
+//     relationship: {
+//       label: LearningMaterialBelongsToDomainLabel,
+//     },
+//     destinationNode: {
+//       label: LearningPathLabel,
+//       filter: { public: true },
+//     },
+//     ...(sorting && {
+//       sorting: {
+//         entity: 'destinationNode',
+//         direction: sorting.direction,
+//         field: sorting.field,
+//       },
+//     }),
+//   }).then(map(item => item.destinationNode));
 interface DomainResourcesFilter {
   resourceTypeIn?: ResourceType[];
   consumedByUser: Boolean;
@@ -389,40 +376,40 @@ export const getDomainLearningMaterials = async (
   return learningMaterials;
 };
 
-export const countDomainLearningMaterials = (domainId: string): Promise<number> =>
-  countRelatedNodes<Domain, LearningMaterialBelongsToDomain, LearningMaterial>({
-    originNode: {
-      label: DomainLabel,
-      filter: { _id: domainId },
-    },
-    relationship: {
-      label: LearningMaterialBelongsToDomainLabel,
-    },
-    destinationNode: {
-      label: LearningMaterialLabel,
-    },
-  });
+// export const countDomainLearningMaterials = (domainId: string): Promise<number> =>
+//   countRelatedNodes<Domain, LearningMaterialBelongsToDomain, LearningMaterial>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: { _id: domainId },
+//     },
+//     relationship: {
+//       label: LearningMaterialBelongsToDomainLabel,
+//     },
+//     destinationNode: {
+//       label: LearningMaterialLabel,
+//     },
+//   });
 
-export const getDomainLearningGoals = (
-  domainId: string
-): Promise<{ learningGoal: LearningGoal; relationship: LearningGoalBelongsToDomain; domain: Domain }[]> =>
-  getRelatedNodes<Domain, LearningGoalBelongsToDomain, LearningGoal>({
-    originNode: {
-      label: DomainLabel,
-      filter: { _id: domainId },
-    },
-    relationship: {
-      label: LearningGoalBelongsToDomainLabel,
-      direction: 'IN',
-    },
-    destinationNode: {
-      label: LearningGoalLabel,
-      filter: { hidden: false },
-    },
-  }).then(items =>
-    items.map(({ destinationNode, relationship, originNode }) => ({
-      learningGoal: destinationNode,
-      relationship,
-      domain: originNode,
-    }))
-  );
+// export const getDomainLearningGoals = (
+//   domainId: string
+// ): Promise<{ learningGoal: LearningGoal; relationship: LearningGoalBelongsToDomain; domain: Domain }[]> =>
+//   getRelatedNodes<Domain, LearningGoalBelongsToDomain, LearningGoal>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: { _id: domainId },
+//     },
+//     relationship: {
+//       label: LearningGoalBelongsToDomainLabel,
+//       direction: 'IN',
+//     },
+//     destinationNode: {
+//       label: LearningGoalLabel,
+//       filter: { hidden: false },
+//     },
+//   }).then(items =>
+//     items.map(({ destinationNode, relationship, originNode }) => ({
+//       learningGoal: destinationNode,
+//       relationship,
+//       domain: originNode,
+//     }))
+//   );

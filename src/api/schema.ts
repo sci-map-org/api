@@ -131,11 +131,12 @@ import {
   updateResourceResolver
 } from './resolvers/resources.resolvers';
 import {
-  attachTopicIsSubTopicOfTopicResolver, checkTopicKeyAvailabilityResolver, detachTopicIsSubTopicOfTopicResolver,
+  addSubTopicResolver,
+  attachTopicIsSubTopicOfTopicResolver, checkTopicKeyAvailabilityResolver, createTopicResolver, deleteTopicResolver, detachTopicIsSubTopicOfTopicResolver,
   getTopicByIdResolver, getTopicFollowUpsResolver, getTopicLearningMaterialsResolver,
   getTopicLearningMaterialsTotalCountResolver, getTopicParentTopicResolver, getTopicPrerequisitesResolver, getTopicsCreatedByResolver, getTopicSubTopicsResolver,
   getTopicSubTopicsTotalCountResolver, searchSubTopicsResolver,
-  searchTopicsResolver, updateTopicIsSubTopicOfTopicResolver
+  searchTopicsResolver, updateTopicIsSubTopicOfTopicResolver, updateTopicResolver
 } from './resolvers/topics.resolvers';
 import {
   adminUpdateUserResolver,
@@ -169,9 +170,10 @@ const resolvers: APIResolvers<APIContext> = {
     updateArticle: updateArticleResolver,
     createArticle: createArticleResolver,
     deleteArticle: deleteArticleResolver,
-    // createDomain: createDomainResolver,
-    // updateDomain: updateDomainResolver,
-    // deleteDomain: deleteDomainResolver,
+    createTopic: createTopicResolver,
+    addSubTopic: addSubTopicResolver,
+    updateTopic: updateTopicResolver,
+    deleteTopic: deleteTopicResolver,
     createResource: createResourceResolver,
     updateResource: updateResourceResolver,
     deleteResource: deleteResourceResolver,

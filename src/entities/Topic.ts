@@ -6,6 +6,7 @@ export interface Topic {
   name: string;
   key: string;
   description?: string;
+  updatedAt: number
   createdAt: number
 }
 

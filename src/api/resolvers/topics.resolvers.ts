@@ -3,6 +3,8 @@ import { TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachTopicIsSubTopicOfTopic,
+  createTopic,
+  deleteTopic,
   detachTopicIsSubTopicOfTopic,
   getTopicById,
   getTopicByKey,
@@ -14,6 +16,7 @@ import {
   getTopicSubTopicsTotalCount,
   searchSubTopics,
   searchTopics,
+  updateTopic,
   updateTopicIsSubTopicOfTopic
 } from '../../repositories/topics.repository';
 import { initSubtopicIndexValue } from '../../services/topics.service';
@@ -103,7 +106,41 @@ export const detachTopicIsSubTopicOfTopicResolver: APIMutationResolvers['detachT
 };
 
 
-// TODO : create, update, delete topic
+
+export const createTopicResolver: APIMutationResolvers['createTopic'] = async (_parent, { payload }, { user }) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
+  return await createTopic({ _id: user!._id }, nullToUndefined(payload));
+};
+
+
+export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (_parent, { parentTopicId, payload }, { user }) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
+  const createdTopic = await createTopic({ _id: user!._id }, nullToUndefined(payload));
+  await attachTopicIsSubTopicOfTopic(parentTopicId, createdTopic._id, {
+    index: await initSubtopicIndexValue(parentTopicId),
+    createdByUserId: user?._id,
+  })
+  return createdTopic
+};
+
+export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (
+  _parent,
+  { topicId, payload },
+  { user }
+) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in and an admin or a contributor to update a domain');
+  const updatedDomain = await updateTopic({ _id: topicId }, nullToUndefined(payload));
+  if (!updatedDomain) throw new NotFoundError('Topic', topicId);
+  return updatedDomain;
+};
+
+export const deleteTopicResolver: APIMutationResolvers['deleteTopic'] = async (_parent, { topicId }, { user }) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in and an admin to delete a domain');
+  const { deletedCount } = await deleteTopic({ _id: topicId });
+  if (!deletedCount) throw new NotFoundError('Topic', topicId);
+  return { _id: topicId, success: true };
+};
+
 // TODO : set known / unknown
 
 export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] =async (topic) => {

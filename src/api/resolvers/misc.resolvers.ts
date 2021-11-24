@@ -1,7 +1,6 @@
 import { LearningGoal } from '../../entities/LearningGoal';
 import { LearningPath } from '../../entities/LearningPath';
 import { env } from '../../env';
-import { findDomain } from '../../repositories/domains.repository';
 import { findLearningGoal } from '../../repositories/learning_goals.repository';
 import { findLearningPath } from '../../repositories/learning_paths.repository';
 import { findUser } from '../../repositories/users.repository';
