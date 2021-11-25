@@ -71,6 +71,23 @@ export const searchLearningGoalsResolver: APIQueryResolvers['searchLearningGoals
   };
 };
 
+export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByKey'] = async (_, { key }, { user }) => {
+  const learningGoal = await findLearningGoalIfAuthorized({ key }, 'READ', user);
+  if (!learningGoal) throw new NotFoundError('LearningGoal', key, 'key');
+  return learningGoal;
+};
+
+export const checkLearningGoalKeyAvailabilityResolver: APIQueryResolvers['checkLearningGoalKeyAvailability'] = async (
+  _,
+  { key}
+) => {
+  let existingLearningGoal = await findLearningGoal({key});
+  return {
+    available: !existingLearningGoal,
+    existingLearningGoal,
+  };
+};
+
 export const createLearningGoalResolver: APIMutationResolvers['createLearningGoal'] = async (
   _parent,
   { payload, options },
@@ -137,12 +154,6 @@ export const deleteLearningGoalResolver: APIMutationResolvers['deleteLearningGoa
   const { deletedCount } = await deleteLearningGoal({ _id });
   if (!deletedCount) throw new NotFoundError('LearningGoal', _id, 'id');
   return { _id, success: true };
-};
-
-export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByKey'] = async (_, { key }, { user }) => {
-  const learningGoal = await findLearningGoalIfAuthorized({ key }, 'READ', user);
-  if (!learningGoal) throw new NotFoundError('LearningGoal', key, 'key');
-  return learningGoal;
 };
 
 export const attachLearningGoalRequiresSubGoalResolver: APIMutationResolvers['attachLearningGoalRequiresSubGoal'] = async (

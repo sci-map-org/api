@@ -151,10 +151,15 @@ type ShowLearningGoalInTopicResult {
   topic: Topic!
 }
 
+type CheckLearningGoalKeyAvailabilityResult {
+  available: Boolean!
+  existingLearningGoal: LearningGoal
+}
+
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
-  # getDomainLearningGoalByKey(domainKey: String!, learningGoalKey: String!): DomainAndLearningGoalResult! TODO
+  checkLearningGoalKeyAvailability(key: String!): CheckLearningGoalKeyAvailabilityResult!
 }
 
 type Mutation {

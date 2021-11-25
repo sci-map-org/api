@@ -47,6 +47,7 @@ export type APIListArticlesResult = {
 export type APIQuery = {
    __typename?: 'Query';
   analyzeResourceUrl: APIAnalyzeResourceUrlResult;
+  checkLearningGoalKeyAvailability: APICheckLearningGoalKeyAvailabilityResult;
   checkTopicKeyAvailability: APICheckTopicKeyAvailabilityResult;
   currentUser?: Maybe<APICurrentUser>;
   getArticleByKey: APIArticle;
@@ -72,6 +73,11 @@ export type APIQuery = {
 
 export type APIQueryAnalyzeResourceUrlArgs = {
   url: Scalars['String'];
+};
+
+
+export type APIQueryCheckLearningGoalKeyAvailabilityArgs = {
+  key: Scalars['String'];
 };
 
 
@@ -779,6 +785,12 @@ export type APIShowLearningGoalInTopicResult = {
    __typename?: 'ShowLearningGoalInTopicResult';
   learningGoal: APILearningGoal;
   topic: APITopic;
+};
+
+export type APICheckLearningGoalKeyAvailabilityResult = {
+   __typename?: 'CheckLearningGoalKeyAvailabilityResult';
+  available: Scalars['Boolean'];
+  existingLearningGoal?: Maybe<APILearningGoal>;
 };
 
 export type APILearningMaterial = {
@@ -1572,6 +1584,7 @@ export type APIResolversTypes = ResolversObject<{
   LearningGoalIndexedResult: ResolverTypeWrapper<APILearningGoalIndexedResult>,
   UpdateLearningGoalDependenciesResult: ResolverTypeWrapper<APIUpdateLearningGoalDependenciesResult>,
   ShowLearningGoalInTopicResult: ResolverTypeWrapper<APIShowLearningGoalInTopicResult>,
+  CheckLearningGoalKeyAvailabilityResult: ResolverTypeWrapper<APICheckLearningGoalKeyAvailabilityResult>,
   LearningMaterial: APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'],
   LearningMaterialType: APILearningMaterialType,
   LearningMaterialCoveredSubTopicsOptions: APILearningMaterialCoveredSubTopicsOptions,
@@ -1709,6 +1722,7 @@ export type APIResolversParentTypes = ResolversObject<{
   LearningGoalIndexedResult: APILearningGoalIndexedResult,
   UpdateLearningGoalDependenciesResult: APIUpdateLearningGoalDependenciesResult,
   ShowLearningGoalInTopicResult: APIShowLearningGoalInTopicResult,
+  CheckLearningGoalKeyAvailabilityResult: APICheckLearningGoalKeyAvailabilityResult,
   LearningMaterial: APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'],
   LearningMaterialType: APILearningMaterialType,
   LearningMaterialCoveredSubTopicsOptions: APILearningMaterialCoveredSubTopicsOptions,
@@ -1818,6 +1832,7 @@ export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType 
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
   analyzeResourceUrl?: Resolver<APIResolversTypes['AnalyzeResourceUrlResult'], ParentType, ContextType, RequireFields<APIQueryAnalyzeResourceUrlArgs, 'url'>>,
+  checkLearningGoalKeyAvailability?: Resolver<APIResolversTypes['CheckLearningGoalKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckLearningGoalKeyAvailabilityArgs, 'key'>>,
   checkTopicKeyAvailability?: Resolver<APIResolversTypes['CheckTopicKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckTopicKeyAvailabilityArgs, 'key'>>,
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>,
@@ -2037,6 +2052,12 @@ export type APIUpdateLearningGoalDependenciesResultResolvers<ContextType = APICo
 export type APIShowLearningGoalInTopicResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ShowLearningGoalInTopicResult'] = APIResolversParentTypes['ShowLearningGoalInTopicResult']> = ResolversObject<{
   learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
   topic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APICheckLearningGoalKeyAvailabilityResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CheckLearningGoalKeyAvailabilityResult'] = APIResolversParentTypes['CheckLearningGoalKeyAvailabilityResult']> = ResolversObject<{
+  available?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
+  existingLearningGoal?: Resolver<Maybe<APIResolversTypes['LearningGoal']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2455,6 +2476,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningGoalIndexedResult?: APILearningGoalIndexedResultResolvers<ContextType>,
   UpdateLearningGoalDependenciesResult?: APIUpdateLearningGoalDependenciesResultResolvers<ContextType>,
   ShowLearningGoalInTopicResult?: APIShowLearningGoalInTopicResultResolvers<ContextType>,
+  CheckLearningGoalKeyAvailabilityResult?: APICheckLearningGoalKeyAvailabilityResultResolvers<ContextType>,
   LearningMaterial?: APILearningMaterialResolvers,
   LearningMaterialCoveredSubTopicsResults?: APILearningMaterialCoveredSubTopicsResultsResolvers<ContextType>,
   LearningMaterialTag?: APILearningMaterialTagResolvers<ContextType>,
