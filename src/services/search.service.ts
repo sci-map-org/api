@@ -1,4 +1,4 @@
-import { LearningGoalLabel } from '../entities/LearningGoal';
+import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterial } from '../entities/LearningMaterial';
 import { LearningPathLabel } from '../entities/LearningPath';
 import { Topic } from '../entities/Topic';
@@ -9,7 +9,7 @@ import { PaginationOptions } from '../repositories/util/pagination';
 export const searchEntities = async (
   queryString: string,
   paginationOptions?: PaginationOptions
-): Promise<{ entity: Topic | LearningMaterial; score: number }[]> => {
+): Promise<{ entity: Topic | LearningGoal | LearningMaterial; score: number }[]> => {
   const { offset, limit } = { offset: 0, limit: 20, ...paginationOptions };
   const session = neo4jDriver.session();
   const hasTrailingSpace = queryString[queryString.length - 1] === ' ';
