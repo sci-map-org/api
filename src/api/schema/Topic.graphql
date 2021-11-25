@@ -102,7 +102,6 @@ type Query {
   checkTopicKeyAvailability(key: String!): CheckTopicKeyAvailabilityResult!
 }
 
-
 type Mutation {
   createTopic(payload: CreateTopicPayload!): Topic!
   addSubTopic(parentTopicId: String!, payload: CreateTopicPayload!): Topic!

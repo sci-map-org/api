@@ -1,5 +1,5 @@
 import { omit } from 'lodash';
-import {  ResourceMediaType, ResourceType } from '../api/schema/types';
+import { ResourceMediaType, ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import {
   attachLearningMaterialCoversTopics,
@@ -21,9 +21,8 @@ interface CreateAndSaveResourceBaseData {
   description?: string;
   tags?: string[];
   prerequisitesTopicsIds?: string[];
-  // outcomesLearningGoalsIds?: string[];
-  showInTopicsIds: string[]
-  coveredSubTopicsIds?: string[]
+  showInTopicsIds: string[];
+  coveredSubTopicsIds?: string[];
 }
 interface CreateAndSaveResourceData extends CreateAndSaveResourceBaseData {
   subResourceSeries?: CreateAndSaveResourceBaseData[]; // limit to one level for now
@@ -89,21 +88,15 @@ const attachPrerequisites = async (
 export const createAndSaveResource = async (data: CreateAndSaveResourceData, userId: string): Promise<Resource> => {
   const createdResource = await createResource(
     { _id: userId },
-    omit(data, [
-      'tags',
-      'subResourceSeries',
-      'showInTopicsIds',
-      'coveredSubTopicsIds',
-      // 'outcomesLearningGoalsIds',
-      'prerequisitesTopicsIds',
-    ])
+    omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds'])
   );
   await Promise.all([
     attachResourceTags(createdResource._id, data.tags),
     attachPrerequisites(createdResource._id, userId, data.prerequisitesTopicsIds),
-    // attachOutcomes(createdResource._id, userId, data.outcomesLearningGoalsIds),
     data.showInTopicsIds.length ? showLearningMaterialInTopics(createdResource._id, data.showInTopicsIds) : undefined,
-    data.coveredSubTopicsIds?.length ? attachLearningMaterialCoversTopics(createdResource._id, data.coveredSubTopicsIds, {userId}): undefined,
+    data.coveredSubTopicsIds?.length
+      ? attachLearningMaterialCoversTopics(createdResource._id, data.coveredSubTopicsIds, { userId })
+      : undefined,
   ]);
   if (data.subResourceSeries && data.subResourceSeries.length) {
     const createdSubResources = await Promise.all(

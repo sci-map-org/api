@@ -1099,6 +1099,12 @@ export type APIAnalyzeResourceUrlResult = {
 export type APITopic = {
    __typename?: 'Topic';
   _id: Scalars['String'];
+  /**
+   * learningGoals: [LearningGoalBelongsToDomain!] => TODO
+   * progress | completion
+   * known: KnownTopic TODO -> change schema, both progress and wether marked as known or not
+   */
+  coveredTopics?: Maybe<Array<APILearningMaterialCoversTopic>>;
   createdAt: Scalars['Date'];
   createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
@@ -1108,11 +1114,6 @@ export type APITopic = {
   learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
   name: Scalars['String'];
   parentTopic?: Maybe<APITopic>;
-  /**
-   * learningGoals: [LearningGoalBelongsToDomain!] => TODO
-   * progress | completion
-   * known: KnownTopic TODO -> change schema, both progress and wether marked as known or not
-   */
   prerequisites?: Maybe<Array<APITopicHasPrerequisiteTopic>>;
   subTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
   subTopicsTotalCount?: Maybe<Scalars['Int']>;
@@ -1455,6 +1456,14 @@ export type APILearningMaterialHasPrerequisiteTopic = {
   learningMaterial: APILearningMaterial;
 };
 
+export type APILearningMaterialCoversTopic = {
+   __typename?: 'LearningMaterialCoversTopic';
+  createdAt: Scalars['Date'];
+  createdByUserId?: Maybe<Scalars['String']>;
+  learningMaterial: APILearningMaterial;
+  topic: APITopic;
+};
+
 export type APITopicHasPrerequisiteTopic = {
    __typename?: 'TopicHasPrerequisiteTopic';
   followUpTopic: APITopic;
@@ -1673,6 +1682,7 @@ export type APIResolversTypes = ResolversObject<{
   RemoveTopicHasPrerequisiteTopicResult: ResolverTypeWrapper<APIRemoveTopicHasPrerequisiteTopicResult>,
   UpdateTopicIsSubTopicOfTopicPayload: APIUpdateTopicIsSubTopicOfTopicPayload,
   LearningMaterialHasPrerequisiteTopic: ResolverTypeWrapper<APILearningMaterialHasPrerequisiteTopic>,
+  LearningMaterialCoversTopic: ResolverTypeWrapper<APILearningMaterialCoversTopic>,
   TopicHasPrerequisiteTopic: ResolverTypeWrapper<APITopicHasPrerequisiteTopic>,
   PaginationOptions: APIPaginationOptions,
 }>;
@@ -1811,6 +1821,7 @@ export type APIResolversParentTypes = ResolversObject<{
   RemoveTopicHasPrerequisiteTopicResult: APIRemoveTopicHasPrerequisiteTopicResult,
   UpdateTopicIsSubTopicOfTopicPayload: APIUpdateTopicIsSubTopicOfTopicPayload,
   LearningMaterialHasPrerequisiteTopic: APILearningMaterialHasPrerequisiteTopic,
+  LearningMaterialCoversTopic: APILearningMaterialCoversTopic,
   TopicHasPrerequisiteTopic: APITopicHasPrerequisiteTopic,
   PaginationOptions: APIPaginationOptions,
 }>;
@@ -2248,6 +2259,7 @@ export type APIAnalyzeResourceUrlResultResolvers<ContextType = APIContext, Paren
 
 export type APITopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Topic'] = APIResolversParentTypes['Topic']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  coveredTopics?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialCoversTopic']>>, ParentType, ContextType>,
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
@@ -2443,6 +2455,14 @@ export type APILearningMaterialHasPrerequisiteTopicResolvers<ContextType = APICo
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
+export type APILearningMaterialCoversTopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterialCoversTopic'] = APIResolversParentTypes['LearningMaterialCoversTopic']> = ResolversObject<{
+  createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
+  createdByUserId?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  learningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType>,
+  topic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
 export type APITopicHasPrerequisiteTopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TopicHasPrerequisiteTopic'] = APIResolversParentTypes['TopicHasPrerequisiteTopic']> = ResolversObject<{
   followUpTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>,
   strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>,
@@ -2527,6 +2547,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DetachTopicIsSubTopicOfTopicResult?: APIDetachTopicIsSubTopicOfTopicResultResolvers<ContextType>,
   RemoveTopicHasPrerequisiteTopicResult?: APIRemoveTopicHasPrerequisiteTopicResultResolvers<ContextType>,
   LearningMaterialHasPrerequisiteTopic?: APILearningMaterialHasPrerequisiteTopicResolvers<ContextType>,
+  LearningMaterialCoversTopic?: APILearningMaterialCoversTopicResolvers<ContextType>,
   TopicHasPrerequisiteTopic?: APITopicHasPrerequisiteTopicResolvers<ContextType>,
 }>;
 
