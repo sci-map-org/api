@@ -11,6 +11,7 @@
 # import Query.*, Mutation.* from "LearningGoal.graphql"
 # import Mutation.* from "./relationships/TopicHasPrerequisiteTopic.graphql"
 # import Mutation.* from "./relationships/TopicIsSubTopicOfTopic.graphql"
+# import Mutation.* from "./relationships/TopicIsPartOfTopic.graphql"
 # import Mutation.* from "./relationships/LearningMaterialCoversTopic.graphql"
 # import Mutation.* from "./relationships/LearningMaterialHasPrerequisiteTopic.graphql"
 

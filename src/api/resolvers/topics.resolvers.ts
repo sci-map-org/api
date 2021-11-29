@@ -6,7 +6,6 @@ import {
   countLearningMaterialsShowedInTopic,
   createTopic,
   deleteTopic,
-  detachTopicIsSubTopicOfTopic,
   getTopicById,
   getTopicByKey,
   getTopicCreator,
@@ -19,10 +18,14 @@ import {
   searchSubTopics,
   searchTopics,
   updateTopic,
-  updateTopicIsSubTopicOfTopic
 } from '../../repositories/topics.repository';
 import { initSubtopicIndexValue } from '../../services/topics.service';
-import { APIMutationResolvers, APIQueryResolvers, APITopicLearningMaterialsSortingType, APITopicResolvers } from '../schema/types';
+import {
+  APIMutationResolvers,
+  APIQueryResolvers,
+  APITopicLearningMaterialsSortingType,
+  APITopicResolvers,
+} from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 
@@ -56,11 +59,7 @@ export const searchSubTopicsResolver: APIQueryResolvers['searchSubTopics'] = asy
   };
 };
 
-
-export const checkTopicKeyAvailabilityResolver: APIQueryResolvers['checkTopicKeyAvailability'] = async (
-  _,
-  { key}
-) => {
+export const checkTopicKeyAvailabilityResolver: APIQueryResolvers['checkTopicKeyAvailability'] = async (_, { key }) => {
   let existingTopic = await getTopicByKey(key);
   return {
     available: !existingTopic,
@@ -68,61 +67,23 @@ export const checkTopicKeyAvailabilityResolver: APIQueryResolvers['checkTopicKey
   };
 };
 
-export const attachTopicIsSubTopicOfTopicResolver: APIMutationResolvers['attachTopicIsSubTopicOfTopic'] = async (
-  _,
-  { parentTopicId, subTopicId, payload },
-  { user }
-) => {
-  restrictAccess('loggedInUser', user, 'Must be logged in');
-  const existingParentTopic = await getTopicParentTopic(subTopicId)
-  if(!!existingParentTopic) throw new UserInputError(`Topic ${subTopicId} already has a parent topic`)
-
-  const { parentTopic, subTopic, relationship } = await attachTopicIsSubTopicOfTopic(parentTopicId, subTopicId, {
-    index: payload.index || (await initSubtopicIndexValue(parentTopicId)),
-    createdByUserId: user?._id,
-  });
-  return { parentTopic, subTopic, ...relationship };
-};
-
-export const updateTopicIsSubTopicOfTopicResolver: APIMutationResolvers['updateTopicIsSubTopicOfTopic'] = async (
-  _,
-  { parentTopicId, subTopicId, payload },
-  { user }
-) => {
-  restrictAccess('loggedInUser', user, 'Must be logged in');
-
-  const { parentTopic, subTopic, relationship } = await updateTopicIsSubTopicOfTopic(parentTopicId, subTopicId, {
-    index: payload.index || undefined,
-  });
-  return { parentTopic, subTopic, ...relationship };
-};
-
-export const detachTopicIsSubTopicOfTopicResolver: APIMutationResolvers['detachTopicIsSubTopicOfTopic'] = async (
-  _,
-  { parentTopicId, subTopicId },
-  { user }
-) => {
-  restrictAccess('contributorOrAdmin', user, 'Must be logged in');
-
-  return await detachTopicIsSubTopicOfTopic(parentTopicId, subTopicId);
-};
-
-
-
 export const createTopicResolver: APIMutationResolvers['createTopic'] = async (_parent, { payload }, { user }) => {
   restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
   return await createTopic({ _id: user!._id }, nullToUndefined(payload));
 };
 
-
-export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (_parent, { parentTopicId, payload }, { user }) => {
+export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (
+  _parent,
+  { parentTopicId, payload },
+  { user }
+) => {
   restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
   const createdTopic = await createTopic({ _id: user!._id }, nullToUndefined(payload));
   await attachTopicIsSubTopicOfTopic(parentTopicId, createdTopic._id, {
     index: await initSubtopicIndexValue(parentTopicId),
     createdByUserId: user?._id,
-  })
-  return createdTopic
+  });
+  return createdTopic;
 };
 
 export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (
@@ -179,28 +140,31 @@ export const deleteTopicResolver: APIMutationResolvers['deleteTopic'] = async (_
 //   return concepts.map(toAPIConcept);
 // };
 
-export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] =async (topic) => {
-   const parent = await getTopicParentTopic(topic._id)
-   return parent?.parentTopic || null
-}
+export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] = async topic => {
+  const parent = await getTopicParentTopic(topic._id);
+  return parent?.parentTopic || null;
+};
 
-export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic) => {
-  const result = await getTopicSubTopics(
-    topic._id,
-  );
-  return result.map(({ parentTopic, subTopic, relationship }) => ({
+export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async topic => {
+  const result = await getTopicSubTopics(topic._id);
+  return result.map(({ parentTopic, subTopic, relationship, relationshipType }) => ({
     subTopic,
     ...relationship,
+    relationshipType,
     parentTopic,
   }));
 };
 
-export const getTopicSubTopicsTotalCountResolver: APITopicResolvers['subTopicsTotalCount'] = async(topic) => {
-  const size = await getTopicSubTopicsTotalCount(topic._id)
-  return size
-}
+export const getTopicSubTopicsTotalCountResolver: APITopicResolvers['subTopicsTotalCount'] = async topic => {
+  const size = await getTopicSubTopicsTotalCount(topic._id);
+  return size;
+};
 
-export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMaterials'] = async (topic, {options}, {user}) => {
+export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMaterials'] = async (
+  topic,
+  { options },
+  { user }
+) => {
   if (!user && options.filter.completedByUser === true) return { items: [] };
   if (
     options.sortingType === APITopicLearningMaterialsSortingType.Recommended &&
@@ -210,30 +174,32 @@ export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMater
       'getTopicLearningMaterials : when using recommendations, completedByUser Filter must be set'
     );
   return {
-    items: (await getTopicLearningMaterials(topic._id, user?._id, nullToUndefined(options))),
+    items: await getTopicLearningMaterials(topic._id, user?._id, nullToUndefined(options)),
   };
-}
+};
 
-export const getTopicLearningMaterialsTotalCountResolver: APITopicResolvers['learningMaterialsTotalCount'] = async (topic) => {
+export const getTopicLearningMaterialsTotalCountResolver: APITopicResolvers['learningMaterialsTotalCount'] = async topic => {
   return await countLearningMaterialsShowedInTopic(topic._id);
-}
+};
 
-export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] = async (topic) => {
-  return (await getTopicPrerequisites({_id: topic._id})).map(({followUpTopic, prerequisiteTopic, relationship}) => ({
+export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] = async topic => {
+  return (await getTopicPrerequisites({ _id: topic._id })).map(
+    ({ followUpTopic, prerequisiteTopic, relationship }) => ({
+      prerequisiteTopic,
+      followUpTopic,
+      ...relationship,
+    })
+  );
+};
+
+export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async topic => {
+  return (await getTopicFollowUps({ _id: topic._id })).map(({ followUpTopic, prerequisiteTopic, relationship }) => ({
     prerequisiteTopic,
     followUpTopic,
-    ...relationship
-  }))
-}
+    ...relationship,
+  }));
+};
 
-export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async (topic) => {
-  return (await getTopicFollowUps({_id: topic._id})).map(({followUpTopic, prerequisiteTopic, relationship}) => ({
-    prerequisiteTopic,
-    followUpTopic,
-    ...relationship
-  }))
-}
-
-export const getTopicsCreatedByResolver: APITopicResolvers['createdBy'] = async (topic) => {
+export const getTopicsCreatedByResolver: APITopicResolvers['createdBy'] = async topic => {
   return getTopicCreator({ _id: topic._id });
-}
+};

@@ -4,6 +4,7 @@ type Topic {
   key: String!
   description: String
   parentTopic: Topic
+  partOfTopics: [TopicIsPartOfTopic!]
   subTopics: [TopicIsSubTopicOfTopic!]
   subTopicsTotalCount: Int
   learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults

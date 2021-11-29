@@ -1,0 +1,34 @@
+type TopicIsPartOfTopic {
+  index: Float!
+  createdAt: Date!
+  createdByUserId: String
+  subTopic: Topic!
+  partOfTopic: Topic!
+}
+
+input AttachTopicIsPartOfTopicPayload {
+  index: Float
+}
+
+input UpdateTopicIsPartOfTopicPayload {
+  index: Float
+}
+
+type DetachTopicIsPartOfTopicResult {
+  partOfTopic: Topic!
+  subTopic: Topic!
+}
+
+type Mutation {
+  attachTopicIsPartOfTopic(
+    partOfTopicId: String!
+    subTopicId: String!
+    payload: AttachTopicIsPartOfTopicPayload!
+  ): TopicIsPartOfTopic!
+  updateTopicIsPartOfTopic(
+    partOfTopicId: String!
+    subTopicId: String!
+    payload: UpdateTopicIsPartOfTopicPayload!
+  ): TopicIsPartOfTopic!
+  detachTopicIsPartOfTopic(partOfTopicId: String!, subTopicId: String!): DetachTopicIsPartOfTopicResult!
+}

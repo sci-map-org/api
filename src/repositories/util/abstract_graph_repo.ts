@@ -90,6 +90,7 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
   originNode: OriginEntity;
   relationship: RelationshipEntity;
   destinationNode: DestinationEntity;
+  originalRelationship: any;
 }>> => {
   const session = neo4jDriver.session();
   const sortingClause = sorting ? `ORDER BY ${sorting.entity}.${sorting.field} ${sorting.direction}` : '';
@@ -110,7 +111,8 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
   -${relationship.direction === 'OUT' ? '>' : ''}(destinationNode:${destinationNode.label}) ${whereClause} RETURN 
   properties(originNode) as originNode, 
   properties(destinationNode) as destinationNode, 
-  properties(relationship) as relationship
+  properties(relationship) as relationship,
+  relationship as originalRelationship
   ${sortingClause}
   ${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}
   ${pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''}`;
@@ -119,12 +121,12 @@ export const getRelatedNodes = async <OriginEntity, RelationshipEntity, Destinat
     relationshipFilter: relationship.filter,
     destinationNodeFilter: destinationNode.filter,
   });
-
   session.close();
   return records.map(r => ({
     originNode: r.get('originNode') as OriginEntity,
     relationship: r.get('relationship') as RelationshipEntity,
     destinationNode: r.get('destinationNode') as DestinationEntity,
+    originalRelationship: r.get('originalRelationship'),
   }));
 };
 

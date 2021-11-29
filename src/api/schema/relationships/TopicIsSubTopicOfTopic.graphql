@@ -1,7 +1,13 @@
+enum SubTopicRelationshipType {
+  IS_SUBTOPIC_OF
+  IS_PART_OF
+}
+
 type TopicIsSubTopicOfTopic {
   index: Float!
   createdAt: Date!
   createdByUserId: String
+  relationshipType: SubTopicRelationshipType!
   subTopic: Topic!
   parentTopic: Topic!
 }
@@ -12,8 +18,8 @@ input AttachTopicIsSubTopicOfTopicPayload {
 
 input UpdateTopicIsSubTopicOfTopicPayload {
   index: Float
-  # strength
 }
+
 type DetachTopicIsSubTopicOfTopicResult {
   parentTopic: Topic!
   subTopic: Topic!

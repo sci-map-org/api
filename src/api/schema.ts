@@ -8,41 +8,9 @@ import {
   getArticleAuthorResolver,
   getArticleByKeyResolver,
   listArticlesResolver,
-  updateArticleResolver
+  updateArticleResolver,
 } from './resolvers/articles.resolvers';
-// import {
-//   addConceptReferencesConceptResolver,
-//   addConceptToDomainResolver,
-//   deleteConceptResolver,
-//   getConceptCoveredByResourcesResolver,
-//   getConceptDomainResolver,
-//   getConceptKnownResolver, getConceptParentTopicResolver, getConceptReferencedByConceptsResolver,
-//   getConceptReferencingConceptsResolver,
-//   getConceptResolver,
-//   getConceptSizeResolver, getConceptSubTopicsResolver, getDomainConceptByKeyResolver,
-//   removeConceptReferencesConceptResolver,
-//   setConceptsKnownResolver,
-//   setConceptsUnKnownResolver,
-//   updateConceptBelongsToDomainResolver,
-//   updateConceptResolver
-// } from './resolvers/concepts.resolvers';
-// import {
-//   createDomainResolver,
-//   deleteDomainResolver,
-//   getDomainByKeyResolver,
-//   getDomainConceptsResolver,
-//   getDomainConceptTotalCountResolver,
-//   getDomainLearningGoalsResolver,
-//   getDomainLearningMaterialsResolver,
-//   getDomainLearningMaterialsTotalCountResolver,
-//   getDomainLearningPathsResolver,
-//   getDomainParentTopicsResolver,
-//   getDomainResourcesResolver,
-//   getDomainSizeResolver,
-//   getDomainSubTopicsResolver,
-//   searchDomainsResolver,
-//   updateDomainResolver
-// } from './resolvers/domains.resolvers';
+
 import {
   attachLearningGoalDependencyResolver,
   attachLearningGoalRequiresSubGoalResolver,
@@ -70,7 +38,7 @@ import {
   searchLearningGoalsResolver,
   showLearningGoalInTopicResolver,
   startLearningGoalResolver,
-  updateLearningGoalResolver
+  updateLearningGoalResolver,
 } from './resolvers/learning_goals.resolvers';
 import {
   getLearningMaterialCoveredSubTopicsResolver,
@@ -80,12 +48,12 @@ import {
   hideLearningMaterialFromTopicResolver,
   learningMaterialResolveType,
   rateLearningMaterialResolver,
-  showLearningMaterialInTopicResolver
+  showLearningMaterialInTopicResolver,
 } from './resolvers/learning_materials.resolvers';
 import {
   addTagsToLearningMaterialResolver,
   removeTagsFromLearningMaterialResolver,
-  searchLearningMaterialTagsResolver
+  searchLearningMaterialTagsResolver,
 } from './resolvers/learning_material_tags.resolvers';
 import {
   addComplementaryResourceToLearningPathResolver,
@@ -95,18 +63,33 @@ import {
   getLearningPathByIdResolver,
   getLearningPathByKeyResolver,
   getLearningPathComplementaryResourcesResolver,
-  getLearningPathRatingResolver, getLearningPathResourceItemsResolver,
+  getLearningPathRatingResolver,
+  getLearningPathResourceItemsResolver,
   getLearningPathStartedByResolver,
   getLearningPathStartedResolver,
   getLearningPathTagsResolver,
   removeComplementaryResourceFromLearningPathResolver,
   startLearningPathResolver,
-  updateLearningPathResolver
+  updateLearningPathResolver,
 } from './resolvers/learning_paths.resolvers';
 import { getHomePageDataResolver, getTopLevelTopicsResolver, globalSearchResolver } from './resolvers/misc.resolvers';
-import { attachLearningMaterialCoversTopicsResolver, detachLearningMaterialCoversTopicsResolver } from './resolvers/relationships/learning_material_covers_topic.resolvers';
-import { addLearningMaterialHasPrerequisiteTopicResolver, removeLearningMaterialHasPrerequisiteTopicResolver } from './resolvers/relationships/learning_material_has_prerequisite_topic.resolvers';
-import { addTopicHasPrerequisiteTopicResolver, removeTopicHasPrerequisiteTopicResolver } from './resolvers/relationships/topic_has_prerequisite_topic.resolvers';
+import {
+  attachLearningMaterialCoversTopicsResolver,
+  detachLearningMaterialCoversTopicsResolver,
+} from './resolvers/relationships/learning_material_covers_topic.resolvers';
+import {
+  addLearningMaterialHasPrerequisiteTopicResolver,
+  removeLearningMaterialHasPrerequisiteTopicResolver,
+} from './resolvers/relationships/learning_material_has_prerequisite_topic.resolvers';
+import {
+  addTopicHasPrerequisiteTopicResolver,
+  removeTopicHasPrerequisiteTopicResolver,
+} from './resolvers/relationships/topic_has_prerequisite_topic.resolvers';
+import {
+  attachTopicIsSubTopicOfTopicResolver,
+  detachTopicIsSubTopicOfTopicResolver,
+  updateTopicIsSubTopicOfTopicResolver,
+} from './resolvers/relationships/topic_is_subtopic_of_topic.resolvers';
 import {
   addSubResourceResolver,
   addSubResourceToSeriesResolver,
@@ -127,15 +110,26 @@ import {
   getResourceUpvotesResolver,
   searchResourcesResolver,
   setResourcesConsumedResolver,
-  updateResourceResolver
+  updateResourceResolver,
 } from './resolvers/resources.resolvers';
 import {
   addSubTopicResolver,
-  attachTopicIsSubTopicOfTopicResolver, checkTopicKeyAvailabilityResolver, createTopicResolver, deleteTopicResolver, detachTopicIsSubTopicOfTopicResolver,
-  getTopicByIdResolver, getTopicByKeyResolver, getTopicFollowUpsResolver, getTopicLearningMaterialsResolver,
-  getTopicLearningMaterialsTotalCountResolver, getTopicParentTopicResolver, getTopicPrerequisitesResolver, getTopicsCreatedByResolver, getTopicSubTopicsResolver,
-  getTopicSubTopicsTotalCountResolver, searchSubTopicsResolver,
-  searchTopicsResolver, updateTopicIsSubTopicOfTopicResolver, updateTopicResolver
+  checkTopicKeyAvailabilityResolver,
+  createTopicResolver,
+  deleteTopicResolver,
+  getTopicByIdResolver,
+  getTopicByKeyResolver,
+  getTopicFollowUpsResolver,
+  getTopicLearningMaterialsResolver,
+  getTopicLearningMaterialsTotalCountResolver,
+  getTopicParentTopicResolver,
+  getTopicPrerequisitesResolver,
+  getTopicsCreatedByResolver,
+  getTopicSubTopicsResolver,
+  getTopicSubTopicsTotalCountResolver,
+  searchSubTopicsResolver,
+  searchTopicsResolver,
+  updateTopicResolver,
 } from './resolvers/topics.resolvers';
 import {
   adminUpdateUserResolver,
@@ -151,7 +145,11 @@ import {
   loginGoogleResolver,
   loginResolver,
   registerGoogleResolver,
-  registerResolver, resetPasswordResolver, triggerResetPasswordResolver, updateCurrentUserResolver, verifyEmailAddressResolver
+  registerResolver,
+  resetPasswordResolver,
+  triggerResetPasswordResolver,
+  updateCurrentUserResolver,
+  verifyEmailAddressResolver,
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
@@ -327,14 +325,14 @@ const resolvers: APIResolvers<APIContext> = {
     learningMaterialsTotalCount: getTopicLearningMaterialsTotalCountResolver,
     prerequisites: getTopicPrerequisitesResolver,
     followUps: getTopicFollowUpsResolver,
-    createdBy: getTopicsCreatedByResolver
+    createdBy: getTopicsCreatedByResolver,
   },
   SubGoal: {
     __resolveType: obj => {
       // if (obj.topicType === TopicType.Concept) return 'Concept';
       //@ts-ignore
       if (Object.values(LearningGoalType).indexOf(obj.type) > -1) return 'LearningGoal';
-      return 'Topic'
+      return 'Topic';
       throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },
@@ -350,7 +348,7 @@ const resolvers: APIResolvers<APIContext> = {
       if (obj.type === LearningGoalType.Roadmap || obj.type === LearningGoalType.SubGoal) return 'LearningGoal';
       //@ts-ignore
       // if (obj.topicType === TopicType.Domain) return 'Domain';
-      return 'Topic'
+      return 'Topic';
       throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },

@@ -5,18 +5,42 @@ import { generateUrlKey } from '../api/util/urlKey';
 import { recommendationEngineConfig } from '../config';
 import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPathLabel } from '../entities/LearningPath';
-import { LearningGoalShowedInTopic, LearningGoalShowedInTopicLabel } from '../entities/relationships/LearningGoalShowedInTopic';
+import {
+  LearningGoalShowedInTopic,
+  LearningGoalShowedInTopicLabel,
+} from '../entities/relationships/LearningGoalShowedInTopic';
 import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
 import { LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
-import { TopicHasPrerequisiteTopic, TopicHasPrerequisiteTopicLabel, TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE } from '../entities/relationships/TopicHasPrerequisiteTopic';
-import { TopicIsSubTopicOfTopic, TopicIsSubTopicOfTopicLabel } from '../entities/relationships/TopicIsSubTopicOfTopic';
+import {
+  TopicHasPrerequisiteTopic,
+  TopicHasPrerequisiteTopicLabel,
+  TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE,
+} from '../entities/relationships/TopicHasPrerequisiteTopic';
+import { TopicIsPartOfTopic, TopicIsPartOfTopicLabel } from '../entities/relationships/TopicIsPartOfTopic';
+import {
+  SubTopicRelationshipType,
+  TopicIsSubTopicOfTopic,
+  TopicIsSubTopicOfTopicLabel,
+} from '../entities/relationships/TopicIsSubTopicOfTopic';
 import { UserCreatedTopic, UserCreatedTopicLabel } from '../entities/relationships/UserCreatedTopic';
 import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import { ResourceLabel, ResourceType } from '../entities/Resource';
 import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
-import { attachUniqueNodes, countRelatedNodes, createRelatedNode, deleteOne, detachUniqueNodes, findOne, getOptionalRelatedNode, getRelatedNode, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
+import {
+  attachUniqueNodes,
+  countRelatedNodes,
+  createRelatedNode,
+  deleteOne,
+  detachUniqueNodes,
+  findOne,
+  getOptionalRelatedNode,
+  getRelatedNode,
+  getRelatedNodes,
+  updateOne,
+} from './util/abstract_graph_repo';
+import { buildFilter } from './util/filter';
 
 interface CreateTopicData {
   name: string;
@@ -35,11 +59,10 @@ export const createTopic = (user: { _id: string } | { key: string }, data: Creat
         key: generateUrlKey(data.key || data.name), // a bit ugly
         _id: shortid.generate(),
         updatedAt: Date.now(),
-        createdAt: Date.now()
+        createdAt: Date.now(),
       },
     },
   });
-
 
 interface UpdateTopicData {
   key?: string;
@@ -47,22 +70,23 @@ interface UpdateTopicData {
   description?: string;
 }
 
-type TopicFilter =  { _id: string } | { key: string }
+type TopicFilter = { _id: string } | { key: string };
 
-export const updateTopic = (topicFilter: TopicFilter, data: UpdateTopicData) => updateOne<Topic,TopicFilter, UpdateTopicData & {updatedAt: number}>({
+export const updateTopic = (topicFilter: TopicFilter, data: UpdateTopicData) =>
+  updateOne<Topic, TopicFilter, UpdateTopicData & { updatedAt: number }>({
     label: TopicLabel,
   })(topicFilter, {
     ...data,
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
   });
-  
+
 export const deleteTopic = deleteOne<Topic, { _id: string } | { key: string }>({ label: TopicLabel });
 
-const findTopic = findOne<Topic, { _id: string } | {key: string}>({ label: TopicLabel })
+const findTopic = findOne<Topic, { _id: string } | { key: string }>({ label: TopicLabel });
 
 export const getTopicById = (topicId: string) => findTopic({ _id: topicId });
 
-  export const getTopicByKey = (topicKey: string) => findTopic({ key: topicKey });
+export const getTopicByKey = (topicKey: string) => findTopic({ key: topicKey });
 
 export const searchTopics = async (
   query: string,
@@ -108,7 +132,11 @@ export const getTopicLearningMaterials = async (
   const q = new Query(neo4jQb);
   if (userId) q.matchNode('u', 'User', { _id: userId });
 
-  q.match([node('d', TopicLabel, { _id: topicId }), relation('in', '', LearningGoalShowedInTopicLabel), node('lm', lmLabel)]);
+  q.match([
+    node('d', TopicLabel, { _id: topicId }),
+    relation('in', '', LearningGoalShowedInTopicLabel),
+    node('lm', lmLabel),
+  ]);
 
   q.raw(`WHERE (NOT lm:${LearningPathLabel} OR lm.public = true)`);
 
@@ -141,7 +169,11 @@ export const getTopicLearningMaterials = async (
 
   if (sortingType === APITopicLearningMaterialsSortingType.Recommended) {
     q.optionalMatch([node('lm'), relation('out', '', LearningMaterialCoversTopicLabel), node('cc', TopicLabel)]);
-    q.optionalMatch([node('cc'), relation('out', 'dpc', TopicHasPrerequisiteTopicLabel, [0, 5]), node('mpc', TopicLabel)]);
+    q.optionalMatch([
+      node('cc'),
+      relation('out', 'dpc', TopicHasPrerequisiteTopicLabel, [0, 5]),
+      node('mpc', TopicLabel),
+    ]);
     q.raw(`WHERE NOT (lm)-[:${LearningMaterialCoversTopicLabel}]->(mpc)`);
     if (userId) q.raw('AND NOT (u)-[:KNOWS]->(mpc)');
     if (userId) q.optionalMatch([node('cc'), relation('in', 'rkc', 'KNOWS'), node('u')]);
@@ -230,30 +262,30 @@ export const countLearningMaterialsShowedInTopic = (topicId: string): Promise<nu
     },
   });
 
-  // TODO
-  // export const getLearningGoalsShowedInTopic = (
-  //   domainId: string
-  // ): Promise<{ learningGoal: LearningGoal; relationship: LearningGoalBelongsToDomain; domain: Domain }[]> =>
-  //   getRelatedNodes<Domain, LearningGoalBelongsToDomain, LearningGoal>({
-  //     originNode: {
-  //       label: DomainLabel,
-  //       filter: { _id: domainId },
-  //     },
-  //     relationship: {
-  //       label: LearningGoalBelongsToDomainLabel,
-  //       direction: 'IN',
-  //     },
-  //     destinationNode: {
-  //       label: LearningGoalLabel,
-  //       filter: { hidden: false },
-  //     },
-  //   }).then(items =>
-  //     items.map(({ destinationNode, relationship, originNode }) => ({
-  //       learningGoal: destinationNode,
-  //       relationship,
-  //       domain: originNode,
-  //     }))
-  //   );
+// TODO
+// export const getLearningGoalsShowedInTopic = (
+//   domainId: string
+// ): Promise<{ learningGoal: LearningGoal; relationship: LearningGoalBelongsToDomain; domain: Domain }[]> =>
+//   getRelatedNodes<Domain, LearningGoalBelongsToDomain, LearningGoal>({
+//     originNode: {
+//       label: DomainLabel,
+//       filter: { _id: domainId },
+//     },
+//     relationship: {
+//       label: LearningGoalBelongsToDomainLabel,
+//       direction: 'IN',
+//     },
+//     destinationNode: {
+//       label: LearningGoalLabel,
+//       filter: { hidden: false },
+//     },
+//   }).then(items =>
+//     items.map(({ destinationNode, relationship, originNode }) => ({
+//       learningGoal: destinationNode,
+//       relationship,
+//       domain: originNode,
+//     }))
+//   );
 // ======== SUBTOPICS =========
 
 // TODO include "part_of" topics
@@ -261,7 +293,7 @@ export const countLearningMaterialsShowedInTopic = (topicId: string): Promise<nu
 export const searchSubTopics = async (
   rootTopicId: string,
   query: string,
-  pagination: { offset?: number; limit?: number },
+  pagination: { offset?: number; limit?: number }
 ): Promise<Topic[]> => {
   const session = neo4jDriver.session();
 
@@ -295,21 +327,62 @@ export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> 
   return size;
 };
 
-export const getTopicSubTopics = (
-  topicId: string,
-): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> =>
-  getRelatedNodes<Topic, TopicIsSubTopicOfTopic, Topic>({
+// export const getTopicSubTopics = async (
+//   topicId: string
+// ): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> => {
+//   const originNodeFilter = { _id: topicId };
+//   const session = neo4jDriver.session();
+//   const sortingClause = `ORDER BY relationship.index ASC`;
+//   const whereClause = `WHERE ${buildFilter(originNodeFilter, 'originNodeFilter', 'originNode')}`;
+//   // ${
+//   //   relationship.filter && Object.keys(relationship.filter).length
+//   //     ? ' AND ' + buildFilter(relationship.filter, 'relationshipFilter', 'relationship')
+//   //     : ''
+//   // }
+//   // ${
+//   //   destinationNode.filter && Object.keys(destinationNode.filter).length
+//   //     ? ' AND ' + buildFilter(destinationNode.filter, 'destinationNodeFilter', 'destinationNode')
+//   //     : ''
+//   // }`;
+//   const query = `MATCH (originNode:${TopicLabel})<-[relationship:${TopicIsSubTopicOfTopicLabel}|${TopicIsPartOfTopicLabel}]
+//   -(destinationNode:${TopicLabel}) ${whereClause} RETURN
+//   properties(originNode) as originNode,
+//   properties(destinationNode) as destinationNode,
+//   properties(relationship) as relationship,
+//   relationship as originalRelationship
+//   ${sortingClause}
+// `;
+//   const { records } = await session.run(query, {
+//     originNodeFilter,
+//   });
+//   session.close();
+//   return records.map(r => ({
+//     parentTopic: r.get('originNode') as Topic,
+//     relationship: r.get('relationship') as TopicIsSubTopicOfTopic | TopicIsPartOfTopic,
+//     subTopic: r.get('destinationNode') as Topic,
+//     relationshipType: r.get('originalRelationship').type,
+//   }));
+// };
+
+export const getTopicSubTopics = async (
+  topicId: string
+): Promise<{
+  parentTopic: Topic;
+  relationship: TopicIsSubTopicOfTopic | TopicIsPartOfTopic;
+  subTopic: Topic;
+  relationshipType: SubTopicRelationshipType;
+}[]> =>
+  getRelatedNodes<Topic, TopicIsSubTopicOfTopic | TopicIsPartOfTopic, Topic>({
     originNode: {
       label: TopicLabel,
       filter: { _id: topicId },
     },
     relationship: {
-      label: TopicIsSubTopicOfTopicLabel,
+      label: `${TopicIsSubTopicOfTopicLabel}|${TopicIsPartOfTopicLabel}`,
       direction: 'IN',
     },
     destinationNode: {
       label: TopicLabel,
-      // filter: { hidden: false }, TODO
     },
     sorting: {
       entity: 'relationship',
@@ -317,15 +390,16 @@ export const getTopicSubTopics = (
       direction: 'ASC',
     },
   }).then(items =>
-    items.map(({ relationship, destinationNode, originNode }) => ({
+    items.map(({ relationship, destinationNode, originNode, originalRelationship }) => ({
       parentTopic: originNode,
       relationship,
       subTopic: destinationNode,
+      relationshipType: originalRelationship.type,
     }))
   );
 
 export const getTopicParentTopic = (
-  topicId: string,
+  topicId: string
 ): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic } | null> =>
   getOptionalRelatedNode<Topic, TopicIsSubTopicOfTopic, Topic>({
     originNode: {
@@ -339,13 +413,14 @@ export const getTopicParentTopic = (
     destinationNode: {
       label: TopicLabel,
     },
-
   }).then(item =>
-   item ? ({
-      parentTopic: item.destinationNode,
-      relationship: item.relationship,
-      subTopic: item.originNode,
-    }) : null
+    item
+      ? {
+          parentTopic: item.destinationNode,
+          relationship: item.relationship,
+          subTopic: item.originNode,
+        }
+      : null
   );
 
 export const attachTopicIsSubTopicOfTopic = (
@@ -441,7 +516,7 @@ export const attachTopicHasPrerequisiteTopic = (
 
 export const detachTopicHasPrerequisiteTopic = (
   topicId: string,
-  prerequisiteTopicId: string,
+  prerequisiteTopicId: string
 ): Promise<{ prerequisiteTopic: Topic; topic: Topic }> =>
   detachUniqueNodes<Topic, TopicHasPrerequisiteTopic, Topic>({
     originNode: {
@@ -463,7 +538,10 @@ export const detachTopicHasPrerequisiteTopic = (
     };
   });
 
-const getTopicPrerequisiteRelations = (filter: { _id: string } | { key: string }, direction: 'OUT' | 'IN'): Promise<{originTopic: Topic, destinationTopic: Topic, relationship: TopicHasPrerequisiteTopic}[]> =>
+const getTopicPrerequisiteRelations = (
+  filter: { _id: string } | { key: string },
+  direction: 'OUT' | 'IN'
+): Promise<{ originTopic: Topic; destinationTopic: Topic; relationship: TopicHasPrerequisiteTopic }[]> =>
   getRelatedNodes<Topic, TopicHasPrerequisiteTopic, Topic>({
     originNode: {
       label: TopicLabel,
@@ -476,27 +554,42 @@ const getTopicPrerequisiteRelations = (filter: { _id: string } | { key: string }
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items => items.map(item => ({ originTopic: item.originNode, destinationTopic: item.destinationNode, relationship: item.relationship })));
+  }).then(items =>
+    items.map(item => ({
+      originTopic: item.originNode,
+      destinationTopic: item.destinationNode,
+      relationship: item.relationship,
+    }))
+  );
 
-export const getTopicPrerequisites = (filter: { _id: string } | { key: string }): Promise<{prerequisiteTopic: Topic, relationship: TopicHasPrerequisiteTopic, followUpTopic: Topic}[]> =>
-getTopicPrerequisiteRelations(filter, 'OUT').then(items => items.map(({originTopic, relationship, destinationTopic}) => ({
-  prerequisiteTopic:destinationTopic , relationship, followUpTopic:originTopic
-})));
+export const getTopicPrerequisites = (
+  filter: { _id: string } | { key: string }
+): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; followUpTopic: Topic }[]> =>
+  getTopicPrerequisiteRelations(filter, 'OUT').then(items =>
+    items.map(({ originTopic, relationship, destinationTopic }) => ({
+      prerequisiteTopic: destinationTopic,
+      relationship,
+      followUpTopic: originTopic,
+    }))
+  );
 
-export const getTopicFollowUps = (filter: { _id: string } | { key: string }) : Promise<{prerequisiteTopic: Topic, relationship: TopicHasPrerequisiteTopic, followUpTopic: Topic}[]>=>
-getTopicPrerequisiteRelations(filter, 'IN').then(items => items.map(({originTopic, relationship, destinationTopic}) => ({
-  prerequisiteTopic:originTopic , relationship, followUpTopic: destinationTopic
-})));;
-
-
-
+export const getTopicFollowUps = (
+  filter: { _id: string } | { key: string }
+): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; followUpTopic: Topic }[]> =>
+  getTopicPrerequisiteRelations(filter, 'IN').then(items =>
+    items.map(({ originTopic, relationship, destinationTopic }) => ({
+      prerequisiteTopic: originTopic,
+      relationship,
+      followUpTopic: destinationTopic,
+    }))
+  );
 
 export const getSubTopicsMaxIndex = async (topicId: string): Promise<number | null> => {
   const q = new Query(neo4jQb);
 
   q.match([
     node('n', TopicLabel, { _id: topicId }),
-    relation('in', 'r', TopicIsSubTopicOfTopicLabel),
+    relation('in', 'r', [TopicIsSubTopicOfTopicLabel, TopicIsPartOfTopicLabel]),
     node('s', TopicLabel),
   ]);
 
@@ -512,17 +605,86 @@ export const getSubTopicsMaxIndex = async (topicId: string): Promise<number | nu
 };
 
 export const getTopicCreator = (topicFilter: { _id: string }) =>
-getRelatedNode<User>({
-  originNode: {
-    label: TopicLabel,
-    filter: topicFilter,
-  },
-  relationship: {
-    label: UserCreatedTopicLabel,
-    filter: {},
-  },
-  destinationNode: {
-    label: UserLabel,
-    filter: {},
-  },
-});
+  getRelatedNode<User>({
+    originNode: {
+      label: TopicLabel,
+      filter: topicFilter,
+    },
+    relationship: {
+      label: UserCreatedTopicLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: UserLabel,
+      filter: {},
+    },
+  });
+
+export const attachTopicIsPartOfTopic = (
+  partOfTopicId: string,
+  subTopicId: string,
+  { index, createdByUserId }: { index: number; createdByUserId?: string }
+): Promise<{
+  partOfTopic: Topic;
+  relationship: TopicIsPartOfTopic;
+  subTopic: Topic;
+}> =>
+  attachUniqueNodes<Topic, TopicIsPartOfTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: subTopicId } },
+    relationship: {
+      label: TopicIsPartOfTopicLabel,
+      onCreateProps: { index, createdAt: Date.now(), createdByUserId },
+    },
+    destinationNode: { label: TopicLabel, filter: { _id: partOfTopicId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      partOfTopic: destinationNode,
+      relationship,
+      subTopic: originNode,
+    };
+  });
+
+export const updateTopicIsPartOfTopic = (
+  partOfTopicId: string,
+  subTopicId: string,
+  { index }: { index?: number }
+): Promise<{
+  partOfTopic: Topic;
+  relationship: TopicIsPartOfTopic;
+  subTopic: Topic;
+}> =>
+  attachUniqueNodes<Topic, TopicIsPartOfTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: subTopicId } },
+    relationship: { label: TopicIsPartOfTopicLabel, onMergeProps: { ...(!!index && { index }) } },
+    destinationNode: { label: TopicLabel, filter: { _id: partOfTopicId } },
+  }).then(({ originNode, relationship, destinationNode }) => {
+    return {
+      partOfTopic: destinationNode,
+      relationship,
+      subTopic: originNode,
+    };
+  });
+
+export const detachTopicIsPartOfTopic = (
+  partOfTopicId: string,
+  subTopicId: string
+): Promise<{ subTopic: Topic; partOfTopic: Topic }> =>
+  detachUniqueNodes<Topic, TopicIsPartOfTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: subTopicId },
+    },
+    relationship: {
+      label: TopicIsPartOfTopicLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: TopicLabel,
+      filter: { _id: partOfTopicId },
+    },
+  }).then(({ originNode, destinationNode }) => {
+    return {
+      subTopic: originNode,
+      partOfTopic: destinationNode,
+    };
+  });
