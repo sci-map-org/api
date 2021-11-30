@@ -13,6 +13,7 @@ import {
   getTopicFollowUps,
   getTopicLearningMaterials,
   getTopicParentTopic,
+  getTopicPartOfTopics,
   getTopicPrerequisites,
   getTopicSubTopics,
   getTopicSubTopicsTotalCount,
@@ -209,4 +210,12 @@ export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async t
 
 export const getTopicsCreatedByResolver: APITopicResolvers['createdBy'] = async topic => {
   return getTopicCreator({ _id: topic._id });
+};
+
+export const getTopicPartOfTopicsResolver: APITopicResolvers['partOfTopics'] = async topic => {
+  return (await getTopicPartOfTopics({ _id: topic._id })).map(({ subTopic, partOfTopic, relationship }) => ({
+    subTopic,
+    partOfTopic,
+    ...relationship,
+  }));
 };

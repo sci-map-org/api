@@ -86,6 +86,11 @@ import {
   removeTopicHasPrerequisiteTopicResolver,
 } from './resolvers/relationships/topic_has_prerequisite_topic.resolvers';
 import {
+  attachTopicIsPartOfTopicResolver,
+  detachTopicIsPartOfTopicResolver,
+  updateTopicIsPartOfTopicResolver,
+} from './resolvers/relationships/topic_is_part_of_topic.resolvers';
+import {
   attachTopicIsSubTopicOfTopicResolver,
   detachTopicIsSubTopicOfTopicResolver,
   updateTopicIsSubTopicOfTopicResolver,
@@ -124,6 +129,7 @@ import {
   getTopicLearningMaterialsResolver,
   getTopicLearningMaterialsTotalCountResolver,
   getTopicParentTopicResolver,
+  getTopicPartOfTopicsResolver,
   getTopicPrerequisitesResolver,
   getTopicsCreatedByResolver,
   getTopicSubTopicsResolver,
@@ -213,6 +219,9 @@ const resolvers: APIResolvers<APIContext> = {
     attachTopicIsSubTopicOfTopic: attachTopicIsSubTopicOfTopicResolver,
     updateTopicIsSubTopicOfTopic: updateTopicIsSubTopicOfTopicResolver,
     detachTopicIsSubTopicOfTopic: detachTopicIsSubTopicOfTopicResolver,
+    attachTopicIsPartOfTopic: attachTopicIsPartOfTopicResolver,
+    updateTopicIsPartOfTopic: updateTopicIsPartOfTopicResolver,
+    detachTopicIsPartOfTopic: detachTopicIsPartOfTopicResolver,
     addTopicHasPrerequisiteTopic: addTopicHasPrerequisiteTopicResolver,
     removeTopicHasPrerequisiteTopic: removeTopicHasPrerequisiteTopicResolver,
     triggerResetPassword: triggerResetPasswordResolver,
@@ -328,6 +337,7 @@ const resolvers: APIResolvers<APIContext> = {
     prerequisites: getTopicPrerequisitesResolver,
     followUps: getTopicFollowUpsResolver,
     createdBy: getTopicsCreatedByResolver,
+    partOfTopics: getTopicPartOfTopicsResolver,
   },
   SubGoal: {
     __resolveType: obj => {

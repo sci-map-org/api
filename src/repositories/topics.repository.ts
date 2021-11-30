@@ -706,3 +706,26 @@ export const detachTopicIsPartOfTopic = (
       partOfTopic: destinationNode,
     };
   });
+
+export const getTopicPartOfTopics = (
+  topicFilter: { _id: string } | { key: string }
+): Promise<{ subTopic: Topic; partOfTopic: Topic; relationship: TopicIsPartOfTopic }[]> =>
+  getRelatedNodes<Topic, TopicIsPartOfTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: topicFilter,
+    },
+    relationship: {
+      label: TopicIsPartOfTopicLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: TopicLabel,
+    },
+  }).then(items =>
+    items.map(item => ({
+      subTopic: item.originNode,
+      partOfTopic: item.destinationNode,
+      relationship: item.relationship,
+    }))
+  );
