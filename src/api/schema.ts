@@ -114,6 +114,7 @@ import {
 } from './resolvers/resources.resolvers';
 import {
   addSubTopicResolver,
+  autocompleteTopicNameResolver,
   checkTopicKeyAvailabilityResolver,
   createTopicResolver,
   deleteTopicResolver,
@@ -235,6 +236,7 @@ const resolvers: APIResolvers<APIContext> = {
     getTopicByKey: getTopicByKeyResolver,
     searchTopics: searchTopicsResolver,
     searchSubTopics: searchSubTopicsResolver,
+    autocompleteTopicName: autocompleteTopicNameResolver,
     checkTopicKeyAvailability: checkTopicKeyAvailabilityResolver,
     analyzeResourceUrl: analyzeResourceUrlResolver,
     getHomePageData: getHomePageDataResolver,

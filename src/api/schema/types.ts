@@ -48,6 +48,7 @@ export type APIListArticlesResult = {
 export type APIQuery = {
    __typename?: 'Query';
   analyzeResourceUrl: APIAnalyzeResourceUrlResult;
+  autocompleteTopicName: APISearchTopicsResult;
   checkLearningGoalKeyAvailability: APICheckLearningGoalKeyAvailabilityResult;
   checkTopicKeyAvailability: APICheckTopicKeyAvailabilityResult;
   currentUser?: Maybe<APICurrentUser>;
@@ -74,6 +75,11 @@ export type APIQuery = {
 
 export type APIQueryAnalyzeResourceUrlArgs = {
   url: Scalars['String'];
+};
+
+
+export type APIQueryAutocompleteTopicNameArgs = {
+  partialName: Scalars['String'];
 };
 
 
@@ -1893,6 +1899,7 @@ export type APIListArticlesResultResolvers<ContextType = APIContext, ParentType 
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
   analyzeResourceUrl?: Resolver<APIResolversTypes['AnalyzeResourceUrlResult'], ParentType, ContextType, RequireFields<APIQueryAnalyzeResourceUrlArgs, 'url'>>,
+  autocompleteTopicName?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQueryAutocompleteTopicNameArgs, 'partialName'>>,
   checkLearningGoalKeyAvailability?: Resolver<APIResolversTypes['CheckLearningGoalKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckLearningGoalKeyAvailabilityArgs, 'key'>>,
   checkTopicKeyAvailability?: Resolver<APIResolversTypes['CheckTopicKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckTopicKeyAvailabilityArgs, 'key'>>,
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,

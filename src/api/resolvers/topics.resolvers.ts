@@ -3,6 +3,7 @@ import { TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachTopicIsSubTopicOfTopic,
+  autocompleteTopicName,
   countLearningMaterialsShowedInTopic,
   createTopic,
   deleteTopic,
@@ -56,6 +57,12 @@ export const searchSubTopicsResolver: APIQueryResolvers['searchSubTopics'] = asy
   const { query, pagination } = options;
   return {
     items: await searchSubTopics(topicId, query, nullToUndefined(pagination)),
+  };
+};
+
+export const autocompleteTopicNameResolver: APIQueryResolvers['autocompleteTopicName'] = async (_, { partialName }) => {
+  return {
+    items: await autocompleteTopicName(partialName, { offset: 0, limit: 10 }),
   };
 };
 

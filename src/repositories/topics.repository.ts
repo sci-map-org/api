@@ -109,6 +109,24 @@ export const searchTopics = async (
   return records.map(r => r.get('node'));
 };
 
+export const autocompleteTopicName = async (
+  partialName: string,
+  pagination: { offset?: number; limit?: number }
+): Promise<Topic[]> => {
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `MATCH (node:${TopicLabel}) WHERE toLower(node.name) STARTS WITH toLower($partialName)
+    RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
+      pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
+    }`,
+    {
+      partialName,
+    }
+  );
+  session.close();
+  return records.map(r => r.get('node'));
+};
+
 // ========= Learning materials =======
 interface TopicLearningMaterialsFilter {
   resourceTypeIn?: ResourceType[];
