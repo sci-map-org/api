@@ -2,6 +2,11 @@ type Topic {
   _id: String!
   name: String!
   key: String!
+  isDisambiguation: Boolean
+  contextTopic: Topic
+  otherContextsTopics: [Topic!]
+  disambiguationTopic: Topic
+  contextualisedTopics: [Topic!]
   description: String
   parentTopic: Topic
   partOfTopics: [TopicIsPartOfTopic!]
@@ -111,4 +116,5 @@ type Mutation {
   deleteTopic(topicId: String!): DeleteTopicResponse!
   setTopicsKnown(payload: SetTopicsKnownPayload!): [Topic!]! # TODO: better API, one mutation ?
   setTopicsUnknown(topicIds: [String!]!): [Topic!]!
+  updateTopicContext(topicId: String!, contextTopicId: String): Topic!
 }

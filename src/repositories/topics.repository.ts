@@ -11,6 +11,11 @@ import {
 } from '../entities/relationships/LearningGoalShowedInTopic';
 import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
 import { LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
+import { TopicHasContextTopic, TopicHasContextTopicLabel } from '../entities/relationships/TopicHasContextTopic';
+import {
+  TopicHasDisambiguationTopic,
+  TopicHasDisambiguationTopicLabel,
+} from '../entities/relationships/TopicHasDisambiguationTopic';
 import {
   TopicHasPrerequisiteTopic,
   TopicHasPrerequisiteTopicLabel,
@@ -116,6 +121,7 @@ export const autocompleteTopicName = async (
   const session = neo4jDriver.session();
   const { records } = await session.run(
     `MATCH (node:${TopicLabel}) WHERE toLower(node.name) STARTS WITH toLower($partialName)
+    WITH DISTINCT node.name as name, node
     RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
     }`,
@@ -728,4 +734,85 @@ export const getTopicPartOfTopics = (
       partOfTopic: item.destinationNode,
       relationship: item.relationship,
     }))
+  );
+
+export const getTopicDisambiguationTopic = (
+  topicId: string
+): Promise<{
+  contextualisedTopic: Topic;
+  relationship: TopicHasDisambiguationTopic;
+  disambiguationTopic: Topic;
+} | null> =>
+  getOptionalRelatedNode<Topic, TopicHasDisambiguationTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: topicId },
+    },
+    relationship: {
+      label: TopicHasDisambiguationTopicLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: TopicLabel,
+    },
+  }).then(item =>
+    item
+      ? {
+          disambiguationTopic: item.destinationNode,
+          relationship: item.relationship,
+          contextualisedTopic: item.originNode,
+        }
+      : null
+  );
+
+export const getTopicContextualisedTopics = (
+  topicFilter: { _id: string } | { key: string }
+): Promise<{ disambiguationTopic: Topic; contextualisedTopic: Topic; relationship: TopicHasDisambiguationTopic }[]> =>
+  getRelatedNodes<Topic, TopicHasDisambiguationTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { ...topicFilter, isDisambiguation: true },
+    },
+    relationship: {
+      label: TopicHasDisambiguationTopicLabel,
+      direction: 'IN',
+    },
+    destinationNode: {
+      label: TopicLabel,
+    },
+  }).then(items =>
+    items.map(item => ({
+      disambiguationTopic: item.originNode,
+      contextualisedTopic: item.destinationNode,
+      relationship: item.relationship,
+    }))
+  );
+
+export const getTopicContextTopic = (
+  topicId: string
+): Promise<{
+  contextualisedTopic: Topic;
+  relationship: TopicHasContextTopic;
+  contextTopic: Topic;
+} | null> =>
+  getOptionalRelatedNode<Topic, TopicHasContextTopic, Topic>({
+    originNode: {
+      label: TopicLabel,
+      filter: { _id: topicId },
+    },
+    relationship: {
+      label: TopicHasContextTopicLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: TopicLabel,
+    },
+  }).then(item =>
+    item
+      ? {
+          contextualisedTopic: item.originNode,
+          contextTopic: item.destinationNode,
+          relationship: item.relationship,
+        }
+      : null
   );

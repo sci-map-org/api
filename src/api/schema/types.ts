@@ -254,6 +254,7 @@ export type APIMutation = {
   updateLearningPath: APILearningPath;
   updateResource: APIResource;
   updateTopic: APITopic;
+  updateTopicContext: APITopic;
   updateTopicIsPartOfTopic: APITopicIsPartOfTopic;
   updateTopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic;
   verifyEmailAddress: APIVerifyEmailResponse;
@@ -604,6 +605,12 @@ export type APIMutationUpdateResourceArgs = {
 
 export type APIMutationUpdateTopicArgs = {
   payload: APIUpdateTopicPayload;
+  topicId: Scalars['String'];
+};
+
+
+export type APIMutationUpdateTopicContextArgs = {
+  contextTopicId?: Maybe<Scalars['String']>;
   topicId: Scalars['String'];
 };
 
@@ -1129,14 +1136,19 @@ export type APIAnalyzeResourceUrlResult = {
 export type APITopic = {
    __typename?: 'Topic';
   _id: Scalars['String'];
+  contextTopic?: Maybe<APITopic>;
+  contextualisedTopics?: Maybe<Array<APITopic>>;
   createdAt: Scalars['Date'];
   createdBy?: Maybe<APIUser>;
+  desambiguationTopic?: Maybe<APITopic>;
   description?: Maybe<Scalars['String']>;
   followUps?: Maybe<Array<APITopicHasPrerequisiteTopic>>;
+  isDesambiguation?: Maybe<Scalars['Boolean']>;
   key: Scalars['String'];
   learningMaterials?: Maybe<APITopicLearningMaterialsResults>;
   learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
   name: Scalars['String'];
+  otherContextsTopics?: Maybe<Array<APITopic>>;
   parentTopic?: Maybe<APITopic>;
   partOfTopics?: Maybe<Array<APITopicIsPartOfTopic>>;
   /**
@@ -1990,6 +2002,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningPathArgs, 'learningPathId' | 'payload'>>,
   updateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationUpdateResourceArgs, 'payload' | 'resourceId'>>,
   updateTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicArgs, 'payload' | 'topicId'>>,
+  updateTopicContext?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicContextArgs, 'topicId'>>,
   updateTopicIsPartOfTopic?: Resolver<APIResolversTypes['TopicIsPartOfTopic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicIsPartOfTopicArgs, 'partOfTopicId' | 'subTopicId' | 'payload'>>,
   updateTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['TopicIsSubTopicOfTopic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId' | 'payload'>>,
   verifyEmailAddress?: Resolver<APIResolversTypes['VerifyEmailResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>,
@@ -2319,14 +2332,19 @@ export type APIAnalyzeResourceUrlResultResolvers<ContextType = APIContext, Paren
 
 export type APITopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Topic'] = APIResolversParentTypes['Topic']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  contextTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>,
+  contextualisedTopics?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
+  desambiguationTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   followUps?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopic']>>, ParentType, ContextType>,
+  isDesambiguation?: Resolver<Maybe<APIResolversTypes['Boolean']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   learningMaterials?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APITopicLearningMaterialsArgs, 'options'>>,
   learningMaterialsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  otherContextsTopics?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   parentTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>,
   partOfTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsPartOfTopic']>>, ParentType, ContextType>,
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopic']>>, ParentType, ContextType>,

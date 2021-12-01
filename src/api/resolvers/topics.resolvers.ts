@@ -9,7 +9,10 @@ import {
   deleteTopic,
   getTopicById,
   getTopicByKey,
+  getTopicContextTopic,
+  getTopicContextualisedTopics,
   getTopicCreator,
+  getTopicDisambiguationTopic,
   getTopicFollowUps,
   getTopicLearningMaterials,
   getTopicParentTopic,
@@ -218,4 +221,18 @@ export const getTopicPartOfTopicsResolver: APITopicResolvers['partOfTopics'] = a
     partOfTopic,
     ...relationship,
   }));
+};
+
+export const getTopicDisambiguationTopicResolver: APITopicResolvers['disambiguationTopic'] = async topic => {
+  const result = await getTopicDisambiguationTopic(topic._id);
+  return result?.disambiguationTopic || null;
+};
+
+export const getTopicContextualisedTopicsResolver: APITopicResolvers['contextualisedTopics'] = async topic => {
+  return (await getTopicContextualisedTopics({ _id: topic._id })).map(({ contextualisedTopic }) => contextualisedTopic);
+};
+
+export const getTopicContextTopicResolver: APITopicResolvers['contextTopic'] = async topic => {
+  const result = await getTopicContextTopic(topic._id);
+  return result?.contextTopic || null;
 };
