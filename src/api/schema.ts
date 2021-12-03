@@ -137,6 +137,8 @@ import {
   getTopicsCreatedByResolver,
   getTopicSubTopicsResolver,
   getTopicSubTopicsTotalCountResolver,
+  getTopicValidContextsFromDisambiguationResolver,
+  getTopicValidContextsResolver,
   searchSubTopicsResolver,
   searchTopicsResolver,
   updateTopicResolver,
@@ -254,6 +256,8 @@ const resolvers: APIResolvers<APIContext> = {
     getHomePageData: getHomePageDataResolver,
     globalSearch: globalSearchResolver,
     getTopLevelTopics: getTopLevelTopicsResolver,
+    getTopicValidContexts: getTopicValidContextsResolver,
+    getTopicValidContextsFromDisambiguation: getTopicValidContextsFromDisambiguationResolver,
   },
   Article: {
     author: getArticleAuthorResolver,

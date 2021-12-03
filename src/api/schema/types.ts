@@ -62,6 +62,8 @@ export type APIQuery = {
   getTopLevelTopics: APIGetTopLevelTopicsResults;
   getTopicById: APITopic;
   getTopicByKey: APITopic;
+  getTopicValidContexts: APIGetTopicValidContextsResult;
+  getTopicValidContextsFromDisambiguation: APIGetTopicValidContextsFromDisambiguation;
   getUser: APIUser;
   globalSearch: APIGlobalSearchResults;
   listArticles: APIListArticlesResult;
@@ -130,6 +132,18 @@ export type APIQueryGetTopicByIdArgs = {
 
 export type APIQueryGetTopicByKeyArgs = {
   topicKey: Scalars['String'];
+};
+
+
+export type APIQueryGetTopicValidContextsArgs = {
+  existingSameNameTopicId: Scalars['String'];
+  parentTopicId: Scalars['String'];
+};
+
+
+export type APIQueryGetTopicValidContextsFromDisambiguationArgs = {
+  disambiguationTopicId: Scalars['String'];
+  parentTopicId: Scalars['String'];
 };
 
 
@@ -1136,14 +1150,15 @@ export type APIAnalyzeResourceUrlResult = {
 export type APITopic = {
    __typename?: 'Topic';
   _id: Scalars['String'];
+  context?: Maybe<Scalars['String']>;
   contextTopic?: Maybe<APITopic>;
   contextualisedTopics?: Maybe<Array<APITopic>>;
   createdAt: Scalars['Date'];
   createdBy?: Maybe<APIUser>;
-  desambiguationTopic?: Maybe<APITopic>;
   description?: Maybe<Scalars['String']>;
+  disambiguationTopic?: Maybe<APITopic>;
   followUps?: Maybe<Array<APITopicHasPrerequisiteTopic>>;
-  isDesambiguation?: Maybe<Scalars['Boolean']>;
+  isDisambiguation?: Maybe<Scalars['Boolean']>;
   key: Scalars['String'];
   learningMaterials?: Maybe<APITopicLearningMaterialsResults>;
   learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
@@ -1237,6 +1252,17 @@ export type APISetTopicKnownPayloadTopicsField = {
 
 export type APISetTopicsKnownPayload = {
   topics: Array<APISetTopicKnownPayloadTopicsField>;
+};
+
+export type APIGetTopicValidContextsResult = {
+   __typename?: 'GetTopicValidContextsResult';
+  validContexts?: Maybe<Array<APITopic>>;
+  validSameNameTopicContexts?: Maybe<Array<APITopic>>;
+};
+
+export type APIGetTopicValidContextsFromDisambiguation = {
+   __typename?: 'GetTopicValidContextsFromDisambiguation';
+  validContexts?: Maybe<Array<APITopic>>;
 };
 
 export { UserRole };
@@ -1705,6 +1731,8 @@ export type APIResolversTypes = ResolversObject<{
   DeleteTopicResponse: ResolverTypeWrapper<APIDeleteTopicResponse>,
   SetTopicKnownPayloadTopicsField: APISetTopicKnownPayloadTopicsField,
   SetTopicsKnownPayload: APISetTopicsKnownPayload,
+  GetTopicValidContextsResult: ResolverTypeWrapper<APIGetTopicValidContextsResult>,
+  GetTopicValidContextsFromDisambiguation: ResolverTypeWrapper<APIGetTopicValidContextsFromDisambiguation>,
   UserRole: UserRole,
   User: ResolverTypeWrapper<APIUser>,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1848,6 +1876,8 @@ export type APIResolversParentTypes = ResolversObject<{
   DeleteTopicResponse: APIDeleteTopicResponse,
   SetTopicKnownPayloadTopicsField: APISetTopicKnownPayloadTopicsField,
   SetTopicsKnownPayload: APISetTopicsKnownPayload,
+  GetTopicValidContextsResult: APIGetTopicValidContextsResult,
+  GetTopicValidContextsFromDisambiguation: APIGetTopicValidContextsFromDisambiguation,
   UserRole: UserRole,
   User: APIUser,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1925,6 +1955,8 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getTopLevelTopics?: Resolver<APIResolversTypes['GetTopLevelTopicsResults'], ParentType, ContextType>,
   getTopicById?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByIdArgs, 'topicId'>>,
   getTopicByKey?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByKeyArgs, 'topicKey'>>,
+  getTopicValidContexts?: Resolver<APIResolversTypes['GetTopicValidContextsResult'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsArgs, 'existingSameNameTopicId' | 'parentTopicId'>>,
+  getTopicValidContextsFromDisambiguation?: Resolver<APIResolversTypes['GetTopicValidContextsFromDisambiguation'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsFromDisambiguationArgs, 'disambiguationTopicId' | 'parentTopicId'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
   globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
@@ -2332,14 +2364,15 @@ export type APIAnalyzeResourceUrlResultResolvers<ContextType = APIContext, Paren
 
 export type APITopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Topic'] = APIResolversParentTypes['Topic']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
+  context?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   contextTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>,
   contextualisedTopics?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>,
-  desambiguationTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>,
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
+  disambiguationTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>,
   followUps?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopic']>>, ParentType, ContextType>,
-  isDesambiguation?: Resolver<Maybe<APIResolversTypes['Boolean']>, ParentType, ContextType>,
+  isDisambiguation?: Resolver<Maybe<APIResolversTypes['Boolean']>, ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   learningMaterials?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APITopicLearningMaterialsArgs, 'options'>>,
   learningMaterialsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>,
@@ -2377,6 +2410,17 @@ export type APIKnownTopicResolvers<ContextType = APIContext, ParentType extends 
 export type APIDeleteTopicResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['DeleteTopicResponse'] = APIResolversParentTypes['DeleteTopicResponse']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   success?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIGetTopicValidContextsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopicValidContextsResult'] = APIResolversParentTypes['GetTopicValidContextsResult']> = ResolversObject<{
+  validContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
+  validSameNameTopicContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIGetTopicValidContextsFromDisambiguationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopicValidContextsFromDisambiguation'] = APIResolversParentTypes['GetTopicValidContextsFromDisambiguation']> = ResolversObject<{
+  validContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2611,6 +2655,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   CheckTopicKeyAvailabilityResult?: APICheckTopicKeyAvailabilityResultResolvers<ContextType>,
   KnownTopic?: APIKnownTopicResolvers<ContextType>,
   DeleteTopicResponse?: APIDeleteTopicResponseResolvers<ContextType>,
+  GetTopicValidContextsResult?: APIGetTopicValidContextsResultResolvers<ContextType>,
+  GetTopicValidContextsFromDisambiguation?: APIGetTopicValidContextsFromDisambiguationResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   UserConsumedResourcesResult?: APIUserConsumedResourcesResultResolvers<ContextType>,

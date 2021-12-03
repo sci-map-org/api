@@ -2,6 +2,7 @@ type Topic {
   _id: String!
   name: String!
   key: String!
+  context: String
   isDisambiguation: Boolean
   contextTopic: Topic
   otherContextsTopics: [Topic!]
@@ -100,6 +101,15 @@ input SetTopicsKnownPayload {
   topics: [SetTopicKnownPayloadTopicsField!]!
 }
 
+type GetTopicValidContextsResult {
+  validContexts: [Topic!]
+  validSameNameTopicContexts: [Topic!]
+}
+
+type GetTopicValidContextsFromDisambiguation {
+  validContexts: [Topic!]
+}
+
 type Query {
   getTopicById(topicId: String!): Topic!
   getTopicByKey(topicKey: String!): Topic!
@@ -107,6 +117,11 @@ type Query {
   searchSubTopics(topicId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
   autocompleteTopicName(partialName: String!): SearchTopicsResult!
   checkTopicKeyAvailability(key: String!): CheckTopicKeyAvailabilityResult!
+  getTopicValidContexts(parentTopicId: String!, existingSameNameTopicId: String!): GetTopicValidContextsResult!
+  getTopicValidContextsFromDisambiguation(
+    parentTopicId: String!
+    disambiguationTopicId: String!
+  ): GetTopicValidContextsFromDisambiguation!
 }
 
 type Mutation {

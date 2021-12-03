@@ -45,7 +45,6 @@ import {
   getRelatedNodes,
   updateOne,
 } from './util/abstract_graph_repo';
-import { buildFilter } from './util/filter';
 
 interface CreateTopicData {
   name: string;
@@ -816,3 +815,72 @@ export const getTopicContextTopic = (
         }
       : null
   );
+
+export const getTopicsValidContexts = async (
+  parentTopicId: string,
+  existingSameNameTopicId: string
+): Promise<{
+  // commonParent?: Topic;
+  validContexts: Topic[];
+  validSameNameTopicContexts: Topic[];
+}> => {
+  const session = neo4jDriver.session();
+
+  // match path1 = (n:Topic {_id: 'GR8NWFGOZ'})-[r1:IS_SUBTOPIC_OF*0..5]->(p1:Topic)  match path2 = (n2:Topic {_id: 'HFx--g2LV'})-[r2:IS_SUBTOPIC_OF*0..5]->(p2:Topic)   where p1._id = p2._id or (NOT ((p1)-[:IS_SUBTOPIC_OF]->(:Topic)) and not ((p2)-[:IS_SUBTOPIC_OF]->(:Topic))) return nodes(path1) as validContexts, nodes(path2) as validSameNameTopicContexts
+  // pretty fragile query, as in the case where the topics have a common parent they will return 2 results:
+  // the paths up to the common parent and the full paths until there's no parent
+  // Therefore, the order of the results matters (we want the first condition first)
+  const { records } = await session.run(
+    `match path1 = (n:${TopicLabel} {_id: $parentTopicId})-[r1:${TopicIsSubTopicOfTopicLabel}*0..5]->(p1:Topic)  
+    match path2 = (n2:${TopicLabel} {_id: $existingSameNameTopicId})-[r2:${TopicIsSubTopicOfTopicLabel}*0..5]->(p2:Topic)  
+     where p1._id = p2._id 
+     or (NOT ((p1)-[:${TopicIsSubTopicOfTopicLabel}]->(:${TopicLabel})) 
+     and not ((p2)-[:${TopicIsSubTopicOfTopicLabel}]->(:${TopicLabel})))
+     return nodes(path1) as validContexts, nodes(path2)[1..(size(nodes(path2))+1)] as validSameNameTopicContexts
+  `,
+    { parentTopicId, existingSameNameTopicId } //TODO: kick first path2 node
+  );
+  if (!records.length) throw new Error('no results');
+
+  return {
+    validContexts: records[0].get('validContexts').map(t => t.properties),
+    validSameNameTopicContexts: records[0].get('validSameNameTopicContexts').map(t => t.properties),
+  };
+};
+
+export const getTopicsValidContextsFromDisambiguation = async (
+  parentTopicId: string,
+  disambiguationTopicId: string
+): Promise<{
+  validContexts: Topic[];
+}> => {
+  const session = neo4jDriver.session();
+
+  // match  (d:Topic {_id: '1r3rf5', isDisambiguation: true})<-[:HAS_DISAMBIGUATION]-(ct:Topic)-[:HAS_CONTEXT]->(c:Topic)
+  // match p = (ct)-[:IS_SUBTOPIC_OF*0..5]->(p2:Topic)-[:IS_SUBTOPIC_OF]->(c)
+  // with nodes(p) as n
+  // with  apoc.coll.flatten(collect(n)) as flat
+  // match path = (n:Topic {_id: 'AvgsEAdEM'})-[:IS_SUBTOPIC_OF*0..5]->(p:Topic)
+  // where p IN flat or (NOT (p)-[:IS_SUBTOPIC_OF]->(:Topic)) return [i in nodes(path) where NOT i in flat] as validContexts, n
+
+  const { records } = await session.run(
+    `
+  match  (d:${TopicLabel} {_id: $disambiguationTopicId, isDisambiguation: true})<-[:${TopicHasDisambiguationTopicLabel}]-(ct:${TopicLabel})-[:${TopicHasContextTopicLabel}]->(c:${TopicLabel})
+  match p = (ct)-[:${TopicIsSubTopicOfTopicLabel}*0..8]->(p2:${TopicLabel})-[:${TopicIsSubTopicOfTopicLabel}]->(c)
+with nodes(p) as n
+with  apoc.coll.flatten(collect(n)) as flat
+match path = (n:${TopicLabel} {_id: $parentTopicId})-[:${TopicIsSubTopicOfTopicLabel}*0..5]->(p:${TopicLabel})
+where p IN flat or (NOT (p)-[:${TopicIsSubTopicOfTopicLabel}]->(:${TopicLabel})) return [i in nodes(path) where NOT i in flat] as validContexts, n
+  `,
+    {
+      disambiguationTopicId,
+      parentTopicId,
+    }
+  );
+
+  if (!records.length) throw new Error('no results');
+
+  return {
+    validContexts: records[0].get('validContexts').map(t => t.properties),
+  };
+};

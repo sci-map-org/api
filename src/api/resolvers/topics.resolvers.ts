@@ -20,6 +20,8 @@ import {
   getTopicPrerequisites,
   getTopicSubTopics,
   getTopicSubTopicsTotalCount,
+  getTopicsValidContexts,
+  getTopicsValidContextsFromDisambiguation,
   searchSubTopics,
   searchTopics,
   updateTopic,
@@ -68,6 +70,20 @@ export const autocompleteTopicNameResolver: APIQueryResolvers['autocompleteTopic
   return {
     items: await autocompleteTopicName(partialName, { offset: 0, limit: 10 }),
   };
+};
+
+export const getTopicValidContextsResolver: APIQueryResolvers['getTopicValidContexts'] = async (
+  _,
+  { parentTopicId, existingSameNameTopicId }
+) => {
+  return getTopicsValidContexts(parentTopicId, existingSameNameTopicId);
+};
+
+export const getTopicValidContextsFromDisambiguationResolver: APIQueryResolvers['getTopicValidContextsFromDisambiguation'] = async (
+  _,
+  { parentTopicId, disambiguationTopicId }
+) => {
+  return getTopicsValidContextsFromDisambiguation(parentTopicId, disambiguationTopicId);
 };
 
 export const checkTopicKeyAvailabilityResolver: APIQueryResolvers['checkTopicKeyAvailability'] = async (_, { key }) => {
