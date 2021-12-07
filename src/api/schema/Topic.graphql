@@ -81,6 +81,11 @@ input CreateTopicPayload {
   description: String
 }
 
+input CreateTopicContextOptions {
+  disambiguationTopicId: String!
+  contextTopicId: String!
+}
+
 input UpdateTopicPayload {
   name: String
   key: String
@@ -126,7 +131,8 @@ type Query {
 
 type Mutation {
   createTopic(payload: CreateTopicPayload!): Topic!
-  addSubTopic(parentTopicId: String!, payload: CreateTopicPayload!): Topic!
+  createDisambiguationFromTopic(existingTopicId: String!, existingTopicContextTopicId: String!): Topic!
+  addSubTopic(parentTopicId: String!, payload: CreateTopicPayload!, contextOptions: CreateTopicContextOptions): Topic!
   updateTopic(topicId: String!, payload: UpdateTopicPayload!): Topic!
   deleteTopic(topicId: String!): DeleteTopicResponse!
   setTopicsKnown(payload: SetTopicsKnownPayload!): [Topic!]! # TODO: better API, one mutation ?

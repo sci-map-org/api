@@ -223,6 +223,7 @@ export type APIMutation = {
   attachTopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic;
   completeLearningPath: APILearningPathCompletedResult;
   createArticle: APIArticle;
+  createDisambiguationFromTopic: APITopic;
   createLearningGoal: APILearningGoal;
   createLearningPath: APILearningPath;
   createResource: APIResource;
@@ -302,6 +303,7 @@ export type APIMutationAddSubResourceToSeriesArgs = {
 
 
 export type APIMutationAddSubTopicArgs = {
+  contextOptions?: Maybe<APICreateTopicContextOptions>;
   parentTopicId: Scalars['String'];
   payload: APICreateTopicPayload;
 };
@@ -368,6 +370,12 @@ export type APIMutationCompleteLearningPathArgs = {
 
 export type APIMutationCreateArticleArgs = {
   payload: APICreateArticlePayload;
+};
+
+
+export type APIMutationCreateDisambiguationFromTopicArgs = {
+  existingTopicContextTopicId: Scalars['String'];
+  existingTopicId: Scalars['String'];
 };
 
 
@@ -1233,6 +1241,11 @@ export type APICreateTopicPayload = {
   name: Scalars['String'];
 };
 
+export type APICreateTopicContextOptions = {
+  contextTopicId: Scalars['String'];
+  disambiguationTopicId: Scalars['String'];
+};
+
 export type APIUpdateTopicPayload = {
   description?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
@@ -1727,6 +1740,7 @@ export type APIResolversTypes = ResolversObject<{
   CheckTopicKeyAvailabilityResult: ResolverTypeWrapper<APICheckTopicKeyAvailabilityResult>,
   KnownTopic: ResolverTypeWrapper<APIKnownTopic>,
   CreateTopicPayload: APICreateTopicPayload,
+  CreateTopicContextOptions: APICreateTopicContextOptions,
   UpdateTopicPayload: APIUpdateTopicPayload,
   DeleteTopicResponse: ResolverTypeWrapper<APIDeleteTopicResponse>,
   SetTopicKnownPayloadTopicsField: APISetTopicKnownPayloadTopicsField,
@@ -1872,6 +1886,7 @@ export type APIResolversParentTypes = ResolversObject<{
   CheckTopicKeyAvailabilityResult: APICheckTopicKeyAvailabilityResult,
   KnownTopic: APIKnownTopic,
   CreateTopicPayload: APICreateTopicPayload,
+  CreateTopicContextOptions: APICreateTopicContextOptions,
   UpdateTopicPayload: APIUpdateTopicPayload,
   DeleteTopicResponse: APIDeleteTopicResponse,
   SetTopicKnownPayloadTopicsField: APISetTopicKnownPayloadTopicsField,
@@ -1989,6 +2004,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   attachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['TopicIsSubTopicOfTopic'], ParentType, ContextType, RequireFields<APIMutationAttachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId' | 'payload'>>,
   completeLearningPath?: Resolver<APIResolversTypes['LearningPathCompletedResult'], ParentType, ContextType, RequireFields<APIMutationCompleteLearningPathArgs, 'completed' | 'learningPathId'>>,
   createArticle?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIMutationCreateArticleArgs, 'payload'>>,
+  createDisambiguationFromTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationCreateDisambiguationFromTopicArgs, 'existingTopicContextTopicId' | 'existingTopicId'>>,
   createLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationCreateLearningGoalArgs, 'payload'>>,
   createLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationCreateLearningPathArgs, 'payload'>>,
   createResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationCreateResourceArgs, 'payload'>>,

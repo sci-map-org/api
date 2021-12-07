@@ -2,6 +2,8 @@ import { UserInputError } from 'apollo-server-errors';
 import { TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
+  attachTopicHasContextTopic,
+  attachTopicHasDisambiguationTopic,
   attachTopicIsSubTopicOfTopic,
   autocompleteTopicName,
   countLearningMaterialsShowedInTopic,
@@ -101,7 +103,7 @@ export const createTopicResolver: APIMutationResolvers['createTopic'] = async (_
 
 export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (
   _parent,
-  { parentTopicId, payload },
+  { parentTopicId, payload, contextOptions },
   { user }
 ) => {
   restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
@@ -110,7 +112,41 @@ export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (
     index: await initSubtopicIndexValue(parentTopicId),
     createdByUserId: user?._id,
   });
+  if (contextOptions) {
+    await attachTopicHasDisambiguationTopic(createdTopic._id, contextOptions.disambiguationTopicId, {
+      createdByUserId: user!._id,
+    });
+    await attachTopicHasContextTopic(createdTopic._id, contextOptions.contextTopicId, { createdByUserId: user!._id });
+  }
   return createdTopic;
+};
+
+export const createDisambiguationFromTopicResolver: APIMutationResolvers['createDisambiguationFromTopic'] = async (
+  _,
+  { existingTopicId, existingTopicContextTopicId },
+  { user }
+) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
+  const existingTopic = await getTopicById(existingTopicId);
+  const existingTopicContext = await getTopicById(existingTopicContextTopicId);
+
+  if (!existingTopic) throw new NotFoundError('Topic', existingTopicId);
+  if (!existingTopicContext) throw new NotFoundError('Topic', existingTopicContextTopicId);
+
+  await updateTopic({ _id: existingTopicId }, { key: existingTopic.key + '_(_' + existingTopicContext.key + '_)' });
+  const disambiguationTopic = await createTopic(
+    { _id: user!._id },
+    {
+      name: existingTopic.name,
+      key: existingTopic.key,
+      isDisambiguation: true,
+    }
+  );
+  await attachTopicHasDisambiguationTopic(existingTopic._id, disambiguationTopic._id, {
+    createdByUserId: user!._id,
+  });
+  await attachTopicHasContextTopic(existingTopic._id, existingTopicContextTopicId, { createdByUserId: user!._id });
+  return disambiguationTopic;
 };
 
 export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (

@@ -50,6 +50,7 @@ interface CreateTopicData {
   name: string;
   key?: string;
   description?: string;
+  isDisambiguation?: boolean;
 }
 
 export const createTopic = (user: { _id: string } | { key: string }, data: CreateTopicData): Promise<Topic> =>
@@ -882,5 +883,63 @@ where p IN flat or (NOT (p)-[:${TopicIsSubTopicOfTopicLabel}]->(:${TopicLabel}))
 
   return {
     validContexts: records[0].get('validContexts').map(t => t.properties),
+  };
+};
+
+export const attachTopicHasDisambiguationTopic = async (
+  topicId: string,
+  disambiguationTopic: string,
+  { createdByUserId }: { createdByUserId: string }
+): Promise<{
+  topic: Topic;
+  relationship: TopicHasDisambiguationTopic;
+  disambiguationTopic: Topic;
+}> => {
+  const existingDisambiguationTopic = await getTopicDisambiguationTopic(topicId);
+  if (!!existingDisambiguationTopic) throw new Error(`Topic ${topicId} already has a disambiguation topic`);
+
+  const { destinationNode, relationship, originNode } = await attachUniqueNodes<
+    Topic,
+    TopicHasDisambiguationTopic,
+    Topic
+  >({
+    originNode: { label: TopicLabel, filter: { _id: topicId } },
+    relationship: {
+      label: TopicHasDisambiguationTopicLabel,
+      onCreateProps: { createdAt: Date.now(), createdByUserId },
+    },
+    destinationNode: { label: TopicLabel, filter: { _id: disambiguationTopic, isDisambiguation: true } },
+  });
+  return {
+    topic: originNode,
+    relationship,
+    disambiguationTopic: destinationNode,
+  };
+};
+
+export const attachTopicHasContextTopic = async (
+  topicId: string,
+  contextTopicId: string,
+  { createdByUserId }: { createdByUserId: string }
+): Promise<{
+  topic: Topic;
+  relationship: TopicHasContextTopic;
+  contextTopic: Topic;
+}> => {
+  const existingCContextTopic = await getTopicContextTopic(topicId);
+  if (!!existingCContextTopic) throw new Error(`Topic ${topicId} already has a context`);
+
+  const { destinationNode, relationship, originNode } = await attachUniqueNodes<Topic, TopicHasContextTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: topicId } },
+    relationship: {
+      label: TopicHasContextTopicLabel,
+      onCreateProps: { createdAt: Date.now(), createdByUserId },
+    },
+    destinationNode: { label: TopicLabel, filter: { _id: contextTopicId } },
+  });
+  return {
+    topic: originNode,
+    relationship,
+    contextTopic: destinationNode,
   };
 };
