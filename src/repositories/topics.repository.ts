@@ -73,6 +73,7 @@ interface UpdateTopicData {
   key?: string;
   name?: string;
   description?: string;
+  context?: string;
 }
 
 type TopicFilter = { _id: string } | { key: string };
@@ -937,6 +938,8 @@ export const attachTopicHasContextTopic = async (
     },
     destinationNode: { label: TopicLabel, filter: { _id: contextTopicId } },
   });
+
+  await updateTopic({ _id: topicId }, { context: destinationNode.name });
   return {
     topic: originNode,
     relationship,
