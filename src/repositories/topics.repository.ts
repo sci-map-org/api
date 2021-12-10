@@ -73,7 +73,7 @@ interface UpdateTopicData {
   key?: string;
   name?: string;
   description?: string;
-  context?: string;
+  context?: string | null;
 }
 
 type TopicFilter = { _id: string } | { key: string };
@@ -820,6 +820,45 @@ export const getTopicContextTopic = (
 
 export const getTopicsValidContexts = async (
   parentTopicId: string,
+  topicId: string
+): Promise<{
+  validContexts: Topic[];
+}> => {
+  const session = neo4jDriver.session();
+
+  // match  (d:Topic {_id: '1r3rf5', isDisambiguation: true})<-[:HAS_DISAMBIGUATION]-(ct:Topic)-[:HAS_CONTEXT]->(c:Topic)
+  // match p = (ct)-[:IS_SUBTOPIC_OF*0..5]->(p2:Topic)-[:IS_SUBTOPIC_OF]->(c)
+  // with nodes(p) as n
+  // with  apoc.coll.flatten(collect(n)) as flat
+  // match path = (n:Topic {_id: 'AvgsEAdEM'})-[:IS_SUBTOPIC_OF*0..5]->(p:Topic)
+  // where p IN flat or (NOT (p)-[:IS_SUBTOPIC_OF]->(:Topic)) return [i in nodes(path) where NOT i in flat] as validContexts, n
+
+  const { records } = await session.run(
+    `
+      match (t:${TopicLabel} {_id: $topicId})-[:${TopicHasDisambiguationTopicLabel}]->(d:${TopicLabel} {isDisambiguation: true}) 
+    match  (d)<-[:${TopicHasDisambiguationTopicLabel}]-(ct:${TopicLabel})-[:${TopicHasContextTopicLabel}]->(c:${TopicLabel})
+    where ct._id <> $topicId
+    match p = (ct)-[:${TopicIsSubTopicOfTopicLabel}*0..8]->(p2:${TopicLabel})-[:${TopicIsSubTopicOfTopicLabel}]->(c)
+  with nodes(p) as n
+  with  apoc.coll.flatten(collect(n)) as flat
+  match path = (n:${TopicLabel} {_id: $parentTopicId})-[:${TopicIsSubTopicOfTopicLabel}*0..8]->(p:${TopicLabel})
+  where p IN flat or (NOT (p)-[:${TopicIsSubTopicOfTopicLabel}]->(:${TopicLabel})) return [i in nodes(path) where NOT i in flat] as validContexts, n
+    `,
+    {
+      topicId,
+      parentTopicId,
+    }
+  );
+
+  if (!records.length) throw new Error('no results');
+
+  return {
+    validContexts: records[0].get('validContexts').map(t => t.properties),
+  };
+};
+
+export const getTopicValidContextsFromSameName = async (
+  parentTopicId: string,
   existingSameNameTopicId: string
 ): Promise<{
   // commonParent?: Topic;
@@ -927,10 +966,14 @@ export const attachTopicHasContextTopic = async (
   relationship: TopicHasContextTopic;
   contextTopic: Topic;
 }> => {
-  const existingCContextTopic = await getTopicContextTopic(topicId);
-  if (!!existingCContextTopic) throw new Error(`Topic ${topicId} already has a context`);
+  const existingContextTopic = await getTopicContextTopic(topicId);
+  if (!!existingContextTopic) throw new Error(`Topic ${topicId} already has a context`);
 
-  const { destinationNode, relationship, originNode } = await attachUniqueNodes<Topic, TopicHasContextTopic, Topic>({
+  const { destinationNode: contextTopic, relationship, originNode: topic } = await attachUniqueNodes<
+    Topic,
+    TopicHasContextTopic,
+    Topic
+  >({
     originNode: { label: TopicLabel, filter: { _id: topicId } },
     relationship: {
       label: TopicHasContextTopicLabel,
@@ -939,10 +982,47 @@ export const attachTopicHasContextTopic = async (
     destinationNode: { label: TopicLabel, filter: { _id: contextTopicId } },
   });
 
-  await updateTopic({ _id: topicId }, { context: destinationNode.name });
+  await updateTopic(
+    { _id: topicId },
+    { context: contextTopic.name, key: generateUrlKey(`${topic.key}_${contextTopic.key}`) }
+  );
   return {
-    topic: originNode,
+    topic,
     relationship,
-    contextTopic: destinationNode,
+    contextTopic,
+  };
+};
+
+export const detachTopicHasContextTopic = async (
+  topicId: string,
+  contextTopicId: string
+): Promise<{
+  topic: Topic;
+  contextTopic: Topic;
+}> => {
+  const existingContextTopic = await getTopicContextTopic(topicId);
+  if (!existingContextTopic || contextTopicId !== existingContextTopic.contextTopic._id)
+    throw new Error(`Topic ${topicId} has no context or is not ${contextTopicId}`);
+
+  const { destinationNode: contextTopic, originNode: topic } = await detachUniqueNodes<
+    Topic,
+    TopicHasContextTopic,
+    Topic
+  >({
+    originNode: { label: TopicLabel, filter: { _id: topicId } },
+    relationship: {
+      label: TopicHasContextTopicLabel,
+      filter: {},
+    },
+    destinationNode: { label: TopicLabel, filter: { _id: contextTopicId } },
+  });
+
+  await updateTopic(
+    { _id: topicId },
+    { context: null, key: generateUrlKey(topic.key.replace(`_${contextTopic.key}`, '')) }
+  );
+  return {
+    topic,
+    contextTopic,
   };
 };

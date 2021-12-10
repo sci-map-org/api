@@ -64,6 +64,7 @@ export type APIQuery = {
   getTopicByKey: APITopic;
   getTopicValidContexts: APIGetTopicValidContextsResult;
   getTopicValidContextsFromDisambiguation: APIGetTopicValidContextsFromDisambiguation;
+  getTopicValidContextsFromSameName: APIGetTopicValidContextsFromSameName;
   getUser: APIUser;
   globalSearch: APIGlobalSearchResults;
   listArticles: APIListArticlesResult;
@@ -136,13 +137,19 @@ export type APIQueryGetTopicByKeyArgs = {
 
 
 export type APIQueryGetTopicValidContextsArgs = {
-  existingSameNameTopicId: Scalars['String'];
   parentTopicId: Scalars['String'];
+  topicId: Scalars['String'];
 };
 
 
 export type APIQueryGetTopicValidContextsFromDisambiguationArgs = {
   disambiguationTopicId: Scalars['String'];
+  parentTopicId: Scalars['String'];
+};
+
+
+export type APIQueryGetTopicValidContextsFromSameNameArgs = {
+  existingSameNameTopicId: Scalars['String'];
   parentTopicId: Scalars['String'];
 };
 
@@ -1267,14 +1274,19 @@ export type APISetTopicsKnownPayload = {
   topics: Array<APISetTopicKnownPayloadTopicsField>;
 };
 
-export type APIGetTopicValidContextsResult = {
-   __typename?: 'GetTopicValidContextsResult';
+export type APIGetTopicValidContextsFromSameName = {
+   __typename?: 'GetTopicValidContextsFromSameName';
   validContexts?: Maybe<Array<APITopic>>;
   validSameNameTopicContexts?: Maybe<Array<APITopic>>;
 };
 
 export type APIGetTopicValidContextsFromDisambiguation = {
    __typename?: 'GetTopicValidContextsFromDisambiguation';
+  validContexts?: Maybe<Array<APITopic>>;
+};
+
+export type APIGetTopicValidContextsResult = {
+   __typename?: 'GetTopicValidContextsResult';
   validContexts?: Maybe<Array<APITopic>>;
 };
 
@@ -1745,8 +1757,9 @@ export type APIResolversTypes = ResolversObject<{
   DeleteTopicResponse: ResolverTypeWrapper<APIDeleteTopicResponse>,
   SetTopicKnownPayloadTopicsField: APISetTopicKnownPayloadTopicsField,
   SetTopicsKnownPayload: APISetTopicsKnownPayload,
-  GetTopicValidContextsResult: ResolverTypeWrapper<APIGetTopicValidContextsResult>,
+  GetTopicValidContextsFromSameName: ResolverTypeWrapper<APIGetTopicValidContextsFromSameName>,
   GetTopicValidContextsFromDisambiguation: ResolverTypeWrapper<APIGetTopicValidContextsFromDisambiguation>,
+  GetTopicValidContextsResult: ResolverTypeWrapper<APIGetTopicValidContextsResult>,
   UserRole: UserRole,
   User: ResolverTypeWrapper<APIUser>,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1891,8 +1904,9 @@ export type APIResolversParentTypes = ResolversObject<{
   DeleteTopicResponse: APIDeleteTopicResponse,
   SetTopicKnownPayloadTopicsField: APISetTopicKnownPayloadTopicsField,
   SetTopicsKnownPayload: APISetTopicsKnownPayload,
-  GetTopicValidContextsResult: APIGetTopicValidContextsResult,
+  GetTopicValidContextsFromSameName: APIGetTopicValidContextsFromSameName,
   GetTopicValidContextsFromDisambiguation: APIGetTopicValidContextsFromDisambiguation,
+  GetTopicValidContextsResult: APIGetTopicValidContextsResult,
   UserRole: UserRole,
   User: APIUser,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
@@ -1970,8 +1984,9 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getTopLevelTopics?: Resolver<APIResolversTypes['GetTopLevelTopicsResults'], ParentType, ContextType>,
   getTopicById?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByIdArgs, 'topicId'>>,
   getTopicByKey?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByKeyArgs, 'topicKey'>>,
-  getTopicValidContexts?: Resolver<APIResolversTypes['GetTopicValidContextsResult'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsArgs, 'existingSameNameTopicId' | 'parentTopicId'>>,
+  getTopicValidContexts?: Resolver<APIResolversTypes['GetTopicValidContextsResult'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsArgs, 'parentTopicId' | 'topicId'>>,
   getTopicValidContextsFromDisambiguation?: Resolver<APIResolversTypes['GetTopicValidContextsFromDisambiguation'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsFromDisambiguationArgs, 'disambiguationTopicId' | 'parentTopicId'>>,
+  getTopicValidContextsFromSameName?: Resolver<APIResolversTypes['GetTopicValidContextsFromSameName'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsFromSameNameArgs, 'existingSameNameTopicId' | 'parentTopicId'>>,
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>,
   globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>,
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>,
@@ -2429,13 +2444,18 @@ export type APIDeleteTopicResponseResolvers<ContextType = APIContext, ParentType
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
-export type APIGetTopicValidContextsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopicValidContextsResult'] = APIResolversParentTypes['GetTopicValidContextsResult']> = ResolversObject<{
+export type APIGetTopicValidContextsFromSameNameResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopicValidContextsFromSameName'] = APIResolversParentTypes['GetTopicValidContextsFromSameName']> = ResolversObject<{
   validContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   validSameNameTopicContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
 export type APIGetTopicValidContextsFromDisambiguationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopicValidContextsFromDisambiguation'] = APIResolversParentTypes['GetTopicValidContextsFromDisambiguation']> = ResolversObject<{
+  validContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
+  __isTypeOf?: isTypeOfResolverFn<ParentType>,
+}>;
+
+export type APIGetTopicValidContextsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopicValidContextsResult'] = APIResolversParentTypes['GetTopicValidContextsResult']> = ResolversObject<{
   validContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2671,8 +2691,9 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   CheckTopicKeyAvailabilityResult?: APICheckTopicKeyAvailabilityResultResolvers<ContextType>,
   KnownTopic?: APIKnownTopicResolvers<ContextType>,
   DeleteTopicResponse?: APIDeleteTopicResponseResolvers<ContextType>,
-  GetTopicValidContextsResult?: APIGetTopicValidContextsResultResolvers<ContextType>,
+  GetTopicValidContextsFromSameName?: APIGetTopicValidContextsFromSameNameResolvers<ContextType>,
   GetTopicValidContextsFromDisambiguation?: APIGetTopicValidContextsFromDisambiguationResolvers<ContextType>,
+  GetTopicValidContextsResult?: APIGetTopicValidContextsResultResolvers<ContextType>,
   User?: APIUserResolvers<ContextType>,
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   UserConsumedResourcesResult?: APIUserConsumedResourcesResultResolvers<ContextType>,

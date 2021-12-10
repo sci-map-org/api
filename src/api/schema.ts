@@ -139,9 +139,11 @@ import {
   getTopicSubTopicsResolver,
   getTopicSubTopicsTotalCountResolver,
   getTopicValidContextsFromDisambiguationResolver,
+  getTopicValidContextsFromSameNameResolver,
   getTopicValidContextsResolver,
   searchSubTopicsResolver,
   searchTopicsResolver,
+  updateTopicContextResolver,
   updateTopicResolver,
 } from './resolvers/topics.resolvers';
 import {
@@ -185,6 +187,7 @@ const resolvers: APIResolvers<APIContext> = {
     createDisambiguationFromTopic: createDisambiguationFromTopicResolver,
     updateTopic: updateTopicResolver,
     deleteTopic: deleteTopicResolver,
+    updateTopicContext: updateTopicContextResolver,
     createResource: createResourceResolver,
     updateResource: updateResourceResolver,
     deleteResource: deleteResourceResolver,
@@ -259,6 +262,7 @@ const resolvers: APIResolvers<APIContext> = {
     globalSearch: globalSearchResolver,
     getTopLevelTopics: getTopLevelTopicsResolver,
     getTopicValidContexts: getTopicValidContextsResolver,
+    getTopicValidContextsFromSameName: getTopicValidContextsFromSameNameResolver,
     getTopicValidContextsFromDisambiguation: getTopicValidContextsFromDisambiguationResolver,
   },
   Article: {

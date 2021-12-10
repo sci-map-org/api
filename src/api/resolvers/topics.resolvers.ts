@@ -9,6 +9,7 @@ import {
   countLearningMaterialsShowedInTopic,
   createTopic,
   deleteTopic,
+  detachTopicHasContextTopic,
   getTopicById,
   getTopicByKey,
   getTopicContextTopic,
@@ -24,6 +25,7 @@ import {
   getTopicSubTopicsTotalCount,
   getTopicsValidContexts,
   getTopicsValidContextsFromDisambiguation,
+  getTopicValidContextsFromSameName,
   searchSubTopics,
   searchTopics,
   updateTopic,
@@ -76,9 +78,15 @@ export const autocompleteTopicNameResolver: APIQueryResolvers['autocompleteTopic
 
 export const getTopicValidContextsResolver: APIQueryResolvers['getTopicValidContexts'] = async (
   _,
+  { parentTopicId, topicId }
+) => {
+  return getTopicsValidContexts(parentTopicId, topicId);
+};
+export const getTopicValidContextsFromSameNameResolver: APIQueryResolvers['getTopicValidContextsFromSameName'] = async (
+  _,
   { parentTopicId, existingSameNameTopicId }
 ) => {
-  return getTopicsValidContexts(parentTopicId, existingSameNameTopicId);
+  return getTopicValidContextsFromSameName(parentTopicId, existingSameNameTopicId);
 };
 
 export const getTopicValidContextsFromDisambiguationResolver: APIQueryResolvers['getTopicValidContextsFromDisambiguation'] = async (
@@ -154,19 +162,58 @@ export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (
   { topicId, payload },
   { user }
 ) => {
-  restrictAccess('loggedInUser', user, 'Must be logged in and an admin or a contributor to update a domain');
+  restrictAccess('loggedInUser', user, 'Must be logged in to update a topic');
   const updatedDomain = await updateTopic({ _id: topicId }, nullToUndefined(payload));
   if (!updatedDomain) throw new NotFoundError('Topic', topicId);
   return updatedDomain;
 };
 
 export const deleteTopicResolver: APIMutationResolvers['deleteTopic'] = async (_parent, { topicId }, { user }) => {
-  restrictAccess('loggedInUser', user, 'Must be logged in and an admin to delete a domain');
+  restrictAccess('contributorOrAdmin', user, 'Must be logged in and a contributor or an admin to delete a topic');
   const { deletedCount } = await deleteTopic({ _id: topicId });
   if (!deletedCount) throw new NotFoundError('Topic', topicId);
   return { _id: topicId, success: true };
 };
 
+export const updateTopicContextResolver: APIMutationResolvers['updateTopicContext'] = async (
+  _,
+  { topicId, contextTopicId },
+  { user }
+) => {
+  restrictAccess('loggedInUser', user, 'Must be logged in to ');
+  // get topic, its parent and current context
+  const topic = await getTopicById(topicId);
+  if (!topic) throw new NotFoundError('Topic', topicId);
+
+  const parentTopic = (await getTopicParentTopic(topicId))?.parentTopic;
+  if (!parentTopic) throw new Error('Topic must have a parent in order to set a context');
+  const currentContextTopic = (await getTopicContextTopic(topicId))?.contextTopic;
+
+  if (contextTopicId) {
+    // get requested context
+    const newContextTopic = await getTopicById(contextTopicId);
+    if (!newContextTopic) throw new NotFoundError('Topic', contextTopicId);
+
+    // get valid contexts => if new is not in those, throw
+    const { validContexts } = await getTopicsValidContexts(parentTopic._id, topicId);
+    if (!validContexts.find(validContext => validContext._id === newContextTopic._id))
+      throw new Error('new context is not valid');
+
+    // detach current and attach new one
+    if (currentContextTopic) await detachTopicHasContextTopic(topicId, currentContextTopic._id);
+    await attachTopicHasContextTopic(topicId, contextTopicId, { createdByUserId: user!._id });
+  }
+
+  if (!contextTopicId) {
+    if (currentContextTopic) {
+      await detachTopicHasContextTopic(topicId, currentContextTopic._id);
+    } else {
+      throw new Error(`Topic ${topicId} already has no context`);
+    }
+  }
+
+  return topic;
+};
 // TODO : set known / unknown
 // export const getTopicKnownResolver: APIConceptResolvers['known'] = async (parentConcept, _args, { user }) => {
 //   if (!user) return null;

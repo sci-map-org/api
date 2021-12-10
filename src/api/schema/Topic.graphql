@@ -106,12 +106,16 @@ input SetTopicsKnownPayload {
   topics: [SetTopicKnownPayloadTopicsField!]!
 }
 
-type GetTopicValidContextsResult {
+type GetTopicValidContextsFromSameName {
   validContexts: [Topic!]
   validSameNameTopicContexts: [Topic!]
 }
 
 type GetTopicValidContextsFromDisambiguation {
+  validContexts: [Topic!]
+}
+
+type GetTopicValidContextsResult {
   validContexts: [Topic!]
 }
 
@@ -122,7 +126,11 @@ type Query {
   searchSubTopics(topicId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
   autocompleteTopicName(partialName: String!): SearchTopicsResult!
   checkTopicKeyAvailability(key: String!): CheckTopicKeyAvailabilityResult!
-  getTopicValidContexts(parentTopicId: String!, existingSameNameTopicId: String!): GetTopicValidContextsResult!
+  getTopicValidContexts(parentTopicId: String!, topicId: String!): GetTopicValidContextsResult!
+  getTopicValidContextsFromSameName(
+    parentTopicId: String!
+    existingSameNameTopicId: String!
+  ): GetTopicValidContextsFromSameName!
   getTopicValidContextsFromDisambiguation(
     parentTopicId: String!
     disambiguationTopicId: String!
