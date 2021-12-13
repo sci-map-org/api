@@ -1,3 +1,6 @@
+# import Date from '../common/Date.graphql'
+# import Topic from '../Topic.graphql'
+
 type TopicIsPartOfTopic {
   index: Float!
   createdAt: Date!

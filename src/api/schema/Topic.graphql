@@ -1,3 +1,11 @@
+# import PaginationOptions from 'common/PaginationOptions.graphql'
+# import LearningMaterial, LearningMaterialType from 'LearningMaterial.graphql'
+# import TopicIsPartOfTopic from 'relationships/TopicIsPartOfTopic.graphql'
+# import TopicIsSubTopicOfTopic from 'relationships/TopicIsSubTopicOfTopic.graphql'
+# import TopicHasPrerequisiteTopic from 'relationships/TopicHasPrerequisiteTopic.graphql'
+# import User from 'User.graphql'
+# import Date from 'common/Date.graphql'
+# import ResourceType from 'Resource.graphql'
 type Topic {
   _id: String!
   name: String!

@@ -1,5 +1,9 @@
+# import Date from '../common/Date.graphql'
+# import Topic from '../Topic.graphql'
+# import User from '../User.graphql'
+
 type UserCreatedTopic {
-    user: User
-    topic: Topic
-    createdAt: Date!
+  user: User
+  topic: Topic
+  createdAt: Date!
 }

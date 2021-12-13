@@ -1,3 +1,5 @@
+# import Topic from '../Topic.graphql'
+
 type TopicHasPrerequisiteTopic {
   followUpTopic: Topic!
   strength: Float!
@@ -16,7 +18,11 @@ type RemoveTopicHasPrerequisiteTopicResult {
 }
 
 type Mutation {
-  addTopicHasPrerequisiteTopic(topicId: String!, prerequisiteTopicId: String!, strength: Float): AddTopicHasPrerequisiteTopicResult!
+  addTopicHasPrerequisiteTopic(
+    topicId: String!
+    prerequisiteTopicId: String!
+    strength: Float
+  ): AddTopicHasPrerequisiteTopicResult!
   removeTopicHasPrerequisiteTopic(
     topicId: String!
     prerequisiteTopicId: String!

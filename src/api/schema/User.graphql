@@ -1,7 +1,17 @@
+# import ListArticlesOptions, ListArticlesResult from 'Article.graphql'
+# import PaginationOptions from 'common/PaginationOptions.graphql'
+# import Date from 'common/Date.graphql'
+# import LearningPath from 'LearningPath.graphql'
+# import Resource from 'Resource.graphql'
+
 enum UserRole {
   ADMIN
   CONTRIBUTOR
   USER
+}
+
+input UserLearningPathsOptions {
+  pagination: PaginationOptions
 }
 
 type User {
@@ -15,9 +25,7 @@ type User {
   articles(options: ListArticlesOptions!): ListArticlesResult
 }
 
-input UserLearningPathsOptions {
-  pagination: PaginationOptions
-}
+
 
 # input UserLearningGoalsOptions {
 #   pagination: PaginationOptions

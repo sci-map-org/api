@@ -23,8 +23,8 @@ export async function getJWT(user: User): Promise<string> {
   };
   return new Promise((resolve, reject) => {
     sign(jwtPayload, env.AUTH.JWT_SECRET, {}, (err, token) => {
-      if (!!err) {
-        return reject(err);
+      if (!!err || !token) {
+        return reject(err || new Error('No token signed ?'));
       }
       resolve(token);
     });
@@ -49,8 +49,8 @@ export const createEmailVerificationToken = async (user: User, timestamp: number
   };
   return new Promise((resolve, reject) => {
     sign(payload, env.AUTH.EMAIL_JWT_SECRET, {}, (err, token) => {
-      if (!!err) {
-        return reject(err);
+      if (!!err || !token) {
+        return reject(err || new Error('No token signed ?'));
       }
       resolve(token);
     });

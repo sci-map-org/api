@@ -1,5 +1,4 @@
-import { app } from './api/server';
-import { env } from './env';
+import { startServer } from './api/server';
 import { logger } from './infra/logger';
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -11,7 +10,5 @@ process.on('uncaughtException', reason => {
   logger.error('uncaughtException');
   logger.error(reason);
 });
-const port = Number(env.API.PORT) || 8080;
-app.listen(port);
 
-logger.info(`Server running on http://localhost:${port}`);
+startServer();

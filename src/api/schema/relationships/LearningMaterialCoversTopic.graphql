@@ -1,3 +1,7 @@
+# import Date from '../common/Date.graphql'
+# import LearningMaterial from '../LearningMaterial.graphql'
+# import Topic from '../Topic.graphql'
+
 type LearningMaterialCoversTopic {
   createdAt: Date!
   createdByUserId: String

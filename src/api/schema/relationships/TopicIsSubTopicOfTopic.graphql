@@ -1,3 +1,6 @@
+# import Date from '../common/Date.graphql'
+# import Topic from '../Topic.graphql'
+
 enum SubTopicRelationshipType {
   IS_SUBTOPIC_OF
   IS_PART_OF

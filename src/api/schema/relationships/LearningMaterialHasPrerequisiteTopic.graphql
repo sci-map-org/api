@@ -1,13 +1,21 @@
+# import Date from '../common/Date.graphql'
+# import LearningMaterial from '../LearningMaterial.graphql'
+# import Topic from '../Topic.graphql'
+
 type LearningMaterialHasPrerequisiteTopic {
-    strength: Float!
-    createdByUserId: String!
-    createdAt: Date!
-    topic: Topic!
-    learningMaterial: LearningMaterial!
+  strength: Float!
+  createdByUserId: String!
+  createdAt: Date!
+  topic: Topic!
+  learningMaterial: LearningMaterial!
 }
 
 type Mutation {
-  addLearningMaterialHasPrerequisiteTopic(learningMaterialId: String!, prerequisiteTopicId: String!, strength: Float): LearningMaterial!
+  addLearningMaterialHasPrerequisiteTopic(
+    learningMaterialId: String!
+    prerequisiteTopicId: String!
+    strength: Float
+  ): LearningMaterial!
   removeLearningMaterialHasPrerequisiteTopic(
     learningMaterialId: String!
     prerequisiteTopicId: String!

@@ -1,3 +1,6 @@
+# import PaginationOptions from 'common/PaginationOptions.graphql'
+# import LearningMaterial from 'LearningMaterial.graphql'
+
 type LearningMaterialTag {
   name: String!
 }

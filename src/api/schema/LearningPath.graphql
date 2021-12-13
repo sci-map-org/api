@@ -1,3 +1,12 @@
+# import PaginationOptions from 'common/PaginationOptions.graphql'
+# import Resource from 'Resource.graphql'
+# import Topic from 'Topic.graphql'
+# import Date from 'common/Date.graphql'
+# import LearningMaterial, LearningMaterialCoveredSubTopicsOptions, LearningMaterialCoveredSubTopicsResults from 'LearningMaterial.graphql'
+# import LearningMaterialTag from 'LearningMaterialTag.graphql'
+# import LearningMaterialHasPrerequisiteTopic from 'relationships/LearningMaterialHasPrerequisiteTopic.graphql'
+# import User, CurrentUser from 'User.graphql'
+
 type LearningPath implements LearningMaterial {
   _id: String!
   key: String!

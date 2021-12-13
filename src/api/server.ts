@@ -16,11 +16,11 @@ const server = new ApolloServer({
   mocks: env.API.GRAPHQL_MOCK_ENABLED === 'true' && {
     Date: () => new Date(),
   },
-  formatError: err => {
+  formatError: (err) => {
     logger.error(err);
     err.extensions &&
       err.extensions.exception.stacktrace &&
-      err.extensions.exception.stacktrace.map(s => logger.error(s));
+      err.extensions.exception.stacktrace.map((s) => logger.error(s));
     return err;
   },
   mockEntireSchema: true,
@@ -37,10 +37,10 @@ const server = new ApolloServer({
   },
   plugins: [
     {
-      requestDidStart: c => {
+      requestDidStart: async (c) => {
         const requestStartedAt = Date.now();
         return {
-          willSendResponse(a) {
+          async willSendResponse(a) {
             logger.info(`Operation ${a.operationName} took ${Date.now() - requestStartedAt}ms`);
           },
         };
@@ -50,7 +50,14 @@ const server = new ApolloServer({
 });
 
 const app = new Koa();
+const port = Number(env.API.PORT) || 8080;
 
-server.applyMiddleware({ app });
+async function startServer() {
+  await server.start();
+  server.applyMiddleware({ app });
 
-export { app };
+  app.listen(port);
+  logger.info(`Server running on http://localhost:${port}`);
+}
+
+export { startServer };

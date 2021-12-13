@@ -1,6 +1,7 @@
-import { makeExecutableSchema } from 'apollo-server-koa';
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
+import { loadSchemaSync } from '@graphql-tools/load';
+import { addResolversToSchema } from '@graphql-tools/schema';
 import { GraphQLScalarType } from 'graphql';
-import { importSchema } from 'graphql-import';
 import {
   createArticleResolver,
   deleteArticleResolver,
@@ -135,8 +136,9 @@ import {
 } from './resolvers/users.resolvers';
 import { APIResolvers } from './schema/types';
 import { APIContext } from './server';
-
-export const typeDefs = importSchema('./src/api/schema/schema.graphql');
+const schemaWithoutResolvers = loadSchemaSync('./src/api/schema/schema.graphql', {
+  loaders: [new GraphQLFileLoader()],
+});
 
 const resolvers: APIResolvers<APIContext> = {
   Mutation: {
@@ -342,7 +344,8 @@ const resolvers: APIResolvers<APIContext> = {
   }),
 };
 
-export const schema = makeExecutableSchema({
-  typeDefs,
+console.log(schemaWithoutResolvers);
+export const schema = addResolversToSchema({
+  schema: schemaWithoutResolvers,
   resolvers,
 });
