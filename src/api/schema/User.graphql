@@ -19,9 +19,9 @@ input UserLearningPathsOptions {
   pagination: PaginationOptions
 }
 
-input UserLearningGoalsOptions {
-  pagination: PaginationOptions
-}
+# input UserLearningGoalsOptions {
+#   pagination: PaginationOptions
+# }
 
 type CurrentUser {
   _id: String!
@@ -35,8 +35,8 @@ type CurrentUser {
   # private stuff here
   createdLearningPaths(options: UserLearningPathsOptions!): [LearningPath!]
   startedLearningPaths(options: UserLearningPathsOptions!): [LearningPathStartedItem!]
-  createdLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalCreatedItem!]
-  startedLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalStartedItem!]
+  # createdLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalCreatedItem!]
+  # startedLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalStartedItem!]
   consumedResources(options: UserConsumedResourcesOptions!): UserConsumedResourcesResult
 }
 
@@ -66,14 +66,14 @@ input UserConsumedResourcesOptions {
   pagination: PaginationOptions
 }
 
-type LearningGoalCreatedItem {
-  learningGoal: LearningGoal!
-  createdAt: Date!
-}
-type LearningGoalStartedItem {
-  learningGoal: LearningGoal!
-  startedAt: Date!
-}
+# type LearningGoalCreatedItem {
+#   learningGoal: LearningGoal!
+#   createdAt: Date!
+# }
+# type LearningGoalStartedItem {
+#   learningGoal: LearningGoal!
+#   startedAt: Date!
+# }
 
 type LearningPathStartedItem {
   learningPath: LearningPath!

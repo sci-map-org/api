@@ -1,6 +1,6 @@
 type GetHomePageDataResults {
   currentUser: CurrentUser
-  recommendedLearningGoals: [LearningGoal!]!
+  # recommendedLearningGoals: [LearningGoal!]!
   recommendedLearningPaths: [LearningPath!]!
 }
 
@@ -8,7 +8,7 @@ input GlobalSearchOptions {
   pagination: PaginationOptions
 }
 
-union SearchResultEntity = Topic | LearningGoal | Resource | LearningPath
+union SearchResultEntity = Topic | Resource | LearningPath
 
 type SearchResult {
   entity: SearchResultEntity!

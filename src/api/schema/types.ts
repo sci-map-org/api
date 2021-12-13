@@ -1313,17 +1313,16 @@ export type APIUserLearningPathsOptions = {
   pagination?: Maybe<APIPaginationOptions>;
 };
 
-export type APIUserLearningGoalsOptions = {
-  pagination?: Maybe<APIPaginationOptions>;
-};
-
 export type APICurrentUser = {
    __typename?: 'CurrentUser';
   _id: Scalars['String'];
   articles?: Maybe<APIListArticlesResult>;
   bio?: Maybe<Scalars['String']>;
+  /**
+   * createdLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalCreatedItem!]
+   * startedLearningGoals(options: UserLearningGoalsOptions!): [LearningGoalStartedItem!]
+   */
   consumedResources?: Maybe<APIUserConsumedResourcesResult>;
-  createdLearningGoals?: Maybe<Array<APILearningGoalCreatedItem>>;
   /** private stuff here */
   createdLearningPaths?: Maybe<Array<APILearningPath>>;
   displayName: Scalars['String'];
@@ -1331,7 +1330,6 @@ export type APICurrentUser = {
   key: Scalars['String'];
   profilePictureUrl?: Maybe<Scalars['String']>;
   role: UserRole;
-  startedLearningGoals?: Maybe<Array<APILearningGoalStartedItem>>;
   startedLearningPaths?: Maybe<Array<APILearningPathStartedItem>>;
 };
 
@@ -1346,18 +1344,8 @@ export type APICurrentUserConsumedResourcesArgs = {
 };
 
 
-export type APICurrentUserCreatedLearningGoalsArgs = {
-  options: APIUserLearningGoalsOptions;
-};
-
-
 export type APICurrentUserCreatedLearningPathsArgs = {
   options: APIUserLearningPathsOptions;
-};
-
-
-export type APICurrentUserStartedLearningGoalsArgs = {
-  options: APIUserLearningGoalsOptions;
 };
 
 
@@ -1391,18 +1379,6 @@ export type APIUserConsumedResourcesOptions = {
   filter?: Maybe<APIUserConsumedResourcesFilter>;
   pagination?: Maybe<APIPaginationOptions>;
   sorting: APIUserConsumedResourcesSortingType;
-};
-
-export type APILearningGoalCreatedItem = {
-   __typename?: 'LearningGoalCreatedItem';
-  createdAt: Scalars['Date'];
-  learningGoal: APILearningGoal;
-};
-
-export type APILearningGoalStartedItem = {
-   __typename?: 'LearningGoalStartedItem';
-  learningGoal: APILearningGoal;
-  startedAt: Scalars['Date'];
 };
 
 export type APILearningPathStartedItem = {
@@ -1477,7 +1453,7 @@ export type APIUpdateCurrentUserPayload = {
 export type APIGetHomePageDataResults = {
    __typename?: 'GetHomePageDataResults';
   currentUser?: Maybe<APICurrentUser>;
-  recommendedLearningGoals: Array<APILearningGoal>;
+  /** recommendedLearningGoals: [LearningGoal!]! */
   recommendedLearningPaths: Array<APILearningPath>;
 };
 
@@ -1485,7 +1461,7 @@ export type APIGlobalSearchOptions = {
   pagination?: Maybe<APIPaginationOptions>;
 };
 
-export type APISearchResultEntity = APILearningGoal | APILearningPath | APIResource | APITopic;
+export type APISearchResultEntity = APILearningPath | APIResource | APITopic;
 
 export type APISearchResult = {
    __typename?: 'SearchResult';
@@ -1763,15 +1739,12 @@ export type APIResolversTypes = ResolversObject<{
   UserRole: UserRole,
   User: ResolverTypeWrapper<APIUser>,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
-  UserLearningGoalsOptions: APIUserLearningGoalsOptions,
   CurrentUser: ResolverTypeWrapper<APICurrentUser>,
   UserConsumedResourcesResult: ResolverTypeWrapper<APIUserConsumedResourcesResult>,
   UserConsumedResourceItem: ResolverTypeWrapper<APIUserConsumedResourceItem>,
   UserConsumedResourcesFilter: APIUserConsumedResourcesFilter,
   UserConsumedResourcesSortingType: APIUserConsumedResourcesSortingType,
   UserConsumedResourcesOptions: APIUserConsumedResourcesOptions,
-  LearningGoalCreatedItem: ResolverTypeWrapper<APILearningGoalCreatedItem>,
-  LearningGoalStartedItem: ResolverTypeWrapper<APILearningGoalStartedItem>,
   LearningPathStartedItem: ResolverTypeWrapper<APILearningPathStartedItem>,
   LoginResponse: ResolverTypeWrapper<APILoginResponse>,
   RegisterPayload: APIRegisterPayload,
@@ -1785,7 +1758,7 @@ export type APIResolversTypes = ResolversObject<{
   UpdateCurrentUserPayload: APIUpdateCurrentUserPayload,
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>,
   GlobalSearchOptions: APIGlobalSearchOptions,
-  SearchResultEntity: APIResolversTypes['LearningGoal'] | APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'] | APIResolversTypes['Topic'],
+  SearchResultEntity: APIResolversTypes['LearningPath'] | APIResolversTypes['Resource'] | APIResolversTypes['Topic'],
   SearchResult: ResolverTypeWrapper<Omit<APISearchResult, 'entity'> & { entity: APIResolversTypes['SearchResultEntity'] }>,
   GlobalSearchResults: ResolverTypeWrapper<APIGlobalSearchResults>,
   GetTopLevelTopicsResults: ResolverTypeWrapper<APIGetTopLevelTopicsResults>,
@@ -1910,15 +1883,12 @@ export type APIResolversParentTypes = ResolversObject<{
   UserRole: UserRole,
   User: APIUser,
   UserLearningPathsOptions: APIUserLearningPathsOptions,
-  UserLearningGoalsOptions: APIUserLearningGoalsOptions,
   CurrentUser: APICurrentUser,
   UserConsumedResourcesResult: APIUserConsumedResourcesResult,
   UserConsumedResourceItem: APIUserConsumedResourceItem,
   UserConsumedResourcesFilter: APIUserConsumedResourcesFilter,
   UserConsumedResourcesSortingType: APIUserConsumedResourcesSortingType,
   UserConsumedResourcesOptions: APIUserConsumedResourcesOptions,
-  LearningGoalCreatedItem: APILearningGoalCreatedItem,
-  LearningGoalStartedItem: APILearningGoalStartedItem,
   LearningPathStartedItem: APILearningPathStartedItem,
   LoginResponse: APILoginResponse,
   RegisterPayload: APIRegisterPayload,
@@ -1932,7 +1902,7 @@ export type APIResolversParentTypes = ResolversObject<{
   UpdateCurrentUserPayload: APIUpdateCurrentUserPayload,
   GetHomePageDataResults: APIGetHomePageDataResults,
   GlobalSearchOptions: APIGlobalSearchOptions,
-  SearchResultEntity: APIResolversParentTypes['LearningGoal'] | APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'] | APIResolversParentTypes['Topic'],
+  SearchResultEntity: APIResolversParentTypes['LearningPath'] | APIResolversParentTypes['Resource'] | APIResolversParentTypes['Topic'],
   SearchResult: Omit<APISearchResult, 'entity'> & { entity: APIResolversParentTypes['SearchResultEntity'] },
   GlobalSearchResults: APIGlobalSearchResults,
   GetTopLevelTopicsResults: APIGetTopLevelTopicsResults,
@@ -2477,14 +2447,12 @@ export type APICurrentUserResolvers<ContextType = APIContext, ParentType extends
   articles?: Resolver<Maybe<APIResolversTypes['ListArticlesResult']>, ParentType, ContextType, RequireFields<APICurrentUserArticlesArgs, 'options'>>,
   bio?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   consumedResources?: Resolver<Maybe<APIResolversTypes['UserConsumedResourcesResult']>, ParentType, ContextType, RequireFields<APICurrentUserConsumedResourcesArgs, 'options'>>,
-  createdLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalCreatedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningGoalsArgs, 'options'>>,
   createdLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPath']>>, ParentType, ContextType, RequireFields<APICurrentUserCreatedLearningPathsArgs, 'options'>>,
   displayName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>,
   profilePictureUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>,
   role?: Resolver<APIResolversTypes['UserRole'], ParentType, ContextType>,
-  startedLearningGoals?: Resolver<Maybe<Array<APIResolversTypes['LearningGoalStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningGoalsArgs, 'options'>>,
   startedLearningPaths?: Resolver<Maybe<Array<APIResolversTypes['LearningPathStartedItem']>>, ParentType, ContextType, RequireFields<APICurrentUserStartedLearningPathsArgs, 'options'>>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
@@ -2500,18 +2468,6 @@ export type APIUserConsumedResourceItemResolvers<ContextType = APIContext, Paren
   lastOpenedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   openedAt?: Resolver<Maybe<APIResolversTypes['Date']>, ParentType, ContextType>,
   resource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APILearningGoalCreatedItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalCreatedItem'] = APIResolversParentTypes['LearningGoalCreatedItem']> = ResolversObject<{
-  createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
-  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-}>;
-
-export type APILearningGoalStartedItemResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningGoalStartedItem'] = APIResolversParentTypes['LearningGoalStartedItem']> = ResolversObject<{
-  learningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType>,
-  startedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
@@ -2547,13 +2503,12 @@ export type APIResetPasswordResponseResolvers<ContextType = APIContext, ParentTy
 
 export type APIGetHomePageDataResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetHomePageDataResults'] = APIResolversParentTypes['GetHomePageDataResults']> = ResolversObject<{
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>,
-  recommendedLearningGoals?: Resolver<Array<APIResolversTypes['LearningGoal']>, ParentType, ContextType>,
   recommendedLearningPaths?: Resolver<Array<APIResolversTypes['LearningPath']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 }>;
 
 export type APISearchResultEntityResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchResultEntity'] = APIResolversParentTypes['SearchResultEntity']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'LearningGoal' | 'LearningPath' | 'Resource' | 'Topic', ParentType, ContextType>
+  __resolveType: TypeResolveFn<'LearningPath' | 'Resource' | 'Topic', ParentType, ContextType>
 }>;
 
 export type APISearchResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchResult'] = APIResolversParentTypes['SearchResult']> = ResolversObject<{
@@ -2698,8 +2653,6 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   CurrentUser?: APICurrentUserResolvers<ContextType>,
   UserConsumedResourcesResult?: APIUserConsumedResourcesResultResolvers<ContextType>,
   UserConsumedResourceItem?: APIUserConsumedResourceItemResolvers<ContextType>,
-  LearningGoalCreatedItem?: APILearningGoalCreatedItemResolvers<ContextType>,
-  LearningGoalStartedItem?: APILearningGoalStartedItemResolvers<ContextType>,
   LearningPathStartedItem?: APILearningPathStartedItemResolvers<ContextType>,
   LoginResponse?: APILoginResponseResolvers<ContextType>,
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>,
