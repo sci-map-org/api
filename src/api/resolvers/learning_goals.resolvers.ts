@@ -7,13 +7,28 @@ import {
   attachUserStartedLearningGoal,
   countLearningGoalStartedBy,
   createLearningGoal,
-  deleteLearningGoal, detachLearningGoalDependsOnLearningGoal, detachLearningGoalRequiresSubGoal, findLearningGoal,
+  deleteLearningGoal,
+  detachLearningGoalDependsOnLearningGoal,
+  detachLearningGoalRequiresSubGoal,
+  findLearningGoal,
   findLearningGoalCreatedBy,
-  getLearningGoalCreator, getLearningGoalDependants,
-  getLearningGoalDependencies, getLearningGoalProgress, getLearningGoalRating, getLearningGoalRelevantLearningMaterials,
+  getLearningGoalCreator,
+  getLearningGoalDependants,
+  getLearningGoalDependencies,
+  getLearningGoalProgress,
+  getLearningGoalRating,
+  getLearningGoalRelevantLearningMaterials,
   getLearningGoalRequiredInGoals,
   getLearningGoalRequiredSubGoals,
-  getLearningGoalStartedBy, getLearningGoalTopicsShowedIn, getUserStartedLearningGoal, hideLearningGoalFromTopic, publishLearningGoal, rateLearningGoal, searchLearningGoals, showLearningGoalInTopic, updateLearningGoal
+  getLearningGoalStartedBy,
+  getLearningGoalTopicsShowedIn,
+  getUserStartedLearningGoal,
+  hideLearningGoalFromTopic,
+  publishLearningGoal,
+  rateLearningGoal,
+  searchLearningGoals,
+  showLearningGoalInTopic,
+  updateLearningGoal,
 } from '../../repositories/learning_goals.repository';
 import { JWTPayload } from '../../services/auth/jwt';
 import { UnauthenticatedError, UnauthorizedError } from '../errors/UnauthenticatedError';
@@ -50,18 +65,6 @@ const findLearningGoalIfAuthorized = async (
   }
 };
 
-// export const getDomainLearningGoalByKeyResolver: APIQueryResolvers['getDomainLearningGoalByKey'] = async (
-//   _parent,
-//   { domainKey, learningGoalKey },
-//   { user }
-// ) => {
-//   const result = await findDomainLearningGoalByKey(domainKey, learningGoalKey);
-
-//   if (!result) throw new NotFoundError('LearningGoal', learningGoalKey, 'key');
-//   await findLearningGoalIfAuthorized({ _id: result.learningGoal._id }, 'READ', user);
-//   return result;
-// };
-
 export const searchLearningGoalsResolver: APIQueryResolvers['searchLearningGoals'] = async (
   _,
   { options: { query, pagination } }
@@ -79,9 +82,9 @@ export const getLearningGoalByKeyResolver: APIQueryResolvers['getLearningGoalByK
 
 export const checkLearningGoalKeyAvailabilityResolver: APIQueryResolvers['checkLearningGoalKeyAvailability'] = async (
   _,
-  { key}
+  { key }
 ) => {
-  let existingLearningGoal = await findLearningGoal({key});
+  let existingLearningGoal = await findLearningGoal({ key });
   return {
     available: !existingLearningGoal,
     existingLearningGoal,
@@ -133,7 +136,6 @@ export const showLearningGoalInTopicResolver: APIMutationResolvers['showLearning
   return await showLearningGoalInTopic(learningGoalId, topicId, {
     index: payload.index || undefined,
   });
-  
 };
 
 export const hideLearningGoalFromTopicResolver: APIMutationResolvers['hideLearningGoalFromTopic'] = async (

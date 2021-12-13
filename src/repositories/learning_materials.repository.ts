@@ -3,17 +3,26 @@ import { map, prop } from 'ramda';
 import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterial, LearningMaterialLabel } from '../entities/LearningMaterial';
 import { LearningGoalShowedInTopicLabel } from '../entities/relationships/LearningGoalShowedInTopic';
-import { LearningMaterialCoversTopic, LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
+import {
+  LearningMaterialCoversTopic,
+  LearningMaterialCoversTopicLabel,
+} from '../entities/relationships/LearningMaterialCoversTopic';
 import {
   LearningMaterialHasPrerequisiteLearningGoal,
   LearningMaterialHasPrerequisiteLearningGoalLabel,
 } from '../entities/relationships/LearningMaterialHasPrerequisiteLearningGoal';
-import { LearningMaterialHasPrerequisiteTopic, LearningMaterialHasPrerequisiteTopicLabel } from '../entities/relationships/LearningMaterialHasPrerequisiteTopic';
+import {
+  LearningMaterialHasPrerequisiteTopic,
+  LearningMaterialHasPrerequisiteTopicLabel,
+} from '../entities/relationships/LearningMaterialHasPrerequisiteTopic';
 import {
   LearningMaterialLeadsToLearningGoal,
   LearningMaterialLeadsToLearningGoalLabel,
 } from '../entities/relationships/LearningMaterialLeadsToLearningGoal';
-import { LearningMaterialShowedInTopic, LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
+import {
+  LearningMaterialShowedInTopic,
+  LearningMaterialShowedInTopicLabel,
+} from '../entities/relationships/LearningMaterialShowedInTopic';
 import { UserCreatedLearningMaterialLabel } from '../entities/relationships/UserCreatedLearningMaterial';
 import {
   UserRatedLearningMaterial,
@@ -45,16 +54,17 @@ export const rateLearningMaterial = generateRateEntityMethod<LearningMaterial, U
 
 export const getLearningMaterialRating = generateGetRatingMethod(LearningMaterialLabel, UserRatedLearningMaterialLabel);
 
-export const showLearningMaterialInTopics = (learningMaterialId: string, topicsIds: string[]): Promise<{learningMaterial: LearningMaterial, topics: Topic[]}> =>
+export const showLearningMaterialInTopics = (
+  learningMaterialId: string,
+  topicsIds: string[]
+): Promise<{ learningMaterial: LearningMaterial; topics: Topic[] }> =>
   attachNodes<LearningMaterial, LearningMaterialShowedInTopic, Topic>({
     originNode: { label: LearningMaterialLabel, filter: { _id: learningMaterialId } },
     relationship: { label: LearningGoalShowedInTopicLabel },
-    destinationNode: { label: TopicLabel, filter: {  _id: {$in: topicsIds} } },
-  }).then((items) => {
+    destinationNode: { label: TopicLabel, filter: { _id: { $in: topicsIds } } },
+  }).then(items => {
     if (items.length !== topicsIds.length)
-      logger.warn(
-        'showLearningMaterialInTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found'
-      );
+      logger.warn('showLearningMaterialInTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no concepts are passed
     return {
       learningMaterial: items[0].originNode,
@@ -62,7 +72,10 @@ export const showLearningMaterialInTopics = (learningMaterialId: string, topicsI
     };
   });
 
-export const hideLearningMaterialFromTopics = (learningMaterialId: string, topicsIds: string[]): Promise<{learningMaterial: LearningMaterial, topics: Topic[]}> =>
+export const hideLearningMaterialFromTopics = (
+  learningMaterialId: string,
+  topicsIds: string[]
+): Promise<{ learningMaterial: LearningMaterial; topics: Topic[] }> =>
   detachNodes<LearningMaterial, LearningMaterialShowedInTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
@@ -74,13 +87,11 @@ export const hideLearningMaterialFromTopics = (learningMaterialId: string, topic
     },
     destinationNode: {
       label: TopicLabel,
-      filter: { _id: {$in: topicsIds} },
+      filter: { _id: { $in: topicsIds } },
     },
   }).then(items => {
     if (items.length !== topicsIds.length)
-      logger.warn(
-        'hideLearningMaterialFromTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found'
-      );
+      logger.warn('hideLearningMaterialFromTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId);
     return {
       learningMaterial: items[0].originNode,
@@ -88,7 +99,7 @@ export const hideLearningMaterialFromTopics = (learningMaterialId: string, topic
     };
   });
 
-  export const getLearningMaterialTopicsShowedIn = (learningMaterialId: string): Promise<Topic[]> =>
+export const getLearningMaterialTopicsShowedIn = (learningMaterialId: string): Promise<Topic[]> =>
   getRelatedNodes<LearningMaterial, LearningMaterialShowedInTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
@@ -101,7 +112,7 @@ export const hideLearningMaterialFromTopics = (learningMaterialId: string, topic
       label: TopicLabel,
     },
   }).then(map(prop('destinationNode')));
-  
+
 export const attachLearningMaterialCoversTopics = (
   learningMaterialId: string,
   topicsIds: string[],
@@ -109,13 +120,14 @@ export const attachLearningMaterialCoversTopics = (
 ): Promise<{ learningMaterial: LearningMaterial; topics: Topic[] }> =>
   attachNodes<LearningMaterial, LearningMaterialCoversTopic, Topic>({
     originNode: { label: LearningMaterialLabel, filter: { _id: learningMaterialId } },
-    relationship: { label: LearningMaterialCoversTopicLabel, onCreateProps: {createdAt: Date.now(), createdByUserId: props.userId} },
+    relationship: {
+      label: LearningMaterialCoversTopicLabel,
+      onCreateProps: { createdAt: Date.now(), createdByUserId: props.userId },
+    },
     destinationNode: { label: TopicLabel, filter: { _id: { $in: topicsIds } } },
   }).then(items => {
     if (items.length !== topicsIds.length)
-      logger.warn(
-        'attachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found'
-      );
+      logger.warn('attachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no concepts are passed
     return {
       learningMaterial: items[0].originNode,
@@ -126,7 +138,7 @@ export const attachLearningMaterialCoversTopics = (
 export const detachLearningMaterialCoversTopics = (
   learningMaterialId: string,
   topicsIds: string[]
-): Promise<{ learningMaterial: LearningMaterial; concepts: Topic[] }> =>
+): Promise<{ learningMaterial: LearningMaterial; topics: Topic[] }> =>
   detachNodes<LearningMaterial, LearningMaterialCoversTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
@@ -142,17 +154,17 @@ export const detachLearningMaterialCoversTopics = (
     },
   }).then(items => {
     if (items.length !== topicsIds.length)
-      logger.warn(
-        'detachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found'
-      );
+      logger.warn('detachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId);
     return {
       learningMaterial: items[0].originNode,
-      concepts: items.map(({ destinationNode }) => destinationNode),
+      topics: items.map(({ destinationNode }) => destinationNode),
     };
   });
 
-export const getLearningMaterialCoveredTopics = (_id: string): Promise<{learningMaterial: LearningMaterial, relationship:LearningMaterialCoversTopic,  topic:Topic}[]> =>
+export const getLearningMaterialCoveredTopics = (
+  _id: string
+): Promise<{ learningMaterial: LearningMaterial; relationship: LearningMaterialCoversTopic; topic: Topic }[]> =>
   getRelatedNodes<LearningMaterial, LearningMaterialCoversTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
@@ -164,45 +176,20 @@ export const getLearningMaterialCoveredTopics = (_id: string): Promise<{learning
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items => items.map(({originNode, relationship, destinationNode}) => ({
-    learningMaterial: originNode,
-    relationship,
-    topic: destinationNode
-  })))
-
-// export const getLearningMaterialCoveredConceptsByDomain = async (
-//   learningMaterialId: string
-// ): Promise<{ domain: Domain; coveredConcepts: Concept[] }[]> => {
-//   const q = new Query(neo4jQb);
-//   q.match([
-//     node('learningMaterial', LearningMaterialLabel, { _id: learningMaterialId }),
-//     relation('out', '', LearningMaterialBelongsToDomainLabel),
-//     node('domain', DomainLabel),
-//   ]);
-//   q.optionalMatch([
-//     node('learningMaterial'),
-//     relation('out', '', LearningMaterialCoversConceptLabel),
-//     node('concept', ConceptLabel),
-//     relation('out', '', ConceptBelongsToDomainLabel),
-//     node('domain', DomainLabel),
-//   ]);
-//   q.raw('WITH DISTINCT domain, collect(concept) as concepts RETURN *');
-
-//   const results = await q.run();
-//   return results.map(r => ({
-//     domain: r.domain.properties,
-//     coveredConcepts: r.concepts.map(c => c.properties),
-//   }));
-// };
-
-
+  }).then(items =>
+    items.map(({ originNode, relationship, destinationNode }) => ({
+      learningMaterial: originNode,
+      relationship,
+      topic: destinationNode,
+    }))
+  );
 
 // TODO: optimize by attaching several learning goals to an lm in one query
 export const attachLearningMaterialHasPrerequisiteTopic = async (
   learningMaterialId: string,
   prerequisiteTopicId: string,
   data: Omit<LearningMaterialHasPrerequisiteTopic, 'createdAt'>
-): Promise<{ learningMaterial: LearningMaterial; relationship:LearningMaterialHasPrerequisiteTopic; topic: Topic}> =>
+): Promise<{ learningMaterial: LearningMaterial; relationship: LearningMaterialHasPrerequisiteTopic; topic: Topic }> =>
   attachUniqueNodes<LearningMaterial, LearningMaterialHasPrerequisiteTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
@@ -219,12 +206,16 @@ export const attachLearningMaterialHasPrerequisiteTopic = async (
       label: TopicLabel,
       filter: { _id: prerequisiteTopicId },
     },
-  }).then(({ destinationNode,relationship, originNode }) => ({ learningMaterial: originNode, relationship, topic: destinationNode }));
+  }).then(({ destinationNode, relationship, originNode }) => ({
+    learningMaterial: originNode,
+    relationship,
+    topic: destinationNode,
+  }));
 
 export const detachLearningMaterialHasPrerequisiteTopic = (
   learningMaterialId: string,
   prerequisiteTopicId: string
-      ): Promise<{ learningMaterial: LearningMaterial; topic: Topic }> =>
+): Promise<{ learningMaterial: LearningMaterial; topic: Topic }> =>
   detachUniqueNodes<LearningMaterial, LearningMaterialHasPrerequisiteTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
@@ -285,7 +276,11 @@ export const detachLearningMaterialHasPrerequisiteTopic = (
 
 export const getLearningMaterialPrerequisites = (
   learningMaterialId: string
-): Promise<{ learningMaterial:LearningMaterial; relationship: LearningMaterialHasPrerequisiteTopic; topic: Topic}[]> =>
+): Promise<{
+  learningMaterial: LearningMaterial;
+  relationship: LearningMaterialHasPrerequisiteTopic;
+  topic: Topic;
+}[]> =>
   getRelatedNodes<LearningMaterial, LearningMaterialHasPrerequisiteTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
@@ -298,7 +293,13 @@ export const getLearningMaterialPrerequisites = (
       label: TopicLabel,
       // filter: { hidden: false },
     },
-  }).then(items => items.map(({ destinationNode, relationship, originNode }) => ({ learningMaterial: originNode, relationship, topic: destinationNode })));
+  }).then(items =>
+    items.map(({ destinationNode, relationship, originNode }) => ({
+      learningMaterial: originNode,
+      relationship,
+      topic: destinationNode,
+    }))
+  );
 
 // export const getLearningMaterialOutcomes = (
 //   learningMaterialId: string
@@ -317,19 +318,18 @@ export const getLearningMaterialPrerequisites = (
 //     },
 //   }).then(items => items.map(({ destinationNode, relationship }) => ({ relationship, learningGoal: destinationNode })));
 
-
 export const getLearningMaterialCreator = (learningMaterialFilter: { _id: string }) =>
-getRelatedNode<User>({
-  originNode: {
-    label: LearningMaterialLabel,
-    filter: learningMaterialFilter,
-  },
-  relationship: {
-    label: UserCreatedLearningMaterialLabel,
-    filter: {},
-  },
-  destinationNode: {
-    label: UserLabel,
-    filter: {},
-  },
-});
+  getRelatedNode<User>({
+    originNode: {
+      label: LearningMaterialLabel,
+      filter: learningMaterialFilter,
+    },
+    relationship: {
+      label: UserCreatedLearningMaterialLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: UserLabel,
+      filter: {},
+    },
+  });

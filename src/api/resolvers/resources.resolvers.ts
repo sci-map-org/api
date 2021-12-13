@@ -1,9 +1,7 @@
 import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
-import {
-  getLearningMaterialRating
-} from '../../repositories/learning_materials.repository';
+import { getLearningMaterialRating } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import {
   addSubResourceToSeries,
@@ -21,19 +19,14 @@ import {
   getResourceUpvoteCount,
   getUserConsumedResource,
   searchResources,
-  updateResource
+  updateResource,
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
 import { analyzeResourceUrl } from '../../services/url_analyzer.service';
 import { hasAccess } from '../../services/users.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import {
-  APIMutationResolvers,
-  APIQueryResolvers,
-  APIResource,
-  APIResourceResolvers
-} from '../schema/types';
+import { APIMutationResolvers, APIQueryResolvers, APIResource, APIResourceResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
 
@@ -78,7 +71,11 @@ export const updateResourceResolver: APIMutationResolvers['updateResource'] = as
   return toAPIResource(updatedResource);
 };
 
-export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (_parent, { resourceId }, { user }) => {
+export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (
+  _parent,
+  { resourceId },
+  { user }
+) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to delete a resource');
 
   const { deletedCount } = hasAccess('contributorOrAdmin', user)
@@ -96,12 +93,6 @@ export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = asy
   if (!resource) throw new NotFoundError('Resource', resourceId);
   return toAPIResource(resource);
 };
-
-
-// export const getResourceCoveredConceptsByDomainResolver: APIResourceResolvers['coveredConceptsByDomain'] = async resource => {
-//   return await getLearningMaterialCoveredConceptsByDomain(resource._id);
-// };
-
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
   return await getLearningMaterialTags(resource._id);

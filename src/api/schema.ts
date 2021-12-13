@@ -246,18 +246,6 @@ const resolvers: APIResolvers<APIContext> = {
     // startedLearningGoals: getCurrentUserStartedLearningGoalsResolver,
     consumedResources: getCurrentUserConsumedResourcesResolver,
   },
-  // Domain: {
-  //   concepts: getDomainConceptsResolver,
-  //   conceptTotalCount: getDomainConceptTotalCountResolver,
-  //   resources: getDomainResourcesResolver,
-  //   learningPaths: getDomainLearningPathsResolver,
-  //   learningMaterials: getDomainLearningMaterialsResolver,
-  //   learningMaterialsTotalCount: getDomainLearningMaterialsTotalCountResolver,
-  //   learningGoals: getDomainLearningGoalsResolver,
-  //   subTopics: getDomainSubTopicsResolver,
-  //   parentTopics: getDomainParentTopicsResolver,
-  //   size: getDomainSizeResolver,
-  // },
   Resource: {
     coveredSubTopics: getLearningMaterialCoveredSubTopicsResolver,
     showedIn: getLearningMaterialShowedInResolver,
@@ -282,8 +270,6 @@ const resolvers: APIResolvers<APIContext> = {
     complementaryResources: getLearningPathComplementaryResourcesResolver,
     rating: getLearningPathRatingResolver,
     tags: getLearningPathTagsResolver,
-    // coveredConcepts: getLearningPathCoveredConceptsResolver,
-    // coveredConceptsByDomain: getLearningPathCoveredConceptsByDomainResolver,
     prerequisites: getLearningMaterialPrerequisitesResolver,
     // outcomes: getLearningMaterialOutcomesResolver,
     started: getLearningPathStartedResolver,
@@ -324,7 +310,6 @@ const resolvers: APIResolvers<APIContext> = {
   },
   SubGoal: {
     __resolveType: obj => {
-      // if (obj.topicType === TopicType.Concept) return 'Concept';
       //@ts-ignore
       if (Object.values(LearningGoalType).indexOf(obj.type) > -1) return 'LearningGoal';
       return 'Topic';
@@ -337,12 +322,6 @@ const resolvers: APIResolvers<APIContext> = {
       if (!obj.type && (obj.public === true || obj.public === false)) return 'LearningPath';
       //@ts-ignore
       if (obj.url) return 'Resource';
-      //@ts-ignore
-      // if (obj.topicType === TopicType.Concept) return 'Concept';
-      //@ts-ignore
-      // if (obj.type === LearningGoalType.Roadmap || obj.type === LearningGoalType.SubGoal) return 'LearningGoal';
-      //@ts-ignore
-      // if (obj.topicType === TopicType.Domain) return 'Domain';
       return 'Topic';
       throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },

@@ -28,22 +28,6 @@ interface CreateAndSaveResourceData extends CreateAndSaveResourceBaseData {
   subResourceSeries?: CreateAndSaveResourceBaseData[]; // limit to one level for now
 }
 
-// const attachDomainsAndCoveredConcepts = async (
-//   resourceId: string,
-//   domainsAndCoveredConcepts: APIDomainAndCoveredConcepts[],
-//   userId: string
-// ): Promise<any> => {
-//   return Promise.all(
-//     domainsAndCoveredConcepts.map(async ({ domainId, conceptsIds }) => {
-//       await attachLearningMaterialToDomain(resourceId, domainId);
-//       conceptsIds.length &&
-//         (await attachLearningMaterialCoversConcepts(resourceId, conceptsIds, {
-//           userId,
-//         }));
-//     })
-//   );
-// };
-
 const attachResourceTags = async (resourceId: string, tags?: string[]): Promise<void> => {
   if (!tags || !tags.length) return;
   const resourceTags = await Promise.all(tags.map(t => findOrCreateLearningMaterialTag(t)));
@@ -68,21 +52,6 @@ const attachPrerequisites = async (
     )
   );
 };
-// const attachOutcomes = async (
-//   resourceId: string,
-//   userId: string,
-//   outcomesLearningGoalsIds?: string[]
-// ): Promise<void> => {
-//   if (!outcomesLearningGoalsIds || !outcomesLearningGoalsIds.length) return;
-//   await Promise.all(
-//     outcomesLearningGoalsIds.map(outcomeId =>
-//       attachLearningMaterialLeadsToLearningGoal(resourceId, outcomeId, {
-//         strength: 100,
-//         createdBy: userId,
-//       })
-//     )
-//   );
-// };
 
 // TODO: make type safe
 export const createAndSaveResource = async (data: CreateAndSaveResourceData, userId: string): Promise<Resource> => {

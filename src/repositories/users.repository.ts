@@ -7,27 +7,26 @@ import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
 import {
   UserCreatedLearningGoal,
-  UserCreatedLearningGoalLabel
+  UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
 import {
   UserCreatedLearningMaterial,
-  UserCreatedLearningMaterialLabel
+  UserCreatedLearningMaterialLabel,
 } from '../entities/relationships/UserCreatedLearningMaterial';
 import { UserKnowsTopic, UserKnowsTopicLabel } from '../entities/relationships/UserKnowsTopic';
 import {
   UserStartedLearningGoal,
-  UserStartedLearningGoalLabel
+  UserStartedLearningGoalLabel,
 } from '../entities/relationships/UserStartedLearningGoal';
 import {
   UserStartedLearningPath,
-  UserStartedLearningPathLabel
+  UserStartedLearningPathLabel,
 } from '../entities/relationships/UserStartedLearningPath';
 import { Resource, ResourceLabel } from '../entities/Resource';
 import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel, UserRole } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import { attachNodes, detachNodes, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
-
 
 interface UpdateUserData {
   displayName?: string;
@@ -94,7 +93,7 @@ export const attachUserKnowsTopics = (
         },
         destinationNode: {
           label: TopicLabel,
-          filter: { _id: topicToKnow.topicId }, // can't user $in cause different values based on the conceptId
+          filter: { _id: topicToKnow.topicId }, // can't use $in cause different values based on the topicId
         },
       })
     )

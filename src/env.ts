@@ -66,7 +66,7 @@ const OTHER = typedEnv.envGroup({
   FRONTEND_BASE_URL: typedEnv.types.NonEmptyString,
   APIFY_LOCAL_STORAGE_DIR: typedEnv.types.NonEmptyString,
   GOOGLE_APIS_KEY: typedEnv.types.NonEmptyString,
-  TOP_LEVEL_DOMAINS_KEYS: typedEnv.types.NonEmptyString, // comma separated // TODO
+  TOP_LEVEL_TOPICS_KEYS: typedEnv.types.NonEmptyString, // comma separated
 });
 
 const envSchema = typedEnv.envSchema({

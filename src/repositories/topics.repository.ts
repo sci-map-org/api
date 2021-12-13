@@ -1047,3 +1047,25 @@ export const updateTopicHasContextTopic = async (
     contextTopic: newContextTopic,
   };
 };
+
+// known
+
+// export const getUserKnowsConcept = async (userId: string, conceptId: string): Promise<UserKnowsConcept | null> => {
+//   const item = await getOptionalRelatedNode<User, UserKnowsConcept, Concept>({
+//     originNode: {
+//       label: UserLabel,
+//       filter: { _id: userId },
+//     },
+//     relationship: {
+//       label: UserKnowsConceptLabel,
+//     },
+//     destinationNode: {
+//       label: ConceptLabel,
+//       filter: {
+//         _id: conceptId,
+//       },
+//     },
+//   });
+//   if (!item) return null;
+//   return item.relationship;
+// };

@@ -163,9 +163,9 @@ export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (
   { user }
 ) => {
   restrictAccess('loggedInUser', user, 'Must be logged in to update a topic');
-  const updatedDomain = await updateTopic({ _id: topicId }, nullToUndefined(payload));
-  if (!updatedDomain) throw new NotFoundError('Topic', topicId);
-  return updatedDomain;
+  const updatedTopic = await updateTopic({ _id: topicId }, nullToUndefined(payload));
+  if (!updatedTopic) throw new NotFoundError('Topic', topicId);
+  return updatedTopic;
 };
 
 export const deleteTopicResolver: APIMutationResolvers['deleteTopic'] = async (_parent, { topicId }, { user }) => {
