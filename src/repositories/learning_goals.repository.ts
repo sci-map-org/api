@@ -7,21 +7,25 @@ import { LearningGoal, LearningGoalLabel, LearningGoalType } from '../entities/L
 import { LearningMaterial, LearningMaterialLabel } from '../entities/LearningMaterial';
 import {
   LearningGoalDependsOnLearningGoalInLearningGoal,
-  LearningGoalDependsOnLearningGoalInLearningGoalLabel
+  LearningGoalDependsOnLearningGoalInLearningGoalLabel,
 } from '../entities/relationships/LearningGoalDependsOnLearningGoalInLearningGoal';
 import {
   LearningGoalRequiresSubGoal,
-  LearningGoalRequiresSubGoalLabel
+  LearningGoalRequiresSubGoalLabel,
 } from '../entities/relationships/LearningGoalRequiresSubGoal';
-import { DEFAULT_INDEX_VALUE, LearningGoalShowedInTopic, LearningGoalShowedInTopicLabel } from '../entities/relationships/LearningGoalShowedInTopic';
+import {
+  DEFAULT_INDEX_VALUE,
+  LearningGoalShowedInTopic,
+  LearningGoalShowedInTopicLabel,
+} from '../entities/relationships/LearningGoalShowedInTopic';
 import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
 import {
   LearningMaterialLeadsToLearningGoal,
-  LearningMaterialLeadsToLearningGoalLabel
+  LearningMaterialLeadsToLearningGoalLabel,
 } from '../entities/relationships/LearningMaterialLeadsToLearningGoal';
 import {
   UserCreatedLearningGoal,
-  UserCreatedLearningGoalLabel
+  UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
 import { UserCreatedLearningMaterialLabel } from '../entities/relationships/UserCreatedLearningMaterial';
 import { UserKnowsTopicLabel } from '../entities/relationships/UserKnowsTopic';
@@ -29,7 +33,7 @@ import { UserRatedLearningGoal, UserRatedLearningGoalLabel } from '../entities/r
 import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import {
   UserStartedLearningGoal,
-  UserStartedLearningGoalLabel
+  UserStartedLearningGoalLabel,
 } from '../entities/relationships/UserStartedLearningGoal';
 import { SubGoal } from '../entities/SubGoal';
 import { Topic, TopicLabel } from '../entities/Topic';
@@ -45,11 +49,10 @@ import {
   getOptionalRelatedNode,
   getRelatedNode,
   getRelatedNodes,
-  updateOne
+  updateOne,
 } from './util/abstract_graph_repo';
 import { PaginationOptions } from './util/pagination';
 import { generateGetRatingMethod, generateRateEntityMethod } from './util/rating';
-
 
 interface CreateLearningGoalData {
   name: string;
@@ -160,7 +163,6 @@ export const hideLearningGoalFromTopic = (
     relationship: { label: LearningGoalShowedInTopicLabel, filter: {} },
     destinationNode: { label: TopicLabel, filter: { _id: topicId } },
   }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, topic: destinationNode }));
-  
 
 export const getLearningGoalTopicsShowedIn = (learningGoalId: string): Promise<Topic[]> =>
   getRelatedNodes<LearningGoal, LearningGoalShowedInTopic, Topic>({
@@ -174,26 +176,7 @@ export const getLearningGoalTopicsShowedIn = (learningGoalId: string): Promise<T
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items => items.map(({destinationNode}) => destinationNode));
-
-// export const findDomainLearningGoalByKey = (
-//   domainKey: string,
-//   learningGoalkey: string
-// ): Promise<{ learningGoal: LearningGoal; domain: Domain } | null> =>
-//   getOptionalRelatedNode<Domain, LearningGoalBelongsToDomain, LearningGoal>({
-//     originNode: {
-//       label: DomainLabel,
-//       filter: { key: domainKey },
-//     },
-//     relationship: {
-//       label: LearningGoalBelongsToDomainLabel,
-//       direction: 'IN',
-//     },
-//     destinationNode: {
-//       label: LearningGoalLabel,
-//       filter: { key: learningGoalkey },
-//     },
-//   }).then(result => (result ? { learningGoal: result.destinationNode, domain: result.originNode } : null));
+  }).then(items => items.map(({ destinationNode }) => destinationNode));
 
 function generateLearningGoalKey(name: string) {
   return shortid.generate() + '_' + generateUrlKey(name);

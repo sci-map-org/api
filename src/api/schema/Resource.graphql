@@ -86,7 +86,6 @@ input CreateResourcePayload {
   tags: [String!]
   showInTopicsIds: [String!]!
   coveredSubTopicsIds: [String!]
-  # covered subtopics TODO
   prerequisitesTopicsIds: [String!]
   # outcomesSubGoalsIds: [String!]
   subResourceSeries: [CreateSubResourcePayload!]

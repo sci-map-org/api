@@ -40,10 +40,6 @@ import {
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
 
-// export const topicResolveType: APITopicResolvers['__resolveType'] = (obj, ctx, info) => {
-//   return obj.topicType;
-// };
-
 export const getTopicByIdResolver: APIQueryResolvers['getTopicById'] = async (_, { topicId }) => {
   const topic = await getTopicById(topicId);
   if (!topic) throw new NotFoundError(TopicLabel, topicId);

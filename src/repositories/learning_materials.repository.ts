@@ -65,7 +65,7 @@ export const showLearningMaterialInTopics = (
   }).then(items => {
     if (items.length !== topicsIds.length)
       logger.warn('showLearningMaterialInTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
-    if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no concepts are passed
+    if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no topics are passed
     return {
       learningMaterial: items[0].originNode,
       topics: items.map(({ destinationNode }) => destinationNode),
@@ -128,7 +128,7 @@ export const attachLearningMaterialCoversTopics = (
   }).then(items => {
     if (items.length !== topicsIds.length)
       logger.warn('attachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
-    if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no concepts are passed
+    if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no topics are passed
     return {
       learningMaterial: items[0].originNode,
       topics: items.map(({ destinationNode }) => destinationNode),

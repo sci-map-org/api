@@ -352,43 +352,6 @@ export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> 
   return size;
 };
 
-// export const getTopicSubTopics = async (
-//   topicId: string
-// ): Promise<{ parentTopic: Topic; relationship: TopicIsSubTopicOfTopic; subTopic: Topic }[]> => {
-//   const originNodeFilter = { _id: topicId };
-//   const session = neo4jDriver.session();
-//   const sortingClause = `ORDER BY relationship.index ASC`;
-//   const whereClause = `WHERE ${buildFilter(originNodeFilter, 'originNodeFilter', 'originNode')}`;
-//   // ${
-//   //   relationship.filter && Object.keys(relationship.filter).length
-//   //     ? ' AND ' + buildFilter(relationship.filter, 'relationshipFilter', 'relationship')
-//   //     : ''
-//   // }
-//   // ${
-//   //   destinationNode.filter && Object.keys(destinationNode.filter).length
-//   //     ? ' AND ' + buildFilter(destinationNode.filter, 'destinationNodeFilter', 'destinationNode')
-//   //     : ''
-//   // }`;
-//   const query = `MATCH (originNode:${TopicLabel})<-[relationship:${TopicIsSubTopicOfTopicLabel}|${TopicIsPartOfTopicLabel}]
-//   -(destinationNode:${TopicLabel}) ${whereClause} RETURN
-//   properties(originNode) as originNode,
-//   properties(destinationNode) as destinationNode,
-//   properties(relationship) as relationship,
-//   relationship as originalRelationship
-//   ${sortingClause}
-// `;
-//   const { records } = await session.run(query, {
-//     originNodeFilter,
-//   });
-//   session.close();
-//   return records.map(r => ({
-//     parentTopic: r.get('originNode') as Topic,
-//     relationship: r.get('relationship') as TopicIsSubTopicOfTopic | TopicIsPartOfTopic,
-//     subTopic: r.get('destinationNode') as Topic,
-//     relationshipType: r.get('originalRelationship').type,
-//   }));
-// };
-
 export const getTopicSubTopics = async (
   topicId: string
 ): Promise<{

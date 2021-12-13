@@ -6,7 +6,7 @@ import {
   getLearningMaterialTopicsShowedIn,
   hideLearningMaterialFromTopics,
   rateLearningMaterial,
-  showLearningMaterialInTopics
+  showLearningMaterialInTopics,
 } from '../../repositories/learning_materials.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APILearningMaterialResolvers, APIMutationResolvers } from '../schema/types';
@@ -49,37 +49,6 @@ export const hideLearningMaterialFromTopicResolver: APIMutationResolvers['hideLe
   return learningMaterial;
 };
 
-// TODO
-// export const addLearningMaterialPrerequisiteResolver: APIMutationResolvers['addLearningMaterialPrerequisite'] = async (
-//   _,
-//   { learningMaterialId, prerequisiteLearningGoalId },
-//   { user }
-// ) => {
-//   if (!user) throw new UnauthenticatedError('Must be logged in');
-
-//   const { learningMaterial } = await attachLearningMaterialHasPrerequisiteLearningGoal(
-//     learningMaterialId,
-//     prerequisiteLearningGoalId,
-//     {
-//       strength: 100,
-//       createdBy: user._id,
-//     }
-//   );
-//   return learningMaterial;
-// };
-
-// export const removeLearningMaterialPrerequisiteResolver: APIMutationResolvers['removeLearningMaterialPrerequisite'] = async (
-//   _,
-//   { learningMaterialId, prerequisiteLearningGoalId },
-//   { user }
-// ) => {
-//   if (!user) throw new UnauthenticatedError('Must be logged in');
-//   const { learningMaterial } = await detachLearningMaterialHasPrerequisiteLearningGoal(
-//     learningMaterialId,
-//     prerequisiteLearningGoalId
-//   );
-//   return learningMaterial;
-// };
 // export const addLearningMaterialOutcomeResolver: APIMutationResolvers['addLearningMaterialOutcome'] = async (
 //   _,
 //   { learningMaterialId, outcomeLearningGoalId },
@@ -124,17 +93,16 @@ export const getLearningMaterialPrerequisitesResolver: APILearningMaterialResolv
 //   }));
 // };
 
-
 export const getLearningMaterialShowedInResolver: APILearningMaterialResolvers['showedIn'] = async learningMaterial => {
   return await getLearningMaterialTopicsShowedIn(learningMaterial._id);
 };
 
 export const getLearningMaterialCoveredSubTopicsResolver: APILearningMaterialResolvers['coveredSubTopics'] = async learningMaterial => {
   return {
-    items: (await getLearningMaterialCoveredTopics(learningMaterial._id)).map(({topic}) => topic),
+    items: (await getLearningMaterialCoveredTopics(learningMaterial._id)).map(({ topic }) => topic),
   };
 };
 
 export const getLearningMaterialCreatedByResolver: APILearningMaterialResolvers['createdBy'] = async learningMaterial => {
   return getLearningMaterialCreator({ _id: learningMaterial._id });
-}
+};
