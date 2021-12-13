@@ -639,7 +639,7 @@ export type APIMutationUpdateTopicArgs = {
 
 
 export type APIMutationUpdateTopicContextArgs = {
-  contextTopicId?: Maybe<Scalars['String']>;
+  contextTopicId: Scalars['String'];
   topicId: Scalars['String'];
 };
 
@@ -2065,7 +2065,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   updateLearningPath?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIMutationUpdateLearningPathArgs, 'learningPathId' | 'payload'>>,
   updateResource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIMutationUpdateResourceArgs, 'payload' | 'resourceId'>>,
   updateTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicArgs, 'payload' | 'topicId'>>,
-  updateTopicContext?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicContextArgs, 'topicId'>>,
+  updateTopicContext?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicContextArgs, 'contextTopicId' | 'topicId'>>,
   updateTopicIsPartOfTopic?: Resolver<APIResolversTypes['TopicIsPartOfTopic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicIsPartOfTopicArgs, 'partOfTopicId' | 'subTopicId' | 'payload'>>,
   updateTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['TopicIsSubTopicOfTopic'], ParentType, ContextType, RequireFields<APIMutationUpdateTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId' | 'payload'>>,
   verifyEmailAddress?: Resolver<APIResolversTypes['VerifyEmailResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>,

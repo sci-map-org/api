@@ -982,29 +982,40 @@ export const attachTopicHasContextTopic = async (
     destinationNode: { label: TopicLabel, filter: { _id: contextTopicId } },
   });
 
-  await updateTopic(
+  const updatedTopic = await updateTopic(
     { _id: topicId },
-    { context: contextTopic.name, key: generateUrlKey(`${topic.key}_${contextTopic.key}`) }
+    { context: contextTopic.name, key: generateUrlKey(`${topic.key}_(${contextTopic.key})`) }
   );
+  if (!updatedTopic) throw new Error('Should never happen');
   return {
-    topic,
+    topic: updatedTopic,
     relationship,
     contextTopic,
   };
 };
 
-export const detachTopicHasContextTopic = async (
+export const updateTopicHasContextTopic = async (
   topicId: string,
-  contextTopicId: string
+  newContextTopicId: string,
+  { createdByUserId }: { createdByUserId: string }
 ): Promise<{
   topic: Topic;
+  relationship: TopicHasContextTopic;
   contextTopic: Topic;
 }> => {
-  const existingContextTopic = await getTopicContextTopic(topicId);
-  if (!existingContextTopic || contextTopicId !== existingContextTopic.contextTopic._id)
-    throw new Error(`Topic ${topicId} has no context or is not ${contextTopicId}`);
+  const existingContextResult = await getTopicContextTopic(topicId);
+  if (!existingContextResult) throw new Error(`Topic ${topicId} has no existing context`);
 
-  const { destinationNode: contextTopic, originNode: topic } = await detachUniqueNodes<
+  await detachUniqueNodes<Topic, TopicHasContextTopic, Topic>({
+    originNode: { label: TopicLabel, filter: { _id: topicId } },
+    relationship: {
+      label: TopicHasContextTopicLabel,
+      filter: {},
+    },
+    destinationNode: { label: TopicLabel, filter: { _id: existingContextResult.contextTopic._id } },
+  });
+
+  const { destinationNode: newContextTopic, relationship, originNode: topic } = await attachUniqueNodes<
     Topic,
     TopicHasContextTopic,
     Topic
@@ -1012,17 +1023,27 @@ export const detachTopicHasContextTopic = async (
     originNode: { label: TopicLabel, filter: { _id: topicId } },
     relationship: {
       label: TopicHasContextTopicLabel,
-      filter: {},
+      onCreateProps: { createdAt: Date.now(), createdByUserId },
     },
-    destinationNode: { label: TopicLabel, filter: { _id: contextTopicId } },
+    destinationNode: { label: TopicLabel, filter: { _id: newContextTopicId } },
   });
 
-  await updateTopic(
+  const updatedTopic = await updateTopic(
     { _id: topicId },
-    { context: null, key: generateUrlKey(topic.key.replace(`_${contextTopic.key}`, '')) }
+    {
+      context: newContextTopic.name,
+      key: generateUrlKey(
+        topic.key.replace(
+          generateUrlKey(`_(${existingContextResult.contextTopic.key})`),
+          generateUrlKey(`_(${newContextTopic.key})`)
+        )
+      ),
+    }
   );
+  if (!updatedTopic) throw new Error('Topic not found - unreachable code reached');
   return {
-    topic,
-    contextTopic,
+    topic: updatedTopic,
+    relationship,
+    contextTopic: newContextTopic,
   };
 };

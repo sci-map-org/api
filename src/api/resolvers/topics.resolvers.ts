@@ -9,7 +9,6 @@ import {
   countLearningMaterialsShowedInTopic,
   createTopic,
   deleteTopic,
-  detachTopicHasContextTopic,
   getTopicById,
   getTopicByKey,
   getTopicContextTopic,
@@ -29,6 +28,7 @@ import {
   searchSubTopics,
   searchTopics,
   updateTopic,
+  updateTopicHasContextTopic,
 } from '../../repositories/topics.repository';
 import { initSubtopicIndexValue } from '../../services/topics.service';
 import {
@@ -187,32 +187,26 @@ export const updateTopicContextResolver: APIMutationResolvers['updateTopicContex
 
   const parentTopic = (await getTopicParentTopic(topicId))?.parentTopic;
   if (!parentTopic) throw new Error('Topic must have a parent in order to set a context');
+
   const currentContextTopic = (await getTopicContextTopic(topicId))?.contextTopic;
 
-  if (contextTopicId) {
-    // get requested context
-    const newContextTopic = await getTopicById(contextTopicId);
-    if (!newContextTopic) throw new NotFoundError('Topic', contextTopicId);
+  // get requested context
+  const newContextTopic = await getTopicById(contextTopicId);
+  if (!newContextTopic) throw new NotFoundError('Topic', contextTopicId);
 
-    // get valid contexts => if new is not in those, throw
-    const { validContexts } = await getTopicsValidContexts(parentTopic._id, topicId);
-    if (!validContexts.find(validContext => validContext._id === newContextTopic._id))
-      throw new Error('new context is not valid');
+  // get valid contexts => if new is not in those, throw
+  const { validContexts } = await getTopicsValidContexts(parentTopic._id, topicId);
+  if (!validContexts.find(validContext => validContext._id === newContextTopic._id))
+    throw new Error('new context is not valid');
 
-    // detach current and attach new one
-    if (currentContextTopic) await detachTopicHasContextTopic(topicId, currentContextTopic._id);
-    await attachTopicHasContextTopic(topicId, contextTopicId, { createdByUserId: user!._id });
+  // detach current and attach new one
+  if (currentContextTopic) {
+    const { topic } = await updateTopicHasContextTopic(topicId, newContextTopic._id, { createdByUserId: user!._id });
+    return topic;
+  } else {
+    const { topic } = await attachTopicHasContextTopic(topicId, contextTopicId, { createdByUserId: user!._id });
+    return topic;
   }
-
-  if (!contextTopicId) {
-    if (currentContextTopic) {
-      await detachTopicHasContextTopic(topicId, currentContextTopic._id);
-    } else {
-      throw new Error(`Topic ${topicId} already has no context`);
-    }
-  }
-
-  return topic;
 };
 // TODO : set known / unknown
 // export const getTopicKnownResolver: APIConceptResolvers['known'] = async (parentConcept, _args, { user }) => {
