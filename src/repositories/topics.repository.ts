@@ -121,7 +121,7 @@ export const autocompleteTopicName = async (
 ): Promise<Topic[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${TopicLabel}) WHERE toLower(node.name) STARTS WITH toLower($partialName)
+    `MATCH (node:${TopicLabel}) WHERE toLower(node.name) CONTAINS toLower($partialName)
     WITH DISTINCT node.name as name, node
     RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
