@@ -1,0 +1,15 @@
+type LearningMaterialHasPrerequisiteTopic {
+    strength: Float!
+    createdByUserId: String!
+    createdAt: Date!
+    topic: Topic!
+    learningMaterial: LearningMaterial!
+}
+
+type Mutation {
+  addLearningMaterialHasPrerequisiteTopic(learningMaterialId: String!, prerequisiteTopicId: String!, strength: Float): LearningMaterial!
+  removeLearningMaterialHasPrerequisiteTopic(
+    learningMaterialId: String!
+    prerequisiteTopicId: String!
+  ): LearningMaterial!
+}

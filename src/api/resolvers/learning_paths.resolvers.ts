@@ -1,8 +1,5 @@
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
-  getLearningMaterialCoveredConcepts,
-  getLearningMaterialCoveredConceptsByDomain,
-  getLearningMaterialDomains,
   getLearningMaterialRating,
 } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
@@ -13,7 +10,6 @@ import {
   findLearningPath,
   findLearningPathCreatedBy,
   getLearningPathComplementaryResources,
-  getLearningPathCreator,
   getLearningPathResourceItems,
   getLearningPathStartedBy,
   getUserStartedLearningPath,
@@ -41,16 +37,16 @@ export const createLearningPathResolver: APIMutationResolvers['createLearningPat
 
 export const updateLearningPathResolver: APIMutationResolvers['updateLearningPath'] = async (
   _ctx,
-  { _id, payload },
+  { learningPathId, payload },
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in');
 
   const learningPath =
-    user.role === UserRole.ADMIN ? await findLearningPath({ _id }) : await findLearningPathCreatedBy(user._id, { _id });
-  if (!learningPath) throw new NotFoundError('LearningPath', _id);
+    user.role === UserRole.ADMIN ? await findLearningPath({ _id: learningPathId }) : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+  if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
-  return await updateFullLearningPath(_id, {
+  return await updateFullLearningPath(learningPathId, {
     ...nullToUndefined(payload),
     durationSeconds: payload.durationSeconds,
   });
@@ -58,38 +54,38 @@ export const updateLearningPathResolver: APIMutationResolvers['updateLearningPat
 
 export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPath'] = async (
   _ctx,
-  { _id },
+  { learningPathId },
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in');
   if (user.role === UserRole.ADMIN) {
-    await deleteFullLearningPath(_id);
+    await deleteFullLearningPath(learningPathId);
     return {
       success: true,
-      _id: _id,
+      _id: learningPathId,
     };
   }
-  const learningPath = await findLearningPathCreatedBy(user._id, { _id });
-  if (!learningPath) throw new NotFoundError('LearningPath', _id);
+  const learningPath = await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+  if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
-  await deleteFullLearningPath(_id);
+  await deleteFullLearningPath(learningPathId);
   return {
     success: true,
     _id: learningPath._id,
   };
 };
 
-export const getLearningPathResolver: APIQueryResolvers['getLearningPath'] = async (_ctx, { _id }, { user }) => {
-  const learningPath = await findLearningPathIfAuthorized({ _id }, user?._id);
+export const getLearningPathByIdResolver: APIQueryResolvers['getLearningPathById'] = async (_ctx, { learningPathId }, { user }) => {
+  const learningPath = await findLearningPathIfAuthorized({ _id: learningPathId }, user?._id);
   return learningPath;
 };
 
 export const getLearningPathByKeyResolver: APIQueryResolvers['getLearningPathByKey'] = async (
   _ctx,
-  { key },
+  { learningPathKey },
   { user }
 ) => {
-  const learningPath = await findLearningPathIfAuthorized({ key }, user?._id);
+  const learningPath = await findLearningPathIfAuthorized({ key: learningPathKey }, user?._id);
   return learningPath;
 };
 
@@ -160,20 +156,6 @@ export const getLearningPathRatingResolver: APILearningPathResolvers['rating'] =
 export const getLearningPathTagsResolver: APILearningPathResolvers['tags'] = async learningPath =>
   getLearningMaterialTags(learningPath._id);
 
-export const getLearningPathCoveredConceptsResolver: APILearningPathResolvers['coveredConcepts'] = async learningPath => {
-  return {
-    items: await getLearningMaterialCoveredConcepts(learningPath._id),
-  };
-};
-
-export const getLearningPathCoveredConceptsByDomainResolver: APILearningPathResolvers['coveredConceptsByDomain'] = async learningPath => {
-  return await getLearningMaterialCoveredConceptsByDomain(learningPath._id);
-};
-
-export const getLearningPathDomainsResolver: APILearningPathResolvers['domains'] = async learningPath => {
-  return await getLearningMaterialDomains(learningPath._id);
-};
-
 export const getLearningPathStartedResolver: APILearningPathResolvers['started'] = async (
   learningPath,
   _,
@@ -183,10 +165,6 @@ export const getLearningPathStartedResolver: APILearningPathResolvers['started']
 
   const started = await getUserStartedLearningPath(user._id, learningPath._id);
   return started;
-};
-
-export const getLearningPathCreatedByResolver: APILearningPathResolvers['createdBy'] = async learningPath => {
-  return await getLearningPathCreator(learningPath._id);
 };
 
 export const getLearningPathStartedByResolver: APILearningPathResolvers['startedBy'] = async (

@@ -1,4 +1,4 @@
-import { LearningGoalLabel } from '../entities/LearningGoal';
+import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterial } from '../entities/LearningMaterial';
 import { LearningPathLabel } from '../entities/LearningPath';
 import { Topic } from '../entities/Topic';
@@ -25,13 +25,13 @@ export const searchEntities = async (
 
   const { records } = await session.run(
     `CALL db.index.fulltext.queryNodes("${env.NEO4J.FULL_TEXT_SEARCH_INDEX_NAME}", $query) YIELD node, score
-    WHERE (NOT node:${LearningPathLabel} OR node.public = true) 
-    AND (NOT node:${LearningGoalLabel} OR (node.publishedAt IS NOT NULL AND node.hidden = false))
+    WHERE (NOT node:${LearningPathLabel} OR node.public = true)
     RETURN properties(node) as node, score SKIP ${offset} LIMIT ${limit}`,
     {
       query,
     }
   );
+  // AND (NOT node:${LearningGoalLabel} OR (node.publishedAt IS NOT NULL AND node.hidden = false))
   session.close();
   return records.map(r => ({ entity: r.get('node'), score: r.get('score') }));
 };

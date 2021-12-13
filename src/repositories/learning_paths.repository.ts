@@ -256,23 +256,6 @@ export const getUserStartedLearningPath = (
     },
   }).then(result => (result ? result.relationship : null));
 
-export const getLearningPathCreator = (learningPathId: string): Promise<User> =>
-  getRelatedNode<User>({
-    originNode: {
-      label: LearningPathLabel,
-      filter: { _id: learningPathId },
-    },
-    relationship: {
-      label: UserCreatedLearningMaterialLabel,
-      filter: {},
-      direction: 'IN',
-    },
-    destinationNode: {
-      label: UserLabel,
-      filter: {},
-    },
-  });
-
 export const getLearningPathStartedBy = (
   learningPathId: string,
   { pagination }: { pagination?: PaginationOptions }

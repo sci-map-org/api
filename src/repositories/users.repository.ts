@@ -1,33 +1,32 @@
 import { omit } from 'lodash';
 import { map, prop } from 'ramda';
+import * as shortid from 'shortid';
 import { nullToUndefined } from '../api/util/nullToUndefined';
-import { Concept, ConceptLabel } from '../entities/Concept';
+import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningPath, LearningPathLabel } from '../entities/LearningPath';
 import { UserConsumedResource, UserConsumedResourceLabel } from '../entities/relationships/UserConsumedResource';
+import {
+  UserCreatedLearningGoal,
+  UserCreatedLearningGoalLabel,
+} from '../entities/relationships/UserCreatedLearningGoal';
 import {
   UserCreatedLearningMaterial,
   UserCreatedLearningMaterialLabel,
 } from '../entities/relationships/UserCreatedLearningMaterial';
-import { UserKnowsConcept, UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
+import { UserKnowsTopic, UserKnowsTopicLabel } from '../entities/relationships/UserKnowsTopic';
+import {
+  UserStartedLearningGoal,
+  UserStartedLearningGoalLabel,
+} from '../entities/relationships/UserStartedLearningGoal';
 import {
   UserStartedLearningPath,
   UserStartedLearningPathLabel,
 } from '../entities/relationships/UserStartedLearningPath';
 import { Resource, ResourceLabel } from '../entities/Resource';
+import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel, UserRole } from '../entities/User';
 import { neo4jDriver } from '../infra/neo4j';
 import { attachNodes, detachNodes, findOne, getRelatedNodes, updateOne } from './util/abstract_graph_repo';
-
-import shortid = require('shortid');
-import {
-  UserStartedLearningGoal,
-  UserStartedLearningGoalLabel,
-} from '../entities/relationships/UserStartedLearningGoal';
-import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
-import {
-  UserCreatedLearningGoal,
-  UserCreatedLearningGoalLabel,
-} from '../entities/relationships/UserCreatedLearningGoal';
 
 interface UpdateUserData {
   displayName?: string;
@@ -75,44 +74,44 @@ export const findUser = findOne<User, { key: string } | { email: string }>({ lab
 
 export const updateUser = updateOne<User, { _id: string } | { email: string }, UpdateUserData>({ label: 'User' });
 
-export const attachUserKnowsConcepts = (
+export const attachUserKnowsTopics = (
   userId: string,
-  conceptsToKnow: Array<{ conceptId: string; level?: number | null }>
+  topicsToKnow: Array<{ topicId: string; level?: number | null }>
 ) =>
   Promise.all(
-    conceptsToKnow.map(conceptToKnow =>
-      attachNodes<User, UserKnowsConcept, Concept>({
+    topicsToKnow.map(topicToKnow =>
+      attachNodes<User, UserKnowsTopic, Topic>({
         originNode: {
           label: UserLabel,
           filter: { _id: userId },
         },
         relationship: {
-          label: UserKnowsConceptLabel,
+          label: UserKnowsTopicLabel,
           onCreateProps: {
-            level: conceptToKnow.level || 100,
+            level: topicToKnow.level || 100,
           },
         },
         destinationNode: {
-          label: ConceptLabel,
-          filter: { _id: conceptToKnow.conceptId }, // can't user $in cause different values based on the conceptId
+          label: TopicLabel,
+          filter: { _id: topicToKnow.topicId }, // can't use $in cause different values based on the topicId
         },
       })
     )
   );
 
-export const detachUserKnowsConcepts = (userId: string, conceptIds: string[]) =>
-  detachNodes<User, UserKnowsConcept, Concept>({
+export const detachUserKnowsTopics = (userId: string, topicsIds: string[]) =>
+  detachNodes<User, UserKnowsTopic, Topic>({
     originNode: {
       label: UserLabel,
       filter: { _id: userId },
     },
     relationship: {
-      label: UserKnowsConceptLabel,
+      label: UserKnowsTopicLabel,
       filter: {},
     },
     destinationNode: {
-      label: ConceptLabel,
-      filter: { _id: { $in: conceptIds } },
+      label: TopicLabel,
+      filter: { _id: { $in: topicsIds } },
     },
   });
 

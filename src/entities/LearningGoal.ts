@@ -1,8 +1,10 @@
-import { BaseTopic } from './Topic';
-
 export const LearningGoalLabel = 'LearningGoal';
 
-export interface LearningGoal extends BaseTopic {
+export interface LearningGoal  {
+  _id: string;
+  name: string;
+  key: string;
+  description?: string;
   type: LearningGoalType;
   hidden: boolean;
   publishedAt?: number;

@@ -7,3 +7,8 @@ export interface TopicIsSubTopicOfTopic {
   createdAt: number;
   createdByUserId?: string;
 }
+
+export enum SubTopicRelationshipType {
+  IS_SUBTOPIC_OF = 'IS_SUBTOPIC_OF',
+  IS_PART_OF = 'IS_PART_OF',
+}

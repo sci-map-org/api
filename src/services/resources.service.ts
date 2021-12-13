@@ -1,11 +1,10 @@
 import { omit } from 'lodash';
-import { APIDomainAndCoveredConcepts, ResourceMediaType, ResourceType } from '../api/schema/types';
+import { ResourceMediaType, ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import {
-  attachLearningMaterialCoversConcepts,
-  attachLearningMaterialHasPrerequisiteLearningGoal,
-  attachLearningMaterialLeadsToLearningGoal,
-  attachLearningMaterialToDomain,
+  attachLearningMaterialCoversTopics,
+  attachLearningMaterialHasPrerequisiteTopic,
+  showLearningMaterialInTopics,
 } from '../repositories/learning_materials.repository';
 import {
   attachTagsToLearningMaterial,
@@ -21,29 +20,13 @@ interface CreateAndSaveResourceBaseData {
   url: string;
   description?: string;
   tags?: string[];
-  prerequisitesLearningGoalsIds?: string[];
-  outcomesLearningGoalsIds?: string[];
-  domainsAndCoveredConcepts?: APIDomainAndCoveredConcepts[];
+  prerequisitesTopicsIds?: string[];
+  showInTopicsIds: string[];
+  coveredSubTopicsIds?: string[];
 }
 interface CreateAndSaveResourceData extends CreateAndSaveResourceBaseData {
   subResourceSeries?: CreateAndSaveResourceBaseData[]; // limit to one level for now
 }
-
-const attachDomainsAndCoveredConcepts = async (
-  resourceId: string,
-  domainsAndCoveredConcepts: APIDomainAndCoveredConcepts[],
-  userId: string
-): Promise<any> => {
-  return Promise.all(
-    domainsAndCoveredConcepts.map(async ({ domainId, conceptsIds }) => {
-      await attachLearningMaterialToDomain(resourceId, domainId);
-      conceptsIds.length &&
-        (await attachLearningMaterialCoversConcepts(resourceId, conceptsIds, {
-          userId,
-        }));
-    })
-  );
-};
 
 const attachResourceTags = async (resourceId: string, tags?: string[]): Promise<void> => {
   if (!tags || !tags.length) return;
@@ -57,52 +40,32 @@ const attachResourceTags = async (resourceId: string, tags?: string[]): Promise<
 const attachPrerequisites = async (
   resourceId: string,
   userId: string,
-  prerequisitesLearningGoalsIds?: string[]
+  prerequisitesTopicsIds?: string[]
 ): Promise<void> => {
-  if (!prerequisitesLearningGoalsIds || !prerequisitesLearningGoalsIds.length) return;
+  if (!prerequisitesTopicsIds || !prerequisitesTopicsIds.length) return;
   await Promise.all(
-    prerequisitesLearningGoalsIds.map(async prerequisiteId =>
-      attachLearningMaterialHasPrerequisiteLearningGoal(resourceId, prerequisiteId, {
+    prerequisitesTopicsIds.map(async prerequisiteId =>
+      attachLearningMaterialHasPrerequisiteTopic(resourceId, prerequisiteId, {
         strength: 100,
-        createdBy: userId,
-      })
-    )
-  );
-};
-const attachOutcomes = async (
-  resourceId: string,
-  userId: string,
-  outcomesLearningGoalsIds?: string[]
-): Promise<void> => {
-  if (!outcomesLearningGoalsIds || !outcomesLearningGoalsIds.length) return;
-  await Promise.all(
-    outcomesLearningGoalsIds.map(outcomeId =>
-      attachLearningMaterialLeadsToLearningGoal(resourceId, outcomeId, {
-        strength: 100,
-        createdBy: userId,
+        createdByUserId: userId,
       })
     )
   );
 };
 
+// TODO: make type safe
 export const createAndSaveResource = async (data: CreateAndSaveResourceData, userId: string): Promise<Resource> => {
   const createdResource = await createResource(
     { _id: userId },
-    omit(data, [
-      'tags',
-      'subResourceSeries',
-      'domainsAndCoveredConcepts',
-      'outcomesLearningGoalsIds',
-      'prerequisitesLearningGoalsIds',
-    ])
+    omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds'])
   );
   await Promise.all([
     attachResourceTags(createdResource._id, data.tags),
-    attachPrerequisites(createdResource._id, userId, data.prerequisitesLearningGoalsIds),
-    attachOutcomes(createdResource._id, userId, data.outcomesLearningGoalsIds),
-    data.domainsAndCoveredConcepts &&
-      data.domainsAndCoveredConcepts.length &&
-      attachDomainsAndCoveredConcepts(createdResource._id, data.domainsAndCoveredConcepts, userId),
+    attachPrerequisites(createdResource._id, userId, data.prerequisitesTopicsIds),
+    data.showInTopicsIds.length ? showLearningMaterialInTopics(createdResource._id, data.showInTopicsIds) : undefined,
+    data.coveredSubTopicsIds?.length
+      ? attachLearningMaterialCoversTopics(createdResource._id, data.coveredSubTopicsIds, { userId })
+      : undefined,
   ]);
   if (data.subResourceSeries && data.subResourceSeries.length) {
     const createdSubResources = await Promise.all(

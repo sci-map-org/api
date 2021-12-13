@@ -1,12 +1,7 @@
 import { UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
-import {
-  getLearningMaterialCoveredConcepts,
-  getLearningMaterialCoveredConceptsByDomain,
-  getLearningMaterialDomains,
-  getLearningMaterialRating,
-} from '../../repositories/learning_materials.repository';
+import { getLearningMaterialRating } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import {
   addSubResourceToSeries,
@@ -15,7 +10,6 @@ import {
   deleteResource,
   deleteResourceCreatedBy,
   findResource,
-  getResourceCreator,
   getResourceNextResource,
   getResourceParentResources,
   getResourcePreviousResource,
@@ -26,20 +20,13 @@ import {
   getUserConsumedResource,
   searchResources,
   updateResource,
-  voteResource,
 } from '../../repositories/resources.repository';
 import { attachUserConsumedResources } from '../../repositories/users.repository';
 import { createAndSaveResource } from '../../services/resources.service';
 import { analyzeResourceUrl } from '../../services/url_analyzer.service';
 import { hasAccess } from '../../services/users.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import {
-  APIMutationResolvers,
-  APIQueryResolvers,
-  APIResource,
-  APIResourceResolvers,
-  APIResourceVoteValue,
-} from '../schema/types';
+import { APIMutationResolvers, APIQueryResolvers, APIResource, APIResourceResolvers } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 import { toAPIUser } from './users.resolvers';
 
@@ -72,49 +59,39 @@ export const createResourceResolver: APIMutationResolvers['createResource'] = as
 
 export const updateResourceResolver: APIMutationResolvers['updateResource'] = async (
   _parent,
-  { _id, payload },
+  { resourceId, payload },
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to update a resource');
   const updatedResource = await updateResource(
-    { _id },
+    { _id: resourceId },
     { ...nullToUndefined(payload), durationSeconds: payload.durationSeconds }
   );
-  if (!updatedResource) throw new NotFoundError('Resource', _id, 'id');
+  if (!updatedResource) throw new NotFoundError('Resource', resourceId);
   return toAPIResource(updatedResource);
 };
 
-export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (_parent, { _id }, { user }) => {
+export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (
+  _parent,
+  { resourceId },
+  { user }
+) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to delete a resource');
 
   const { deletedCount } = hasAccess('contributorOrAdmin', user)
-    ? await deleteResource({ _id })
-    : await deleteResourceCreatedBy({ _id: user._id }, _id);
-  if (!deletedCount) throw new NotFoundError('Resource', _id, '_id');
+    ? await deleteResource({ _id: resourceId })
+    : await deleteResourceCreatedBy({ _id: user._id }, resourceId);
+  if (!deletedCount) throw new NotFoundError('Resource', resourceId);
   return {
     success: true,
-    _id,
+    _id: resourceId,
   };
 };
 
-export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { id }) => {
-  const resource = await findResource({ _id: id });
-  if (!resource) throw new NotFoundError('Resource', id, '_id');
+export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { resourceId }) => {
+  const resource = await findResource({ _id: resourceId });
+  if (!resource) throw new NotFoundError('Resource', resourceId);
   return toAPIResource(resource);
-};
-
-export const getResourceCoveredConceptsResolver: APIResourceResolvers['coveredConcepts'] = async resource => {
-  return {
-    items: await getLearningMaterialCoveredConcepts(resource._id),
-  };
-};
-
-export const getResourceCoveredConceptsByDomainResolver: APIResourceResolvers['coveredConceptsByDomain'] = async resource => {
-  return await getLearningMaterialCoveredConceptsByDomain(resource._id);
-};
-
-export const getResourceDomainsResolver: APIResourceResolvers['domains'] = async resource => {
-  return await getLearningMaterialDomains(resource._id);
 };
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
@@ -157,15 +134,15 @@ export const getResourceConsumedResolver: APIResourceResolvers['consumed'] = asy
   return await getUserConsumedResource(user._id, resource._id);
 };
 
-export const voteResourceResolver: APIMutationResolvers['voteResource'] = async (
-  _parent,
-  { resourceId, value },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in to vote on a resource');
-  const resource = await voteResource(user._id, resourceId, value === APIResourceVoteValue.Up ? 1 : -1);
-  return toAPIResource(resource);
-};
+// export const voteResourceResolver: APIMutationResolvers['voteResource'] = async (
+//   _parent,
+//   { resourceId, value },
+//   { user }
+// ) => {
+//   if (!user) throw new UnauthenticatedError('Must be logged in to vote on a resource');
+//   const resource = await voteResource(user._id, resourceId, value === APIResourceVoteValue.Up ? 1 : -1);
+//   return toAPIResource(resource);
+// };
 
 export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
   return getResourceUpvoteCount(resource._id);
@@ -173,12 +150,6 @@ export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async
 
 export const getResourceRatingResolver: APIResourceResolvers['rating'] = async resource =>
   getLearningMaterialRating(resource._id);
-
-export const getResourceCreatorResolver: APIResourceResolvers['creator'] = async resource => {
-  const creator = await getResourceCreator({ _id: resource._id });
-
-  return toAPIUser(creator);
-};
 
 export const getResourceSubResourcesResolver: APIResourceResolvers['subResources'] = async resource => {
   return getResourceSubResources(resource._id);

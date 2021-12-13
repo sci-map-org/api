@@ -3,21 +3,18 @@ enum LearningGoalType {
   SubGoal
 }
 
-type LearningGoal implements ITopic {
+type LearningGoal  {
   _id: String!
   key: String!
   type: LearningGoalType!
   name: String!
   description: String
-  topicType: TopicType!
   publishedAt: Date
   hidden: Boolean!
   rating: Float
   progress: LearningGoalProgress
   createdBy: User
-  domain: LearningGoalBelongsToDomain
-  subTopics(options: TopicSubTopicsOptions!): [TopicIsSubTopicOfTopic!]
-  parentTopic: TopicIsSubTopicOfTopic
+  showedIn: [Topic!]
   size: Float
   requiredInGoals: [RequiredInGoalItem!]
   requiredSubGoals: [SubGoalItem!] # sub goals vs required goals ?
@@ -80,7 +77,7 @@ type SubGoalItem {
   strength: Float!
 }
 
-union SubGoal = LearningGoal | Concept
+union SubGoal = LearningGoal | Topic
 
 input CreateLearningGoalPayload {
   name: String!
@@ -90,7 +87,7 @@ input CreateLearningGoalPayload {
 }
 input CreateLearningGoalOptions {
   public: Boolean
-  domainId: String
+  topicId: String
 }
 
 input UpdateLearningGoalPayload {
@@ -100,18 +97,13 @@ input UpdateLearningGoalPayload {
   description: String
 }
 
-input AttachLearningGoalToDomainPayload {
+input ShowLearningGoalInTopicPayload {
   index: Float
 }
 
 type DeleteLearningGoalMutationResult {
   _id: String!
   success: Boolean!
-}
-
-type DomainAndLearningGoalResult {
-  domain: Domain!
-  learningGoal: LearningGoal!
 }
 
 input SearchLearningGoalsOptions {
@@ -154,20 +146,24 @@ type UpdateLearningGoalDependenciesResult {
   learningGoalDependency: LearningGoal!
 }
 
+type ShowLearningGoalInTopicResult {
+  learningGoal: LearningGoal!
+  topic: Topic!
+}
+
+type CheckLearningGoalKeyAvailabilityResult {
+  available: Boolean!
+  existingLearningGoal: LearningGoal
+}
+
 type Query {
   searchLearningGoals(options: SearchLearningGoalsOptions!): SearchLearningGoalsResult!
   getLearningGoalByKey(key: String!): LearningGoal!
-  getDomainLearningGoalByKey(domainKey: String!, learningGoalKey: String!): DomainAndLearningGoalResult!
+  checkLearningGoalKeyAvailability(key: String!): CheckLearningGoalKeyAvailabilityResult!
 }
 
 type Mutation {
   createLearningGoal(payload: CreateLearningGoalPayload!, options: CreateLearningGoalOptions): LearningGoal!
-  attachLearningGoalToDomain(
-    learningGoalId: String!
-    domainId: String!
-    payload: AttachLearningGoalToDomainPayload!
-  ): DomainAndLearningGoalResult!
-  detachLearningGoalFromDomain(learningGoalId: String!, domainId: String!): DomainAndLearningGoalResult!
   updateLearningGoal(_id: String!, payload: UpdateLearningGoalPayload!): LearningGoal!
   deleteLearningGoal(_id: String!): DeleteLearningGoalMutationResult!
   attachLearningGoalRequiresSubGoal(
@@ -192,5 +188,7 @@ type Mutation {
   startLearningGoal(learningGoalId: String!): LearningGoalStartedResult!
   publishLearningGoal(learningGoalId: String!): LearningGoalPublishedResult!
   indexLearningGoal(learningGoalId: String!): LearningGoalIndexedResult!
+  showLearningGoalInTopic(topicId: String!, learningGoalId: String!, payload: ShowLearningGoalInTopicPayload!): ShowLearningGoalInTopicResult!
+  hideLearningGoalFromTopic(topicId: String!, learningGoalId: String!): ShowLearningGoalInTopicResult!
   rateLearningGoal(learningGoalId: String!, value: Float!): LearningGoal!
 }

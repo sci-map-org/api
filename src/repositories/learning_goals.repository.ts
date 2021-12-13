@@ -1,15 +1,10 @@
-import { isNull, node, not, Query, relation } from 'cypher-query-builder';
-import { omit } from 'lodash';
+import { isNull, node, Query, relation } from 'cypher-query-builder';
+import { map, omit } from 'lodash';
+import { prop } from 'ramda';
 import * as shortid from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
-import { ConceptLabel } from '../entities/Concept';
-import { Domain, DomainLabel } from '../entities/Domain';
 import { LearningGoal, LearningGoalLabel, LearningGoalType } from '../entities/LearningGoal';
 import { LearningMaterial, LearningMaterialLabel } from '../entities/LearningMaterial';
-import {
-  LearningGoalBelongsToDomain,
-  LearningGoalBelongsToDomainLabel,
-} from '../entities/relationships/LearningGoalBelongsToDomain';
 import {
   LearningGoalDependsOnLearningGoalInLearningGoal,
   LearningGoalDependsOnLearningGoalInLearningGoalLabel,
@@ -18,18 +13,22 @@ import {
   LearningGoalRequiresSubGoal,
   LearningGoalRequiresSubGoalLabel,
 } from '../entities/relationships/LearningGoalRequiresSubGoal';
-import { LearningMaterialCoversConceptLabel } from '../entities/relationships/LearningMaterialCoversConcept';
+import {
+  DEFAULT_INDEX_VALUE,
+  LearningGoalShowedInTopic,
+  LearningGoalShowedInTopicLabel,
+} from '../entities/relationships/LearningGoalShowedInTopic';
+import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
 import {
   LearningMaterialLeadsToLearningGoal,
   LearningMaterialLeadsToLearningGoalLabel,
 } from '../entities/relationships/LearningMaterialLeadsToLearningGoal';
-import { DEFAULT_INDEX_VALUE } from '../entities/relationships/TopicBelongsToDomain';
 import {
   UserCreatedLearningGoal,
   UserCreatedLearningGoalLabel,
 } from '../entities/relationships/UserCreatedLearningGoal';
 import { UserCreatedLearningMaterialLabel } from '../entities/relationships/UserCreatedLearningMaterial';
-import { UserKnowsConceptLabel } from '../entities/relationships/UserKnowsConcept';
+import { UserKnowsTopicLabel } from '../entities/relationships/UserKnowsTopic';
 import { UserRatedLearningGoal, UserRatedLearningGoalLabel } from '../entities/relationships/UserRatedLearningGoal';
 import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import {
@@ -37,7 +36,7 @@ import {
   UserStartedLearningGoalLabel,
 } from '../entities/relationships/UserStartedLearningGoal';
 import { SubGoal } from '../entities/SubGoal';
-import { TopicLabel, TopicType } from '../entities/Topic';
+import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
@@ -72,12 +71,11 @@ export const createLearningGoal = (
     originNode: { label: UserLabel, filter: userFilter },
     relationship: { label: UserCreatedLearningGoalLabel, props: { createdAt: Date.now() } },
     newNode: {
-      labels: [LearningGoalLabel, TopicLabel],
+      labels: [LearningGoalLabel],
       props: {
         ...data,
         _id: shortid.generate(),
         key: data.key ? generateUrlKey(data.key) : generateLearningGoalKey(data.name),
-        topicType: TopicType.LearningGoal,
       },
     },
   });
@@ -141,71 +139,44 @@ export const deleteLearningGoal = deleteOne<LearningGoal, { _id: string } | { ke
   label: LearningGoalLabel,
 });
 
-export const attachLearningGoalToDomain = (
+export const showLearningGoalInTopic = (
   learningGoalId: string,
-  domainId: string,
+  topicId: string,
   { index }: { index?: number }
-): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
-  attachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
+): Promise<{ topic: Topic; learningGoal: LearningGoal }> =>
+  attachUniqueNodes<LearningGoal, LearningGoalShowedInTopic, Topic>({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
     relationship: {
-      label: LearningGoalBelongsToDomainLabel,
+      label: LearningGoalShowedInTopicLabel,
       onCreateProps: { index: index || DEFAULT_INDEX_VALUE },
       onMergeProps: { index },
     },
-    destinationNode: { label: DomainLabel, filter: { _id: domainId } },
-  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
+    destinationNode: { label: TopicLabel, filter: { _id: topicId } },
+  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, topic: destinationNode }));
 
-export const detachLearningGoalFromDomain = (
+export const hideLearningGoalFromTopic = (
   learningGoalId: string,
-  domainId: string
-): Promise<{ domain: Domain; learningGoal: LearningGoal }> =>
-  detachUniqueNodes<LearningGoal, LearningGoalBelongsToDomain, Domain>({
+  topicId: string
+): Promise<{ topic: Topic; learningGoal: LearningGoal }> =>
+  detachUniqueNodes<LearningGoal, LearningGoalShowedInTopic, Topic>({
     originNode: { label: LearningGoalLabel, filter: { _id: learningGoalId } },
-    relationship: { label: LearningGoalBelongsToDomainLabel, filter: {} },
-    destinationNode: { label: DomainLabel, filter: { _id: domainId } },
-  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, domain: destinationNode }));
+    relationship: { label: LearningGoalShowedInTopicLabel, filter: {} },
+    destinationNode: { label: TopicLabel, filter: { _id: topicId } },
+  }).then(({ originNode, destinationNode }) => ({ learningGoal: originNode, topic: destinationNode }));
 
-export const getLearningGoalDomain = (
-  learningGoalId: string
-): Promise<{ domain: Domain; relationship: LearningGoalBelongsToDomain; learningGoal: LearningGoal } | null> =>
-  getOptionalRelatedNode<LearningGoal, LearningGoalBelongsToDomain, Domain>({
+export const getLearningGoalTopicsShowedIn = (learningGoalId: string): Promise<Topic[]> =>
+  getRelatedNodes<LearningGoal, LearningGoalShowedInTopic, Topic>({
     originNode: {
       label: LearningGoalLabel,
-      filter: {
-        _id: learningGoalId,
-      },
+      filter: { _id: learningGoalId },
     },
     relationship: {
-      label: LearningGoalBelongsToDomainLabel,
-      filter: {},
+      label: LearningGoalShowedInTopicLabel,
     },
     destinationNode: {
-      label: DomainLabel,
-      filter: {},
+      label: TopicLabel,
     },
-  }).then(data =>
-    data ? { domain: data.destinationNode, relationship: data.relationship, learningGoal: data.originNode } : null
-  );
-
-export const findDomainLearningGoalByKey = (
-  domainKey: string,
-  learningGoalkey: string
-): Promise<{ learningGoal: LearningGoal; domain: Domain } | null> =>
-  getOptionalRelatedNode<Domain, LearningGoalBelongsToDomain, LearningGoal>({
-    originNode: {
-      label: DomainLabel,
-      filter: { key: domainKey },
-    },
-    relationship: {
-      label: LearningGoalBelongsToDomainLabel,
-      direction: 'IN',
-    },
-    destinationNode: {
-      label: LearningGoalLabel,
-      filter: { key: learningGoalkey },
-    },
-  }).then(result => (result ? { learningGoal: result.destinationNode, domain: result.originNode } : null));
+  }).then(items => items.map(({ destinationNode }) => destinationNode));
 
 function generateLearningGoalKey(name: string) {
   return shortid.generate() + '_' + generateUrlKey(name);
@@ -390,9 +361,9 @@ export const getLearningGoalProgress = async (learningGoalId: string, userId: st
   q.match([
     node('n', LearningGoalLabel, { _id: learningGoalId }),
     relation('out', 'r', LearningGoalRequiresSubGoalLabel, undefined, [1, 5]),
-    node('c', ConceptLabel),
+    node('c', TopicLabel),
   ]);
-  q.optionalMatch([node('c'), relation('in', 'k', UserKnowsConceptLabel), node('u', UserLabel, { _id: userId })]);
+  q.optionalMatch([node('c'), relation('in', 'k', UserKnowsTopicLabel), node('u', UserLabel, { _id: userId })]);
 
   q.raw('WITH DISTINCT c, k WITH size(collect(c)) as lenC, sum(k.level) as lenK ');
   q.return('CASE WHEN lenC > 0 THEN lenK/lenC ELSE 0 END  as progress');
@@ -450,6 +421,7 @@ export const getLearningMaterialsLeadingToOutcome = async (
 
 const averageRating = 4; // rating over 4: score is boosted, below is reduced
 const cboBoost = 0.2; // if a learning material is created by the creator of the learning goal, score gains *(1+cboBoost)
+
 export const getLearningGoalRelevantLearningMaterials = async (
   learningGoalId: string
 ): Promise<{ learningMaterial: LearningMaterial; score: number; coverage: number }[]> => {
@@ -464,7 +436,7 @@ export const getLearningGoalRelevantLearningMaterials = async (
     relation('out', undefined, LearningGoalRequiresSubGoalLabel, undefined, [0, 5]),
     node('req'),
   ]);
-  q.raw(` WHERE req:${LearningGoalLabel} OR req:${ConceptLabel} `);
+  q.raw(` WHERE req:${LearningGoalLabel} OR req:${TopicLabel} `);
 
   // WITH collect(req.name) as req, own
   q.with(['collect(req._id) as req, owner']);
@@ -472,7 +444,7 @@ export const getLearningGoalRelevantLearningMaterials = async (
   // MATCH (cov)<-[:COVERS|LEADS_TO|REQUIRES*0..5]-(lm:LearningMaterial)<-[:CREATED]-(crea:User)
   // WHERE cov.name IN req
   q.raw(`
-  MATCH (cov)<-[:${LearningMaterialCoversConceptLabel}|${LearningMaterialLeadsToLearningGoalLabel}|${LearningGoalRequiresSubGoalLabel}*0..5]-(lm:${LearningMaterialLabel})
+  MATCH (cov)<-[:${LearningMaterialCoversTopicLabel}|${LearningMaterialLeadsToLearningGoalLabel}|${LearningGoalRequiresSubGoalLabel}*0..5]-(lm:${LearningMaterialLabel})
   <-[:${UserCreatedLearningMaterialLabel}]-(crea:${UserLabel}) 
   WHERE cov._id IN req AND (lm:Resource or lm.public = true)
   `);
@@ -490,7 +462,7 @@ export const getLearningGoalRelevantLearningMaterials = async (
 
   // match (lm)-[:COVERS|LEADS_TO|REQUIRES*0..5]->(off:Topic)
   q.raw(
-    ` match (lm)-[:${LearningMaterialCoversConceptLabel}|${LearningMaterialLeadsToLearningGoalLabel}|${LearningGoalRequiresSubGoalLabel}*0..5]->(off:${TopicLabel}) `
+    ` match (lm)-[:${LearningMaterialCoversTopicLabel}|${LearningMaterialLeadsToLearningGoalLabel}|${LearningGoalRequiresSubGoalLabel}*0..5]->(off:${TopicLabel}) `
   );
 
   // WITH DISTINCT lm, req, cov, collect(DISTINCT off.name) as off, cbo, rating

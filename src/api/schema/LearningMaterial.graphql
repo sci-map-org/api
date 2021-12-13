@@ -1,12 +1,16 @@
 interface LearningMaterial {
   _id: String!
+  name: String!
+  description: String
   tags: [LearningMaterialTag!]
   rating: Float
-  coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
-  coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
-  domains: [Domain!]
-  prerequisites: [LearningMaterialPrerequisiteItem!]
-  outcomes: [LearningMaterialOutcomeItem!]
+  coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults
+  coveredSubTopicsTree: [Topic!]
+  showedIn: [Topic!]
+  prerequisites: [LearningMaterialHasPrerequisiteTopic!]
+  # outcomes: [LearningMaterialOutcomeItem!]
+  createdBy: User
+  createdAt: Date!
 }
 
 enum LearningMaterialType {
@@ -14,52 +18,20 @@ enum LearningMaterialType {
   LearningPath
 }
 
-input LearningMaterialCoveredConceptsOptions {
+input LearningMaterialCoveredSubTopicsOptions {
   pagination: PaginationOptions
 }
 
-type LearningMaterialCoveredConceptsResults {
-  items: [Concept!]!
+type LearningMaterialCoveredSubTopicsResults {
+  items: [Topic!]!
 }
 
-type LearningMaterialCoveredConceptsByDomainItem {
-  domain: Domain!
-  coveredConcepts: [Concept!]!
-}
-
-input LearningMaterialDomainsOptions {
-  pagination: PaginationOptions
-}
-
-type LearningMaterialDomainsResults {
-  items: [Domain!]!
-}
-
-type LearningMaterialPrerequisiteItem {
-  learningGoal: LearningGoal!
-  strength: Float!
-  createdBy: String!
-  createdAt: Date!
-}
-
-type LearningMaterialOutcomeItem {
-  learningGoal: LearningGoal!
-  strength: Float!
-  createdBy: String!
-  createdAt: Date!
-}
 
 type Mutation {
-  attachLearningMaterialToDomain(domainId: String!, learningMaterialId: String!): LearningMaterial!
-  detachLearningMaterialFromDomain(domainId: String!, learningMaterialId: String!): LearningMaterial!
-  attachLearningMaterialCoversConcepts(learningMaterialId: String!, conceptIds: [String!]!): LearningMaterial!
-  detachLearningMaterialCoversConcepts(learningMaterialId: String!, conceptIds: [String!]!): LearningMaterial!
+  recommendLearningMaterial(learningMaterialId: String!): LearningMaterial!
+  showLearningMaterialInTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
+  hideLearningMaterialFromTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
   rateLearningMaterial(learningMaterialId: String!, value: Float!): LearningMaterial!
-  addLearningMaterialPrerequisite(learningMaterialId: String!, prerequisiteLearningGoalId: String!): LearningMaterial!
-  removeLearningMaterialPrerequisite(
-    learningMaterialId: String!
-    prerequisiteLearningGoalId: String!
-  ): LearningMaterial!
-  addLearningMaterialOutcome(learningMaterialId: String!, outcomeLearningGoalId: String!): LearningMaterial!
-  removeLearningMaterialOutcome(learningMaterialId: String!, outcomeLearningGoalId: String!): LearningMaterial!
+  # addLearningMaterialOutcome(learningMaterialId: String!, outcomeSubGoalId: String!): LearningMaterial!
+  # removeLearningMaterialOutcome(learningMaterialId: String!, outcomeSubGoalId: String!): LearningMaterial!
 }

@@ -2,21 +2,21 @@ type LearningPath implements LearningMaterial {
   _id: String!
   key: String!
   name: String!
-  public: Boolean!
   description: String
+  public: Boolean!
   durationSeconds: Int
   resourceItems: [LearningPathResourceItem!]
   complementaryResources: [Resource!]
   tags: [LearningMaterialTag!]
   rating: Float
-  coveredConcepts(options: LearningMaterialCoveredConceptsOptions!): LearningMaterialCoveredConceptsResults
-  coveredConceptsByDomain: [LearningMaterialCoveredConceptsByDomainItem!]
-  domains: [Domain!]
   started: LearningPathStarted
-  createdBy: User
   startedBy(options: LearningPathStartedByOptions!): LearningPathStartedByResults
-  prerequisites: [LearningMaterialPrerequisiteItem!]
-  outcomes: [LearningMaterialOutcomeItem!]
+  coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults
+  coveredSubTopicsTree: [Topic!]
+  showedIn: [Topic!]
+  prerequisites: [LearningMaterialHasPrerequisiteTopic!]
+  createdBy: User
+  createdAt: Date!
 }
 
 input LearningPathStartedByOptions {
@@ -90,8 +90,8 @@ type LearningPathCompletedResult {
 
 type Mutation {
   createLearningPath(payload: CreateLearningPathPayload!): LearningPath!
-  updateLearningPath(_id: String!, payload: UpdateLearningPathPayload!): LearningPath!
-  deleteLearningPath(_id: String!): DeleteLearningPathResult!
+  updateLearningPath(learningPathId: String!, payload: UpdateLearningPathPayload!): LearningPath!
+  deleteLearningPath(learningPathId: String!): DeleteLearningPathResult!
   addComplementaryResourceToLearningPath(
     learningPathId: String!
     resourceId: String!
@@ -105,6 +105,6 @@ type Mutation {
 }
 
 type Query {
-  getLearningPath(_id: String!): LearningPath!
-  getLearningPathByKey(key: String!): LearningPath!
+  getLearningPathById(learningPathId: String!): LearningPath!
+  getLearningPathByKey(learningPathKey: String!): LearningPath!
 }
