@@ -1,4 +1,5 @@
 import { node, Query, relation } from 'cypher-query-builder';
+import { omit } from 'lodash';
 import * as shortid from 'shortid';
 import { APITopicLearningMaterialsSortingType } from '../api/schema/types';
 import { generateUrlKey } from '../api/util/urlKey';
@@ -51,6 +52,7 @@ interface CreateTopicData {
   key?: string;
   description?: string;
   isDisambiguation?: boolean;
+  aliases?: string[];
 }
 
 export const createTopic = (user: { _id: string } | { key: string }, data: CreateTopicData): Promise<Topic> =>
@@ -60,11 +62,14 @@ export const createTopic = (user: { _id: string } | { key: string }, data: Creat
     newNode: {
       labels: [TopicLabel],
       props: {
-        ...data,
+        ...omit(data, 'aliases'),
         key: generateUrlKey(data.key || data.name), // a bit ugly
         _id: shortid.generate(),
         updatedAt: Date.now(),
         createdAt: Date.now(),
+        ...(!!data.aliases?.length && {
+          aliasesJson: JSON.stringify(data.aliases),
+        }),
       },
     },
   });
@@ -74,6 +79,7 @@ interface UpdateTopicData {
   name?: string;
   description?: string;
   context?: string | null;
+  aliases?: string[] | null;
 }
 
 type TopicFilter = { _id: string } | { key: string };
@@ -82,8 +88,14 @@ export const updateTopic = (topicFilter: TopicFilter, data: UpdateTopicData) =>
   updateOne<Topic, TopicFilter, UpdateTopicData & { updatedAt: number }>({
     label: TopicLabel,
   })(topicFilter, {
-    ...data,
+    ...omit(data, 'aliases'),
     updatedAt: Date.now(),
+    ...(!!data.aliases?.length && {
+      aliasesJson: JSON.stringify(data.aliases),
+    }),
+    ...(data.aliases === null && {
+      aliasesJson: null,
+    }),
   });
 
 export const deleteTopic = deleteOne<Topic, { _id: string } | { key: string }>({ label: TopicLabel });

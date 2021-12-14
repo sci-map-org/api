@@ -167,6 +167,7 @@ export type APICreateTopicContextOptions = {
 };
 
 export type APICreateTopicPayload = {
+  aliases?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
   key: Scalars['String'];
   name: Scalars['String'];
@@ -1370,6 +1371,7 @@ export { SubTopicRelationshipType };
 export type APITopic = {
   __typename?: 'Topic';
   _id: Scalars['String'];
+  aliases?: Maybe<Array<Scalars['String']>>;
   context?: Maybe<Scalars['String']>;
   contextTopic?: Maybe<APITopic>;
   contextualisedTopics?: Maybe<Array<APITopic>>;
@@ -1502,6 +1504,7 @@ export type APIUpdateTopicIsSubTopicOfTopicPayload = {
 };
 
 export type APIUpdateTopicPayload = {
+  aliases?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
   key?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
@@ -2502,6 +2505,7 @@ export type APISubTopicRelationshipTypeResolvers = EnumResolverSignature<{ IS_PA
 
 export type APITopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Topic'] = APIResolversParentTypes['Topic']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  aliases?: Resolver<Maybe<Array<APIResolversTypes['String']>>, ParentType, ContextType>;
   context?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   contextTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;
   contextualisedTopics?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;

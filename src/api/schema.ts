@@ -94,6 +94,7 @@ import {
   createDisambiguationFromTopicResolver,
   createTopicResolver,
   deleteTopicResolver,
+  getTopicAliasesResolver,
   getTopicByIdResolver,
   getTopicByKeyResolver,
   getTopicContextTopicResolver,
@@ -297,6 +298,7 @@ const resolvers: APIResolvers<APIContext> = {
     __resolveType: learningMaterialResolveType,
   },
   Topic: {
+    aliases: getTopicAliasesResolver,
     parentTopic: getTopicParentTopicResolver,
     subTopics: getTopicSubTopicsResolver,
     subTopicsTotalCount: getTopicSubTopicsTotalCountResolver,

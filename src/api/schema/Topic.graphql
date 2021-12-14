@@ -10,6 +10,7 @@ type Topic {
   _id: String!
   name: String!
   key: String!
+  aliases: [String!]
   context: String
   isDisambiguation: Boolean
   contextTopic: Topic
@@ -87,6 +88,7 @@ input CreateTopicPayload {
   name: String!
   key: String!
   description: String
+  aliases: [String!]
 }
 
 input CreateTopicContextOptions {
@@ -98,6 +100,7 @@ input UpdateTopicPayload {
   name: String
   key: String
   description: String
+  aliases: [String!]
 }
 
 type DeleteTopicResponse {
