@@ -53,6 +53,7 @@ interface CreateTopicData {
   description?: string;
   isDisambiguation?: boolean;
   aliases?: string[];
+  level?: number;
 }
 
 export const createTopic = (user: { _id: string } | { key: string }, data: CreateTopicData): Promise<Topic> =>
@@ -80,6 +81,7 @@ interface UpdateTopicData {
   description?: string;
   context?: string | null;
   aliases?: string[] | null;
+  level?: number;
 }
 
 type TopicFilter = { _id: string } | { key: string };

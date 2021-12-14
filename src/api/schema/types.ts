@@ -170,6 +170,7 @@ export type APICreateTopicPayload = {
   aliases?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
   key: Scalars['String'];
+  level?: InputMaybe<Scalars['Float']>;
   name: Scalars['String'];
 };
 
@@ -1384,6 +1385,7 @@ export type APITopic = {
   key: Scalars['String'];
   learningMaterials?: Maybe<APITopicLearningMaterialsResults>;
   learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
+  level?: Maybe<Scalars['Float']>;
   name: Scalars['String'];
   otherContextsTopics?: Maybe<Array<APITopic>>;
   parentTopic?: Maybe<APITopic>;
@@ -1507,6 +1509,7 @@ export type APIUpdateTopicPayload = {
   aliases?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
   key?: InputMaybe<Scalars['String']>;
+  level?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
 };
 
@@ -2518,6 +2521,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   learningMaterials?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APITopicLearningMaterialsArgs, 'options'>>;
   learningMaterialsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  level?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   otherContextsTopics?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   parentTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;

@@ -14,6 +14,7 @@ type Topic {
   context: String
   isDisambiguation: Boolean
   contextTopic: Topic
+  level: Float
   otherContextsTopics: [Topic!]
   disambiguationTopic: Topic
   contextualisedTopics: [Topic!]
@@ -89,6 +90,7 @@ input CreateTopicPayload {
   key: String!
   description: String
   aliases: [String!]
+  level: Float
 }
 
 input CreateTopicContextOptions {
@@ -101,6 +103,7 @@ input UpdateTopicPayload {
   key: String
   description: String
   aliases: [String!]
+  level: Float
 }
 
 type DeleteTopicResponse {
