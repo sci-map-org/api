@@ -347,7 +347,6 @@ const resolvers: APIResolvers<APIContext> = {
   }),
 };
 
-console.log(schemaWithoutResolvers);
 export const schema = addResolversToSchema({
   schema: schemaWithoutResolvers,
   resolvers,
