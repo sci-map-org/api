@@ -339,7 +339,10 @@ const resolvers: APIResolvers<APIContext> = {
       return new Date(value).getTime();
     },
     parseLiteral(ast) {
-      ast.kind === 'StringValue' ? new Date(ast.value).getTime() : undefined;
+      if (ast.kind === 'StringValue') {
+        return new Date(ast.value).getTime();
+      }
+      throw new Error('Failed to parse date');
     },
   }),
 };

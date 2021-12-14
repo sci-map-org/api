@@ -272,6 +272,11 @@ export type APIGetHomePageDataResults = {
   recommendedLearningPaths: Array<APILearningPath>;
 };
 
+export type APIGetTopLevelTopicsResults = {
+  __typename?: 'GetTopLevelTopicsResults';
+  items: Array<APITopic>;
+};
+
 export type APIGetTopicValidContextsFromDisambiguation = {
   __typename?: 'GetTopicValidContextsFromDisambiguation';
   validContexts?: Maybe<Array<APITopic>>;
@@ -286,11 +291,6 @@ export type APIGetTopicValidContextsFromSameName = {
 export type APIGetTopicValidContextsResult = {
   __typename?: 'GetTopicValidContextsResult';
   validContexts?: Maybe<Array<APITopic>>;
-};
-
-export type APIGetTopLevelTopicsResults = {
-  __typename?: 'GetTopLevelTopicsResults';
-  items: Array<APITopic>;
 };
 
 export type APIGlobalSearchOptions = {
@@ -1041,12 +1041,12 @@ export type APIQuery = {
   getLearningPathByKey: APILearningPath;
   getResourceById: APIResource;
   getResourceByKey: APIResource;
+  getTopLevelTopics: APIGetTopLevelTopicsResults;
   getTopicById: APITopic;
   getTopicByKey: APITopic;
   getTopicValidContexts: APIGetTopicValidContextsResult;
   getTopicValidContextsFromDisambiguation: APIGetTopicValidContextsFromDisambiguation;
   getTopicValidContextsFromSameName: APIGetTopicValidContextsFromSameName;
-  getTopLevelTopics: APIGetTopLevelTopicsResults;
   getUser: APIUser;
   globalSearch: APIGlobalSearchResults;
   listArticles: APIListArticlesResult;
@@ -1232,8 +1232,8 @@ export type APIResource = APILearningMaterial & {
   rating?: Maybe<Scalars['Float']>;
   seriesParentResource?: Maybe<APIResource>;
   showedIn?: Maybe<Array<APITopic>>;
-  subResources?: Maybe<Array<APIResource>>;
   subResourceSeries?: Maybe<Array<APIResource>>;
+  subResources?: Maybe<Array<APIResource>>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
   type: ResourceType;
   upvotes?: Maybe<Scalars['Int']>;
@@ -1670,10 +1670,10 @@ export type APIResolversTypes = ResolversObject<{
   DiscourseSSO: APIDiscourseSso;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>;
+  GetTopLevelTopicsResults: ResolverTypeWrapper<APIGetTopLevelTopicsResults>;
   GetTopicValidContextsFromDisambiguation: ResolverTypeWrapper<APIGetTopicValidContextsFromDisambiguation>;
   GetTopicValidContextsFromSameName: ResolverTypeWrapper<APIGetTopicValidContextsFromSameName>;
   GetTopicValidContextsResult: ResolverTypeWrapper<APIGetTopicValidContextsResult>;
-  GetTopLevelTopicsResults: ResolverTypeWrapper<APIGetTopLevelTopicsResults>;
   GlobalSearchOptions: APIGlobalSearchOptions;
   GlobalSearchResults: ResolverTypeWrapper<APIGlobalSearchResults>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
@@ -1815,10 +1815,10 @@ export type APIResolversParentTypes = ResolversObject<{
   DiscourseSSO: APIDiscourseSso;
   Float: Scalars['Float'];
   GetHomePageDataResults: APIGetHomePageDataResults;
+  GetTopLevelTopicsResults: APIGetTopLevelTopicsResults;
   GetTopicValidContextsFromDisambiguation: APIGetTopicValidContextsFromDisambiguation;
   GetTopicValidContextsFromSameName: APIGetTopicValidContextsFromSameName;
   GetTopicValidContextsResult: APIGetTopicValidContextsResult;
-  GetTopLevelTopicsResults: APIGetTopLevelTopicsResults;
   GlobalSearchOptions: APIGlobalSearchOptions;
   GlobalSearchResults: APIGlobalSearchResults;
   Int: Scalars['Int'];
@@ -2047,6 +2047,11 @@ export type APIGetHomePageDataResultsResolvers<ContextType = APIContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type APIGetTopLevelTopicsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopLevelTopicsResults'] = APIResolversParentTypes['GetTopLevelTopicsResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type APIGetTopicValidContextsFromDisambiguationResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopicValidContextsFromDisambiguation'] = APIResolversParentTypes['GetTopicValidContextsFromDisambiguation']> = ResolversObject<{
   validContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2060,11 +2065,6 @@ export type APIGetTopicValidContextsFromSameNameResolvers<ContextType = APIConte
 
 export type APIGetTopicValidContextsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopicValidContextsResult'] = APIResolversParentTypes['GetTopicValidContextsResult']> = ResolversObject<{
   validContexts?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type APIGetTopLevelTopicsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['GetTopLevelTopicsResults'] = APIResolversParentTypes['GetTopLevelTopicsResults']> = ResolversObject<{
-  items?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2361,12 +2361,12 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getLearningPathByKey?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByKeyArgs, 'learningPathKey'>>;
   getResourceById?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByIdArgs, 'resourceId'>>;
   getResourceByKey?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryGetResourceByKeyArgs, 'resourceKey'>>;
+  getTopLevelTopics?: Resolver<APIResolversTypes['GetTopLevelTopicsResults'], ParentType, ContextType>;
   getTopicById?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByIdArgs, 'topicId'>>;
   getTopicByKey?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIQueryGetTopicByKeyArgs, 'topicKey'>>;
   getTopicValidContexts?: Resolver<APIResolversTypes['GetTopicValidContextsResult'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsArgs, 'parentTopicId' | 'topicId'>>;
   getTopicValidContextsFromDisambiguation?: Resolver<APIResolversTypes['GetTopicValidContextsFromDisambiguation'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsFromDisambiguationArgs, 'disambiguationTopicId' | 'parentTopicId'>>;
   getTopicValidContextsFromSameName?: Resolver<APIResolversTypes['GetTopicValidContextsFromSameName'], ParentType, ContextType, RequireFields<APIQueryGetTopicValidContextsFromSameNameArgs, 'existingSameNameTopicId' | 'parentTopicId'>>;
-  getTopLevelTopics?: Resolver<APIResolversTypes['GetTopLevelTopicsResults'], ParentType, ContextType>;
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>;
   globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>;
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>;
@@ -2412,8 +2412,8 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
   seriesParentResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>;
   showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
-  subResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
   subResourceSeries?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
+  subResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialTag']>>, ParentType, ContextType>;
   type?: Resolver<APIResolversTypes['ResourceType'], ParentType, ContextType>;
   upvotes?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
@@ -2623,10 +2623,10 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   DetachTopicIsPartOfTopicResult?: APIDetachTopicIsPartOfTopicResultResolvers<ContextType>;
   DetachTopicIsSubTopicOfTopicResult?: APIDetachTopicIsSubTopicOfTopicResultResolvers<ContextType>;
   GetHomePageDataResults?: APIGetHomePageDataResultsResolvers<ContextType>;
+  GetTopLevelTopicsResults?: APIGetTopLevelTopicsResultsResolvers<ContextType>;
   GetTopicValidContextsFromDisambiguation?: APIGetTopicValidContextsFromDisambiguationResolvers<ContextType>;
   GetTopicValidContextsFromSameName?: APIGetTopicValidContextsFromSameNameResolvers<ContextType>;
   GetTopicValidContextsResult?: APIGetTopicValidContextsResultResolvers<ContextType>;
-  GetTopLevelTopicsResults?: APIGetTopLevelTopicsResultsResolvers<ContextType>;
   GlobalSearchResults?: APIGlobalSearchResultsResolvers<ContextType>;
   KnownTopic?: APIKnownTopicResolvers<ContextType>;
   LearningGoal?: APILearningGoalResolvers<ContextType>;
