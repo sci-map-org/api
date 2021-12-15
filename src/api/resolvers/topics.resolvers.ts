@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server-errors';
-import { Topic, TopicLabel } from '../../entities/Topic';
+import { TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachTopicHasContextTopic,
@@ -30,6 +30,7 @@ import {
   updateTopic,
   updateTopicHasContextTopic,
 } from '../../repositories/topics.repository';
+import { pullTopicDescriptions } from '../../services/pull_topic_descriptions.service';
 import { initSubtopicIndexValue } from '../../services/topics.service';
 import {
   APIMutationResolvers,
@@ -85,12 +86,10 @@ export const getTopicValidContextsFromSameNameResolver: APIQueryResolvers['getTo
   return getTopicValidContextsFromSameName(parentTopicId, existingSameNameTopicId);
 };
 
-export const getTopicValidContextsFromDisambiguationResolver: APIQueryResolvers['getTopicValidContextsFromDisambiguation'] = async (
-  _,
-  { parentTopicId, disambiguationTopicId }
-) => {
-  return getTopicsValidContextsFromDisambiguation(parentTopicId, disambiguationTopicId);
-};
+export const getTopicValidContextsFromDisambiguationResolver: APIQueryResolvers['getTopicValidContextsFromDisambiguation'] =
+  async (_, { parentTopicId, disambiguationTopicId }) => {
+    return getTopicsValidContextsFromDisambiguation(parentTopicId, disambiguationTopicId);
+  };
 
 export const checkTopicKeyAvailabilityResolver: APIQueryResolvers['checkTopicKeyAvailability'] = async (_, { key }) => {
   let existingTopic = await getTopicByKey(key);
@@ -98,6 +97,13 @@ export const checkTopicKeyAvailabilityResolver: APIQueryResolvers['checkTopicKey
     available: !existingTopic,
     existingTopic,
   };
+};
+
+export const pullTopicDescriptionsResolver: APIQueryResolvers['pullTopicDescriptions'] = async (
+  _parent,
+  { queryOptions }
+) => {
+  return pullTopicDescriptions(queryOptions);
 };
 
 export const createTopicResolver: APIMutationResolvers['createTopic'] = async (_parent, { payload }, { user }) => {
@@ -192,7 +198,7 @@ export const updateTopicContextResolver: APIMutationResolvers['updateTopicContex
 
   // get valid contexts => if new is not in those, throw
   const { validContexts } = await getTopicsValidContexts(parentTopic._id, topicId);
-  if (!validContexts.find(validContext => validContext._id === newContextTopic._id))
+  if (!validContexts.find((validContext) => validContext._id === newContextTopic._id))
     throw new Error('new context is not valid');
 
   // detach current and attach new one
@@ -240,16 +246,12 @@ export const updateTopicContextResolver: APIMutationResolvers['updateTopicContex
 //   return concepts.map(toAPIConcept);
 // };
 
-export const getTopicAliasesResolver: APITopicResolvers['aliases'] = async (topic: Topic) => {
-  return topic.aliasesJson ? JSON.parse(topic.aliasesJson) : null;
-};
-
-export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] = async topic => {
+export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] = async (topic) => {
   const parent = await getTopicParentTopic(topic._id);
   return parent?.parentTopic || null;
 };
 
-export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async topic => {
+export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic) => {
   const result = await getTopicSubTopics(topic._id);
   return result.map(({ parentTopic, subTopic, relationship, relationshipType }) => ({
     subTopic,
@@ -259,7 +261,7 @@ export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async t
   }));
 };
 
-export const getTopicSubTopicsTotalCountResolver: APITopicResolvers['subTopicsTotalCount'] = async topic => {
+export const getTopicSubTopicsTotalCountResolver: APITopicResolvers['subTopicsTotalCount'] = async (topic) => {
   const size = await getTopicSubTopicsTotalCount(topic._id);
   return size;
 };
@@ -282,11 +284,13 @@ export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMater
   };
 };
 
-export const getTopicLearningMaterialsTotalCountResolver: APITopicResolvers['learningMaterialsTotalCount'] = async topic => {
+export const getTopicLearningMaterialsTotalCountResolver: APITopicResolvers['learningMaterialsTotalCount'] = async (
+  topic
+) => {
   return await countLearningMaterialsShowedInTopic(topic._id);
 };
 
-export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] = async topic => {
+export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] = async (topic) => {
   return (await getTopicPrerequisites({ _id: topic._id })).map(
     ({ followUpTopic, prerequisiteTopic, relationship }) => ({
       prerequisiteTopic,
@@ -296,7 +300,7 @@ export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] =
   );
 };
 
-export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async topic => {
+export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async (topic) => {
   return (await getTopicFollowUps({ _id: topic._id })).map(({ followUpTopic, prerequisiteTopic, relationship }) => ({
     prerequisiteTopic,
     followUpTopic,
@@ -304,11 +308,11 @@ export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async t
   }));
 };
 
-export const getTopicsCreatedByResolver: APITopicResolvers['createdBy'] = async topic => {
+export const getTopicsCreatedByResolver: APITopicResolvers['createdBy'] = async (topic) => {
   return getTopicCreator({ _id: topic._id });
 };
 
-export const getTopicPartOfTopicsResolver: APITopicResolvers['partOfTopics'] = async topic => {
+export const getTopicPartOfTopicsResolver: APITopicResolvers['partOfTopics'] = async (topic) => {
   return (await getTopicPartOfTopics({ _id: topic._id })).map(({ subTopic, partOfTopic, relationship }) => ({
     subTopic,
     partOfTopic,
@@ -316,16 +320,16 @@ export const getTopicPartOfTopicsResolver: APITopicResolvers['partOfTopics'] = a
   }));
 };
 
-export const getTopicDisambiguationTopicResolver: APITopicResolvers['disambiguationTopic'] = async topic => {
+export const getTopicDisambiguationTopicResolver: APITopicResolvers['disambiguationTopic'] = async (topic) => {
   const result = await getTopicDisambiguationTopic(topic._id);
   return result?.disambiguationTopic || null;
 };
 
-export const getTopicContextualisedTopicsResolver: APITopicResolvers['contextualisedTopics'] = async topic => {
+export const getTopicContextualisedTopicsResolver: APITopicResolvers['contextualisedTopics'] = async (topic) => {
   return (await getTopicContextualisedTopics({ _id: topic._id })).map(({ contextualisedTopic }) => contextualisedTopic);
 };
 
-export const getTopicContextTopicResolver: APITopicResolvers['contextTopic'] = async topic => {
+export const getTopicContextTopicResolver: APITopicResolvers['contextTopic'] = async (topic) => {
   const result = await getTopicContextTopic(topic._id);
   return result?.contextTopic || null;
 };

@@ -133,6 +133,18 @@ type GetTopicValidContextsResult {
   validContexts: [Topic!]
 }
 
+input PullDescriptionsQueryOptions {
+  name: String!
+  aliases: [String!]
+  parentTopicName: String
+  contextName: String
+}
+
+type PulledDescription {
+  sourceUrl: String!
+  sourceName: String!
+  text: String!
+}
 type Query {
   getTopicById(topicId: String!): Topic!
   getTopicByKey(topicKey: String!): Topic!
@@ -149,6 +161,7 @@ type Query {
     parentTopicId: String!
     disambiguationTopicId: String!
   ): GetTopicValidContextsFromDisambiguation!
+  pullTopicDescriptions(queryOptions: PullDescriptionsQueryOptions!): [PulledDescription!]!
 }
 
 type Mutation {

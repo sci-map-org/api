@@ -1029,6 +1029,20 @@ export type APIPaginationOptions = {
   offset?: InputMaybe<Scalars['Int']>;
 };
 
+export type APIPullDescriptionsQueryOptions = {
+  aliases?: InputMaybe<Array<Scalars['String']>>;
+  contextName?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+  parentTopicName?: InputMaybe<Scalars['String']>;
+};
+
+export type APIPulledDescription = {
+  __typename?: 'PulledDescription';
+  sourceName: Scalars['String'];
+  sourceUrl: Scalars['String'];
+  text: Scalars['String'];
+};
+
 export type APIQuery = {
   __typename?: 'Query';
   analyzeResourceUrl: APIAnalyzeResourceUrlResult;
@@ -1052,6 +1066,7 @@ export type APIQuery = {
   getUser: APIUser;
   globalSearch: APIGlobalSearchResults;
   listArticles: APIListArticlesResult;
+  pullTopicDescriptions: Array<APIPulledDescription>;
   searchLearningGoals: APISearchLearningGoalsResult;
   searchLearningMaterialTags: Array<APILearningMaterialTagSearchResult>;
   searchResources: APISearchResourcesResult;
@@ -1151,6 +1166,11 @@ export type APIQueryGlobalSearchArgs = {
 
 export type APIQueryListArticlesArgs = {
   options: APIListArticlesOptions;
+};
+
+
+export type APIQueryPullTopicDescriptionsArgs = {
+  queryOptions: APIPullDescriptionsQueryOptions;
 };
 
 
@@ -1720,6 +1740,8 @@ export type APIResolversTypes = ResolversObject<{
   LoginResponse: ResolverTypeWrapper<APILoginResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   PaginationOptions: APIPaginationOptions;
+  PullDescriptionsQueryOptions: APIPullDescriptionsQueryOptions;
+  PulledDescription: ResolverTypeWrapper<APIPulledDescription>;
   Query: ResolverTypeWrapper<{}>;
   RegisterGooglePayload: APIRegisterGooglePayload;
   RegisterPayload: APIRegisterPayload;
@@ -1863,6 +1885,8 @@ export type APIResolversParentTypes = ResolversObject<{
   LoginResponse: APILoginResponse;
   Mutation: {};
   PaginationOptions: APIPaginationOptions;
+  PullDescriptionsQueryOptions: APIPullDescriptionsQueryOptions;
+  PulledDescription: APIPulledDescription;
   Query: {};
   RegisterGooglePayload: APIRegisterGooglePayload;
   RegisterPayload: APIRegisterPayload;
@@ -2354,6 +2378,13 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   verifyEmailAddress?: Resolver<APIResolversTypes['VerifyEmailResponse'], ParentType, ContextType, RequireFields<APIMutationVerifyEmailAddressArgs, 'token'>>;
 }>;
 
+export type APIPulledDescriptionResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['PulledDescription'] = APIResolversParentTypes['PulledDescription']> = ResolversObject<{
+  sourceName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  sourceUrl?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
   analyzeResourceUrl?: Resolver<APIResolversTypes['AnalyzeResourceUrlResult'], ParentType, ContextType, RequireFields<APIQueryAnalyzeResourceUrlArgs, 'url'>>;
   autocompleteTopicName?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQueryAutocompleteTopicNameArgs, 'partialName'>>;
@@ -2376,6 +2407,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   getUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIQueryGetUserArgs, 'key'>>;
   globalSearch?: Resolver<APIResolversTypes['GlobalSearchResults'], ParentType, ContextType, RequireFields<APIQueryGlobalSearchArgs, 'query'>>;
   listArticles?: Resolver<APIResolversTypes['ListArticlesResult'], ParentType, ContextType, RequireFields<APIQueryListArticlesArgs, 'options'>>;
+  pullTopicDescriptions?: Resolver<Array<APIResolversTypes['PulledDescription']>, ParentType, ContextType, RequireFields<APIQueryPullTopicDescriptionsArgs, 'queryOptions'>>;
   searchLearningGoals?: Resolver<APIResolversTypes['SearchLearningGoalsResult'], ParentType, ContextType, RequireFields<APIQuerySearchLearningGoalsArgs, 'options'>>;
   searchLearningMaterialTags?: Resolver<Array<APIResolversTypes['LearningMaterialTagSearchResult']>, ParentType, ContextType, RequireFields<APIQuerySearchLearningMaterialTagsArgs, 'options'>>;
   searchResources?: Resolver<APIResolversTypes['SearchResourcesResult'], ParentType, ContextType, RequireFields<APIQuerySearchResourcesArgs, 'options' | 'query'>>;
@@ -2665,6 +2697,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   ListArticlesResult?: APIListArticlesResultResolvers<ContextType>;
   LoginResponse?: APILoginResponseResolvers<ContextType>;
   Mutation?: APIMutationResolvers<ContextType>;
+  PulledDescription?: APIPulledDescriptionResolvers<ContextType>;
   Query?: APIQueryResolvers<ContextType>;
   RemoveTopicHasPrerequisiteTopicResult?: APIRemoveTopicHasPrerequisiteTopicResultResolvers<ContextType>;
   RequiredInGoalItem?: APIRequiredInGoalItemResolvers<ContextType>;

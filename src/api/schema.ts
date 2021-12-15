@@ -112,6 +112,7 @@ import {
   getTopicValidContextsFromDisambiguationResolver,
   getTopicValidContextsFromSameNameResolver,
   getTopicValidContextsResolver,
+  pullTopicDescriptionsResolver,
   searchSubTopicsResolver,
   searchTopicsResolver,
   updateTopicContextResolver,
@@ -234,6 +235,7 @@ const resolvers: APIResolvers<APIContext> = {
     getTopicValidContexts: getTopicValidContextsResolver,
     getTopicValidContextsFromSameName: getTopicValidContextsFromSameNameResolver,
     getTopicValidContextsFromDisambiguation: getTopicValidContextsFromDisambiguationResolver,
+    pullTopicDescriptions: pullTopicDescriptionsResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -313,7 +315,7 @@ const resolvers: APIResolvers<APIContext> = {
     partOfTopics: getTopicPartOfTopicsResolver,
   },
   SubGoal: {
-    __resolveType: obj => {
+    __resolveType: (obj) => {
       //@ts-ignore
       if (Object.values(LearningGoalType).indexOf(obj.type) > -1) return 'LearningGoal';
       return 'Topic';
@@ -321,7 +323,7 @@ const resolvers: APIResolvers<APIContext> = {
     },
   },
   SearchResultEntity: {
-    __resolveType: obj => {
+    __resolveType: (obj) => {
       //@ts-ignore
       if (!obj.type && (obj.public === true || obj.public === false)) return 'LearningPath';
       //@ts-ignore

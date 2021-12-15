@@ -126,7 +126,7 @@ export const searchTopics = async (
     }
   );
   session.close();
-  return records.map(r => r.get('node'));
+  return records.map((r) => r.get('node'));
 };
 
 export const autocompleteTopicName = async (
@@ -145,7 +145,7 @@ export const autocompleteTopicName = async (
     }
   );
   session.close();
-  return records.map(r => r.get('node'));
+  return records.map((r) => r.get('node'));
 };
 
 // ========= Learning materials =======
@@ -283,7 +283,7 @@ export const getTopicLearningMaterials = async (
   }
 
   const r = await q.run();
-  const learningMaterials = r.map(i => i.lm.properties);
+  const learningMaterials = r.map((i) => i.lm.properties);
   return learningMaterials;
 };
 
@@ -350,7 +350,7 @@ export const searchSubTopics = async (
   );
   session.close();
 
-  return records.map(r => r.get('node'));
+  return records.map((r) => r.get('node'));
 };
 
 export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> => {
@@ -362,18 +362,20 @@ export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> 
     }
   );
   const r = await q.run();
-  const [size] = r.map(i => i.size);
+  const [size] = r.map((i) => i.size);
   return size;
 };
 
 export const getTopicSubTopics = async (
   topicId: string
-): Promise<{
-  parentTopic: Topic;
-  relationship: TopicIsSubTopicOfTopic | TopicIsPartOfTopic;
-  subTopic: Topic;
-  relationshipType: SubTopicRelationshipType;
-}[]> =>
+): Promise<
+  {
+    parentTopic: Topic;
+    relationship: TopicIsSubTopicOfTopic | TopicIsPartOfTopic;
+    subTopic: Topic;
+    relationshipType: SubTopicRelationshipType;
+  }[]
+> =>
   getRelatedNodes<Topic, TopicIsSubTopicOfTopic | TopicIsPartOfTopic, Topic>({
     originNode: {
       label: TopicLabel,
@@ -391,7 +393,7 @@ export const getTopicSubTopics = async (
       field: 'index',
       direction: 'ASC',
     },
-  }).then(items =>
+  }).then((items) =>
     items.map(({ relationship, destinationNode, originNode, originalRelationship }) => ({
       parentTopic: originNode,
       relationship,
@@ -415,7 +417,7 @@ export const getTopicParentTopic = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(item =>
+  }).then((item) =>
     item
       ? {
           parentTopic: item.destinationNode,
@@ -556,8 +558,8 @@ const getTopicPrerequisiteRelations = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items =>
-    items.map(item => ({
+  }).then((items) =>
+    items.map((item) => ({
       originTopic: item.originNode,
       destinationTopic: item.destinationNode,
       relationship: item.relationship,
@@ -567,7 +569,7 @@ const getTopicPrerequisiteRelations = (
 export const getTopicPrerequisites = (
   filter: { _id: string } | { key: string }
 ): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; followUpTopic: Topic }[]> =>
-  getTopicPrerequisiteRelations(filter, 'OUT').then(items =>
+  getTopicPrerequisiteRelations(filter, 'OUT').then((items) =>
     items.map(({ originTopic, relationship, destinationTopic }) => ({
       prerequisiteTopic: destinationTopic,
       relationship,
@@ -578,7 +580,7 @@ export const getTopicPrerequisites = (
 export const getTopicFollowUps = (
   filter: { _id: string } | { key: string }
 ): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; followUpTopic: Topic }[]> =>
-  getTopicPrerequisiteRelations(filter, 'IN').then(items =>
+  getTopicPrerequisiteRelations(filter, 'IN').then((items) =>
     items.map(({ originTopic, relationship, destinationTopic }) => ({
       prerequisiteTopic: originTopic,
       relationship,
@@ -601,7 +603,7 @@ export const getSubTopicsMaxIndex = async (topicId: string): Promise<number | nu
 
   const r = await q.run();
   if (!r.length) return null;
-  const [maxIndex] = r.map(i => i.maxIndex);
+  const [maxIndex] = r.map((i) => i.maxIndex);
 
   return maxIndex;
 };
@@ -706,8 +708,8 @@ export const getTopicPartOfTopics = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items =>
-    items.map(item => ({
+  }).then((items) =>
+    items.map((item) => ({
       subTopic: item.originNode,
       partOfTopic: item.destinationNode,
       relationship: item.relationship,
@@ -733,7 +735,7 @@ export const getTopicDisambiguationTopic = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(item =>
+  }).then((item) =>
     item
       ? {
           disambiguationTopic: item.destinationNode,
@@ -758,8 +760,8 @@ export const getTopicContextualisedTopics = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items =>
-    items.map(item => ({
+  }).then((items) =>
+    items.map((item) => ({
       disambiguationTopic: item.originNode,
       contextualisedTopic: item.destinationNode,
       relationship: item.relationship,
@@ -785,7 +787,7 @@ export const getTopicContextTopic = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(item =>
+  }).then((item) =>
     item
       ? {
           contextualisedTopic: item.originNode,
@@ -830,7 +832,7 @@ export const getTopicsValidContexts = async (
   if (!records.length) throw new Error('no results');
 
   return {
-    validContexts: records[0].get('validContexts').map(t => t.properties),
+    validContexts: records[0].get('validContexts').map((t) => t.properties),
   };
 };
 
@@ -861,8 +863,8 @@ export const getTopicValidContextsFromSameName = async (
   if (!records.length) throw new Error('no results');
 
   return {
-    validContexts: records[0].get('validContexts').map(t => t.properties),
-    validSameNameTopicContexts: records[0].get('validSameNameTopicContexts').map(t => t.properties),
+    validContexts: records[0].get('validContexts').map((t) => t.properties),
+    validSameNameTopicContexts: records[0].get('validSameNameTopicContexts').map((t) => t.properties),
   };
 };
 
@@ -899,7 +901,7 @@ where p IN flat or (NOT (p)-[:${TopicIsSubTopicOfTopicLabel}]->(:${TopicLabel}))
   if (!records.length) throw new Error('no results');
 
   return {
-    validContexts: records[0].get('validContexts').map(t => t.properties),
+    validContexts: records[0].get('validContexts').map((t) => t.properties),
   };
 };
 
@@ -946,11 +948,11 @@ export const attachTopicHasContextTopic = async (
   const existingContextTopic = await getTopicContextTopic(topicId);
   if (!!existingContextTopic) throw new Error(`Topic ${topicId} already has a context`);
 
-  const { destinationNode: contextTopic, relationship, originNode: topic } = await attachUniqueNodes<
-    Topic,
-    TopicHasContextTopic,
-    Topic
-  >({
+  const {
+    destinationNode: contextTopic,
+    relationship,
+    originNode: topic,
+  } = await attachUniqueNodes<Topic, TopicHasContextTopic, Topic>({
     originNode: { label: TopicLabel, filter: { _id: topicId } },
     relationship: {
       label: TopicHasContextTopicLabel,
@@ -992,11 +994,11 @@ export const updateTopicHasContextTopic = async (
     destinationNode: { label: TopicLabel, filter: { _id: existingContextResult.contextTopic._id } },
   });
 
-  const { destinationNode: newContextTopic, relationship, originNode: topic } = await attachUniqueNodes<
-    Topic,
-    TopicHasContextTopic,
-    Topic
-  >({
+  const {
+    destinationNode: newContextTopic,
+    relationship,
+    originNode: topic,
+  } = await attachUniqueNodes<Topic, TopicHasContextTopic, Topic>({
     originNode: { label: TopicLabel, filter: { _id: topicId } },
     relationship: {
       label: TopicHasContextTopicLabel,

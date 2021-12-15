@@ -2418,7 +2418,7 @@ cheerio@1.0.0-rc.3:
     lodash "^4.15.0"
     parse5 "^3.0.1"
 
-cheerio@^1.0.0-rc.10:
+cheerio@^1.0.0-rc.10, cheerio@^1.0.0-rc.9:
   version "1.0.0-rc.10"
   resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0-rc.10.tgz#2ba3dcdfcc26e7956fc1f440e61d51c643379f3e"
   integrity sha512-g0J0q/O6mW8z5zxQ3A8E8J1hUgp4SMOvEoW/x84OwyHKe/Zccz83PVT4y5Crcr530FV6NgmKI1qvGTKVl9XXVw==
@@ -6457,6 +6457,14 @@ sentence-case@^3.0.4:
     no-case "^3.0.4"
     tslib "^2.0.3"
     upper-case-first "^2.0.2"
+
+serp-parser@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/serp-parser/-/serp-parser-1.5.0.tgz#fe229addc25f0fd2a5b501f90bfe81b84136a229"
+  integrity sha512-FCzwcHWPNF3wiwXTY96YeHfrbEI6eLJR9Y8woIdROmE9Gr22V3dDPOGhEizng4UTTG0gUvx9V4aZle8wroG5xg==
+  dependencies:
+    cheerio "^1.0.0-rc.9"
+    tslib "^2.2.0"
 
 serve-static@1.14.1:
   version "1.14.1"
