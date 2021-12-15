@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server-errors';
-import { TopicLabel } from '../../entities/Topic';
+import { Topic, TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachTopicHasContextTopic,
@@ -245,6 +245,10 @@ export const updateTopicContextResolver: APIMutationResolvers['updateTopicContex
 //   await detachUserKnowsConcepts(user!._id, conceptIds);
 //   return concepts.map(toAPIConcept);
 // };
+
+export const getTopicAliasesResolver: APITopicResolvers['aliases'] = async (topic: Topic) => {
+  return topic.aliasesJson ? JSON.parse(topic.aliasesJson) : null;
+};
 
 export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] = async (topic) => {
   const parent = await getTopicParentTopic(topic._id);
