@@ -19,3 +19,4 @@ generates:
         # SortingDirection: ../../repositories/util/sorting#SortingDirection
         LearningGoalType: ../../entities/LearningGoal#LearningGoalType
         SubTopicRelationshipType: ../../entities/relationships/TopicIsSubTopicOfTopic#SubTopicRelationshipType
+        PulledDescriptionSourceName: ../../services/pull_topic_descriptions.service#PulledDescriptionSourceName

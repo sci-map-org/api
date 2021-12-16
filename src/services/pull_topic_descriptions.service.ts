@@ -1,6 +1,15 @@
-import fetch from 'cross-fetch';
-import { GoogleNojsSERP } from 'serp-parser';
+import { google } from 'googleapis';
+import { flatten } from 'lodash';
+import { compareTwoStrings } from 'string-similarity';
+import wiki from 'wikijs';
 import { APIPullDescriptionsQueryOptions, APIPulledDescription } from '../api/schema/types';
+
+export enum PulledDescriptionSourceName {
+  wikipedia = 'wikipedia',
+  google = 'google',
+}
+
+const nameToWikipediaQuery = (name: string) => (name.endsWith('s') ? name.slice(0, name.length - 1) : name);
 
 export const pullTopicDescriptions = async ({
   name,
@@ -8,51 +17,66 @@ export const pullTopicDescriptions = async ({
   parentTopicName,
   contextName,
 }: APIPullDescriptionsQueryOptions): Promise<APIPulledDescription[]> => {
-  const pulledDescriptions: APIPulledDescription[] = [];
-  const wikipediaDescription = await pullWikipediaDescription(name);
-  wikipediaDescription && pulledDescriptions.push(wikipediaDescription);
-  return pulledDescriptions;
+  return [
+    ...(await pullWikipediaDefinitions(nameToWikipediaQuery(name))),
+    ...(aliases
+      ? flatten(await Promise.all(aliases.map((alias) => pullWikipediaDefinitions(nameToWikipediaQuery(alias)))))
+      : []),
+  ];
 };
 
-const pullWikipediaDescription = async (name: string): Promise<APIPulledDescription | null> => {
-  const summary = await getWikipediaSummary(name);
-  if (summary) {
-    return {
-      sourceName: 'Wikipedia',
-      sourceUrl: summary.link,
-      text: summary.snippet,
-    };
-  }
-  return null;
+const kgSearch = google.kgsearch({
+  version: 'v1',
+  // auth: env.OTHER.GOOGLE_APIS_KEY
+});
+
+/**
+ * Unused for now: search is quite poor. Results are ok but basically extracts from wikipedia
+ */
+const getGoogleKgDefinitions = async (query: string): Promise<APIPulledDescription[]> => {
+  const result = await kgSearch.entities.search({ query, limit: 8 });
+  if (!result.data.itemListElement?.length) return [];
+  return result.data.itemListElement
+    .filter((listElement) => {
+      return listElement.result['@type'].length === 1 && listElement.result['@type'][0] === 'Thing';
+    })
+
+    .filter(({ result }) => !!result.detailedDescription)
+    .map(({ result }) => {
+      const sourceUrl: string = result.detailedDescription.url;
+
+      return {
+        name: result.name,
+        sourceName:
+          sourceUrl && sourceUrl.includes('wiki')
+            ? PulledDescriptionSourceName.wikipedia
+            : PulledDescriptionSourceName.google,
+        description: result.detailedDescription.articleBody,
+        sourceUrl,
+      };
+    });
 };
 
-const getWikipediaSummary = async (q: string): Promise<{ name: string; snippet: string; link: string }> => {
-  const response = await fetch(
-    `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${q}&utf8=&format=json`
+export const pullWikipediaDefinitions = async (name: string): Promise<APIPulledDescription[]> => {
+  const { results } = await wiki().search(name, 6);
+  const pages = await Promise.all(
+    results
+      .filter((result) => compareTwoStrings(name, result) > 0.15)
+      .map(async (result) => {
+        return wiki().page(result);
+      })
   );
-
-  const body = await response.text();
-
-  try {
-    const data = JSON.parse(body);
-
-    if (!data.query.search.length) throw new Error('No results found');
-    const firstResult = data.query.search[0];
-
-    return {
-      name: firstResult.title,
-      snippet: firstResult.snippet,
-      link: `https://en.wikipedia.org/wiki/${encodeURIComponent(firstResult.title)}`,
-    };
-  } catch (err) {
-    throw new Error(`Failed parsing`);
-  }
-};
-
-const scrapeGoogleResults = async <T>(q: string): Promise<any> => {
-  const response = await fetch('https://www.google.com/search?q=' + q);
-  const html = await response.text();
-  console.log(html);
-  const parser = new GoogleNojsSERP(html);
-  console.dir(parser.serp);
+  return await Promise.all(
+    pages
+      .filter((page) => page['pageprops']?.disambiguation === undefined) // weirdly equals to an empty field when it's a disambiguation topic
+      .map(async (page) => {
+        const pulledDescription: APIPulledDescription = {
+          sourceUrl: page.url(),
+          sourceName: PulledDescriptionSourceName.wikipedia,
+          resultName: page.raw.title,
+          description: await page.summary(),
+        };
+        return pulledDescription;
+      })
+  );
 };

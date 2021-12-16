@@ -19,6 +19,7 @@ type Topic {
   disambiguationTopic: Topic
   contextualisedTopics: [Topic!]
   description: String
+  descriptionSourceUrl: String
   parentTopic: Topic
   partOfTopics: [TopicIsPartOfTopic!]
   subTopics: [TopicIsSubTopicOfTopic!]
@@ -89,6 +90,7 @@ input CreateTopicPayload {
   name: String!
   key: String!
   description: String
+  descriptionSourceUrl: String
   aliases: [String!]
   level: Float
 }
@@ -102,6 +104,7 @@ input UpdateTopicPayload {
   name: String
   key: String
   description: String
+  descriptionSourceUrl: String
   aliases: [String!]
   level: Float
 }
@@ -140,10 +143,15 @@ input PullDescriptionsQueryOptions {
   contextName: String
 }
 
+enum PulledDescriptionSourceName {
+  wikipedia
+  google
+}
 type PulledDescription {
   sourceUrl: String!
-  sourceName: String!
-  text: String!
+  sourceName: PulledDescriptionSourceName!
+  resultName: String
+  description: String!
 }
 type Query {
   getTopicById(topicId: String!): Topic!

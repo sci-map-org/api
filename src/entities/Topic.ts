@@ -8,6 +8,7 @@ export interface Topic {
   context?: string;
   isDisambiguation?: boolean;
   description?: string;
+  descriptionSourceUrl?: string;
   level?: number;
   updatedAt: number;
   createdAt: number;

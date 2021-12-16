@@ -4,6 +4,7 @@ import { ResourceType } from '../../entities/Resource';
 import { ResourceMediaType } from '../../entities/Resource';
 import { LearningGoalType } from '../../entities/LearningGoal';
 import { SubTopicRelationshipType } from '../../entities/relationships/TopicIsSubTopicOfTopic';
+import { PulledDescriptionSourceName } from '../../services/pull_topic_descriptions.service';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -169,6 +170,7 @@ export type APICreateTopicContextOptions = {
 export type APICreateTopicPayload = {
   aliases?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
+  descriptionSourceUrl?: InputMaybe<Scalars['String']>;
   key: Scalars['String'];
   level?: InputMaybe<Scalars['Float']>;
   name: Scalars['String'];
@@ -1038,10 +1040,13 @@ export type APIPullDescriptionsQueryOptions = {
 
 export type APIPulledDescription = {
   __typename?: 'PulledDescription';
-  sourceName: Scalars['String'];
+  description: Scalars['String'];
+  resultName?: Maybe<Scalars['String']>;
+  sourceName: PulledDescriptionSourceName;
   sourceUrl: Scalars['String'];
-  text: Scalars['String'];
 };
+
+export { PulledDescriptionSourceName };
 
 export type APIQuery = {
   __typename?: 'Query';
@@ -1399,6 +1404,7 @@ export type APITopic = {
   createdAt: Scalars['Date'];
   createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
+  descriptionSourceUrl?: Maybe<Scalars['String']>;
   disambiguationTopic?: Maybe<APITopic>;
   followUps?: Maybe<Array<APITopicHasPrerequisiteTopic>>;
   isDisambiguation?: Maybe<Scalars['Boolean']>;
@@ -1528,6 +1534,7 @@ export type APIUpdateTopicIsSubTopicOfTopicPayload = {
 export type APIUpdateTopicPayload = {
   aliases?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
+  descriptionSourceUrl?: InputMaybe<Scalars['String']>;
   key?: InputMaybe<Scalars['String']>;
   level?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
@@ -1742,6 +1749,7 @@ export type APIResolversTypes = ResolversObject<{
   PaginationOptions: APIPaginationOptions;
   PullDescriptionsQueryOptions: APIPullDescriptionsQueryOptions;
   PulledDescription: ResolverTypeWrapper<APIPulledDescription>;
+  PulledDescriptionSourceName: PulledDescriptionSourceName;
   Query: ResolverTypeWrapper<{}>;
   RegisterGooglePayload: APIRegisterGooglePayload;
   RegisterPayload: APIRegisterPayload;
@@ -2379,11 +2387,14 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
 }>;
 
 export type APIPulledDescriptionResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['PulledDescription'] = APIResolversParentTypes['PulledDescription']> = ResolversObject<{
-  sourceName?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  resultName?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
+  sourceName?: Resolver<APIResolversTypes['PulledDescriptionSourceName'], ParentType, ContextType>;
   sourceUrl?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
-  text?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
+
+export type APIPulledDescriptionSourceNameResolvers = EnumResolverSignature<{ google?: any, wikipedia?: any }, APIResolversTypes['PulledDescriptionSourceName']>;
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
   analyzeResourceUrl?: Resolver<APIResolversTypes['AnalyzeResourceUrlResult'], ParentType, ContextType, RequireFields<APIQueryAnalyzeResourceUrlArgs, 'url'>>;
@@ -2547,6 +2558,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>;
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>;
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
+  descriptionSourceUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   disambiguationTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;
   followUps?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopic']>>, ParentType, ContextType>;
   isDisambiguation?: Resolver<Maybe<APIResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -2698,6 +2710,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LoginResponse?: APILoginResponseResolvers<ContextType>;
   Mutation?: APIMutationResolvers<ContextType>;
   PulledDescription?: APIPulledDescriptionResolvers<ContextType>;
+  PulledDescriptionSourceName?: APIPulledDescriptionSourceNameResolvers;
   Query?: APIQueryResolvers<ContextType>;
   RemoveTopicHasPrerequisiteTopicResult?: APIRemoveTopicHasPrerequisiteTopicResultResolvers<ContextType>;
   RequiredInGoalItem?: APIRequiredInGoalItemResolvers<ContextType>;

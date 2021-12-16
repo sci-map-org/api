@@ -51,6 +51,7 @@ interface CreateTopicData {
   name: string;
   key?: string;
   description?: string;
+  descriptionSourceUrl?: string;
   isDisambiguation?: boolean;
   aliases?: string[];
   level?: number;
@@ -79,6 +80,7 @@ interface UpdateTopicData {
   key?: string;
   name?: string;
   description?: string;
+  descriptionSourceUrl?: string | null;
   context?: string | null;
   aliases?: string[] | null;
   level?: number;
