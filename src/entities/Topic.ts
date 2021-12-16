@@ -9,6 +9,7 @@ export interface Topic {
   isDisambiguation?: boolean;
   description?: string;
   descriptionSourceUrl?: string;
+  wikipediaPageUrl?: string;
   level?: number;
   updatedAt: number;
   createdAt: number;

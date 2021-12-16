@@ -167,7 +167,11 @@ export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (
   restrictAccess('loggedInUser', user, 'Must be logged in to update a topic');
   const updatedTopic = await updateTopic(
     { _id: topicId },
-    { ...nullToUndefined(payload), descriptionSourceUrl: payload.descriptionSourceUrl }
+    {
+      ...nullToUndefined(payload),
+      descriptionSourceUrl: payload.descriptionSourceUrl,
+      wikipediaPageUrl: payload.wikipediaPageUrl,
+    }
   );
   if (!updatedTopic) throw new NotFoundError('Topic', topicId);
   return updatedTopic;

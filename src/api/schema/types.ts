@@ -174,6 +174,7 @@ export type APICreateTopicPayload = {
   key: Scalars['String'];
   level?: InputMaybe<Scalars['Float']>;
   name: Scalars['String'];
+  wikipediaPageUrl?: InputMaybe<Scalars['String']>;
 };
 
 export type APICurrentUser = {
@@ -1419,6 +1420,7 @@ export type APITopic = {
   prerequisites?: Maybe<Array<APITopicHasPrerequisiteTopic>>;
   subTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
   subTopicsTotalCount?: Maybe<Scalars['Int']>;
+  wikipediaPageUrl?: Maybe<Scalars['String']>;
 };
 
 
@@ -1538,6 +1540,7 @@ export type APIUpdateTopicPayload = {
   key?: InputMaybe<Scalars['String']>;
   level?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
+  wikipediaPageUrl?: InputMaybe<Scalars['String']>;
 };
 
 export type APIUser = {
@@ -2573,6 +2576,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopic']>>, ParentType, ContextType>;
   subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType>;
   subTopicsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  wikipediaPageUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

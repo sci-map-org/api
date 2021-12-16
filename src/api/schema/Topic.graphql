@@ -20,6 +20,7 @@ type Topic {
   contextualisedTopics: [Topic!]
   description: String
   descriptionSourceUrl: String
+  wikipediaPageUrl: String
   parentTopic: Topic
   partOfTopics: [TopicIsPartOfTopic!]
   subTopics: [TopicIsSubTopicOfTopic!]
@@ -91,6 +92,7 @@ input CreateTopicPayload {
   key: String!
   description: String
   descriptionSourceUrl: String
+  wikipediaPageUrl: String
   aliases: [String!]
   level: Float
 }
@@ -105,6 +107,7 @@ input UpdateTopicPayload {
   key: String
   description: String
   descriptionSourceUrl: String
+  wikipediaPageUrl: String
   aliases: [String!]
   level: Float
 }
