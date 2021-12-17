@@ -5,6 +5,7 @@ import { schema } from '../api/schema';
 import { validateAndDecodeJWT, JWTPayload } from '../services/auth/jwt';
 import { env } from '../env';
 import { logger } from '../infra/logger';
+import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 
 export interface APIContext {
   user?: JWTPayload;
@@ -34,6 +35,7 @@ const server = new ApolloServer({
     return {};
   },
   plugins: [
+    ApolloServerPluginLandingPageGraphQLPlayground(),
     {
       requestDidStart: async (c) => {
         const requestStartedAt = Date.now();

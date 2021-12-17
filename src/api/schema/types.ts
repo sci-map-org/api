@@ -5,6 +5,7 @@ import { ResourceMediaType } from '../../entities/Resource';
 import { LearningGoalType } from '../../entities/LearningGoal';
 import { SubTopicRelationshipType } from '../../entities/relationships/TopicIsSubTopicOfTopic';
 import { PulledDescriptionSourceName } from '../../services/pull_topic_descriptions.service';
+import { TopicTypeColor } from '../../entities/TopicType';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { APIContext } from '../server';
 export type Maybe<T> = T | null;
@@ -174,6 +175,7 @@ export type APICreateTopicPayload = {
   key: Scalars['String'];
   level?: InputMaybe<Scalars['Float']>;
   name: Scalars['String'];
+  topicTypes?: InputMaybe<Array<Scalars['String']>>;
   wikipediaPageUrl?: InputMaybe<Scalars['String']>;
 };
 
@@ -587,6 +589,7 @@ export type APIMutation = {
   addSubTopic: APITopic;
   addTagsToLearningMaterial: APILearningMaterial;
   addTopicHasPrerequisiteTopic: APIAddTopicHasPrerequisiteTopicResult;
+  addTopicTypesToTopic: APITopic;
   adminUpdateUser: APIUser;
   attachLearningGoalDependency: APIUpdateLearningGoalDependenciesResult;
   attachLearningGoalRequiresSubGoal: APIAttachLearningGoalRequiresSubGoalResult;
@@ -626,6 +629,7 @@ export type APIMutation = {
   removeLearningMaterialHasPrerequisiteTopic: APILearningMaterial;
   removeTagsFromLearningMaterial: APILearningMaterial;
   removeTopicHasPrerequisiteTopic: APIRemoveTopicHasPrerequisiteTopicResult;
+  removeTopicTypesFromTopic: APITopic;
   resetPassword: APIResetPasswordResponse;
   setResourcesConsumed: Array<APIResource>;
   setTopicsKnown: Array<APITopic>;
@@ -691,6 +695,12 @@ export type APIMutationAddTopicHasPrerequisiteTopicArgs = {
   prerequisiteTopicId: Scalars['String'];
   strength?: InputMaybe<Scalars['Float']>;
   topicId: Scalars['String'];
+};
+
+
+export type APIMutationAddTopicTypesToTopicArgs = {
+  topicId: Scalars['String'];
+  topicTypes: Array<Scalars['String']>;
 };
 
 
@@ -920,6 +930,12 @@ export type APIMutationRemoveTopicHasPrerequisiteTopicArgs = {
 };
 
 
+export type APIMutationRemoveTopicTypesFromTopicArgs = {
+  topicId: Scalars['String'];
+  topicTypes: Array<Scalars['String']>;
+};
+
+
 export type APIMutationResetPasswordArgs = {
   payload: APIResetPasswordPayload;
 };
@@ -1077,6 +1093,7 @@ export type APIQuery = {
   searchLearningMaterialTags: Array<APILearningMaterialTagSearchResult>;
   searchResources: APISearchResourcesResult;
   searchSubTopics: APISearchTopicsResult;
+  searchTopicTypes: Array<APITopicType>;
   searchTopics: APISearchTopicsResult;
 };
 
@@ -1199,6 +1216,12 @@ export type APIQuerySearchResourcesArgs = {
 export type APIQuerySearchSubTopicsArgs = {
   options: APISearchTopicsOptions;
   topicId: Scalars['String'];
+};
+
+
+export type APIQuerySearchTopicTypesArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
+  query: Scalars['String'];
 };
 
 
@@ -1420,6 +1443,7 @@ export type APITopic = {
   prerequisites?: Maybe<Array<APITopicHasPrerequisiteTopic>>;
   subTopics?: Maybe<Array<APITopicIsSubTopicOfTopic>>;
   subTopicsTotalCount?: Maybe<Scalars['Int']>;
+  topicTypes?: Maybe<Array<APITopicType>>;
   wikipediaPageUrl?: Maybe<Scalars['String']>;
 };
 
@@ -1476,6 +1500,16 @@ export enum APITopicLearningMaterialsSortingType {
   Rating = 'rating',
   Recommended = 'recommended'
 }
+
+export type APITopicType = {
+  __typename?: 'TopicType';
+  color?: Maybe<TopicTypeColor>;
+  iconName?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  usageCount?: Maybe<Scalars['Int']>;
+};
+
+export { TopicTypeColor };
 
 export type APITriggerResetPasswordResponse = {
   __typename?: 'TriggerResetPasswordResponse';
@@ -1795,6 +1829,8 @@ export type APIResolversTypes = ResolversObject<{
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: ResolverTypeWrapper<APITopicLearningMaterialsResults>;
   TopicLearningMaterialsSortingType: APITopicLearningMaterialsSortingType;
+  TopicType: ResolverTypeWrapper<APITopicType>;
+  TopicTypeColor: TopicTypeColor;
   TriggerResetPasswordResponse: ResolverTypeWrapper<APITriggerResetPasswordResponse>;
   UpdateArticlePayload: APIUpdateArticlePayload;
   UpdateCurrentUserPayload: APIUpdateCurrentUserPayload;
@@ -1935,6 +1971,7 @@ export type APIResolversParentTypes = ResolversObject<{
   TopicLearningMaterialsFilterOptions: APITopicLearningMaterialsFilterOptions;
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: APITopicLearningMaterialsResults;
+  TopicType: APITopicType;
   TriggerResetPasswordResponse: APITriggerResetPasswordResponse;
   UpdateArticlePayload: APIUpdateArticlePayload;
   UpdateCurrentUserPayload: APIUpdateCurrentUserPayload;
@@ -2329,6 +2366,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   addSubTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationAddSubTopicArgs, 'parentTopicId' | 'payload'>>;
   addTagsToLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationAddTagsToLearningMaterialArgs, 'learningMaterialId' | 'tags'>>;
   addTopicHasPrerequisiteTopic?: Resolver<APIResolversTypes['AddTopicHasPrerequisiteTopicResult'], ParentType, ContextType, RequireFields<APIMutationAddTopicHasPrerequisiteTopicArgs, 'prerequisiteTopicId' | 'topicId'>>;
+  addTopicTypesToTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationAddTopicTypesToTopicArgs, 'topicId' | 'topicTypes'>>;
   adminUpdateUser?: Resolver<APIResolversTypes['User'], ParentType, ContextType, RequireFields<APIMutationAdminUpdateUserArgs, 'id' | 'payload'>>;
   attachLearningGoalDependency?: Resolver<APIResolversTypes['UpdateLearningGoalDependenciesResult'], ParentType, ContextType, RequireFields<APIMutationAttachLearningGoalDependencyArgs, 'learningGoalDependencyId' | 'learningGoalId' | 'parentLearningGoalId'>>;
   attachLearningGoalRequiresSubGoal?: Resolver<APIResolversTypes['AttachLearningGoalRequiresSubGoalResult'], ParentType, ContextType, RequireFields<APIMutationAttachLearningGoalRequiresSubGoalArgs, 'learningGoalId' | 'payload' | 'subGoalId'>>;
@@ -2368,6 +2406,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   removeLearningMaterialHasPrerequisiteTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveLearningMaterialHasPrerequisiteTopicArgs, 'learningMaterialId' | 'prerequisiteTopicId'>>;
   removeTagsFromLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRemoveTagsFromLearningMaterialArgs, 'learningMaterialId' | 'tags'>>;
   removeTopicHasPrerequisiteTopic?: Resolver<APIResolversTypes['RemoveTopicHasPrerequisiteTopicResult'], ParentType, ContextType, RequireFields<APIMutationRemoveTopicHasPrerequisiteTopicArgs, 'prerequisiteTopicId' | 'topicId'>>;
+  removeTopicTypesFromTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType, RequireFields<APIMutationRemoveTopicTypesFromTopicArgs, 'topicId' | 'topicTypes'>>;
   resetPassword?: Resolver<APIResolversTypes['ResetPasswordResponse'], ParentType, ContextType, RequireFields<APIMutationResetPasswordArgs, 'payload'>>;
   setResourcesConsumed?: Resolver<Array<APIResolversTypes['Resource']>, ParentType, ContextType, RequireFields<APIMutationSetResourcesConsumedArgs, 'payload'>>;
   setTopicsKnown?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType, RequireFields<APIMutationSetTopicsKnownArgs, 'payload'>>;
@@ -2426,6 +2465,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   searchLearningMaterialTags?: Resolver<Array<APIResolversTypes['LearningMaterialTagSearchResult']>, ParentType, ContextType, RequireFields<APIQuerySearchLearningMaterialTagsArgs, 'options'>>;
   searchResources?: Resolver<APIResolversTypes['SearchResourcesResult'], ParentType, ContextType, RequireFields<APIQuerySearchResourcesArgs, 'options' | 'query'>>;
   searchSubTopics?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQuerySearchSubTopicsArgs, 'options' | 'topicId'>>;
+  searchTopicTypes?: Resolver<Array<APIResolversTypes['TopicType']>, ParentType, ContextType, RequireFields<APIQuerySearchTopicTypesArgs, 'query'>>;
   searchTopics?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQuerySearchTopicsArgs, 'options'>>;
 }>;
 
@@ -2576,6 +2616,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopic']>>, ParentType, ContextType>;
   subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType>;
   subTopicsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  topicTypes?: Resolver<Maybe<Array<APIResolversTypes['TopicType']>>, ParentType, ContextType>;
   wikipediaPageUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -2610,6 +2651,16 @@ export type APITopicLearningMaterialsResultsResolvers<ContextType = APIContext, 
   items?: Resolver<Array<APIResolversTypes['LearningMaterial']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
+
+export type APITopicTypeResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TopicType'] = APIResolversParentTypes['TopicType']> = ResolversObject<{
+  color?: Resolver<Maybe<APIResolversTypes['TopicTypeColor']>, ParentType, ContextType>;
+  iconName?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  usageCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type APITopicTypeColorResolvers = EnumResolverSignature<{ blue?: any, green?: any, orange?: any, red?: any }, APIResolversTypes['TopicTypeColor']>;
 
 export type APITriggerResetPasswordResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TriggerResetPasswordResponse'] = APIResolversParentTypes['TriggerResetPasswordResponse']> = ResolversObject<{
   errorMessage?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
@@ -2740,6 +2791,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   TopicIsPartOfTopic?: APITopicIsPartOfTopicResolvers<ContextType>;
   TopicIsSubTopicOfTopic?: APITopicIsSubTopicOfTopicResolvers<ContextType>;
   TopicLearningMaterialsResults?: APITopicLearningMaterialsResultsResolvers<ContextType>;
+  TopicType?: APITopicTypeResolvers<ContextType>;
+  TopicTypeColor?: APITopicTypeColorResolvers;
   TriggerResetPasswordResponse?: APITriggerResetPasswordResponseResolvers<ContextType>;
   UpdateLearningGoalDependenciesResult?: APIUpdateLearningGoalDependenciesResultResolvers<ContextType>;
   User?: APIUserResolvers<ContextType>;

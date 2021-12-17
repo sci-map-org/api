@@ -1,4 +1,5 @@
 import { UserInputError } from 'apollo-server-errors';
+import { omit } from 'lodash';
 import { Topic, TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
@@ -30,6 +31,11 @@ import {
   updateTopic,
   updateTopicHasContextTopic,
 } from '../../repositories/topics.repository';
+import {
+  attachTopicTypeToTopic,
+  findOrCreateTopicType,
+  getTopicTopicTypes,
+} from '../../repositories/topic_types.repository';
 import { pullTopicDescriptions } from '../../services/pull_topic_descriptions.service';
 import { initSubtopicIndexValue } from '../../services/topics.service';
 import {
@@ -108,7 +114,17 @@ export const pullTopicDescriptionsResolver: APIQueryResolvers['pullTopicDescript
 
 export const createTopicResolver: APIMutationResolvers['createTopic'] = async (_parent, { payload }, { user }) => {
   restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
-  return await createTopic({ _id: user!._id }, nullToUndefined(payload));
+
+  const createdTopic = await createTopic({ _id: user!._id }, nullToUndefined(omit(payload, 'topicTypes')));
+  if (payload.topicTypes?.length) {
+    await Promise.all(
+      payload.topicTypes.map(async (type) => {
+        await findOrCreateTopicType(type);
+        await attachTopicTypeToTopic(createdTopic._id, type);
+      })
+    );
+  }
+  return createdTopic;
 };
 
 export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (
@@ -343,4 +359,8 @@ export const getTopicContextualisedTopicsResolver: APITopicResolvers['contextual
 export const getTopicContextTopicResolver: APITopicResolvers['contextTopic'] = async (topic) => {
   const result = await getTopicContextTopic(topic._id);
   return result?.contextTopic || null;
+};
+
+export const getTopicTopicTypesResolver: APITopicResolvers['topicTypes'] = async (topic) => {
+  return getTopicTopicTypes(topic._id);
 };

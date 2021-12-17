@@ -20,3 +20,4 @@ generates:
         LearningGoalType: ../../entities/LearningGoal#LearningGoalType
         SubTopicRelationshipType: ../../entities/relationships/TopicIsSubTopicOfTopic#SubTopicRelationshipType
         PulledDescriptionSourceName: ../../services/pull_topic_descriptions.service#PulledDescriptionSourceName
+        TopicTypeColor: ../../entities/TopicType#TopicTypeColor

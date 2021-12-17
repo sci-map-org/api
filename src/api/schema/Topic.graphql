@@ -6,21 +6,24 @@
 # import User from 'User.graphql'
 # import Date from 'common/Date.graphql'
 # import ResourceType from 'Resource.graphql'
+# import TopicType from 'TopicType.graphql'
+
 type Topic {
   _id: String!
   name: String!
   key: String!
   aliases: [String!]
   context: String
+  level: Float
+  description: String
+  descriptionSourceUrl: String
   isDisambiguation: Boolean
   contextTopic: Topic
-  level: Float
+  wikipediaPageUrl: String
+  topicTypes: [TopicType!]
   otherContextsTopics: [Topic!]
   disambiguationTopic: Topic
   contextualisedTopics: [Topic!]
-  description: String
-  descriptionSourceUrl: String
-  wikipediaPageUrl: String
   parentTopic: Topic
   partOfTopics: [TopicIsPartOfTopic!]
   subTopics: [TopicIsSubTopicOfTopic!]
@@ -95,6 +98,7 @@ input CreateTopicPayload {
   wikipediaPageUrl: String
   aliases: [String!]
   level: Float
+  topicTypes: [String!]
 }
 
 input CreateTopicContextOptions {

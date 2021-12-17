@@ -3,6 +3,7 @@
 #import * from "User.graphql"
 #import * from "misc.graphql"
 #import * from "Topic.graphql"
+#import * from "TopicType.graphql"
 #import * from "Article.graphql"
 #import * from "LearningMaterialTag.graphql"
 #import * from "LearningMaterial.graphql"

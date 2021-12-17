@@ -109,6 +109,7 @@ import {
   getTopicsCreatedByResolver,
   getTopicSubTopicsResolver,
   getTopicSubTopicsTotalCountResolver,
+  getTopicTopicTypesResolver,
   getTopicValidContextsFromDisambiguationResolver,
   getTopicValidContextsFromSameNameResolver,
   getTopicValidContextsResolver,
@@ -118,6 +119,12 @@ import {
   updateTopicContextResolver,
   updateTopicResolver,
 } from './resolvers/topics.resolvers';
+import {
+  addTopicTypesToTopicResolver,
+  getTopicTypeUsageCountResolver,
+  removeTopicTypesFromTopicResolver,
+  searchTopicTypesResolver,
+} from './resolvers/topic_types.resolvers';
 import {
   adminUpdateUserResolver,
   currentUserResolver,
@@ -205,6 +212,8 @@ const resolvers: APIResolvers<APIContext> = {
     detachTopicIsPartOfTopic: detachTopicIsPartOfTopicResolver,
     addTopicHasPrerequisiteTopic: addTopicHasPrerequisiteTopicResolver,
     removeTopicHasPrerequisiteTopic: removeTopicHasPrerequisiteTopicResolver,
+    addTopicTypesToTopic: addTopicTypesToTopicResolver,
+    removeTopicTypesFromTopic: removeTopicTypesFromTopicResolver,
     triggerResetPassword: triggerResetPasswordResolver,
     resetPassword: resetPasswordResolver,
     updateCurrentUser: updateCurrentUserResolver,
@@ -236,6 +245,7 @@ const resolvers: APIResolvers<APIContext> = {
     getTopicValidContextsFromSameName: getTopicValidContextsFromSameNameResolver,
     getTopicValidContextsFromDisambiguation: getTopicValidContextsFromDisambiguationResolver,
     pullTopicDescriptions: pullTopicDescriptionsResolver,
+    searchTopicTypes: searchTopicTypesResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -301,6 +311,7 @@ const resolvers: APIResolvers<APIContext> = {
   },
   Topic: {
     aliases: getTopicAliasesResolver,
+    topicTypes: getTopicTopicTypesResolver,
     parentTopic: getTopicParentTopicResolver,
     subTopics: getTopicSubTopicsResolver,
     subTopicsTotalCount: getTopicSubTopicsTotalCountResolver,
@@ -313,6 +324,9 @@ const resolvers: APIResolvers<APIContext> = {
     followUps: getTopicFollowUpsResolver,
     createdBy: getTopicsCreatedByResolver,
     partOfTopics: getTopicPartOfTopicsResolver,
+  },
+  TopicType: {
+    usageCount: getTopicTypeUsageCountResolver,
   },
   SubGoal: {
     __resolveType: (obj) => {

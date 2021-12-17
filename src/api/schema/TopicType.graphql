@@ -1,0 +1,24 @@
+#import Topic from 'Topic.graphql'
+
+type TopicType {
+  name: String! # case insensitive
+  iconName: String
+  color: TopicTypeColor
+  usageCount: Int
+}
+
+enum TopicTypeColor {
+  orange
+  red
+  green
+  blue
+}
+
+type Query {
+  searchTopicTypes(query: String!, limit: Int): [TopicType!]!
+}
+
+type Mutation {
+  addTopicTypesToTopic(topicId: String!, topicTypes: [String!]!): Topic!
+  removeTopicTypesFromTopic(topicId: String!, topicTypes: [String!]!): Topic!
+}
