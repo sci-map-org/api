@@ -34,6 +34,7 @@ import { ResourceLabel, ResourceType } from '../entities/Resource';
 import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
+import { buildFullTopicKey } from '../services/topics.service';
 import {
   attachUniqueNodes,
   countRelatedNodes,
@@ -49,7 +50,7 @@ import {
 
 interface CreateTopicData {
   name: string;
-  key?: string;
+  key: string;
   description?: string;
   descriptionSourceUrl?: string;
   wikipediaPageUrl?: string;
@@ -66,7 +67,6 @@ export const createTopic = (user: { _id: string } | { key: string }, data: Creat
       labels: [TopicLabel],
       props: {
         ...omit(data, 'aliases'),
-        key: generateUrlKey(data.key || data.name), // a bit ugly
         _id: shortid.generate(),
         updatedAt: Date.now(),
         createdAt: Date.now(),
@@ -118,11 +118,8 @@ export const searchTopics = async (
 ): Promise<Topic[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${TopicLabel}) WHERE (NOT node:LearningGoal OR node.hidden = false) ${
-      query
-        ? 'AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query))'
-        : ''
-    }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
+    `MATCH (node:${TopicLabel}) WHERE toLower(node.name) CONTAINS toLower($query) 
+    RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
     }`,
     {
@@ -504,14 +501,13 @@ export const detachTopicIsSubTopicOfTopic = (
 export const attachTopicHasPrerequisiteTopic = (
   topicId: string,
   prerequisiteTopicId: string,
-  strength?: number
+  data: Omit<TopicHasPrerequisiteTopic, 'createdAt'>
 ): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; topic: Topic }> =>
   attachUniqueNodes<Topic, TopicHasPrerequisiteTopic, Topic>({
     originNode: { label: TopicLabel, filter: { _id: topicId } },
     relationship: {
       label: TopicHasPrerequisiteTopicLabel,
-      onCreateProps: { strength: strength || TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE },
-      onMergeProps: { strength },
+      onCreateProps: { ...data, createdAt: Date.now() },
     },
     destinationNode: { label: TopicLabel, filter: { _id: prerequisiteTopicId } },
   }).then(({ originNode, relationship, destinationNode }) => {
@@ -967,7 +963,7 @@ export const attachTopicHasContextTopic = async (
 
   const updatedTopic = await updateTopic(
     { _id: topicId },
-    { context: contextTopic.name, key: generateUrlKey(`${topic.key}_(${contextTopic.key})`) }
+    { context: contextTopic.name, key: buildFullTopicKey(topic.key, contextTopic.key) }
   );
   if (!updatedTopic) throw new Error('Should never happen');
   return {

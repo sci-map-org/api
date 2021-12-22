@@ -93,12 +93,13 @@ type KnownTopic {
 input CreateTopicPayload {
   name: String!
   key: String!
+  topicTypes: [String!]!
+  prerequisitesTopicsIds: [String!]!
   description: String
   descriptionSourceUrl: String
   wikipediaPageUrl: String
   aliases: [String!]
   level: Float
-  topicTypes: [String!]
 }
 
 input CreateTopicContextOptions {

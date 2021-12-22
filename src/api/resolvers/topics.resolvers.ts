@@ -37,7 +37,8 @@ import {
   getTopicTopicTypes,
 } from '../../repositories/topic_types.repository';
 import { pullTopicDescriptions } from '../../services/pull_topic_descriptions.service';
-import { initSubtopicIndexValue } from '../../services/topics.service';
+import { createFullTopic, initSubtopicIndexValue } from '../../services/topics.service';
+import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import {
   APIMutationResolvers,
   APIQueryResolvers,
@@ -113,18 +114,9 @@ export const pullTopicDescriptionsResolver: APIQueryResolvers['pullTopicDescript
 };
 
 export const createTopicResolver: APIMutationResolvers['createTopic'] = async (_parent, { payload }, { user }) => {
-  restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
+  if (!user) throw new UnauthenticatedError('Must be logged in to create a topic');
 
-  const createdTopic = await createTopic({ _id: user!._id }, nullToUndefined(omit(payload, 'topicTypes')));
-  if (payload.topicTypes?.length) {
-    await Promise.all(
-      payload.topicTypes.map(async (type) => {
-        await findOrCreateTopicType(type);
-        await attachTopicTypeToTopic(createdTopic._id, type);
-      })
-    );
-  }
-  return createdTopic;
+  return createFullTopic(payload, user);
 };
 
 export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (
@@ -132,19 +124,11 @@ export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (
   { parentTopicId, payload, contextOptions },
   { user }
 ) => {
-  restrictAccess('loggedInUser', user, 'Must be logged in to create a topic');
-  const createdTopic = await createTopic({ _id: user!._id }, nullToUndefined(payload));
-  await attachTopicIsSubTopicOfTopic(parentTopicId, createdTopic._id, {
-    index: await initSubtopicIndexValue(parentTopicId),
-    createdByUserId: user?._id,
+  if (!user) throw new UnauthenticatedError('Must be logged in to create a topic');
+  return createFullTopic(payload, user, {
+    parentTopicId,
+    ...contextOptions,
   });
-  if (contextOptions) {
-    await attachTopicHasDisambiguationTopic(createdTopic._id, contextOptions.disambiguationTopicId, {
-      createdByUserId: user!._id,
-    });
-    await attachTopicHasContextTopic(createdTopic._id, contextOptions.contextTopicId, { createdByUserId: user!._id });
-  }
-  return createdTopic;
 };
 
 export const createDisambiguationFromTopicResolver: APIMutationResolvers['createDisambiguationFromTopic'] = async (

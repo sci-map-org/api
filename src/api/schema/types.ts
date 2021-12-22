@@ -175,7 +175,8 @@ export type APICreateTopicPayload = {
   key: Scalars['String'];
   level?: InputMaybe<Scalars['Float']>;
   name: Scalars['String'];
-  topicTypes?: InputMaybe<Array<Scalars['String']>>;
+  prerequisitesTopicsIds: Array<Scalars['String']>;
+  topicTypes: Array<Scalars['String']>;
   wikipediaPageUrl?: InputMaybe<Scalars['String']>;
 };
 
