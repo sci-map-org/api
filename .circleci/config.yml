@@ -10,7 +10,7 @@ jobs:
       - node/with-cache:
           cache-version: v2
           steps:
-            - setup_remote_docker
+            - setup_remote_docker:
                 version: 19.03.13
             - run: yarn docker:build
             - run:
