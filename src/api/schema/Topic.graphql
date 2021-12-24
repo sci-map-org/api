@@ -6,17 +6,24 @@
 # import User from 'User.graphql'
 # import Date from 'common/Date.graphql'
 # import ResourceType from 'Resource.graphql'
+# import TopicType from 'TopicType.graphql'
+
 type Topic {
   _id: String!
   name: String!
   key: String!
+  aliases: [String!]
   context: String
+  level: Float
+  description: String
+  descriptionSourceUrl: String
   isDisambiguation: Boolean
   contextTopic: Topic
+  wikipediaPageUrl: String
+  topicTypes: [TopicType!]
   otherContextsTopics: [Topic!]
   disambiguationTopic: Topic
   contextualisedTopics: [Topic!]
-  description: String
   parentTopic: Topic
   partOfTopics: [TopicIsPartOfTopic!]
   subTopics: [TopicIsSubTopicOfTopic!]
@@ -86,7 +93,13 @@ type KnownTopic {
 input CreateTopicPayload {
   name: String!
   key: String!
+  topicTypes: [String!]!
+  prerequisitesTopicsIds: [String!]!
   description: String
+  descriptionSourceUrl: String
+  wikipediaPageUrl: String
+  aliases: [String!]
+  level: Float
 }
 
 input CreateTopicContextOptions {
@@ -98,6 +111,10 @@ input UpdateTopicPayload {
   name: String
   key: String
   description: String
+  descriptionSourceUrl: String
+  wikipediaPageUrl: String
+  aliases: [String!]
+  level: Float
 }
 
 type DeleteTopicResponse {
@@ -127,6 +144,23 @@ type GetTopicValidContextsResult {
   validContexts: [Topic!]
 }
 
+input PullDescriptionsQueryOptions {
+  name: String!
+  aliases: [String!]
+  parentTopicName: String
+  contextName: String
+}
+
+enum PulledDescriptionSourceName {
+  wikipedia
+  google
+}
+type PulledDescription {
+  sourceUrl: String!
+  sourceName: PulledDescriptionSourceName!
+  resultName: String
+  description: String!
+}
 type Query {
   getTopicById(topicId: String!): Topic!
   getTopicByKey(topicKey: String!): Topic!
@@ -143,6 +177,7 @@ type Query {
     parentTopicId: String!
     disambiguationTopicId: String!
   ): GetTopicValidContextsFromDisambiguation!
+  pullTopicDescriptions(queryOptions: PullDescriptionsQueryOptions!): [PulledDescription!]!
 }
 
 type Mutation {

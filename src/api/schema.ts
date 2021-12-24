@@ -94,6 +94,7 @@ import {
   createDisambiguationFromTopicResolver,
   createTopicResolver,
   deleteTopicResolver,
+  getTopicAliasesResolver,
   getTopicByIdResolver,
   getTopicByKeyResolver,
   getTopicContextTopicResolver,
@@ -108,14 +109,22 @@ import {
   getTopicsCreatedByResolver,
   getTopicSubTopicsResolver,
   getTopicSubTopicsTotalCountResolver,
+  getTopicTopicTypesResolver,
   getTopicValidContextsFromDisambiguationResolver,
   getTopicValidContextsFromSameNameResolver,
   getTopicValidContextsResolver,
+  pullTopicDescriptionsResolver,
   searchSubTopicsResolver,
   searchTopicsResolver,
   updateTopicContextResolver,
   updateTopicResolver,
 } from './resolvers/topics.resolvers';
+import {
+  addTopicTypesToTopicResolver,
+  getTopicTypeUsageCountResolver,
+  removeTopicTypesFromTopicResolver,
+  searchTopicTypesResolver,
+} from './resolvers/topic_types.resolvers';
 import {
   adminUpdateUserResolver,
   currentUserResolver,
@@ -203,6 +212,8 @@ const resolvers: APIResolvers<APIContext> = {
     detachTopicIsPartOfTopic: detachTopicIsPartOfTopicResolver,
     addTopicHasPrerequisiteTopic: addTopicHasPrerequisiteTopicResolver,
     removeTopicHasPrerequisiteTopic: removeTopicHasPrerequisiteTopicResolver,
+    addTopicTypesToTopic: addTopicTypesToTopicResolver,
+    removeTopicTypesFromTopic: removeTopicTypesFromTopicResolver,
     triggerResetPassword: triggerResetPasswordResolver,
     resetPassword: resetPasswordResolver,
     updateCurrentUser: updateCurrentUserResolver,
@@ -233,6 +244,8 @@ const resolvers: APIResolvers<APIContext> = {
     getTopicValidContexts: getTopicValidContextsResolver,
     getTopicValidContextsFromSameName: getTopicValidContextsFromSameNameResolver,
     getTopicValidContextsFromDisambiguation: getTopicValidContextsFromDisambiguationResolver,
+    pullTopicDescriptions: pullTopicDescriptionsResolver,
+    searchTopicTypes: searchTopicTypesResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -297,6 +310,8 @@ const resolvers: APIResolvers<APIContext> = {
     __resolveType: learningMaterialResolveType,
   },
   Topic: {
+    aliases: getTopicAliasesResolver,
+    topicTypes: getTopicTopicTypesResolver,
     parentTopic: getTopicParentTopicResolver,
     subTopics: getTopicSubTopicsResolver,
     subTopicsTotalCount: getTopicSubTopicsTotalCountResolver,
@@ -310,8 +325,11 @@ const resolvers: APIResolvers<APIContext> = {
     createdBy: getTopicsCreatedByResolver,
     partOfTopics: getTopicPartOfTopicsResolver,
   },
+  TopicType: {
+    usageCount: getTopicTypeUsageCountResolver,
+  },
   SubGoal: {
-    __resolveType: obj => {
+    __resolveType: (obj) => {
       //@ts-ignore
       if (Object.values(LearningGoalType).indexOf(obj.type) > -1) return 'LearningGoal';
       return 'Topic';
@@ -319,7 +337,7 @@ const resolvers: APIResolvers<APIContext> = {
     },
   },
   SearchResultEntity: {
-    __resolveType: obj => {
+    __resolveType: (obj) => {
       //@ts-ignore
       if (!obj.type && (obj.public === true || obj.public === false)) return 'LearningPath';
       //@ts-ignore

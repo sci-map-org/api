@@ -23,7 +23,7 @@ const extractYoutubeVideosData = async (videoIds: string[]): Promise<YoutubeVide
   if (items.length !== videoIds.length)
     throw new Error('Some video items failed to be retrived from Youtube video API for ids ' + videoIds.join(','));
 
-  return items.map(videoData => {
+  return items.map((videoData) => {
     const title = videoData.snippet?.title;
     const description = videoData.snippet?.description;
     const youtubeId = videoData.id;
@@ -63,16 +63,14 @@ const getYoutubePlaylistItemData = async (playlistId: string): Promise<YoutubePl
     if (!itemsData) throw new Error('missing items');
     const newItems: YoutubePlaylistItemData[] = await Promise.all(
       itemsData
-        .filter(itemData => itemData.status?.privacyStatus === 'public')
-        .map(
-          async (itemData): Promise<YoutubePlaylistItemData> => {
-            const youtubeId = itemData.contentDetails?.videoId;
-            if (!youtubeId) throw new Error('missing data');
-            return {
-              videoData: await extractYoutubeVideoData(youtubeId),
-            };
-          }
-        )
+        .filter((itemData) => itemData.status?.privacyStatus === 'public')
+        .map(async (itemData): Promise<YoutubePlaylistItemData> => {
+          const youtubeId = itemData.contentDetails?.videoId;
+          if (!youtubeId) throw new Error('missing data');
+          return {
+            videoData: await extractYoutubeVideoData(youtubeId),
+          };
+        })
     );
 
     items = items.concat(newItems);

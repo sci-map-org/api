@@ -1,4 +1,5 @@
 import { node, Query, relation } from 'cypher-query-builder';
+import { omit } from 'lodash';
 import * as shortid from 'shortid';
 import { APITopicLearningMaterialsSortingType } from '../api/schema/types';
 import { generateUrlKey } from '../api/util/urlKey';
@@ -33,6 +34,7 @@ import { ResourceLabel, ResourceType } from '../entities/Resource';
 import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
+import { buildFullTopicKey } from '../services/topics.service';
 import {
   attachUniqueNodes,
   countRelatedNodes,
@@ -48,9 +50,13 @@ import {
 
 interface CreateTopicData {
   name: string;
-  key?: string;
+  key: string;
   description?: string;
+  descriptionSourceUrl?: string;
+  wikipediaPageUrl?: string;
   isDisambiguation?: boolean;
+  aliases?: string[];
+  level?: number;
 }
 
 export const createTopic = (user: { _id: string } | { key: string }, data: CreateTopicData): Promise<Topic> =>
@@ -60,11 +66,13 @@ export const createTopic = (user: { _id: string } | { key: string }, data: Creat
     newNode: {
       labels: [TopicLabel],
       props: {
-        ...data,
-        key: generateUrlKey(data.key || data.name), // a bit ugly
+        ...omit(data, 'aliases'),
         _id: shortid.generate(),
         updatedAt: Date.now(),
         createdAt: Date.now(),
+        ...(!!data.aliases?.length && {
+          aliasesJson: JSON.stringify(data.aliases),
+        }),
       },
     },
   });
@@ -73,7 +81,11 @@ interface UpdateTopicData {
   key?: string;
   name?: string;
   description?: string;
+  descriptionSourceUrl?: string | null;
+  wikipediaPageUrl?: string | null;
   context?: string | null;
+  aliases?: string[] | null;
+  level?: number;
 }
 
 type TopicFilter = { _id: string } | { key: string };
@@ -82,8 +94,14 @@ export const updateTopic = (topicFilter: TopicFilter, data: UpdateTopicData) =>
   updateOne<Topic, TopicFilter, UpdateTopicData & { updatedAt: number }>({
     label: TopicLabel,
   })(topicFilter, {
-    ...data,
+    ...omit(data, 'aliases'),
     updatedAt: Date.now(),
+    ...(!!data.aliases?.length && {
+      aliasesJson: JSON.stringify(data.aliases),
+    }),
+    ...(data.aliases === null && {
+      aliasesJson: null,
+    }),
   });
 
 export const deleteTopic = deleteOne<Topic, { _id: string } | { key: string }>({ label: TopicLabel });
@@ -100,11 +118,8 @@ export const searchTopics = async (
 ): Promise<Topic[]> => {
   const session = neo4jDriver.session();
   const { records } = await session.run(
-    `MATCH (node:${TopicLabel}) WHERE (NOT node:LearningGoal OR node.hidden = false) ${
-      query
-        ? 'AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query))'
-        : ''
-    }RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
+    `MATCH (node:${TopicLabel}) WHERE toLower(node.name) CONTAINS toLower($query) 
+    RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
     }`,
     {
@@ -112,7 +127,7 @@ export const searchTopics = async (
     }
   );
   session.close();
-  return records.map(r => r.get('node'));
+  return records.map((r) => r.get('node'));
 };
 
 export const autocompleteTopicName = async (
@@ -131,7 +146,7 @@ export const autocompleteTopicName = async (
     }
   );
   session.close();
-  return records.map(r => r.get('node'));
+  return records.map((r) => r.get('node'));
 };
 
 // ========= Learning materials =======
@@ -269,7 +284,7 @@ export const getTopicLearningMaterials = async (
   }
 
   const r = await q.run();
-  const learningMaterials = r.map(i => i.lm.properties);
+  const learningMaterials = r.map((i) => i.lm.properties);
   return learningMaterials;
 };
 
@@ -336,7 +351,7 @@ export const searchSubTopics = async (
   );
   session.close();
 
-  return records.map(r => r.get('node'));
+  return records.map((r) => r.get('node'));
 };
 
 export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> => {
@@ -348,18 +363,20 @@ export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> 
     }
   );
   const r = await q.run();
-  const [size] = r.map(i => i.size);
+  const [size] = r.map((i) => i.size);
   return size;
 };
 
 export const getTopicSubTopics = async (
   topicId: string
-): Promise<{
-  parentTopic: Topic;
-  relationship: TopicIsSubTopicOfTopic | TopicIsPartOfTopic;
-  subTopic: Topic;
-  relationshipType: SubTopicRelationshipType;
-}[]> =>
+): Promise<
+  {
+    parentTopic: Topic;
+    relationship: TopicIsSubTopicOfTopic | TopicIsPartOfTopic;
+    subTopic: Topic;
+    relationshipType: SubTopicRelationshipType;
+  }[]
+> =>
   getRelatedNodes<Topic, TopicIsSubTopicOfTopic | TopicIsPartOfTopic, Topic>({
     originNode: {
       label: TopicLabel,
@@ -377,7 +394,7 @@ export const getTopicSubTopics = async (
       field: 'index',
       direction: 'ASC',
     },
-  }).then(items =>
+  }).then((items) =>
     items.map(({ relationship, destinationNode, originNode, originalRelationship }) => ({
       parentTopic: originNode,
       relationship,
@@ -401,7 +418,7 @@ export const getTopicParentTopic = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(item =>
+  }).then((item) =>
     item
       ? {
           parentTopic: item.destinationNode,
@@ -484,14 +501,13 @@ export const detachTopicIsSubTopicOfTopic = (
 export const attachTopicHasPrerequisiteTopic = (
   topicId: string,
   prerequisiteTopicId: string,
-  strength?: number
+  data: Omit<TopicHasPrerequisiteTopic, 'createdAt'>
 ): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; topic: Topic }> =>
   attachUniqueNodes<Topic, TopicHasPrerequisiteTopic, Topic>({
     originNode: { label: TopicLabel, filter: { _id: topicId } },
     relationship: {
       label: TopicHasPrerequisiteTopicLabel,
-      onCreateProps: { strength: strength || TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE },
-      onMergeProps: { strength },
+      onCreateProps: { ...data, createdAt: Date.now() },
     },
     destinationNode: { label: TopicLabel, filter: { _id: prerequisiteTopicId } },
   }).then(({ originNode, relationship, destinationNode }) => {
@@ -542,8 +558,8 @@ const getTopicPrerequisiteRelations = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items =>
-    items.map(item => ({
+  }).then((items) =>
+    items.map((item) => ({
       originTopic: item.originNode,
       destinationTopic: item.destinationNode,
       relationship: item.relationship,
@@ -553,7 +569,7 @@ const getTopicPrerequisiteRelations = (
 export const getTopicPrerequisites = (
   filter: { _id: string } | { key: string }
 ): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; followUpTopic: Topic }[]> =>
-  getTopicPrerequisiteRelations(filter, 'OUT').then(items =>
+  getTopicPrerequisiteRelations(filter, 'OUT').then((items) =>
     items.map(({ originTopic, relationship, destinationTopic }) => ({
       prerequisiteTopic: destinationTopic,
       relationship,
@@ -564,7 +580,7 @@ export const getTopicPrerequisites = (
 export const getTopicFollowUps = (
   filter: { _id: string } | { key: string }
 ): Promise<{ prerequisiteTopic: Topic; relationship: TopicHasPrerequisiteTopic; followUpTopic: Topic }[]> =>
-  getTopicPrerequisiteRelations(filter, 'IN').then(items =>
+  getTopicPrerequisiteRelations(filter, 'IN').then((items) =>
     items.map(({ originTopic, relationship, destinationTopic }) => ({
       prerequisiteTopic: originTopic,
       relationship,
@@ -587,7 +603,7 @@ export const getSubTopicsMaxIndex = async (topicId: string): Promise<number | nu
 
   const r = await q.run();
   if (!r.length) return null;
-  const [maxIndex] = r.map(i => i.maxIndex);
+  const [maxIndex] = r.map((i) => i.maxIndex);
 
   return maxIndex;
 };
@@ -692,8 +708,8 @@ export const getTopicPartOfTopics = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items =>
-    items.map(item => ({
+  }).then((items) =>
+    items.map((item) => ({
       subTopic: item.originNode,
       partOfTopic: item.destinationNode,
       relationship: item.relationship,
@@ -719,7 +735,7 @@ export const getTopicDisambiguationTopic = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(item =>
+  }).then((item) =>
     item
       ? {
           disambiguationTopic: item.destinationNode,
@@ -744,8 +760,8 @@ export const getTopicContextualisedTopics = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items =>
-    items.map(item => ({
+  }).then((items) =>
+    items.map((item) => ({
       disambiguationTopic: item.originNode,
       contextualisedTopic: item.destinationNode,
       relationship: item.relationship,
@@ -771,7 +787,7 @@ export const getTopicContextTopic = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(item =>
+  }).then((item) =>
     item
       ? {
           contextualisedTopic: item.originNode,
@@ -816,7 +832,7 @@ export const getTopicsValidContexts = async (
   if (!records.length) throw new Error('no results');
 
   return {
-    validContexts: records[0].get('validContexts').map(t => t.properties),
+    validContexts: records[0].get('validContexts').map((t) => t.properties),
   };
 };
 
@@ -847,8 +863,8 @@ export const getTopicValidContextsFromSameName = async (
   if (!records.length) throw new Error('no results');
 
   return {
-    validContexts: records[0].get('validContexts').map(t => t.properties),
-    validSameNameTopicContexts: records[0].get('validSameNameTopicContexts').map(t => t.properties),
+    validContexts: records[0].get('validContexts').map((t) => t.properties),
+    validSameNameTopicContexts: records[0].get('validSameNameTopicContexts').map((t) => t.properties),
   };
 };
 
@@ -885,7 +901,7 @@ where p IN flat or (NOT (p)-[:${TopicIsSubTopicOfTopicLabel}]->(:${TopicLabel}))
   if (!records.length) throw new Error('no results');
 
   return {
-    validContexts: records[0].get('validContexts').map(t => t.properties),
+    validContexts: records[0].get('validContexts').map((t) => t.properties),
   };
 };
 
@@ -932,11 +948,11 @@ export const attachTopicHasContextTopic = async (
   const existingContextTopic = await getTopicContextTopic(topicId);
   if (!!existingContextTopic) throw new Error(`Topic ${topicId} already has a context`);
 
-  const { destinationNode: contextTopic, relationship, originNode: topic } = await attachUniqueNodes<
-    Topic,
-    TopicHasContextTopic,
-    Topic
-  >({
+  const {
+    destinationNode: contextTopic,
+    relationship,
+    originNode: topic,
+  } = await attachUniqueNodes<Topic, TopicHasContextTopic, Topic>({
     originNode: { label: TopicLabel, filter: { _id: topicId } },
     relationship: {
       label: TopicHasContextTopicLabel,
@@ -945,11 +961,18 @@ export const attachTopicHasContextTopic = async (
     destinationNode: { label: TopicLabel, filter: { _id: contextTopicId } },
   });
 
+  // when creating a contextualised topic, we directly set the key with the context in it at creation. In
+  // that case,  we need to check that we don't add it twice
+
   const updatedTopic = await updateTopic(
     { _id: topicId },
-    { context: contextTopic.name, key: generateUrlKey(`${topic.key}_(${contextTopic.key})`) }
+    {
+      context: contextTopic.name,
+      ...(!topic.key.includes(`(${contextTopic.key})`) && { key: buildFullTopicKey(topic.key, contextTopic.key) }),
+    }
   );
   if (!updatedTopic) throw new Error('Should never happen');
+
   return {
     topic: updatedTopic,
     relationship,
@@ -978,11 +1001,11 @@ export const updateTopicHasContextTopic = async (
     destinationNode: { label: TopicLabel, filter: { _id: existingContextResult.contextTopic._id } },
   });
 
-  const { destinationNode: newContextTopic, relationship, originNode: topic } = await attachUniqueNodes<
-    Topic,
-    TopicHasContextTopic,
-    Topic
-  >({
+  const {
+    destinationNode: newContextTopic,
+    relationship,
+    originNode: topic,
+  } = await attachUniqueNodes<Topic, TopicHasContextTopic, Topic>({
     originNode: { label: TopicLabel, filter: { _id: topicId } },
     relationship: {
       label: TopicHasContextTopicLabel,
@@ -995,12 +1018,7 @@ export const updateTopicHasContextTopic = async (
     { _id: topicId },
     {
       context: newContextTopic.name,
-      key: generateUrlKey(
-        topic.key.replace(
-          generateUrlKey(`_(${existingContextResult.contextTopic.key})`),
-          generateUrlKey(`_(${newContextTopic.key})`)
-        )
-      ),
+      key: topic.key.replace(`_(${existingContextResult.contextTopic.key})`, `_(${newContextTopic.key})`),
     }
   );
   if (!updatedTopic) throw new Error('Topic not found - unreachable code reached');
