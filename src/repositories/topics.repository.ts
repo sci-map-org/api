@@ -961,11 +961,18 @@ export const attachTopicHasContextTopic = async (
     destinationNode: { label: TopicLabel, filter: { _id: contextTopicId } },
   });
 
+  // when creating a contextualised topic, we directly set the key with the context in it at creation. In
+  // that case,  we need to check that we don't add it twice
+
   const updatedTopic = await updateTopic(
     { _id: topicId },
-    { context: contextTopic.name, key: buildFullTopicKey(topic.key, contextTopic.key) }
+    {
+      context: contextTopic.name,
+      ...(!topic.key.includes(`(${contextTopic.key})`) && { key: buildFullTopicKey(topic.key, contextTopic.key) }),
+    }
   );
   if (!updatedTopic) throw new Error('Should never happen');
+
   return {
     topic: updatedTopic,
     relationship,
@@ -1011,12 +1018,7 @@ export const updateTopicHasContextTopic = async (
     { _id: topicId },
     {
       context: newContextTopic.name,
-      key: generateUrlKey(
-        topic.key.replace(
-          generateUrlKey(`_(${existingContextResult.contextTopic.key})`),
-          generateUrlKey(`_(${newContextTopic.key})`)
-        )
-      ),
+      key: topic.key.replace(`_(${existingContextResult.contextTopic.key})`, `_(${newContextTopic.key})`),
     }
   );
   if (!updatedTopic) throw new Error('Topic not found - unreachable code reached');

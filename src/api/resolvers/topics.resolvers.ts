@@ -127,7 +127,7 @@ export const addSubTopicResolver: APIMutationResolvers['addSubTopic'] = async (
   if (!user) throw new UnauthenticatedError('Must be logged in to create a topic');
   return createFullTopic(payload, user, {
     parentTopicId,
-    ...contextOptions,
+    contextOptions: contextOptions || undefined,
   });
 };
 
@@ -143,12 +143,11 @@ export const createDisambiguationFromTopicResolver: APIMutationResolvers['create
   if (!existingTopic) throw new NotFoundError('Topic', existingTopicId);
   if (!existingTopicContext) throw new NotFoundError('Topic', existingTopicContextTopicId);
 
-  await updateTopic({ _id: existingTopicId }, { key: existingTopic.key + '_(_' + existingTopicContext.key + '_)' });
   const disambiguationTopic = await createTopic(
     { _id: user!._id },
     {
       name: existingTopic.name,
-      key: existingTopic.key,
+      key: existingTopic.key + '_temp',
       isDisambiguation: true,
     }
   );
@@ -156,6 +155,7 @@ export const createDisambiguationFromTopicResolver: APIMutationResolvers['create
     createdByUserId: user!._id,
   });
   await attachTopicHasContextTopic(existingTopic._id, existingTopicContextTopicId, { createdByUserId: user!._id });
+  await updateTopic({ _id: disambiguationTopic._id }, { key: existingTopic.key });
   return disambiguationTopic;
 };
 

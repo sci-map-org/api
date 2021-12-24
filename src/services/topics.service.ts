@@ -104,4 +104,4 @@ export const createFullTopic = async (
   return createdTopic;
 };
 
-export const buildFullTopicKey = (topicKey: string, contextKey: string) => `${topicKey}_(${contextKey})}`;
+export const buildFullTopicKey = (topicKey: string, contextKey: string) => `${topicKey}_(${contextKey})`;

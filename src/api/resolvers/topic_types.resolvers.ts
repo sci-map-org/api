@@ -11,7 +11,7 @@ import {
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APIMutationResolvers, APIQueryResolvers, APITopicTypeResolvers } from '../schema/types';
 
-const MIN_SEARCH_TOPIC_TYPES_QUERY_LENGTH = 2;
+const MIN_SEARCH_TOPIC_TYPES_QUERY_LENGTH = 1;
 export const searchTopicTypesResolver: APIQueryResolvers['searchTopicTypes'] = async (_parent, { query, limit }) => {
   if (query.length < MIN_SEARCH_TOPIC_TYPES_QUERY_LENGTH)
     throw new UserInputError(
