@@ -85,7 +85,7 @@ interface UpdateTopicData {
   wikipediaPageUrl?: string | null;
   context?: string | null;
   aliases?: string[] | null;
-  level?: number;
+  level?: number | null;
 }
 
 type TopicFilter = { _id: string } | { key: string };
