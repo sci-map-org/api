@@ -170,6 +170,7 @@ export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (
     {
       ...nullToUndefined(payload),
       level: payload.level,
+      aliases: payload.aliases,
       descriptionSourceUrl: payload.descriptionSourceUrl,
       wikipediaPageUrl: payload.wikipediaPageUrl,
     }
