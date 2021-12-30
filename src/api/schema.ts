@@ -118,6 +118,7 @@ import {
   searchTopicsResolver,
   updateTopicContextResolver,
   updateTopicResolver,
+  updateTopicTopicTypesResolver,
 } from './resolvers/topics.resolvers';
 import {
   addTopicTypesToTopicResolver,
@@ -164,6 +165,7 @@ const resolvers: APIResolvers<APIContext> = {
     addSubTopic: addSubTopicResolver,
     createDisambiguationFromTopic: createDisambiguationFromTopicResolver,
     updateTopic: updateTopicResolver,
+    updateTopicTopicTypes: updateTopicTopicTypesResolver,
     deleteTopic: deleteTopicResolver,
     updateTopicContext: updateTopicContextResolver,
     createResource: createResourceResolver,

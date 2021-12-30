@@ -2,7 +2,6 @@ import { node, Query, relation } from 'cypher-query-builder';
 import { omit } from 'lodash';
 import * as shortid from 'shortid';
 import { APITopicLearningMaterialsSortingType } from '../api/schema/types';
-import { generateUrlKey } from '../api/util/urlKey';
 import { recommendationEngineConfig } from '../config';
 import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningPathLabel } from '../entities/LearningPath';
@@ -20,8 +19,8 @@ import {
 import {
   TopicHasPrerequisiteTopic,
   TopicHasPrerequisiteTopicLabel,
-  TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE,
 } from '../entities/relationships/TopicHasPrerequisiteTopic';
+import { TopicHasTopicType, TopicHasTopicTypeLabel } from '../entities/relationships/TopicHasTopicType';
 import { TopicIsPartOfTopic, TopicIsPartOfTopicLabel } from '../entities/relationships/TopicIsPartOfTopic';
 import {
   SubTopicRelationshipType,
@@ -32,6 +31,7 @@ import { UserCreatedTopic, UserCreatedTopicLabel } from '../entities/relationshi
 import { UserRatedLearningMaterialLabel } from '../entities/relationships/UserRatedLearningMaterial';
 import { ResourceLabel, ResourceType } from '../entities/Resource';
 import { Topic, TopicLabel } from '../entities/Topic';
+import { TopicType, TopicTypeLabel } from '../entities/TopicType';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import { buildFullTopicKey } from '../services/topics.service';
@@ -103,6 +103,54 @@ export const updateTopic = (topicFilter: TopicFilter, data: UpdateTopicData) =>
       aliasesJson: null,
     }),
   });
+
+export const updateTopicTopicTypes = async (
+  topicId: string,
+  topicTypesNames: string[]
+): Promise<{ topic: Topic; relationship: TopicHasTopicType; topicType: TopicType }[]> => {
+  const topicTypes = topicTypesNames.map((name, index) => ({
+    name,
+    index,
+  }));
+  //   MATCH (n:Topic {key: 'functional_programming'})
+  // WITH [{ name: 'concept', index: 1.0 },
+  // { name: 'new', index: 2.0 },
+  // { name: 'tool', index: 3.0 }] AS seeds, n
+  // UNWIND seeds AS seed
+  // MERGE (t:TopicType {name: seed.name})
+  // MERGE (n)-[r:HAS]->(t)
+  // SET r.index = seed.index
+  // RETURN n,t
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `
+    MATCH (n:${TopicLabel} {_id: $topicId})
+    WITH $topicTypes AS topicTypes, n
+    WITH topicTypes, [x IN topicTypes | x.name] as topicTypesNames, n
+    OPTIONAL MATCH (n)-[r:${TopicHasTopicTypeLabel}]->(t:${TopicTypeLabel}) WHERE NOT t.name IN topicTypesNames
+    DELETE r
+    WITH n, topicTypes
+    UNWIND topicTypes AS topicType
+    MERGE (t:${TopicTypeLabel} {name: topicType.name})
+    MERGE (n)-[r:${TopicHasTopicTypeLabel}]->(t)
+    SET r.index = topicType.index
+    RETURN properties(n) as n, properties(r) as r, properties(t) as t
+    `,
+    {
+      topicId,
+      topicTypes,
+    }
+  );
+
+  if (!records.length) throw new Error('no results');
+  return records.map((record) => {
+    return {
+      topic: record.get('n') as Topic,
+      relationship: record.get('r') as TopicHasTopicType,
+      topicType: record.get('t') as TopicType,
+    };
+  });
+};
 
 export const deleteTopic = deleteOne<Topic, { _id: string } | { key: string }>({ label: TopicLabel });
 

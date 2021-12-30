@@ -10,6 +10,7 @@ import {
   attachTopicIsSubTopicOfTopic,
   createTopic,
   getSubTopicsMaxIndex,
+  updateTopicTopicTypes,
 } from '../repositories/topics.repository';
 import { attachTopicTypeToTopic, findOrCreateTopicType } from '../repositories/topic_types.repository';
 import { JWTPayload } from './auth/jwt';
@@ -69,7 +70,7 @@ export const createFullTopic = async (
     }
   );
   await Promise.all([
-    attachTopicTypes(createdTopic._id, creationData.topicTypes),
+    updateTopicTopicTypes(createdTopic._id, creationData.topicTypes),
     attachTopicPrerequisites(createdTopic._id, user._id, creationData.prerequisitesTopicsIds),
   ]);
   let parentTopicName: string | undefined = undefined;

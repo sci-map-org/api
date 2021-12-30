@@ -30,6 +30,7 @@ import {
   searchTopics,
   updateTopic,
   updateTopicHasContextTopic,
+  updateTopicTopicTypes,
 } from '../../repositories/topics.repository';
 import {
   attachTopicTypeToTopic,
@@ -177,6 +178,18 @@ export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (
   );
   if (!updatedTopic) throw new NotFoundError('Topic', topicId);
   return updatedTopic;
+};
+
+export const updateTopicTopicTypesResolver: APIMutationResolvers['updateTopicTopicTypes'] = async (
+  _parent,
+  { topicId, topicTypesNames }
+) => {
+  const results = await updateTopicTopicTypes(
+    topicId,
+    topicTypesNames.map((name) => name.toLowerCase())
+  );
+  if (!results.length) throw new NotFoundError('Topic', topicId);
+  return results[0].topic;
 };
 
 export const deleteTopicResolver: APIMutationResolvers['deleteTopic'] = async (_parent, { topicId }, { user }) => {
