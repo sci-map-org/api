@@ -1,11 +1,9 @@
 import { UserInputError } from 'apollo-server-errors';
-import { omit } from 'lodash';
 import { Topic, TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachTopicHasContextTopic,
   attachTopicHasDisambiguationTopic,
-  attachTopicIsSubTopicOfTopic,
   autocompleteTopicName,
   countLearningMaterialsShowedInTopic,
   createTopic,
@@ -32,13 +30,9 @@ import {
   updateTopicHasContextTopic,
   updateTopicTopicTypes,
 } from '../../repositories/topics.repository';
-import {
-  attachTopicTypeToTopic,
-  findOrCreateTopicType,
-  getTopicTopicTypes,
-} from '../../repositories/topic_types.repository';
+import { getTopicTopicTypes } from '../../repositories/topic_types.repository';
 import { pullTopicDescriptions } from '../../services/pull_topic_descriptions.service';
-import { createFullTopic, initSubtopicIndexValue } from '../../services/topics.service';
+import { createFullTopic } from '../../services/topics.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import {
   APIMutationResolvers,
@@ -184,6 +178,7 @@ export const updateTopicTopicTypesResolver: APIMutationResolvers['updateTopicTop
   _parent,
   { topicId, topicTypesNames }
 ) => {
+  if (!topicTypesNames.length) throw new Error('Must have at least one topic type');
   const results = await updateTopicTopicTypes(
     topicId,
     topicTypesNames.map((name) => name.toLowerCase())

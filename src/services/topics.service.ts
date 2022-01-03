@@ -56,6 +56,7 @@ export const createFullTopic = async (
     contextOptions?: APICreateTopicContextOptions;
   }
 ): Promise<Topic> => {
+  if (!creationData.topicTypes.length) throw new Error('Must have at least one topic type');
   const createdTopic = await createTopic(
     { _id: user._id },
     {
@@ -69,6 +70,7 @@ export const createFullTopic = async (
       level: creationData.level || undefined,
     }
   );
+
   await Promise.all([
     updateTopicTopicTypes(createdTopic._id, creationData.topicTypes),
     attachTopicPrerequisites(createdTopic._id, user._id, creationData.prerequisitesTopicsIds),
