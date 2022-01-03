@@ -1,11 +1,9 @@
 import { UserInputError } from 'apollo-server-errors';
-import { omit } from 'lodash';
 import { Topic, TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
   attachTopicHasContextTopic,
   attachTopicHasDisambiguationTopic,
-  attachTopicIsSubTopicOfTopic,
   autocompleteTopicName,
   countLearningMaterialsShowedInTopic,
   createTopic,
@@ -30,14 +28,11 @@ import {
   searchTopics,
   updateTopic,
   updateTopicHasContextTopic,
+  updateTopicTopicTypes,
 } from '../../repositories/topics.repository';
-import {
-  attachTopicTypeToTopic,
-  findOrCreateTopicType,
-  getTopicTopicTypes,
-} from '../../repositories/topic_types.repository';
+import { getTopicTopicTypes } from '../../repositories/topic_types.repository';
 import { pullTopicDescriptions } from '../../services/pull_topic_descriptions.service';
-import { createFullTopic, initSubtopicIndexValue } from '../../services/topics.service';
+import { createFullTopic } from '../../services/topics.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import {
   APIMutationResolvers,
@@ -169,12 +164,27 @@ export const updateTopicResolver: APIMutationResolvers['updateTopic'] = async (
     { _id: topicId },
     {
       ...nullToUndefined(payload),
+      level: payload.level,
+      aliases: payload.aliases,
       descriptionSourceUrl: payload.descriptionSourceUrl,
       wikipediaPageUrl: payload.wikipediaPageUrl,
     }
   );
   if (!updatedTopic) throw new NotFoundError('Topic', topicId);
   return updatedTopic;
+};
+
+export const updateTopicTopicTypesResolver: APIMutationResolvers['updateTopicTopicTypes'] = async (
+  _parent,
+  { topicId, topicTypesNames }
+) => {
+  if (!topicTypesNames.length) throw new Error('Must have at least one topic type');
+  const results = await updateTopicTopicTypes(
+    topicId,
+    topicTypesNames.map((name) => name.toLowerCase())
+  );
+  if (!results.length) throw new NotFoundError('Topic', topicId);
+  return results[0].topic;
 };
 
 export const deleteTopicResolver: APIMutationResolvers['deleteTopic'] = async (_parent, { topicId }, { user }) => {

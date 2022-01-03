@@ -1,5 +1,9 @@
 import { map, prop } from 'ramda';
-import { TopicHasTopicType, TopicHasTopicTypeLabel } from '../entities/relationships/TopicHasTopicType';
+import {
+  DEFAULT_TOPIC_HAS_TYPE_INDEX_VALUE,
+  TopicHasTopicType,
+  TopicHasTopicTypeLabel,
+} from '../entities/relationships/TopicHasTopicType';
 import { Topic, TopicLabel } from '../entities/Topic';
 import { TopicType, TopicTypeLabel } from '../entities/TopicType';
 import { neo4jDriver } from '../infra/neo4j';
@@ -26,6 +30,11 @@ export const getTopicTopicTypes = (topicId: string): Promise<TopicType[]> =>
     destinationNode: {
       label: TopicTypeLabel,
     },
+    sorting: {
+      entity: 'relationship',
+      field: 'index',
+      direction: 'ASC',
+    },
   }).then(map(prop('destinationNode')));
 
 export const findOrCreateTopicType = async (name: string): Promise<TopicType> => {
@@ -49,6 +58,7 @@ export const attachTopicTypeToTopic = (
     },
     relationship: {
       label: TopicHasTopicTypeLabel,
+      onCreateProps: { index: DEFAULT_TOPIC_HAS_TYPE_INDEX_VALUE },
     },
     destinationNode: {
       label: TopicTypeLabel,

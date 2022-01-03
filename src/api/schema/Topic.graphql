@@ -185,6 +185,7 @@ type Mutation {
   createDisambiguationFromTopic(existingTopicId: String!, existingTopicContextTopicId: String!): Topic!
   addSubTopic(parentTopicId: String!, payload: CreateTopicPayload!, contextOptions: CreateTopicContextOptions): Topic!
   updateTopic(topicId: String!, payload: UpdateTopicPayload!): Topic!
+  updateTopicTopicTypes(topicId: String!, topicTypesNames: [String!]!): Topic!
   deleteTopic(topicId: String!): DeleteTopicResponse!
   setTopicsKnown(payload: SetTopicsKnownPayload!): [Topic!]! # TODO: better API, one mutation ?
   setTopicsUnknown(topicIds: [String!]!): [Topic!]!
