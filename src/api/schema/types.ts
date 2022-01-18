@@ -1426,6 +1426,12 @@ export type APISubResourceSeriesCreatedResult = {
 
 export { SubTopicRelationshipType };
 
+export type APITagFilter = {
+  __typename?: 'TagFilter';
+  count: Scalars['Int'];
+  name: Scalars['String'];
+};
+
 export type APITopic = {
   __typename?: 'Topic';
   _id: Scalars['String'];
@@ -1486,27 +1492,38 @@ export type APITopicIsSubTopicOfTopic = {
   subTopic: APITopic;
 };
 
+export type APITopicLearningMaterialsAvailableFilters = {
+  __typename?: 'TopicLearningMaterialsAvailableFilters';
+  tagFilters: Array<APITagFilter>;
+  types: Array<ResourceType>;
+};
+
 export type APITopicLearningMaterialsFilterOptions = {
-  completedByUser: Scalars['Boolean'];
+  completedByUser?: InputMaybe<Scalars['Boolean']>;
+  durationSecondsGeq?: InputMaybe<Scalars['Int']>;
+  durationSecondsLeq?: InputMaybe<Scalars['Int']>;
+  learningMaterialTagsIn?: InputMaybe<Array<Scalars['String']>>;
   learningMaterialTypeIn?: InputMaybe<Array<APILearningMaterialType>>;
   resourceTypeIn?: InputMaybe<Array<ResourceType>>;
 };
 
 export type APITopicLearningMaterialsOptions = {
   filter: APITopicLearningMaterialsFilterOptions;
+  pagination?: InputMaybe<APIPaginationOptions>;
   query?: InputMaybe<Scalars['String']>;
   sortingType: APITopicLearningMaterialsSortingType;
 };
 
 export type APITopicLearningMaterialsResults = {
   __typename?: 'TopicLearningMaterialsResults';
+  availableFilters?: Maybe<APITopicLearningMaterialsAvailableFilters>;
   items: Array<APILearningMaterial>;
+  totalCount: Scalars['Int'];
 };
 
 export enum APITopicLearningMaterialsSortingType {
   Newest = 'newest',
-  Rating = 'rating',
-  Recommended = 'recommended'
+  Rating = 'rating'
 }
 
 export type APITopicType = {
@@ -1829,10 +1846,12 @@ export type APIResolversTypes = ResolversObject<{
   SubResourceExtractedData: ResolverTypeWrapper<APISubResourceExtractedData>;
   SubResourceSeriesCreatedResult: ResolverTypeWrapper<APISubResourceSeriesCreatedResult>;
   SubTopicRelationshipType: SubTopicRelationshipType;
+  TagFilter: ResolverTypeWrapper<APITagFilter>;
   Topic: ResolverTypeWrapper<APITopic>;
   TopicHasPrerequisiteTopic: ResolverTypeWrapper<APITopicHasPrerequisiteTopic>;
   TopicIsPartOfTopic: ResolverTypeWrapper<APITopicIsPartOfTopic>;
   TopicIsSubTopicOfTopic: ResolverTypeWrapper<APITopicIsSubTopicOfTopic>;
+  TopicLearningMaterialsAvailableFilters: ResolverTypeWrapper<APITopicLearningMaterialsAvailableFilters>;
   TopicLearningMaterialsFilterOptions: APITopicLearningMaterialsFilterOptions;
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: ResolverTypeWrapper<APITopicLearningMaterialsResults>;
@@ -1972,10 +1991,12 @@ export type APIResolversParentTypes = ResolversObject<{
   SubResourceCreatedResult: APISubResourceCreatedResult;
   SubResourceExtractedData: APISubResourceExtractedData;
   SubResourceSeriesCreatedResult: APISubResourceSeriesCreatedResult;
+  TagFilter: APITagFilter;
   Topic: APITopic;
   TopicHasPrerequisiteTopic: APITopicHasPrerequisiteTopic;
   TopicIsPartOfTopic: APITopicIsPartOfTopic;
   TopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic;
+  TopicLearningMaterialsAvailableFilters: APITopicLearningMaterialsAvailableFilters;
   TopicLearningMaterialsFilterOptions: APITopicLearningMaterialsFilterOptions;
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: APITopicLearningMaterialsResults;
@@ -2534,7 +2555,7 @@ export type APIResourceDataResolvers<ContextType = APIContext, ParentType extend
 
 export type APIResourceMediaTypeResolvers = EnumResolverSignature<{ audio?: any, image?: any, interactive_content?: any, text?: any, video?: any }, APIResolversTypes['ResourceMediaType']>;
 
-export type APIResourceTypeResolvers = EnumResolverSignature<{ article?: any, article_series?: any, book?: any, course?: any, documentary?: any, exercise?: any, infographic?: any, online_book?: any, other?: any, podcast?: any, podcast_episode?: any, project?: any, quizz?: any, research_paper?: any, talk?: any, tweet?: any, video_game?: any, website?: any, youtube_playlist?: any, youtube_video?: any }, APIResolversTypes['ResourceType']>;
+export type APIResourceTypeResolvers = EnumResolverSignature<{ article?: any, article_series?: any, book?: any, course?: any, documentary?: any, exercise?: any, infographic?: any, online_book?: any, other?: any, podcast?: any, podcast_episode?: any, project?: any, research_paper?: any, talk?: any, tweet?: any, video_game?: any, website?: any, youtube_playlist?: any, youtube_video?: any }, APIResolversTypes['ResourceType']>;
 
 export type APISearchLearningGoalsResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SearchLearningGoalsResult'] = APIResolversParentTypes['SearchLearningGoalsResult']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['LearningGoal']>, ParentType, ContextType>;
@@ -2601,6 +2622,12 @@ export type APISubResourceSeriesCreatedResultResolvers<ContextType = APIContext,
 
 export type APISubTopicRelationshipTypeResolvers = EnumResolverSignature<{ IS_PART_OF?: any, IS_SUBTOPIC_OF?: any }, APIResolversTypes['SubTopicRelationshipType']>;
 
+export type APITagFilterResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TagFilter'] = APIResolversParentTypes['TagFilter']> = ResolversObject<{
+  count?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type APITopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Topic'] = APIResolversParentTypes['Topic']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   aliases?: Resolver<Maybe<Array<APIResolversTypes['String']>>, ParentType, ContextType>;
@@ -2656,8 +2683,16 @@ export type APITopicIsSubTopicOfTopicResolvers<ContextType = APIContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type APITopicLearningMaterialsAvailableFiltersResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TopicLearningMaterialsAvailableFilters'] = APIResolversParentTypes['TopicLearningMaterialsAvailableFilters']> = ResolversObject<{
+  tagFilters?: Resolver<Array<APIResolversTypes['TagFilter']>, ParentType, ContextType>;
+  types?: Resolver<Array<APIResolversTypes['ResourceType']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type APITopicLearningMaterialsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TopicLearningMaterialsResults'] = APIResolversParentTypes['TopicLearningMaterialsResults']> = ResolversObject<{
+  availableFilters?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsAvailableFilters']>, ParentType, ContextType>;
   items?: Resolver<Array<APIResolversTypes['LearningMaterial']>, ParentType, ContextType>;
+  totalCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2795,10 +2830,12 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   SubResourceExtractedData?: APISubResourceExtractedDataResolvers<ContextType>;
   SubResourceSeriesCreatedResult?: APISubResourceSeriesCreatedResultResolvers<ContextType>;
   SubTopicRelationshipType?: APISubTopicRelationshipTypeResolvers;
+  TagFilter?: APITagFilterResolvers<ContextType>;
   Topic?: APITopicResolvers<ContextType>;
   TopicHasPrerequisiteTopic?: APITopicHasPrerequisiteTopicResolvers<ContextType>;
   TopicIsPartOfTopic?: APITopicIsPartOfTopicResolvers<ContextType>;
   TopicIsSubTopicOfTopic?: APITopicIsSubTopicOfTopicResolvers<ContextType>;
+  TopicLearningMaterialsAvailableFilters?: APITopicLearningMaterialsAvailableFiltersResolvers<ContextType>;
   TopicLearningMaterialsResults?: APITopicLearningMaterialsResultsResolvers<ContextType>;
   TopicType?: APITopicTypeResolvers<ContextType>;
   TopicTypeColor?: APITopicTypeColorResolvers;
