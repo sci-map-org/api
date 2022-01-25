@@ -29,6 +29,7 @@ type Topic {
   subTopics: [TopicIsSubTopicOfTopic!]
   subTopicsTotalCount: Int
   learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults
+  learningMaterialsAvailableTypeFilters: TopicLearningMaterialsAvailableTypeFilters
   learningMaterialsTotalCount: Int
   # learningGoals: [LearningGoalBelongsToDomain!] => TODO
   # progress | completion
@@ -51,32 +52,44 @@ type SearchTopicsResult {
 
 # learning materials
 enum TopicLearningMaterialsSortingType {
-  recommended
+  # recommended
   rating
   newest
 }
 
 input TopicLearningMaterialsFilterOptions {
   resourceTypeIn: [ResourceType!]
-  completedByUser: Boolean!
+  completedByUser: Boolean
   learningMaterialTypeIn: [LearningMaterialType!]
+  learningMaterialTagsIn: [String!]
+  durationSecondsGeq: Int
+  durationSecondsLeq: Int
 }
 
 input TopicLearningMaterialsOptions {
   sortingType: TopicLearningMaterialsSortingType!
   query: String
   filter: TopicLearningMaterialsFilterOptions!
+  pagination: PaginationOptions
 }
 
 type TopicLearningMaterialsResults {
+  availableTagFilters: [TagFilter!]!
   items: [LearningMaterial!]!
+  totalCount: Int!
 }
 
-# prereq
-# type TopicHasPrerequisiteTopicItem {
-#   topic: Topic!
-#   relationship: TopicHasPrerequisiteTopic!
-# }
+type TopicLearningMaterialsAvailableTypeFilters {
+  types: [ResourceType!]!
+  learningPathsCount: Int!
+  leq30minCount: Int!
+  geq30minCount: Int!
+}
+
+type TagFilter {
+  name: String!
+  count: Int!
+}
 
 type CheckTopicKeyAvailabilityResult {
   available: Boolean!

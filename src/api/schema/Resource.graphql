@@ -29,10 +29,10 @@ enum ResourceType {
   documentary
   website
   video_game
-  infographic
-  tweet
+  infographic # image ?
+  tweet # not in form
   exercise
-  quizz
+  # quizz
   project
   other
 }

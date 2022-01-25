@@ -1,4 +1,5 @@
 import { UserInputError } from 'apollo-server-errors';
+import { pick } from 'lodash';
 import { Topic, TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import {
@@ -16,6 +17,8 @@ import {
   getTopicDisambiguationTopic,
   getTopicFollowUps,
   getTopicLearningMaterials,
+  getTopicLearningMaterialsTagsFilters,
+  getTopicLearningMaterialsTypesFilters,
   getTopicParentTopic,
   getTopicPartOfTopics,
   getTopicPrerequisites,
@@ -292,23 +295,24 @@ export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMater
   { options },
   { user }
 ) => {
-  if (!user && options.filter.completedByUser === true) return { items: [] };
-  if (
-    options.sortingType === APITopicLearningMaterialsSortingType.Recommended &&
-    options.filter.completedByUser === undefined
-  )
-    throw new UserInputError(
-      'getTopicLearningMaterials : when using recommendations, completedByUser Filter must be set'
-    );
+  if (!user && options.filter.completedByUser === true) return { items: [], totalCount: 0, availableTagFilters: [] };
+
   return {
+    // TODO: split into separate resolvers -- ??
     items: await getTopicLearningMaterials(topic._id, user?._id, nullToUndefined(options)),
+    totalCount: await countLearningMaterialsShowedInTopic(
+      topic._id,
+      user?._id,
+      nullToUndefined(pick(options, ['filter', 'query']))
+    ),
+    availableTagFilters: await getTopicLearningMaterialsTagsFilters(topic._id, nullToUndefined(options.filter)),
   };
 };
 
 export const getTopicLearningMaterialsTotalCountResolver: APITopicResolvers['learningMaterialsTotalCount'] = async (
   topic
 ) => {
-  return await countLearningMaterialsShowedInTopic(topic._id);
+  return await countLearningMaterialsShowedInTopic(topic._id, undefined, { filter: {} });
 };
 
 export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] = async (topic) => {
@@ -320,6 +324,11 @@ export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] =
     })
   );
 };
+
+export const getTopicLearningMaterialsAvailableTypeFiltersResolver: APITopicResolvers['learningMaterialsAvailableTypeFilters'] =
+  async (topic) => {
+    return await getTopicLearningMaterialsTypesFilters(topic._id);
+  };
 
 export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async (topic) => {
   return (await getTopicFollowUps({ _id: topic._id })).map(({ followUpTopic, prerequisiteTopic, relationship }) => ({
