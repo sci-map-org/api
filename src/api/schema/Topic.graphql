@@ -84,23 +84,12 @@ type TopicLearningMaterialsAvailableTypeFilters {
   learningPathsCount: Int!
   leq30minCount: Int!
   geq30minCount: Int!
-  # types: [ResourceType!]!
 }
-
-# type TopicLearningMaterialsAvailableTagFilters {
-#   tagFilters:
-# }
 
 type TagFilter {
   name: String!
   count: Int!
 }
-
-# prereq
-# type TopicHasPrerequisiteTopicItem {
-#   topic: Topic!
-#   relationship: TopicHasPrerequisiteTopic!
-# }
 
 type CheckTopicKeyAvailabilityResult {
   available: Boolean!

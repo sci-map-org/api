@@ -393,7 +393,6 @@ export const getTopicLearningMaterials = async (
     }
     if (pagination.limit) {
       q.raw(` LIMIT ${pagination.limit} `);
-      //   q.limit(pagination.limit);
     }
   }
 
