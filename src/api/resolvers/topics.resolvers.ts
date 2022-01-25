@@ -287,7 +287,7 @@ export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (
 
 export const getTopicSubTopicsTotalCountResolver: APITopicResolvers['subTopicsTotalCount'] = async (topic) => {
   const size = await getTopicSubTopicsTotalCount(topic._id);
-  return size;
+  return size - 1;
 };
 
 export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMaterials'] = async (
