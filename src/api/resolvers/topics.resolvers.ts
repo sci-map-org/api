@@ -18,6 +18,7 @@ import {
   getTopicFollowUps,
   getTopicLearningMaterials,
   getTopicLearningMaterialsTagsFilters,
+  getTopicLearningMaterialsTypesFilters,
   getTopicParentTopic,
   getTopicPartOfTopics,
   getTopicPrerequisites,
@@ -294,20 +295,17 @@ export const getTopicLearningMaterialsResolver: APITopicResolvers['learningMater
   { options },
   { user }
 ) => {
-  if (!user && options.filter.completedByUser === true) return { items: [], totalCount: 0 };
+  if (!user && options.filter.completedByUser === true) return { items: [], totalCount: 0, availableTagFilters: [] };
 
   return {
-    // TODO: split into separate resolvers
+    // TODO: split into separate resolvers -- ??
     items: await getTopicLearningMaterials(topic._id, user?._id, nullToUndefined(options)),
     totalCount: await countLearningMaterialsShowedInTopic(
       topic._id,
       user?._id,
       nullToUndefined(pick(options, ['filter', 'query']))
     ),
-    availableFilters: {
-      tagFilters: await getTopicLearningMaterialsTagsFilters(topic._id, nullToUndefined(options.filter)),
-      types: [],
-    },
+    availableTagFilters: await getTopicLearningMaterialsTagsFilters(topic._id, nullToUndefined(options.filter)),
   };
 };
 
@@ -326,6 +324,11 @@ export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] =
     })
   );
 };
+
+export const getTopicLearningMaterialsAvailableTypeFiltersResolver: APITopicResolvers['learningMaterialsAvailableTypeFilters'] =
+  async (topic) => {
+    return await getTopicLearningMaterialsTypesFilters(topic._id);
+  };
 
 export const getTopicFollowUpsResolver: APITopicResolvers['followUps'] = async (topic) => {
   return (await getTopicFollowUps({ _id: topic._id })).map(({ followUpTopic, prerequisiteTopic, relationship }) => ({

@@ -1448,6 +1448,7 @@ export type APITopic = {
   isDisambiguation?: Maybe<Scalars['Boolean']>;
   key: Scalars['String'];
   learningMaterials?: Maybe<APITopicLearningMaterialsResults>;
+  learningMaterialsAvailableTypeFilters?: Maybe<APITopicLearningMaterialsAvailableTypeFilters>;
   learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
   level?: Maybe<Scalars['Float']>;
   name: Scalars['String'];
@@ -1492,9 +1493,11 @@ export type APITopicIsSubTopicOfTopic = {
   subTopic: APITopic;
 };
 
-export type APITopicLearningMaterialsAvailableFilters = {
-  __typename?: 'TopicLearningMaterialsAvailableFilters';
-  tagFilters: Array<APITagFilter>;
+export type APITopicLearningMaterialsAvailableTypeFilters = {
+  __typename?: 'TopicLearningMaterialsAvailableTypeFilters';
+  geq30minCount: Scalars['Int'];
+  learningPathsCount: Scalars['Int'];
+  leq30minCount: Scalars['Int'];
   types: Array<ResourceType>;
 };
 
@@ -1516,7 +1519,7 @@ export type APITopicLearningMaterialsOptions = {
 
 export type APITopicLearningMaterialsResults = {
   __typename?: 'TopicLearningMaterialsResults';
-  availableFilters?: Maybe<APITopicLearningMaterialsAvailableFilters>;
+  availableTagFilters: Array<APITagFilter>;
   items: Array<APILearningMaterial>;
   totalCount: Scalars['Int'];
 };
@@ -1851,7 +1854,7 @@ export type APIResolversTypes = ResolversObject<{
   TopicHasPrerequisiteTopic: ResolverTypeWrapper<APITopicHasPrerequisiteTopic>;
   TopicIsPartOfTopic: ResolverTypeWrapper<APITopicIsPartOfTopic>;
   TopicIsSubTopicOfTopic: ResolverTypeWrapper<APITopicIsSubTopicOfTopic>;
-  TopicLearningMaterialsAvailableFilters: ResolverTypeWrapper<APITopicLearningMaterialsAvailableFilters>;
+  TopicLearningMaterialsAvailableTypeFilters: ResolverTypeWrapper<APITopicLearningMaterialsAvailableTypeFilters>;
   TopicLearningMaterialsFilterOptions: APITopicLearningMaterialsFilterOptions;
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: ResolverTypeWrapper<APITopicLearningMaterialsResults>;
@@ -1996,7 +1999,7 @@ export type APIResolversParentTypes = ResolversObject<{
   TopicHasPrerequisiteTopic: APITopicHasPrerequisiteTopic;
   TopicIsPartOfTopic: APITopicIsPartOfTopic;
   TopicIsSubTopicOfTopic: APITopicIsSubTopicOfTopic;
-  TopicLearningMaterialsAvailableFilters: APITopicLearningMaterialsAvailableFilters;
+  TopicLearningMaterialsAvailableTypeFilters: APITopicLearningMaterialsAvailableTypeFilters;
   TopicLearningMaterialsFilterOptions: APITopicLearningMaterialsFilterOptions;
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: APITopicLearningMaterialsResults;
@@ -2643,6 +2646,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   isDisambiguation?: Resolver<Maybe<APIResolversTypes['Boolean']>, ParentType, ContextType>;
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   learningMaterials?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsResults']>, ParentType, ContextType, RequireFields<APITopicLearningMaterialsArgs, 'options'>>;
+  learningMaterialsAvailableTypeFilters?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsAvailableTypeFilters']>, ParentType, ContextType>;
   learningMaterialsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
   level?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
@@ -2683,14 +2687,16 @@ export type APITopicIsSubTopicOfTopicResolvers<ContextType = APIContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type APITopicLearningMaterialsAvailableFiltersResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TopicLearningMaterialsAvailableFilters'] = APIResolversParentTypes['TopicLearningMaterialsAvailableFilters']> = ResolversObject<{
-  tagFilters?: Resolver<Array<APIResolversTypes['TagFilter']>, ParentType, ContextType>;
+export type APITopicLearningMaterialsAvailableTypeFiltersResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TopicLearningMaterialsAvailableTypeFilters'] = APIResolversParentTypes['TopicLearningMaterialsAvailableTypeFilters']> = ResolversObject<{
+  geq30minCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
+  learningPathsCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
+  leq30minCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
   types?: Resolver<Array<APIResolversTypes['ResourceType']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type APITopicLearningMaterialsResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['TopicLearningMaterialsResults'] = APIResolversParentTypes['TopicLearningMaterialsResults']> = ResolversObject<{
-  availableFilters?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsAvailableFilters']>, ParentType, ContextType>;
+  availableTagFilters?: Resolver<Array<APIResolversTypes['TagFilter']>, ParentType, ContextType>;
   items?: Resolver<Array<APIResolversTypes['LearningMaterial']>, ParentType, ContextType>;
   totalCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2835,7 +2841,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   TopicHasPrerequisiteTopic?: APITopicHasPrerequisiteTopicResolvers<ContextType>;
   TopicIsPartOfTopic?: APITopicIsPartOfTopicResolvers<ContextType>;
   TopicIsSubTopicOfTopic?: APITopicIsSubTopicOfTopicResolvers<ContextType>;
-  TopicLearningMaterialsAvailableFilters?: APITopicLearningMaterialsAvailableFiltersResolvers<ContextType>;
+  TopicLearningMaterialsAvailableTypeFilters?: APITopicLearningMaterialsAvailableTypeFiltersResolvers<ContextType>;
   TopicLearningMaterialsResults?: APITopicLearningMaterialsResultsResolvers<ContextType>;
   TopicType?: APITopicTypeResolvers<ContextType>;
   TopicTypeColor?: APITopicTypeColorResolvers;

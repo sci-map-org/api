@@ -382,6 +382,7 @@ export const getTopicLearningMaterials = async (
     q.raw(' ORDER BY rating IS NOT NULL DESC, rating DESC');
   } else {
     q.match([node('lm'), relation('in', 'createdLearningMaterial', 'CREATED'), node('', 'User')]);
+    q.with(['DISTINCT lm', 'createdLearningMaterial']);
     q.return(['lm']);
 
     q.orderBy('createdLearningMaterial.createdAt', 'DESC');
@@ -458,8 +459,35 @@ export const getTopicLearningMaterialsTagsFilters = async (
 
 export const getTopicLearningMaterialsTypesFilters = async (
   topicId: string
-): Promise<{ type: ResourceType; count: number }[]> => {
-  return [];
+): Promise<{
+  types: ResourceType[];
+  learningPathsCount: number;
+  leq30minCount: number;
+  geq30minCount: number;
+}> => {
+  const session = neo4jDriver.session();
+
+  const { records } = await session.run(
+    `match (n:Topic {_id: $topicId})-[:SHOWED_IN]-(lm:LearningMaterial) 
+    with 
+    collect(distinct lm.type) as types, 
+    size([x in collect(lm) where x:LearningPath and x.public = true]) as learningPathsCount, 
+    size([x in collect(lm) where x.durationSeconds <= 30*60]) as leq30minCount, 
+    size([x in collect(lm) where x.durationSeconds >= 30*60]) as geq30minCount 
+    return types, learningPathsCount, leq30minCount, geq30minCount`,
+    {
+      topicId,
+    }
+  );
+  session.close();
+  if (!records.length) throw new Error('getTopicLearningMaterialsTypesFilters: neo4j query failed, no results');
+
+  return {
+    types: records[0].get('types') as ResourceType[],
+    learningPathsCount: Number(records[0].get('learningPathsCount').toString()),
+    leq30minCount: Number(records[0].get('leq30minCount').toString()),
+    geq30minCount: Number(records[0].get('geq30minCount').toString()),
+  };
 };
 
 // TODO

@@ -29,7 +29,7 @@ type Topic {
   subTopics: [TopicIsSubTopicOfTopic!]
   subTopicsTotalCount: Int
   learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults
-
+  learningMaterialsAvailableTypeFilters: TopicLearningMaterialsAvailableTypeFilters
   learningMaterialsTotalCount: Int
   # learningGoals: [LearningGoalBelongsToDomain!] => TODO
   # progress | completion
@@ -74,15 +74,22 @@ input TopicLearningMaterialsOptions {
 }
 
 type TopicLearningMaterialsResults {
-  availableFilters: TopicLearningMaterialsAvailableFilters
+  availableTagFilters: [TagFilter!]!
   items: [LearningMaterial!]!
   totalCount: Int!
 }
 
-type TopicLearningMaterialsAvailableFilters {
+type TopicLearningMaterialsAvailableTypeFilters {
   types: [ResourceType!]!
-  tagFilters: [TagFilter!]!
+  learningPathsCount: Int!
+  leq30minCount: Int!
+  geq30minCount: Int!
+  # types: [ResourceType!]!
 }
+
+# type TopicLearningMaterialsAvailableTagFilters {
+#   tagFilters:
+# }
 
 type TagFilter {
   name: String!
