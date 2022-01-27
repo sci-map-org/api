@@ -4,9 +4,12 @@ import {
   getLearningMaterialCreator,
   getLearningMaterialPrerequisites,
   getLearningMaterialTopicsShowedIn,
+  getLearningMaterialUpvoteCount,
+  getLearningMaterialUpvotes,
   hideLearningMaterialFromTopics,
   rateLearningMaterial,
   showLearningMaterialInTopics,
+  voteLearningMaterial,
 } from '../../repositories/learning_materials.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APILearningMaterialResolvers, APIMutationResolvers } from '../schema/types';
@@ -49,6 +52,34 @@ export const hideLearningMaterialFromTopicResolver: APIMutationResolvers['hideLe
   return learningMaterial;
 };
 
+export const recommendLearningMaterialResolver: APIMutationResolvers['recommendLearningMaterial'] = async (
+  _parent,
+  { learningMaterialId },
+  { user }
+) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to vote on a resource');
+  const { learningMaterial } = await voteLearningMaterial(user._id, learningMaterialId, 1);
+  return learningMaterial;
+};
+
+export const getLearningMaterialRecommendationsCountResolver: APILearningMaterialResolvers['recommendationsCount'] =
+  async (learningMaterial) => {
+    return getLearningMaterialUpvoteCount(learningMaterial._id);
+  };
+
+export const getLearningMaterialRecommendedByResolver: APILearningMaterialResolvers['recommendedBy'] = async (
+  learningMaterial,
+  { limit }
+) => {
+  return (await getLearningMaterialUpvotes(learningMaterial._id, limit || undefined)).map(
+    ({ learningMaterial, relationship, user }) => ({
+      user,
+      recommendedAt: relationship.votedAt,
+      learningMaterial,
+    })
+  );
+};
+
 // export const addLearningMaterialOutcomeResolver: APIMutationResolvers['addLearningMaterialOutcome'] = async (
 //   _,
 //   { learningMaterialId, outcomeLearningGoalId },
@@ -78,7 +109,9 @@ export const hideLearningMaterialFromTopicResolver: APIMutationResolvers['hideLe
 //   return learningMaterial;
 // };
 
-export const getLearningMaterialPrerequisitesResolver: APILearningMaterialResolvers['prerequisites'] = async learningMaterial => {
+export const getLearningMaterialPrerequisitesResolver: APILearningMaterialResolvers['prerequisites'] = async (
+  learningMaterial
+) => {
   return (await getLearningMaterialPrerequisites(learningMaterial._id)).map(({ relationship, topic }) => ({
     topic,
     learningMaterial,
@@ -93,16 +126,22 @@ export const getLearningMaterialPrerequisitesResolver: APILearningMaterialResolv
 //   }));
 // };
 
-export const getLearningMaterialShowedInResolver: APILearningMaterialResolvers['showedIn'] = async learningMaterial => {
+export const getLearningMaterialShowedInResolver: APILearningMaterialResolvers['showedIn'] = async (
+  learningMaterial
+) => {
   return await getLearningMaterialTopicsShowedIn(learningMaterial._id);
 };
 
-export const getLearningMaterialCoveredSubTopicsResolver: APILearningMaterialResolvers['coveredSubTopics'] = async learningMaterial => {
+export const getLearningMaterialCoveredSubTopicsResolver: APILearningMaterialResolvers['coveredSubTopics'] = async (
+  learningMaterial
+) => {
   return {
     items: (await getLearningMaterialCoveredTopics(learningMaterial._id)).map(({ topic }) => topic),
   };
 };
 
-export const getLearningMaterialCreatedByResolver: APILearningMaterialResolvers['createdBy'] = async learningMaterial => {
+export const getLearningMaterialCreatedByResolver: APILearningMaterialResolvers['createdBy'] = async (
+  learningMaterial
+) => {
   return getLearningMaterialCreator({ _id: learningMaterial._id });
 };

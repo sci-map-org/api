@@ -629,6 +629,7 @@ export type APIMutation = {
   detachLearningMaterialCoversTopics: APILearningMaterial;
   detachTopicIsPartOfTopic: APIDetachTopicIsPartOfTopicResult;
   detachTopicIsSubTopicOfTopic: APIDetachTopicIsSubTopicOfTopicResult;
+  downvoteLearningMaterial: APILearningMaterial;
   hideLearningGoalFromTopic: APIShowLearningGoalInTopicResult;
   hideLearningMaterialFromTopic: APILearningMaterial;
   indexLearningGoal: APILearningGoalIndexedResult;
@@ -637,6 +638,7 @@ export type APIMutation = {
   publishLearningGoal: APILearningGoalPublishedResult;
   rateLearningGoal: APILearningGoal;
   rateLearningMaterial: APILearningMaterial;
+  recommendLearningMaterial: APILearningMaterial;
   register: APICurrentUser;
   registerGoogle: APICurrentUser;
   removeComplementaryResourceFromLearningPath: APIComplementaryResourceUpdatedResult;
@@ -859,6 +861,11 @@ export type APIMutationDetachTopicIsSubTopicOfTopicArgs = {
 };
 
 
+export type APIMutationDownvoteLearningMaterialArgs = {
+  learningMaterialId: Scalars['String'];
+};
+
+
 export type APIMutationHideLearningGoalFromTopicArgs = {
   learningGoalId: Scalars['String'];
   topicId: Scalars['String'];
@@ -903,6 +910,11 @@ export type APIMutationRateLearningGoalArgs = {
 export type APIMutationRateLearningMaterialArgs = {
   learningMaterialId: Scalars['String'];
   value: Scalars['Float'];
+};
+
+
+export type APIMutationRecommendLearningMaterialArgs = {
+  learningMaterialId: Scalars['String'];
 };
 
 
@@ -2450,6 +2462,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   detachLearningMaterialCoversTopics?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialCoversTopicsArgs, 'learningMaterialId' | 'topicsIds'>>;
   detachTopicIsPartOfTopic?: Resolver<APIResolversTypes['DetachTopicIsPartOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsPartOfTopicArgs, 'partOfTopicId' | 'subTopicId'>>;
   detachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['DetachTopicIsSubTopicOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId'>>;
+  downvoteLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDownvoteLearningMaterialArgs, 'learningMaterialId'>>;
   hideLearningGoalFromTopic?: Resolver<APIResolversTypes['ShowLearningGoalInTopicResult'], ParentType, ContextType, RequireFields<APIMutationHideLearningGoalFromTopicArgs, 'learningGoalId' | 'topicId'>>;
   hideLearningMaterialFromTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationHideLearningMaterialFromTopicArgs, 'learningMaterialId' | 'topicId'>>;
   indexLearningGoal?: Resolver<APIResolversTypes['LearningGoalIndexedResult'], ParentType, ContextType, RequireFields<APIMutationIndexLearningGoalArgs, 'learningGoalId'>>;
@@ -2458,6 +2471,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   publishLearningGoal?: Resolver<APIResolversTypes['LearningGoalPublishedResult'], ParentType, ContextType, RequireFields<APIMutationPublishLearningGoalArgs, 'learningGoalId'>>;
   rateLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationRateLearningGoalArgs, 'learningGoalId' | 'value'>>;
   rateLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRateLearningMaterialArgs, 'learningMaterialId' | 'value'>>;
+  recommendLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRecommendLearningMaterialArgs, 'learningMaterialId'>>;
   register?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterArgs, 'payload'>>;
   registerGoogle?: Resolver<APIResolversTypes['CurrentUser'], ParentType, ContextType, RequireFields<APIMutationRegisterGoogleArgs, 'payload'>>;
   removeComplementaryResourceFromLearningPath?: Resolver<APIResolversTypes['ComplementaryResourceUpdatedResult'], ParentType, ContextType, RequireFields<APIMutationRemoveComplementaryResourceFromLearningPathArgs, 'learningPathId' | 'resourceId'>>;

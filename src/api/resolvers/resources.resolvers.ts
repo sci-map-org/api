@@ -16,7 +16,6 @@ import {
   getResourceSeriesParentResource,
   getResourceSubResources,
   getResourceSubResourceSeries,
-  getResourceUpvoteCount,
   getUserConsumedResource,
   searchResources,
   updateResource,
@@ -133,20 +132,6 @@ export const getResourceConsumedResolver: APIResourceResolvers['consumed'] = asy
   if (!user) return null;
   return await getUserConsumedResource(user._id, resource._id);
 };
-
-// export const voteResourceResolver: APIMutationResolvers['voteResource'] = async (
-//   _parent,
-//   { resourceId, value },
-//   { user }
-// ) => {
-//   if (!user) throw new UnauthenticatedError('Must be logged in to vote on a resource');
-//   const resource = await voteResource(user._id, resourceId, value === APIResourceVoteValue.Up ? 1 : -1);
-//   return toAPIResource(resource);
-// };
-
-// export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
-//   return getResourceUpvoteCount(resource._id);
-// };
 
 export const getResourceRatingResolver: APIResourceResolvers['rating'] = async (resource) =>
   getLearningMaterialRating(resource._id);
