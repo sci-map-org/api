@@ -94,7 +94,7 @@ export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = asy
   return toAPIResource(resource);
 };
 
-export const getResourceTagsResolver: APIResourceResolvers['tags'] = async resource => {
+export const getResourceTagsResolver: APIResourceResolvers['tags'] = async (resource) => {
   return await getLearningMaterialTags(resource._id);
 };
 
@@ -113,7 +113,7 @@ export const setResourcesConsumedResolver: APIMutationResolvers['setResourcesCon
   );
 
   const resourcesToConsumeData = await Promise.all(
-    payload.resources.map(async resourcePayload => {
+    payload.resources.map(async (resourcePayload) => {
       const relationship = await getUserConsumedResource(user._id, resourcePayload.resourceId);
       return {
         resourceId: resourcePayload.resourceId,
@@ -144,34 +144,36 @@ export const getResourceConsumedResolver: APIResourceResolvers['consumed'] = asy
 //   return toAPIResource(resource);
 // };
 
-export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
-  return getResourceUpvoteCount(resource._id);
-};
+// export const getResourceUpvotesResolver: APIResourceResolvers['upvotes'] = async resource => {
+//   return getResourceUpvoteCount(resource._id);
+// };
 
-export const getResourceRatingResolver: APIResourceResolvers['rating'] = async resource =>
+export const getResourceRatingResolver: APIResourceResolvers['rating'] = async (resource) =>
   getLearningMaterialRating(resource._id);
 
-export const getResourceSubResourcesResolver: APIResourceResolvers['subResources'] = async resource => {
+export const getResourceSubResourcesResolver: APIResourceResolvers['subResources'] = async (resource) => {
   return getResourceSubResources(resource._id);
 };
 
-export const getResourceSubResourceSeriesResolver: APIResourceResolvers['subResourceSeries'] = async resource => {
+export const getResourceSubResourceSeriesResolver: APIResourceResolvers['subResourceSeries'] = async (resource) => {
   return getResourceSubResourceSeries(resource._id);
 };
 
-export const getResourceParentResourcesResolver: APIResourceResolvers['parentResources'] = async resource => {
+export const getResourceParentResourcesResolver: APIResourceResolvers['parentResources'] = async (resource) => {
   return getResourceParentResources(resource._id);
 };
 
-export const getResourceSeriesParentResourceResolver: APIResourceResolvers['seriesParentResource'] = async resource => {
+export const getResourceSeriesParentResourceResolver: APIResourceResolvers['seriesParentResource'] = async (
+  resource
+) => {
   return getResourceSeriesParentResource(resource._id);
 };
 
-export const getResourceNextResourceResolver: APIResourceResolvers['nextResource'] = async resource => {
+export const getResourceNextResourceResolver: APIResourceResolvers['nextResource'] = async (resource) => {
   return getResourceNextResource(resource._id);
 };
 
-export const getResourcePreviousResourceResolver: APIResourceResolvers['previousResource'] = async resource => {
+export const getResourcePreviousResourceResolver: APIResourceResolvers['previousResource'] = async (resource) => {
   return getResourcePreviousResource(resource._id);
 };
 

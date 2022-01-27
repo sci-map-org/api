@@ -4,6 +4,7 @@
 # import LearningMaterial, LearningMaterialCoveredSubTopicsOptions, LearningMaterialCoveredSubTopicsResults from 'LearningMaterial.graphql'
 # import Topic from 'Topic.graphql'
 # import LearningMaterialHasPrerequisiteTopic from 'relationships/LearningMaterialHasPrerequisiteTopic.graphql'
+# import UserRecommendedLearningMaterial from 'relationships/UserRecommendedLearningMaterial.graphql'
 # import User from 'User.graphql'
 
 enum ResourceMediaType {
@@ -50,8 +51,10 @@ type Resource implements LearningMaterial {
   mediaType: ResourceMediaType!
   tags: [LearningMaterialTag!]
   url: String!
-  upvotes: Int
+  # upvotes: Int
   rating: Float
+  recommendationsCount: Int
+  recommendedBy(limit: Int): [UserRecommendedLearningMaterial!]
   description: String
   durationSeconds: Int
   consumed: ConsumedResource
