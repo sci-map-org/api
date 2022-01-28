@@ -146,7 +146,7 @@ export type APICreateResourcePayload = {
   showInTopicsIds: Array<Scalars['String']>;
   subResourceSeries?: InputMaybe<Array<APICreateSubResourcePayload>>;
   tags?: InputMaybe<Array<Scalars['String']>>;
-  type: ResourceType;
+  types: Array<ResourceType>;
   url: Scalars['String'];
 };
 
@@ -159,7 +159,7 @@ export type APICreateSubResourcePayload = {
   prerequisitesTopicsIds?: InputMaybe<Array<Scalars['String']>>;
   showInTopicsIds: Array<Scalars['String']>;
   tags?: InputMaybe<Array<Scalars['String']>>;
-  type: ResourceType;
+  types: Array<ResourceType>;
   url: Scalars['String'];
 };
 
@@ -428,6 +428,8 @@ export type APILearningMaterial = {
   name: Scalars['String'];
   prerequisites?: Maybe<Array<APILearningMaterialHasPrerequisiteTopic>>;
   rating?: Maybe<Scalars['Float']>;
+  recommendationsCount?: Maybe<Scalars['Int']>;
+  recommendedBy?: Maybe<Array<APIUserRecommendedLearningMaterial>>;
   showedIn?: Maybe<Array<APITopic>>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
 };
@@ -435,6 +437,11 @@ export type APILearningMaterial = {
 
 export type APILearningMaterialCoveredSubTopicsArgs = {
   options: APILearningMaterialCoveredSubTopicsOptions;
+};
+
+
+export type APILearningMaterialRecommendedByArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
 };
 
 export type APILearningMaterialCoveredSubTopicsOptions = {
@@ -494,6 +501,8 @@ export type APILearningPath = APILearningMaterial & {
   prerequisites?: Maybe<Array<APILearningMaterialHasPrerequisiteTopic>>;
   public: Scalars['Boolean'];
   rating?: Maybe<Scalars['Float']>;
+  recommendationsCount?: Maybe<Scalars['Int']>;
+  recommendedBy?: Maybe<Array<APIUserRecommendedLearningMaterial>>;
   resourceItems?: Maybe<Array<APILearningPathResourceItem>>;
   showedIn?: Maybe<Array<APITopic>>;
   started?: Maybe<APILearningPathStarted>;
@@ -504,6 +513,11 @@ export type APILearningPath = APILearningMaterial & {
 
 export type APILearningPathCoveredSubTopicsArgs = {
   options: APILearningMaterialCoveredSubTopicsOptions;
+};
+
+
+export type APILearningPathRecommendedByArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -615,6 +629,7 @@ export type APIMutation = {
   detachLearningMaterialCoversTopics: APILearningMaterial;
   detachTopicIsPartOfTopic: APIDetachTopicIsPartOfTopicResult;
   detachTopicIsSubTopicOfTopic: APIDetachTopicIsSubTopicOfTopicResult;
+  downvoteLearningMaterial: APILearningMaterial;
   hideLearningGoalFromTopic: APIShowLearningGoalInTopicResult;
   hideLearningMaterialFromTopic: APILearningMaterial;
   indexLearningGoal: APILearningGoalIndexedResult;
@@ -843,6 +858,11 @@ export type APIMutationDetachTopicIsPartOfTopicArgs = {
 export type APIMutationDetachTopicIsSubTopicOfTopicArgs = {
   parentTopicId: Scalars['String'];
   subTopicId: Scalars['String'];
+};
+
+
+export type APIMutationDownvoteLearningMaterialArgs = {
+  learningMaterialId: Scalars['String'];
 };
 
 
@@ -1289,19 +1309,25 @@ export type APIResource = APILearningMaterial & {
   prerequisites?: Maybe<Array<APILearningMaterialHasPrerequisiteTopic>>;
   previousResource?: Maybe<APIResource>;
   rating?: Maybe<Scalars['Float']>;
+  recommendationsCount?: Maybe<Scalars['Int']>;
+  recommendedBy?: Maybe<Array<APIUserRecommendedLearningMaterial>>;
   seriesParentResource?: Maybe<APIResource>;
   showedIn?: Maybe<Array<APITopic>>;
   subResourceSeries?: Maybe<Array<APIResource>>;
   subResources?: Maybe<Array<APIResource>>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
-  type: ResourceType;
-  upvotes?: Maybe<Scalars['Int']>;
+  types: Array<ResourceType>;
   url: Scalars['String'];
 };
 
 
 export type APIResourceCoveredSubTopicsArgs = {
   options: APILearningMaterialCoveredSubTopicsOptions;
+};
+
+
+export type APIResourceRecommendedByArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
 };
 
 export type APIResourceData = {
@@ -1311,7 +1337,7 @@ export type APIResourceData = {
   mediaType?: Maybe<ResourceMediaType>;
   name?: Maybe<Scalars['String']>;
   subResourceSeries?: Maybe<Array<APISubResourceExtractedData>>;
-  type?: Maybe<ResourceType>;
+  types?: Maybe<Array<ResourceType>>;
 };
 
 export { ResourceMediaType };
@@ -1414,7 +1440,7 @@ export type APISubResourceExtractedData = {
   durationSeconds?: Maybe<Scalars['Int']>;
   mediaType: ResourceMediaType;
   name: Scalars['String'];
-  type: ResourceType;
+  types: Array<ResourceType>;
   url: Scalars['String'];
 };
 
@@ -1583,7 +1609,7 @@ export type APIUpdateResourcePayload = {
   durationSeconds?: InputMaybe<Scalars['Int']>;
   mediaType?: InputMaybe<ResourceMediaType>;
   name?: InputMaybe<Scalars['String']>;
-  type?: InputMaybe<ResourceType>;
+  types?: InputMaybe<Array<ResourceType>>;
   url?: InputMaybe<Scalars['String']>;
 };
 
@@ -1652,6 +1678,13 @@ export enum APIUserConsumedResourcesSortingType {
 
 export type APIUserLearningPathsOptions = {
   pagination?: InputMaybe<APIPaginationOptions>;
+};
+
+export type APIUserRecommendedLearningMaterial = {
+  __typename?: 'UserRecommendedLearningMaterial';
+  learningMaterial: APILearningMaterial;
+  recommendedAt: Scalars['Date'];
+  user: APIUser;
 };
 
 export { UserRole };
@@ -1878,6 +1911,7 @@ export type APIResolversTypes = ResolversObject<{
   UserConsumedResourcesResult: ResolverTypeWrapper<APIUserConsumedResourcesResult>;
   UserConsumedResourcesSortingType: APIUserConsumedResourcesSortingType;
   UserLearningPathsOptions: APIUserLearningPathsOptions;
+  UserRecommendedLearningMaterial: ResolverTypeWrapper<APIUserRecommendedLearningMaterial>;
   UserRole: UserRole;
   VerifyEmailResponse: ResolverTypeWrapper<APIVerifyEmailResponse>;
 }>;
@@ -2020,6 +2054,7 @@ export type APIResolversParentTypes = ResolversObject<{
   UserConsumedResourcesOptions: APIUserConsumedResourcesOptions;
   UserConsumedResourcesResult: APIUserConsumedResourcesResult;
   UserLearningPathsOptions: APIUserLearningPathsOptions;
+  UserRecommendedLearningMaterial: APIUserRecommendedLearningMaterial;
   VerifyEmailResponse: APIVerifyEmailResponse;
 }>;
 
@@ -2274,6 +2309,8 @@ export type APILearningMaterialResolvers<ContextType = APIContext, ParentType ex
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialHasPrerequisiteTopic']>>, ParentType, ContextType>;
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
+  recommendationsCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  recommendedBy?: Resolver<Maybe<Array<APIResolversTypes['UserRecommendedLearningMaterial']>>, ParentType, ContextType, RequireFields<APILearningMaterialRecommendedByArgs, never>>;
   showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialTag']>>, ParentType, ContextType>;
 }>;
@@ -2325,6 +2362,8 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialHasPrerequisiteTopic']>>, ParentType, ContextType>;
   public?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>;
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
+  recommendationsCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  recommendedBy?: Resolver<Maybe<Array<APIResolversTypes['UserRecommendedLearningMaterial']>>, ParentType, ContextType, RequireFields<APILearningPathRecommendedByArgs, never>>;
   resourceItems?: Resolver<Maybe<Array<APIResolversTypes['LearningPathResourceItem']>>, ParentType, ContextType>;
   showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   started?: Resolver<Maybe<APIResolversTypes['LearningPathStarted']>, ParentType, ContextType>;
@@ -2423,6 +2462,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   detachLearningMaterialCoversTopics?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDetachLearningMaterialCoversTopicsArgs, 'learningMaterialId' | 'topicsIds'>>;
   detachTopicIsPartOfTopic?: Resolver<APIResolversTypes['DetachTopicIsPartOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsPartOfTopicArgs, 'partOfTopicId' | 'subTopicId'>>;
   detachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['DetachTopicIsSubTopicOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId'>>;
+  downvoteLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDownvoteLearningMaterialArgs, 'learningMaterialId'>>;
   hideLearningGoalFromTopic?: Resolver<APIResolversTypes['ShowLearningGoalInTopicResult'], ParentType, ContextType, RequireFields<APIMutationHideLearningGoalFromTopicArgs, 'learningGoalId' | 'topicId'>>;
   hideLearningMaterialFromTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationHideLearningMaterialFromTopicArgs, 'learningMaterialId' | 'topicId'>>;
   indexLearningGoal?: Resolver<APIResolversTypes['LearningGoalIndexedResult'], ParentType, ContextType, RequireFields<APIMutationIndexLearningGoalArgs, 'learningGoalId'>>;
@@ -2535,13 +2575,14 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialHasPrerequisiteTopic']>>, ParentType, ContextType>;
   previousResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>;
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
+  recommendationsCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  recommendedBy?: Resolver<Maybe<Array<APIResolversTypes['UserRecommendedLearningMaterial']>>, ParentType, ContextType, RequireFields<APIResourceRecommendedByArgs, never>>;
   seriesParentResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>;
   showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   subResourceSeries?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
   subResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialTag']>>, ParentType, ContextType>;
-  type?: Resolver<APIResolversTypes['ResourceType'], ParentType, ContextType>;
-  upvotes?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  types?: Resolver<Array<APIResolversTypes['ResourceType']>, ParentType, ContextType>;
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -2552,7 +2593,7 @@ export type APIResourceDataResolvers<ContextType = APIContext, ParentType extend
   mediaType?: Resolver<Maybe<APIResolversTypes['ResourceMediaType']>, ParentType, ContextType>;
   name?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   subResourceSeries?: Resolver<Maybe<Array<APIResolversTypes['SubResourceExtractedData']>>, ParentType, ContextType>;
-  type?: Resolver<Maybe<APIResolversTypes['ResourceType']>, ParentType, ContextType>;
+  types?: Resolver<Maybe<Array<APIResolversTypes['ResourceType']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2612,7 +2653,7 @@ export type APISubResourceExtractedDataResolvers<ContextType = APIContext, Paren
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
   mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>;
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
-  type?: Resolver<APIResolversTypes['ResourceType'], ParentType, ContextType>;
+  types?: Resolver<Array<APIResolversTypes['ResourceType']>, ParentType, ContextType>;
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -2751,6 +2792,13 @@ export type APIUserConsumedResourcesResultResolvers<ContextType = APIContext, Pa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type APIUserRecommendedLearningMaterialResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['UserRecommendedLearningMaterial'] = APIResolversParentTypes['UserRecommendedLearningMaterial']> = ResolversObject<{
+  learningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType>;
+  recommendedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>;
+  user?: Resolver<APIResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type APIUserRoleResolvers = EnumResolverSignature<{ ADMIN?: any, CONTRIBUTOR?: any, USER?: any }, APIResolversTypes['UserRole']>;
 
 export type APIVerifyEmailResponseResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['VerifyEmailResponse'] = APIResolversParentTypes['VerifyEmailResponse']> = ResolversObject<{
@@ -2850,6 +2898,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   User?: APIUserResolvers<ContextType>;
   UserConsumedResourceItem?: APIUserConsumedResourceItemResolvers<ContextType>;
   UserConsumedResourcesResult?: APIUserConsumedResourcesResultResolvers<ContextType>;
+  UserRecommendedLearningMaterial?: APIUserRecommendedLearningMaterialResolvers<ContextType>;
   UserRole?: APIUserRoleResolvers;
   VerifyEmailResponse?: APIVerifyEmailResponseResolvers<ContextType>;
 }>;

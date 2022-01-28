@@ -5,6 +5,7 @@
 # import LearningMaterial, LearningMaterialCoveredSubTopicsOptions, LearningMaterialCoveredSubTopicsResults from 'LearningMaterial.graphql'
 # import LearningMaterialTag from 'LearningMaterialTag.graphql'
 # import LearningMaterialHasPrerequisiteTopic from 'relationships/LearningMaterialHasPrerequisiteTopic.graphql'
+# import UserRecommendedLearningMaterial from 'relationships/UserRecommendedLearningMaterial.graphql'
 # import User, CurrentUser from 'User.graphql'
 
 type LearningPath implements LearningMaterial {
@@ -18,6 +19,8 @@ type LearningPath implements LearningMaterial {
   complementaryResources: [Resource!]
   tags: [LearningMaterialTag!]
   rating: Float
+  recommendationsCount: Int
+  recommendedBy(limit: Int): [UserRecommendedLearningMaterial!]
   started: LearningPathStarted
   startedBy(options: LearningPathStartedByOptions!): LearningPathStartedByResults
   coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults

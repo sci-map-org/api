@@ -14,6 +14,8 @@ import {
   getLearningMaterialCoveredSubTopicsResolver,
   getLearningMaterialCreatedByResolver,
   getLearningMaterialPrerequisitesResolver,
+  getLearningMaterialRecommendationsCountResolver,
+  getLearningMaterialRecommendedByResolver,
   getLearningMaterialShowedInResolver,
   hideLearningMaterialFromTopicResolver,
   learningMaterialResolveType,
@@ -82,7 +84,6 @@ import {
   getResourceSubResourceSeriesResolver,
   getResourceSubResourcesResolver,
   getResourceTagsResolver,
-  getResourceUpvotesResolver,
   searchResourcesResolver,
   setResourcesConsumedResolver,
   updateResourceResolver,
@@ -268,7 +269,9 @@ const resolvers: APIResolvers<APIContext> = {
     coveredSubTopics: getLearningMaterialCoveredSubTopicsResolver,
     showedIn: getLearningMaterialShowedInResolver,
     tags: getResourceTagsResolver,
-    upvotes: getResourceUpvotesResolver,
+    // upvotes: getResourceUpvotesResolver,
+    recommendationsCount: getLearningMaterialRecommendationsCountResolver,
+    recommendedBy: getLearningMaterialRecommendedByResolver,
     rating: getResourceRatingResolver,
     consumed: getResourceConsumedResolver,
     subResources: getResourceSubResourcesResolver,
@@ -287,6 +290,8 @@ const resolvers: APIResolvers<APIContext> = {
     resourceItems: getLearningPathResourceItemsResolver,
     complementaryResources: getLearningPathComplementaryResourcesResolver,
     rating: getLearningPathRatingResolver,
+    recommendationsCount: getLearningMaterialRecommendationsCountResolver,
+    recommendedBy: getLearningMaterialRecommendedByResolver,
     tags: getLearningPathTagsResolver,
     prerequisites: getLearningMaterialPrerequisitesResolver,
     // outcomes: getLearningMaterialOutcomesResolver,
@@ -343,7 +348,7 @@ const resolvers: APIResolvers<APIContext> = {
   SearchResultEntity: {
     __resolveType: (obj) => {
       //@ts-ignore
-      if (!obj.type && (obj.public === true || obj.public === false)) return 'LearningPath';
+      if (!obj.types && (obj.public === true || obj.public === false)) return 'LearningPath';
       //@ts-ignore
       if (obj.url) return 'Resource';
       return 'Topic';

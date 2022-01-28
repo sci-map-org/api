@@ -20,7 +20,6 @@ import {
   UserCreatedLearningMaterial,
   UserCreatedLearningMaterialLabel,
 } from '../entities/relationships/UserCreatedLearningMaterial';
-import { UserVotedResource, UserVotedResourceLabel } from '../entities/relationships/UserVotedResource';
 import { Resource, ResourceLabel, ResourceMediaType, ResourceType } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
@@ -50,19 +49,17 @@ export const searchResources = async (
   const q = new Query(neo4jQb);
   q.match([node('r', ResourceLabel)]);
   q.raw(
-    `WHERE (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
+    `WHERE (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR any(type in r.types where toLower(type) CONTAINS toLower($query)))`,
     { query }
   );
-  q.return('r')
-    .skip(pagination.offset)
-    .limit(pagination.limit);
+  q.return('r').skip(pagination.offset).limit(pagination.limit);
 
   const results = await q.run();
-  return results.map(item => item.r.properties);
+  return results.map((item) => item.r.properties);
 };
 interface CreateResourceData {
   name: string;
-  type: ResourceType;
+  types: ResourceType[];
   mediaType: ResourceMediaType;
   url: string;
   description?: string;
@@ -70,7 +67,7 @@ interface CreateResourceData {
 
 interface UpdateResourceData {
   name?: string;
-  type?: ResourceType;
+  types?: ResourceType[];
   mediaType?: ResourceMediaType;
   url?: string;
   description?: string;
@@ -132,51 +129,6 @@ export const getUserConsumedResource = async (
   return item ? item.relationship : null;
 };
 
-export const voteResource = async (userId: string, resourceId: string, value: number): Promise<Resource> =>
-  attachUniqueNodes<User, UserVotedResource, Resource>({
-    originNode: {
-      label: UserLabel,
-      filter: { _id: userId },
-    },
-    relationship: {
-      label: UserVotedResourceLabel,
-      onCreateProps: {
-        value,
-      },
-      onMergeProps: {
-        value,
-      },
-    },
-    destinationNode: {
-      label: ResourceLabel,
-      filter: {
-        _id: resourceId,
-      },
-    },
-  }).then(({ destinationNode }) => {
-    return destinationNode;
-  });
-
-export const getResourceUpvoteCount = async (resourceId: string): Promise<number> => {
-  const session = neo4jDriver.session();
-
-  const { records } = await session.run(
-    `MATCH (resource:${ResourceLabel})<-[v:${UserVotedResourceLabel}]-(:User) WHERE resource._id = $resourceId 
-    WITH sum(v.value) AS upvoteCount RETURN upvoteCount`,
-    {
-      resourceId,
-    }
-  );
-
-  session.close();
-
-  const record = records.pop();
-
-  if (!record) throw new Error();
-  return Number(record.get('upvoteCount').toString());
-};
-
-
 export const getResourceSubResources = (parentResourceId: string) =>
   getRelatedNodes<Resource, ResourceBelongsToResource, Resource>({
     originNode: {
@@ -206,7 +158,7 @@ export const getResourceSubResourceSeries = async (parentResourceId: string) => 
   ]);
   q.raw(`WITH DISTINCT i, collect(r) as c UNWIND ([i] + c) as resourceSeries RETURN resourceSeries`);
   const results = await q.run();
-  return results.map(r => r.resourceSeries.properties);
+  return results.map((r) => r.resourceSeries.properties);
 };
 
 export const getResourceParentResources = (subResourceId: string): Promise<Resource[]> =>
@@ -239,7 +191,7 @@ export const getResourceSeriesParentResource = async (subResourceId: string): Pr
   q.return('i');
 
   const results = await q.run();
-  return results.map(r => r.i.properties)[0] || null;
+  return results.map((r) => r.i.properties)[0] || null;
 };
 
 export const getResourceNextResource = (resourceId: string): Promise<Resource | null> =>
@@ -257,7 +209,7 @@ export const getResourceNextResource = (resourceId: string): Promise<Resource | 
       label: ResourceLabel,
       filter: {},
     },
-  }).then(result => (result ? result.destinationNode : null));
+  }).then((result) => (result ? result.destinationNode : null));
 
 export const getResourcePreviousResource = (resourceId: string): Promise<Resource | null> =>
   getOptionalRelatedNode<Resource, ResourceHasNextResource, Resource>({
@@ -274,7 +226,7 @@ export const getResourcePreviousResource = (resourceId: string): Promise<Resourc
       label: ResourceLabel,
       filter: {},
     },
-  }).then(result => (result ? result.destinationNode : null));
+  }).then((result) => (result ? result.destinationNode : null));
 
 export const attachSubResourceToResource = (parentResourceId: string, subResourceId: string) =>
   attachUniqueNodes<Resource, ResourceBelongsToResource, Resource>({
@@ -332,7 +284,9 @@ export const getUserConsumedResources = async (
       },
     }),
     pagination: paginationOptions,
-  }).then(results => results.map(({ destinationNode, relationship }) => ({ relationship, resource: destinationNode })));
+  }).then((results) =>
+    results.map(({ destinationNode, relationship }) => ({ relationship, resource: destinationNode }))
+  );
 
 export const countUserConsumedResources = async (
   userId: string,

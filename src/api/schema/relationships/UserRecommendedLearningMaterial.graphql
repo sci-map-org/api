@@ -1,0 +1,14 @@
+# import User from '../User.graphql'
+# import Date from '../common/Date.graphql'
+# import LearningMaterial from '../LearningMaterial.graphql'
+
+type UserRecommendedLearningMaterial {
+  user: User!
+  learningMaterial: LearningMaterial!
+  recommendedAt: Date!
+}
+
+type Mutation {
+  recommendLearningMaterial(learningMaterialId: String!): LearningMaterial!
+  downvoteLearningMaterial(learningMaterialId: String!): LearningMaterial! # not implemented yet
+}

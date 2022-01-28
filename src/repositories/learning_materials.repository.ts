@@ -28,11 +28,15 @@ import {
   UserRatedLearningMaterial,
   UserRatedLearningMaterialLabel,
 } from '../entities/relationships/UserRatedLearningMaterial';
+import {
+  UserVotedLearningMaterial,
+  UserVotedLearningMaterialLabel,
+} from '../entities/relationships/UserVotedLearningMaterial';
 import { Topic, TopicLabel } from '../entities/Topic';
 import { User, UserLabel } from '../entities/User';
 import { NotFoundError } from '../errors/NotFoundError';
 import { logger } from '../infra/logger';
-import { neo4jQb } from '../infra/neo4j';
+import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
   attachUniqueNodes,
   detachUniqueNodes,
@@ -62,7 +66,7 @@ export const showLearningMaterialInTopics = (
     originNode: { label: LearningMaterialLabel, filter: { _id: learningMaterialId } },
     relationship: { label: LearningGoalShowedInTopicLabel },
     destinationNode: { label: TopicLabel, filter: { _id: { $in: topicsIds } } },
-  }).then(items => {
+  }).then((items) => {
     if (items.length !== topicsIds.length)
       logger.warn('showLearningMaterialInTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no topics are passed
@@ -89,7 +93,7 @@ export const hideLearningMaterialFromTopics = (
       label: TopicLabel,
       filter: { _id: { $in: topicsIds } },
     },
-  }).then(items => {
+  }).then((items) => {
     if (items.length !== topicsIds.length)
       logger.warn('hideLearningMaterialFromTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId);
@@ -125,7 +129,7 @@ export const attachLearningMaterialCoversTopics = (
       onCreateProps: { createdAt: Date.now(), createdByUserId: props.userId },
     },
     destinationNode: { label: TopicLabel, filter: { _id: { $in: topicsIds } } },
-  }).then(items => {
+  }).then((items) => {
     if (items.length !== topicsIds.length)
       logger.warn('attachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId); // TODO: fix, because right it throws this error when no topics are passed
@@ -152,7 +156,7 @@ export const detachLearningMaterialCoversTopics = (
       label: TopicLabel,
       filter: { _id: { $in: topicsIds } },
     },
-  }).then(items => {
+  }).then((items) => {
     if (items.length !== topicsIds.length)
       logger.warn('detachLearningMaterialCoversTopics: some topics in ' + JSON.stringify(topicsIds) + ' not found');
     if (!items.length) throw new NotFoundError('LearningMaterial', learningMaterialId);
@@ -176,7 +180,7 @@ export const getLearningMaterialCoveredTopics = (
     destinationNode: {
       label: TopicLabel,
     },
-  }).then(items =>
+  }).then((items) =>
     items.map(({ originNode, relationship, destinationNode }) => ({
       learningMaterial: originNode,
       relationship,
@@ -276,11 +280,13 @@ export const detachLearningMaterialHasPrerequisiteTopic = (
 
 export const getLearningMaterialPrerequisites = (
   learningMaterialId: string
-): Promise<{
-  learningMaterial: LearningMaterial;
-  relationship: LearningMaterialHasPrerequisiteTopic;
-  topic: Topic;
-}[]> =>
+): Promise<
+  {
+    learningMaterial: LearningMaterial;
+    relationship: LearningMaterialHasPrerequisiteTopic;
+    topic: Topic;
+  }[]
+> =>
   getRelatedNodes<LearningMaterial, LearningMaterialHasPrerequisiteTopic, Topic>({
     originNode: {
       label: LearningMaterialLabel,
@@ -293,7 +299,7 @@ export const getLearningMaterialPrerequisites = (
       label: TopicLabel,
       // filter: { hidden: false },
     },
-  }).then(items =>
+  }).then((items) =>
     items.map(({ destinationNode, relationship, originNode }) => ({
       learningMaterial: originNode,
       relationship,
@@ -333,3 +339,96 @@ export const getLearningMaterialCreator = (learningMaterialFilter: { _id: string
       filter: {},
     },
   });
+
+// Voting
+export const voteLearningMaterial = async (
+  userId: string,
+  learningMaterialId: string,
+  value: 1 | -1
+): Promise<{
+  user: User;
+  relationship: UserVotedLearningMaterial;
+  learningMaterial: LearningMaterial;
+}> =>
+  attachUniqueNodes<User, UserVotedLearningMaterial, LearningMaterial>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserVotedLearningMaterialLabel,
+      onCreateProps: {
+        value,
+        votedAt: Date.now(),
+      },
+      onMergeProps: {
+        value,
+      },
+    },
+    destinationNode: {
+      label: LearningMaterialLabel,
+      filter: {
+        _id: learningMaterialId,
+      },
+    },
+  }).then(({ originNode, relationship, destinationNode }) => ({
+    user: originNode,
+    relationship,
+    learningMaterial: destinationNode,
+  }));
+
+/**
+ * Counts the number of positive votes (value =1, recommendations)
+ */
+export const getLearningMaterialUpvoteCount = async (learningMaterialId: string): Promise<number> => {
+  const session = neo4jDriver.session();
+
+  const { records } = await session.run(
+    `MATCH (lm:${LearningMaterialLabel})<-[v:${UserVotedLearningMaterialLabel}]-(:${UserLabel}) WHERE lm._id = $learningMaterialId AND v.value = 1
+    WITH sum(v.value) AS upvoteCount RETURN upvoteCount`,
+    {
+      learningMaterialId,
+    }
+  );
+
+  session.close();
+
+  const record = records.pop();
+
+  if (!record) throw new Error();
+  return Number(record.get('upvoteCount').toString());
+};
+
+/** Upvotes are the same as recommendations, so here it returns recommendations */
+export const getLearningMaterialUpvotes = async (
+  learningMaterialId: string,
+  limit: number = 50
+): Promise<
+  {
+    learningMaterial: LearningMaterial;
+    relationship: UserVotedLearningMaterial;
+    user: User;
+  }[]
+> =>
+  getRelatedNodes<LearningMaterial, UserVotedLearningMaterial, User>({
+    originNode: {
+      label: LearningMaterialLabel,
+      filter: { _id: learningMaterialId },
+    },
+    relationship: {
+      label: UserVotedLearningMaterialLabel,
+    },
+    destinationNode: {
+      label: UserLabel,
+    },
+    pagination: {
+      limit,
+      offset: 0,
+    },
+  }).then((items) =>
+    items.map(({ originNode, relationship, destinationNode }) => ({
+      learningMaterial: originNode,
+      relationship,
+      user: destinationNode,
+    }))
+  );

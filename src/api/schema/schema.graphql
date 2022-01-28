@@ -15,3 +15,4 @@
 #import * from "./relationships/TopicIsPartOfTopic.graphql"
 #import * from "./relationships/LearningMaterialCoversTopic.graphql"
 #import * from "./relationships/LearningMaterialHasPrerequisiteTopic.graphql"
+#import * from "./relationships/UserRecommendedLearningMaterial.graphql"

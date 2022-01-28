@@ -3,6 +3,7 @@
 # import LearningMaterialTag from 'LearningMaterialTag.graphql'
 # import Topic from 'Topic.graphql'
 # import LearningMaterialHasPrerequisiteTopic from 'relationships/LearningMaterialHasPrerequisiteTopic.graphql'
+# import UserRecommendedLearningMaterial from 'relationships/UserRecommendedLearningMaterial.graphql'
 # import User from 'User.graphql'
 
 interface LearningMaterial {
@@ -15,6 +16,8 @@ interface LearningMaterial {
   coveredSubTopicsTree: [Topic!]
   showedIn: [Topic!]
   prerequisites: [LearningMaterialHasPrerequisiteTopic!]
+  recommendationsCount: Int
+  recommendedBy(limit: Int): [UserRecommendedLearningMaterial!]
   # outcomes: [LearningMaterialOutcomeItem!]
   createdBy: User
   createdAt: Date!
@@ -34,7 +37,6 @@ type LearningMaterialCoveredSubTopicsResults {
 }
 
 type Mutation {
-  recommendLearningMaterial(learningMaterialId: String!): LearningMaterial!
   showLearningMaterialInTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
   hideLearningMaterialFromTopic(topicId: String!, learningMaterialId: String!): LearningMaterial!
   rateLearningMaterial(learningMaterialId: String!, value: Float!): LearningMaterial!

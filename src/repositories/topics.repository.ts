@@ -12,7 +12,7 @@ import {
 } from '../entities/relationships/LearningGoalShowedInTopic';
 import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
 import { LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
-import { LearningMaterialTagBelongsToLearningMaterialLabel } from '../entities/relationships/LearningMaterialTagBelongsToLearningMaterial';
+import { LearningMaterialIsTaggedLearningMaterialTagLabel } from '../entities/relationships/LearningMaterialIsTaggedLearningMaterialTag';
 import { TopicHasContextTopic, TopicHasContextTopicLabel } from '../entities/relationships/TopicHasContextTopic';
 import {
   TopicHasDisambiguationTopic,
@@ -238,7 +238,7 @@ function initialiseQueryWithFilters(
   if (filter.learningMaterialTagsIn) {
     q.match([
       node('lm'),
-      relation('either', '', LearningMaterialTagBelongsToLearningMaterialLabel),
+      relation('out', '', LearningMaterialIsTaggedLearningMaterialTagLabel),
       node('tag', LearningMaterialTagLabel),
     ]);
   }
@@ -249,14 +249,14 @@ function initialiseQueryWithFilters(
   }
 
   if (filter.resourceTypeIn) {
-    q.raw(`AND (NOT lm:${ResourceLabel} OR lm.type IN $resourceTypeIn)`, {
+    q.raw(`AND (NOT lm:${ResourceLabel} OR any(type IN lm.types where type IN $resourceTypeIn))`, {
       resourceTypeIn: filter.resourceTypeIn,
     });
   }
 
   if (query) {
     q.raw(
-      ` AND (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR toLower(lm.type) CONTAINS toLower($query))`,
+      ` AND (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR any(type in lm.types where toLower(type) CONTAINS toLower($query)))`,
       { query }
     );
   }
@@ -445,7 +445,7 @@ export const getTopicLearningMaterialsTagsFilters = async (
   q.with('lm');
   q.optionalMatch([
     node('lm'),
-    relation('either', 'r', LearningMaterialTagBelongsToLearningMaterialLabel),
+    relation('out', 'r', LearningMaterialIsTaggedLearningMaterialTagLabel),
     node('tag', LearningMaterialTagLabel),
   ]);
   q.with(['distinct tag', 'count(r) as count where tag is not null']);
@@ -468,8 +468,7 @@ export const getTopicLearningMaterialsTypesFilters = async (
 
   const { records } = await session.run(
     `match (n:Topic {_id: $topicId})-[:SHOWED_IN]-(lm:LearningMaterial) 
-    with 
-    collect(distinct lm.type) as types, 
+    WITH apoc.coll.toSet(apoc.coll.flatten(collect(lm.types))) as types,
     size([x in collect(lm) where x:LearningPath and x.public = true]) as learningPathsCount, 
     size([x in collect(lm) where x.durationSeconds <= 30*60]) as leq30minCount, 
     size([x in collect(lm) where x.durationSeconds >= 30*60]) as geq30minCount 
