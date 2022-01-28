@@ -29,12 +29,13 @@ interface CreateAndSaveResourceData extends CreateAndSaveResourceBaseData {
   subResourceSeries?: CreateAndSaveResourceBaseData[]; // limit to one level for now
 }
 
-const attachResourceTags = async (resourceId: string, tags?: string[]): Promise<void> => {
+const attachResourceTags = async (resourceId: string, userId: string, tags?: string[]): Promise<void> => {
   if (!tags || !tags.length) return;
-  const resourceTags = await Promise.all(tags.map((t) => findOrCreateLearningMaterialTag(t)));
+  const resourceTags = await Promise.all(tags.map((t) => findOrCreateLearningMaterialTag(t, userId)));
   await attachTagsToLearningMaterial(
     resourceId,
-    resourceTags.map((r) => r.name)
+    resourceTags.map((r) => r.name),
+    userId
   );
 };
 
@@ -63,7 +64,7 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
     omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds'])
   );
   await Promise.all([
-    attachResourceTags(createdResource._id, data.tags),
+    attachResourceTags(createdResource._id, userId, data.tags),
     attachPrerequisites(createdResource._id, userId, data.prerequisitesTopicsIds),
     data.showInTopicsIds.length ? showLearningMaterialInTopics(createdResource._id, data.showInTopicsIds) : undefined,
     data.coveredSubTopicsIds?.length

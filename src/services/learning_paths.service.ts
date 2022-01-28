@@ -48,10 +48,11 @@ export const createFullLearningPath = async (
       : generateLearningPathUniqueKey(learningPathData.name),
   });
   if (tags && tags.length) {
-    const learningPathTags = await Promise.all(tags.map(t => findOrCreateLearningMaterialTag(t)));
+    const learningPathTags = await Promise.all(tags.map((t) => findOrCreateLearningMaterialTag(t, userId)));
     await attachTagsToLearningMaterial(
       createdLearningPath._id,
-      learningPathTags.map(r => r.name)
+      learningPathTags.map((r) => r.name),
+      userId
     );
   }
   if (resourceItems.length) await addResourcesToLearningPath(createdLearningPath._id, resourceItems);

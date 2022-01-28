@@ -12,7 +12,7 @@ import {
 } from '../entities/relationships/LearningGoalShowedInTopic';
 import { LearningMaterialCoversTopicLabel } from '../entities/relationships/LearningMaterialCoversTopic';
 import { LearningMaterialShowedInTopicLabel } from '../entities/relationships/LearningMaterialShowedInTopic';
-import { LearningMaterialTagBelongsToLearningMaterialLabel } from '../entities/relationships/LearningMaterialTagBelongsToLearningMaterial';
+import { LearningMaterialIsTaggedLearningMaterialTagLabel } from '../entities/relationships/LearningMaterialIsTaggedLearningMaterialTag';
 import { TopicHasContextTopic, TopicHasContextTopicLabel } from '../entities/relationships/TopicHasContextTopic';
 import {
   TopicHasDisambiguationTopic,
@@ -238,7 +238,7 @@ function initialiseQueryWithFilters(
   if (filter.learningMaterialTagsIn) {
     q.match([
       node('lm'),
-      relation('either', '', LearningMaterialTagBelongsToLearningMaterialLabel),
+      relation('out', '', LearningMaterialIsTaggedLearningMaterialTagLabel),
       node('tag', LearningMaterialTagLabel),
     ]);
   }
@@ -445,7 +445,7 @@ export const getTopicLearningMaterialsTagsFilters = async (
   q.with('lm');
   q.optionalMatch([
     node('lm'),
-    relation('either', 'r', LearningMaterialTagBelongsToLearningMaterialLabel),
+    relation('out', 'r', LearningMaterialIsTaggedLearningMaterialTagLabel),
     node('tag', LearningMaterialTagLabel),
   ]);
   q.with(['distinct tag', 'count(r) as count where tag is not null']);

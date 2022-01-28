@@ -10,7 +10,10 @@ import { findLearningMaterial } from '../../repositories/learning_materials.repo
 import { NotFoundError } from '../../errors/NotFoundError';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 
-export const searchLearningMaterialTagsResolver: APIQueryResolvers['searchLearningMaterialTags'] = async (_parent, { options }) => {
+export const searchLearningMaterialTagsResolver: APIQueryResolvers['searchLearningMaterialTags'] = async (
+  _parent,
+  { options }
+) => {
   return await findLearningMaterialTags(options.query, nullToUndefined(options.pagination));
 };
 
@@ -20,8 +23,8 @@ export const addTagsToLearningMaterialResolver: APIMutationResolvers['addTagsToL
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a learningmaterial tag');
-  await Promise.all(tags.map(tag => findOrCreateLearningMaterialTag(tag)));
-  await attachTagsToLearningMaterial(learningMaterialId, tags);
+  await Promise.all(tags.map((tag) => findOrCreateLearningMaterialTag(tag, user._id)));
+  await attachTagsToLearningMaterial(learningMaterialId, tags, user._id);
   const learningMaterial = await findLearningMaterial(learningMaterialId);
   if (!learningMaterial) throw new NotFoundError('LearningMaterial', learningMaterialId);
   return learningMaterial;
