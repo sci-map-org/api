@@ -1,3 +1,4 @@
+import { UserInputError } from 'apollo-server-core';
 import { omit } from 'lodash';
 import { ResourceMediaType, ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
@@ -15,7 +16,7 @@ import { sendDiscordNotification } from './discord/discord_webhooks.service';
 
 interface CreateAndSaveResourceBaseData {
   name: string;
-  type: ResourceType;
+  types: ResourceType[];
   mediaType: ResourceMediaType;
   url: string;
   description?: string;
@@ -30,10 +31,10 @@ interface CreateAndSaveResourceData extends CreateAndSaveResourceBaseData {
 
 const attachResourceTags = async (resourceId: string, tags?: string[]): Promise<void> => {
   if (!tags || !tags.length) return;
-  const resourceTags = await Promise.all(tags.map(t => findOrCreateLearningMaterialTag(t)));
+  const resourceTags = await Promise.all(tags.map((t) => findOrCreateLearningMaterialTag(t)));
   await attachTagsToLearningMaterial(
     resourceId,
-    resourceTags.map(r => r.name)
+    resourceTags.map((r) => r.name)
   );
 };
 
@@ -44,7 +45,7 @@ const attachPrerequisites = async (
 ): Promise<void> => {
   if (!prerequisitesTopicsIds || !prerequisitesTopicsIds.length) return;
   await Promise.all(
-    prerequisitesTopicsIds.map(async prerequisiteId =>
+    prerequisitesTopicsIds.map(async (prerequisiteId) =>
       attachLearningMaterialHasPrerequisiteTopic(resourceId, prerequisiteId, {
         strength: 100,
         createdByUserId: userId,
@@ -55,6 +56,8 @@ const attachPrerequisites = async (
 
 // TODO: make type safe
 export const createAndSaveResource = async (data: CreateAndSaveResourceData, userId: string): Promise<Resource> => {
+  if (!data.types.length || data.types.length > 3)
+    throw new UserInputError('At least one resource type must be set and no more than 3');
   const createdResource = await createResource(
     { _id: userId },
     omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds'])
@@ -69,7 +72,7 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
   ]);
   if (data.subResourceSeries && data.subResourceSeries.length) {
     const createdSubResources = await Promise.all(
-      data.subResourceSeries.map(async subResourceData => createAndSaveResource(subResourceData, userId))
+      data.subResourceSeries.map(async (subResourceData) => createAndSaveResource(subResourceData, userId))
     );
     for (let i = 0; i < createdSubResources.length; i++) {
       const createdSubResource = createdSubResources[i];

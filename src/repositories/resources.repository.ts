@@ -49,7 +49,7 @@ export const searchResources = async (
   const q = new Query(neo4jQb);
   q.match([node('r', ResourceLabel)]);
   q.raw(
-    `WHERE (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR toLower(r.type) CONTAINS toLower($query))`,
+    `WHERE (toLower(r.name) CONTAINS toLower($query) OR toLower(r.description) CONTAINS toLower($query) OR toLower(r.url) CONTAINS toLower($query) OR any(type in r.types where toLower(type) CONTAINS toLower($query)))`,
     { query }
   );
   q.return('r').skip(pagination.offset).limit(pagination.limit);
@@ -59,7 +59,7 @@ export const searchResources = async (
 };
 interface CreateResourceData {
   name: string;
-  type: ResourceType;
+  types: ResourceType[];
   mediaType: ResourceMediaType;
   url: string;
   description?: string;
@@ -67,7 +67,7 @@ interface CreateResourceData {
 
 interface UpdateResourceData {
   name?: string;
-  type?: ResourceType;
+  types?: ResourceType[];
   mediaType?: ResourceMediaType;
   url?: string;
   description?: string;

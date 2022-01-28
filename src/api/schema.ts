@@ -348,7 +348,7 @@ const resolvers: APIResolvers<APIContext> = {
   SearchResultEntity: {
     __resolveType: (obj) => {
       //@ts-ignore
-      if (!obj.type && (obj.public === true || obj.public === false)) return 'LearningPath';
+      if (!obj.types && (obj.public === true || obj.public === false)) return 'LearningPath';
       //@ts-ignore
       if (obj.url) return 'Resource';
       return 'Topic';

@@ -249,14 +249,14 @@ function initialiseQueryWithFilters(
   }
 
   if (filter.resourceTypeIn) {
-    q.raw(`AND (NOT lm:${ResourceLabel} OR lm.type IN $resourceTypeIn)`, {
+    q.raw(`AND (NOT lm:${ResourceLabel} OR any(type IN lm.types where type IN $resourceTypeIn))`, {
       resourceTypeIn: filter.resourceTypeIn,
     });
   }
 
   if (query) {
     q.raw(
-      ` AND (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR toLower(lm.type) CONTAINS toLower($query))`,
+      ` AND (toLower(lm.name) CONTAINS toLower($query) OR toLower(lm.description) CONTAINS toLower($query) OR toLower(lm.url) CONTAINS toLower($query) OR any(type in lm.types where toLower(type) CONTAINS toLower($query)))`,
       { query }
     );
   }
@@ -468,8 +468,7 @@ export const getTopicLearningMaterialsTypesFilters = async (
 
   const { records } = await session.run(
     `match (n:Topic {_id: $topicId})-[:SHOWED_IN]-(lm:LearningMaterial) 
-    with 
-    collect(distinct lm.type) as types, 
+    WITH apoc.coll.toSet(apoc.coll.flatten(collect(lm.types))) as types,
     size([x in collect(lm) where x:LearningPath and x.public = true]) as learningPathsCount, 
     size([x in collect(lm) where x.durationSeconds <= 30*60]) as leq30minCount, 
     size([x in collect(lm) where x.durationSeconds >= 30*60]) as geq30minCount 

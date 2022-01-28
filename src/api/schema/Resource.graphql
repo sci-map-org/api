@@ -47,7 +47,7 @@ type ConsumedResource {
 type Resource implements LearningMaterial {
   _id: String!
   name: String!
-  type: ResourceType!
+  types: [ResourceType!]!
   mediaType: ResourceMediaType!
   tags: [LearningMaterialTag!]
   url: String!
@@ -74,7 +74,7 @@ type Resource implements LearningMaterial {
 
 input CreateSubResourcePayload {
   name: String!
-  type: ResourceType!
+  types: [ResourceType!]!
   mediaType: ResourceMediaType!
   url: String!
   description: String
@@ -89,7 +89,7 @@ input CreateSubResourcePayload {
 
 input CreateResourcePayload {
   name: String!
-  type: ResourceType!
+  types: [ResourceType!]!
   mediaType: ResourceMediaType!
   url: String!
   description: String
@@ -104,7 +104,7 @@ input CreateResourcePayload {
 
 input UpdateResourcePayload {
   name: String
-  type: ResourceType
+  types: [ResourceType!]
   mediaType: ResourceMediaType
   url: String
   description: String
@@ -151,7 +151,7 @@ type SearchResourcesResult {
 
 type SubResourceExtractedData {
   name: String!
-  type: ResourceType!
+  types: [ResourceType!]!
   mediaType: ResourceMediaType!
   url: String!
   description: String
@@ -159,7 +159,7 @@ type SubResourceExtractedData {
 }
 type ResourceData {
   name: String
-  type: ResourceType
+  types: [ResourceType!]
   mediaType: ResourceMediaType
   description: String
   durationSeconds: Int

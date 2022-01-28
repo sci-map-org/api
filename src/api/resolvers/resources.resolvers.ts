@@ -31,10 +31,6 @@ import { toAPIUser } from './users.resolvers';
 
 const SEARCH_RESOURCES_MIN_QUERY_LENGTH = 3;
 
-export function toAPIResource(resource: Resource): APIResource {
-  return resource;
-}
-
 export const searchResourcesResolver: APIQueryResolvers['searchResources'] = async (_parent, { query, options }) => {
   if (query.length < SEARCH_RESOURCES_MIN_QUERY_LENGTH)
     throw new UserInputError(`Must have at least ${SEARCH_RESOURCES_MIN_QUERY_LENGTH} characters in the search query`);
@@ -53,7 +49,7 @@ export const createResourceResolver: APIMutationResolvers['createResource'] = as
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  return toAPIResource(await createAndSaveResource(nullToUndefined(payload), user._id));
+  return await createAndSaveResource(nullToUndefined(payload), user._id);
 };
 
 export const updateResourceResolver: APIMutationResolvers['updateResource'] = async (
@@ -67,7 +63,7 @@ export const updateResourceResolver: APIMutationResolvers['updateResource'] = as
     { ...nullToUndefined(payload), durationSeconds: payload.durationSeconds }
   );
   if (!updatedResource) throw new NotFoundError('Resource', resourceId);
-  return toAPIResource(updatedResource);
+  return updatedResource;
 };
 
 export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = async (
@@ -90,7 +86,7 @@ export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = as
 export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { resourceId }) => {
   const resource = await findResource({ _id: resourceId });
   if (!resource) throw new NotFoundError('Resource', resourceId);
-  return toAPIResource(resource);
+  return resource;
 };
 
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async (resource) => {

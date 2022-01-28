@@ -19,11 +19,11 @@ type ResourceDataExtractor<T> = {
 
 const youtubeVideoConfig: ResourceDataExtractor<YoutubeVideoData> = {
   extractor: youtubeVideoExtractorConfig,
-  postProcess: async data => {
+  postProcess: async (data) => {
     return {
       name: data.title,
       description: data.description,
-      type: ResourceType.youtube_video,
+      types: [ResourceType.youtube_video],
       mediaType: ResourceMediaType.video,
       durationSeconds: data.durationSeconds,
     };
@@ -32,18 +32,18 @@ const youtubeVideoConfig: ResourceDataExtractor<YoutubeVideoData> = {
 
 const youtubePlaylistConfig: ResourceDataExtractor<YoutubePlaylistData> = {
   extractor: youtubePlaylistExtractorConfig,
-  postProcess: async data => {
+  postProcess: async (data) => {
     return {
       name: data.title,
       description: data.description,
-      type: ResourceType.youtube_playlist,
+      types: [ResourceType.youtube_playlist],
       mediaType: ResourceMediaType.video,
       durationSeconds: data.durationSeconds,
       subResourceSeries: data.items.map(({ videoData }) => ({
         name: videoData.title,
         url: `https://www.youtube.com/watch?v=${videoData.youtubeId}&list=${data.youtubeId}`,
         description: videoData.description,
-        type: ResourceType.youtube_video,
+        types: [ResourceType.youtube_video],
         mediaType: ResourceMediaType.video,
         durationSeconds: videoData.durationSeconds,
       })),
@@ -53,25 +53,25 @@ const youtubePlaylistConfig: ResourceDataExtractor<YoutubePlaylistData> = {
 
 const mediumConfig: ResourceDataExtractor<MediumExtractedData> = {
   extractor: mediumExtractorConfig,
-  postProcess: async data => ({
+  postProcess: async (data) => ({
     name: data.title,
-    type: ResourceType.article,
+    types: [ResourceType.article],
     mediaType: ResourceMediaType.text,
   }),
 };
 
 const courseraConfig: ResourceDataExtractor<CourseraExtractedData> = {
   extractor: courseraExtractorConfig,
-  postProcess: async data => ({
+  postProcess: async (data) => ({
     name: data.title,
-    type: ResourceType.course,
+    types: [ResourceType.course],
     mediaType: ResourceMediaType.video,
   }),
 };
 
 const defaultConfig: ResourceDataExtractor<{ title?: string }> = {
   extractor: defaultExtractorConfig,
-  postProcess: data => ({
+  postProcess: (data) => ({
     name: data.title,
   }),
 };
@@ -79,7 +79,7 @@ const defaultConfig: ResourceDataExtractor<{ title?: string }> = {
 const configs = [youtubeVideoConfig, youtubePlaylistConfig, mediumConfig, courseraConfig, defaultConfig]; // put default at the end as it catches all urls
 
 const dispatch = async (url: string, configs: ResourceDataExtractor<any>[]): Promise<APIResourceData> => {
-  const matchingConfig = configs.find(config => !!url.match(config.extractor.urlMatch));
+  const matchingConfig = configs.find((config) => !!url.match(config.extractor.urlMatch));
   if (!matchingConfig) return {};
 
   const data = await extractWebsiteData(url, matchingConfig.extractor);
