@@ -16,10 +16,12 @@ import {
   getLearningMaterialPrerequisitesResolver,
   getLearningMaterialRecommendationsCountResolver,
   getLearningMaterialRecommendedByResolver,
+  getLearningMaterialRecommendedResolver,
   getLearningMaterialShowedInResolver,
   hideLearningMaterialFromTopicResolver,
   learningMaterialResolveType,
   rateLearningMaterialResolver,
+  recommendLearningMaterialResolver,
   showLearningMaterialInTopicResolver,
 } from './resolvers/learning_materials.resolvers';
 import {
@@ -221,6 +223,7 @@ const resolvers: APIResolvers<APIContext> = {
     triggerResetPassword: triggerResetPasswordResolver,
     resetPassword: resetPasswordResolver,
     updateCurrentUser: updateCurrentUserResolver,
+    recommendLearningMaterial: recommendLearningMaterialResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -272,6 +275,7 @@ const resolvers: APIResolvers<APIContext> = {
     // upvotes: getResourceUpvotesResolver,
     recommendationsCount: getLearningMaterialRecommendationsCountResolver,
     recommendedBy: getLearningMaterialRecommendedByResolver,
+    recommended: getLearningMaterialRecommendedResolver,
     rating: getResourceRatingResolver,
     consumed: getResourceConsumedResolver,
     subResources: getResourceSubResourcesResolver,
@@ -292,6 +296,7 @@ const resolvers: APIResolvers<APIContext> = {
     rating: getLearningPathRatingResolver,
     recommendationsCount: getLearningMaterialRecommendationsCountResolver,
     recommendedBy: getLearningMaterialRecommendedByResolver,
+    recommended: getLearningMaterialRecommendedResolver,
     tags: getLearningPathTagsResolver,
     prerequisites: getLearningMaterialPrerequisitesResolver,
     // outcomes: getLearningMaterialOutcomesResolver,

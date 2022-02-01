@@ -2,7 +2,7 @@
 # import Resource from 'Resource.graphql'
 # import Topic from 'Topic.graphql'
 # import Date from 'common/Date.graphql'
-# import LearningMaterial, LearningMaterialCoveredSubTopicsOptions, LearningMaterialCoveredSubTopicsResults from 'LearningMaterial.graphql'
+# import LearningMaterial, LearningMaterialRecommended, LearningMaterialCoveredSubTopicsOptions, LearningMaterialCoveredSubTopicsResults from 'LearningMaterial.graphql'
 # import LearningMaterialTag from 'LearningMaterialTag.graphql'
 # import LearningMaterialHasPrerequisiteTopic from 'relationships/LearningMaterialHasPrerequisiteTopic.graphql'
 # import UserRecommendedLearningMaterial from 'relationships/UserRecommendedLearningMaterial.graphql'
@@ -21,6 +21,7 @@ type LearningPath implements LearningMaterial {
   rating: Float
   recommendationsCount: Int
   recommendedBy(limit: Int): [UserRecommendedLearningMaterial!]
+  recommended: LearningMaterialRecommended
   started: LearningPathStarted
   startedBy(options: LearningPathStartedByOptions!): LearningPathStartedByResults
   coveredSubTopics(options: LearningMaterialCoveredSubTopicsOptions!): LearningMaterialCoveredSubTopicsResults

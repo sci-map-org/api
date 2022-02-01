@@ -45,6 +45,7 @@ import {
   detachNodes,
   getRelatedNodes,
   getRelatedNode,
+  getOptionalRelatedNode,
 } from './util/abstract_graph_repo';
 import { generateGetRatingMethod, generateRateEntityMethod } from './util/rating';
 
@@ -377,6 +378,33 @@ export const voteLearningMaterial = async (
     learningMaterial: destinationNode,
   }));
 
+export const unvoteLearningMaterial = async (
+  userId: string,
+  learningMaterialId: string
+): Promise<{
+  user: User;
+  learningMaterial: LearningMaterial;
+}> =>
+  detachUniqueNodes<User, UserVotedLearningMaterial, LearningMaterial>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserVotedLearningMaterialLabel,
+      filter: {},
+    },
+    destinationNode: {
+      label: LearningMaterialLabel,
+      filter: {
+        _id: learningMaterialId,
+      },
+    },
+  }).then(({ originNode, destinationNode }) => ({
+    user: originNode,
+    learningMaterial: destinationNode,
+  }));
+
 /**
  * Counts the number of positive votes (value =1, recommendations)
  */
@@ -432,3 +460,22 @@ export const getLearningMaterialUpvotes = async (
       user: destinationNode,
     }))
   );
+
+export const getUserUpvotedLearningMaterial = (
+  userId: string,
+  learningMaterialId: string
+): Promise<UserVotedLearningMaterial | null> =>
+  getOptionalRelatedNode<User, UserVotedLearningMaterial, LearningMaterial>({
+    originNode: {
+      label: UserLabel,
+      filter: { _id: userId },
+    },
+    relationship: {
+      label: UserVotedLearningMaterialLabel,
+      direction: 'OUT',
+    },
+    destinationNode: {
+      label: LearningMaterialLabel,
+      filter: { _id: learningMaterialId },
+    },
+  }).then((result) => (result ? result.relationship : null));

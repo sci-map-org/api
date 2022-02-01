@@ -18,6 +18,7 @@ interface LearningMaterial {
   prerequisites: [LearningMaterialHasPrerequisiteTopic!]
   recommendationsCount: Int
   recommendedBy(limit: Int): [UserRecommendedLearningMaterial!]
+  recommended: LearningMaterialRecommended
   # outcomes: [LearningMaterialOutcomeItem!]
   createdBy: User
   createdAt: Date!
@@ -34,6 +35,10 @@ input LearningMaterialCoveredSubTopicsOptions {
 
 type LearningMaterialCoveredSubTopicsResults {
   items: [Topic!]!
+}
+
+type LearningMaterialRecommended {
+  recommendedAt: Date!
 }
 
 type Mutation {
