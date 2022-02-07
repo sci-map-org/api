@@ -53,7 +53,7 @@ type SearchTopicsResult {
 # learning materials
 enum TopicLearningMaterialsSortingType {
   # recommended
-  rating
+  most_recommended
   newest
 }
 

@@ -429,6 +429,7 @@ export type APILearningMaterial = {
   prerequisites?: Maybe<Array<APILearningMaterialHasPrerequisiteTopic>>;
   rating?: Maybe<Scalars['Float']>;
   recommendationsCount?: Maybe<Scalars['Int']>;
+  recommended?: Maybe<APILearningMaterialRecommended>;
   recommendedBy?: Maybe<Array<APIUserRecommendedLearningMaterial>>;
   showedIn?: Maybe<Array<APITopic>>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
@@ -470,6 +471,11 @@ export type APILearningMaterialHasPrerequisiteTopic = {
   topic: APITopic;
 };
 
+export type APILearningMaterialRecommended = {
+  __typename?: 'LearningMaterialRecommended';
+  recommendedAt: Scalars['Date'];
+};
+
 export type APILearningMaterialTag = {
   __typename?: 'LearningMaterialTag';
   name: Scalars['String'];
@@ -502,6 +508,7 @@ export type APILearningPath = APILearningMaterial & {
   public: Scalars['Boolean'];
   rating?: Maybe<Scalars['Float']>;
   recommendationsCount?: Maybe<Scalars['Int']>;
+  recommended?: Maybe<APILearningMaterialRecommended>;
   recommendedBy?: Maybe<Array<APIUserRecommendedLearningMaterial>>;
   resourceItems?: Maybe<Array<APILearningPathResourceItem>>;
   showedIn?: Maybe<Array<APITopic>>;
@@ -1310,6 +1317,7 @@ export type APIResource = APILearningMaterial & {
   previousResource?: Maybe<APIResource>;
   rating?: Maybe<Scalars['Float']>;
   recommendationsCount?: Maybe<Scalars['Int']>;
+  recommended?: Maybe<APILearningMaterialRecommended>;
   recommendedBy?: Maybe<Array<APIUserRecommendedLearningMaterial>>;
   seriesParentResource?: Maybe<APIResource>;
   showedIn?: Maybe<Array<APITopic>>;
@@ -1551,8 +1559,8 @@ export type APITopicLearningMaterialsResults = {
 };
 
 export enum APITopicLearningMaterialsSortingType {
-  Newest = 'newest',
-  Rating = 'rating'
+  MostRecommended = 'most_recommended',
+  Newest = 'newest'
 }
 
 export type APITopicType = {
@@ -1827,6 +1835,7 @@ export type APIResolversTypes = ResolversObject<{
   LearningMaterialCoveredSubTopicsResults: ResolverTypeWrapper<APILearningMaterialCoveredSubTopicsResults>;
   LearningMaterialCoversTopic: ResolverTypeWrapper<APILearningMaterialCoversTopic>;
   LearningMaterialHasPrerequisiteTopic: ResolverTypeWrapper<APILearningMaterialHasPrerequisiteTopic>;
+  LearningMaterialRecommended: ResolverTypeWrapper<APILearningMaterialRecommended>;
   LearningMaterialTag: ResolverTypeWrapper<APILearningMaterialTag>;
   LearningMaterialTagSearchResult: ResolverTypeWrapper<APILearningMaterialTagSearchResult>;
   LearningMaterialType: APILearningMaterialType;
@@ -1979,6 +1988,7 @@ export type APIResolversParentTypes = ResolversObject<{
   LearningMaterialCoveredSubTopicsResults: APILearningMaterialCoveredSubTopicsResults;
   LearningMaterialCoversTopic: APILearningMaterialCoversTopic;
   LearningMaterialHasPrerequisiteTopic: APILearningMaterialHasPrerequisiteTopic;
+  LearningMaterialRecommended: APILearningMaterialRecommended;
   LearningMaterialTag: APILearningMaterialTag;
   LearningMaterialTagSearchResult: APILearningMaterialTagSearchResult;
   LearningPath: APILearningPath;
@@ -2310,6 +2320,7 @@ export type APILearningMaterialResolvers<ContextType = APIContext, ParentType ex
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialHasPrerequisiteTopic']>>, ParentType, ContextType>;
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
   recommendationsCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  recommended?: Resolver<Maybe<APIResolversTypes['LearningMaterialRecommended']>, ParentType, ContextType>;
   recommendedBy?: Resolver<Maybe<Array<APIResolversTypes['UserRecommendedLearningMaterial']>>, ParentType, ContextType, RequireFields<APILearningMaterialRecommendedByArgs, never>>;
   showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialTag']>>, ParentType, ContextType>;
@@ -2334,6 +2345,11 @@ export type APILearningMaterialHasPrerequisiteTopicResolvers<ContextType = APICo
   learningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType>;
   strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>;
   topic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type APILearningMaterialRecommendedResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterialRecommended'] = APIResolversParentTypes['LearningMaterialRecommended']> = ResolversObject<{
+  recommendedAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2363,6 +2379,7 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
   public?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>;
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
   recommendationsCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  recommended?: Resolver<Maybe<APIResolversTypes['LearningMaterialRecommended']>, ParentType, ContextType>;
   recommendedBy?: Resolver<Maybe<Array<APIResolversTypes['UserRecommendedLearningMaterial']>>, ParentType, ContextType, RequireFields<APILearningPathRecommendedByArgs, never>>;
   resourceItems?: Resolver<Maybe<Array<APIResolversTypes['LearningPathResourceItem']>>, ParentType, ContextType>;
   showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
@@ -2576,6 +2593,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   previousResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>;
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
   recommendationsCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  recommended?: Resolver<Maybe<APIResolversTypes['LearningMaterialRecommended']>, ParentType, ContextType>;
   recommendedBy?: Resolver<Maybe<Array<APIResolversTypes['UserRecommendedLearningMaterial']>>, ParentType, ContextType, RequireFields<APIResourceRecommendedByArgs, never>>;
   seriesParentResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>;
   showedIn?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
@@ -2849,6 +2867,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   LearningMaterialCoveredSubTopicsResults?: APILearningMaterialCoveredSubTopicsResultsResolvers<ContextType>;
   LearningMaterialCoversTopic?: APILearningMaterialCoversTopicResolvers<ContextType>;
   LearningMaterialHasPrerequisiteTopic?: APILearningMaterialHasPrerequisiteTopicResolvers<ContextType>;
+  LearningMaterialRecommended?: APILearningMaterialRecommendedResolvers<ContextType>;
   LearningMaterialTag?: APILearningMaterialTagResolvers<ContextType>;
   LearningMaterialTagSearchResult?: APILearningMaterialTagSearchResultResolvers<ContextType>;
   LearningPath?: APILearningPathResolvers<ContextType>;

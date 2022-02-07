@@ -50,6 +50,7 @@ import {
   updateOne,
 } from './util/abstract_graph_repo';
 import { PaginationOptions } from './util/pagination';
+import { UserVotedLearningMaterialLabel } from '../entities/relationships/UserVotedLearningMaterial';
 
 interface CreateTopicData {
   name: string;
@@ -370,16 +371,17 @@ export const getTopicLearningMaterials = async (
   //   }
   //   q.orderBy('score', 'DESC');
   // } else
-  if (sortingType === APITopicLearningMaterialsSortingType.Rating) {
+
+  if (sortingType === APITopicLearningMaterialsSortingType.MostRecommended) {
     q.optionalMatch([
       node('lm'),
-      relation('in', 'ratedLearningMaterial', UserRatedLearningMaterialLabel),
+      relation('in', 'votedLearningMaterial', UserVotedLearningMaterialLabel, { value: 1 }),
       node('', 'User'),
     ]);
-    q.with(['DISTINCT lm', 'avg(ratedLearningMaterial.value) AS rating']);
-    q.return(['lm', 'rating']);
+    q.with(['DISTINCT lm', 'sum(votedLearningMaterial.value) AS recommendationsCount']);
+    q.return(['lm', 'recommendationsCount']);
 
-    q.raw(' ORDER BY rating IS NOT NULL DESC, rating DESC');
+    q.raw(' ORDER BY recommendationsCount IS NOT NULL DESC, recommendationsCount DESC');
   } else {
     q.match([node('lm'), relation('in', 'createdLearningMaterial', 'CREATED'), node('', 'User')]);
     q.with(['DISTINCT lm', 'createdLearningMaterial']);

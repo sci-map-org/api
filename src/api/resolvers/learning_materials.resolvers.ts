@@ -6,9 +6,11 @@ import {
   getLearningMaterialTopicsShowedIn,
   getLearningMaterialUpvoteCount,
   getLearningMaterialUpvotes,
+  getUserUpvotedLearningMaterial,
   hideLearningMaterialFromTopics,
   rateLearningMaterial,
   showLearningMaterialInTopics,
+  unvoteLearningMaterial,
   voteLearningMaterial,
 } from '../../repositories/learning_materials.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
@@ -58,8 +60,14 @@ export const recommendLearningMaterialResolver: APIMutationResolvers['recommendL
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to vote on a resource');
-  const { learningMaterial } = await voteLearningMaterial(user._id, learningMaterialId, 1);
-  return learningMaterial;
+  const upvoted = await getUserUpvotedLearningMaterial(user._id, learningMaterialId);
+  if (!upvoted) {
+    const { learningMaterial } = await voteLearningMaterial(user._id, learningMaterialId, 1);
+    return learningMaterial;
+  } else {
+    const { learningMaterial } = await unvoteLearningMaterial(user._id, learningMaterialId);
+    return learningMaterial;
+  }
 };
 
 export const getLearningMaterialRecommendationsCountResolver: APILearningMaterialResolvers['recommendationsCount'] =
@@ -78,6 +86,17 @@ export const getLearningMaterialRecommendedByResolver: APILearningMaterialResolv
       learningMaterial,
     })
   );
+};
+
+export const getLearningMaterialRecommendedResolver: APILearningMaterialResolvers['recommended'] = async (
+  learningMaterial,
+  _,
+  { user }
+) => {
+  if (!user) return null;
+
+  const upvoted = await getUserUpvotedLearningMaterial(user._id, learningMaterial._id);
+  return upvoted ? { recommendedAt: upvoted.votedAt } : null;
 };
 
 // export const addLearningMaterialOutcomeResolver: APIMutationResolvers['addLearningMaterialOutcome'] = async (
