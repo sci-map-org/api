@@ -1565,8 +1565,8 @@ export type APITopicLearningMaterialsResults = {
 };
 
 export enum APITopicLearningMaterialsSortingType {
-  Newest = 'newest',
-  Rating = 'rating'
+  MostRecommended = 'most_recommended',
+  Newest = 'newest'
 }
 
 export type APITopicType = {
