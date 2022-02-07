@@ -176,7 +176,6 @@ type Query {
   getResourceById(resourceId: String!): Resource!
   getResourceByKey(resourceKey: String!): Resource!
   analyzeResourceUrl(url: String!): AnalyzeResourceUrlResult!
-  Resource(id: String!): Resource!
 }
 
 type Mutation {

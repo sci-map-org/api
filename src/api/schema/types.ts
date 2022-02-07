@@ -1102,7 +1102,6 @@ export { PulledDescriptionSourceName };
 
 export type APIQuery = {
   __typename?: 'Query';
-  Resource: APIResource;
   analyzeResourceUrl: APIAnalyzeResourceUrlResult;
   autocompleteTopicName: APISearchTopicsResult;
   checkLearningGoalKeyAvailability: APICheckLearningGoalKeyAvailabilityResult;
@@ -1131,11 +1130,6 @@ export type APIQuery = {
   searchSubTopics: APISearchTopicsResult;
   searchTopicTypes: Array<APITopicType>;
   searchTopics: APISearchTopicsResult;
-};
-
-
-export type APIQueryResourceArgs = {
-  id: Scalars['String'];
 };
 
 
@@ -2535,7 +2529,6 @@ export type APIPulledDescriptionResolvers<ContextType = APIContext, ParentType e
 export type APIPulledDescriptionSourceNameResolvers = EnumResolverSignature<{ google?: any, wikipedia?: any }, APIResolversTypes['PulledDescriptionSourceName']>;
 
 export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Query'] = APIResolversParentTypes['Query']> = ResolversObject<{
-  Resource?: Resolver<APIResolversTypes['Resource'], ParentType, ContextType, RequireFields<APIQueryResourceArgs, 'id'>>;
   analyzeResourceUrl?: Resolver<APIResolversTypes['AnalyzeResourceUrlResult'], ParentType, ContextType, RequireFields<APIQueryAnalyzeResourceUrlArgs, 'url'>>;
   autocompleteTopicName?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQueryAutocompleteTopicNameArgs, 'partialName'>>;
   checkLearningGoalKeyAvailability?: Resolver<APIResolversTypes['CheckLearningGoalKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckLearningGoalKeyAvailabilityArgs, 'key'>>;
