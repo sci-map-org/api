@@ -109,6 +109,8 @@ export const deleteResourceCreatedBy = (
 
 export const findResource = findOne<Resource, { _id: string }>({ label: ResourceLabel });
 
+export const findResourceByUrl = findOne<Resource, { url: string }>({ label: ResourceLabel });
+
 export const getUserConsumedResource = async (
   userId: string,
   resourceId: string
