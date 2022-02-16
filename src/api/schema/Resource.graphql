@@ -103,6 +103,10 @@ input CreateResourcePayload {
   subResourceSeries: [CreateSubResourcePayload!]
 }
 
+input CreateResourceOptions {
+  recommend: Boolean
+}
+
 input UpdateResourcePayload {
   name: String
   types: [ResourceType!]
@@ -179,7 +183,7 @@ type Query {
 }
 
 type Mutation {
-  createResource(payload: CreateResourcePayload!): Resource!
+  createResource(payload: CreateResourcePayload!, options: CreateResourceOptions): Resource!
   updateResource(resourceId: String!, payload: UpdateResourcePayload!): Resource!
   deleteResource(resourceId: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!

@@ -1,7 +1,7 @@
 import { ApolloError, UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { getLearningMaterialRating } from '../../repositories/learning_materials.repository';
+import { getLearningMaterialRating, voteLearningMaterial } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import {
   addSubResourceToSeries,
@@ -50,11 +50,15 @@ export const analyzeResourceUrlResolver: APIQueryResolvers['analyzeResourceUrl']
 
 export const createResourceResolver: APIMutationResolvers['createResource'] = async (
   _parent,
-  { payload },
+  { payload, options },
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  return await createAndSaveResource(nullToUndefined(payload), user._id);
+  const createdResource = await createAndSaveResource(nullToUndefined(payload), user._id);
+  if (options?.recommend) {
+    await voteLearningMaterial(user._id, createdResource._id, 1);
+  }
+  return createdResource;
 };
 
 export const updateResourceResolver: APIMutationResolvers['updateResource'] = async (

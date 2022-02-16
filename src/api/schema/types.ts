@@ -136,6 +136,10 @@ export type APICreateLearningPathResourceItem = {
   resourceId: Scalars['String'];
 };
 
+export type APICreateResourceOptions = {
+  recommend?: InputMaybe<Scalars['Boolean']>;
+};
+
 export type APICreateResourcePayload = {
   coveredSubTopicsIds?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
@@ -797,6 +801,7 @@ export type APIMutationCreateLearningPathArgs = {
 
 
 export type APIMutationCreateResourceArgs = {
+  options?: InputMaybe<APICreateResourceOptions>;
   payload: APICreateResourcePayload;
 };
 
@@ -1791,6 +1796,7 @@ export type APIResolversTypes = ResolversObject<{
   CreateLearningGoalPayload: APICreateLearningGoalPayload;
   CreateLearningPathPayload: APICreateLearningPathPayload;
   CreateLearningPathResourceItem: APICreateLearningPathResourceItem;
+  CreateResourceOptions: APICreateResourceOptions;
   CreateResourcePayload: APICreateResourcePayload;
   CreateSubResourcePayload: APICreateSubResourcePayload;
   CreateTopicContextOptions: APICreateTopicContextOptions;
@@ -1945,6 +1951,7 @@ export type APIResolversParentTypes = ResolversObject<{
   CreateLearningGoalPayload: APICreateLearningGoalPayload;
   CreateLearningPathPayload: APICreateLearningPathPayload;
   CreateLearningPathResourceItem: APICreateLearningPathResourceItem;
+  CreateResourceOptions: APICreateResourceOptions;
   CreateResourcePayload: APICreateResourcePayload;
   CreateSubResourcePayload: APICreateSubResourcePayload;
   CreateTopicContextOptions: APICreateTopicContextOptions;
