@@ -59,6 +59,10 @@ const attachPrerequisites = async (
 export const createAndSaveResource = async (data: CreateAndSaveResourceData, userId: string): Promise<Resource> => {
   if (!data.types.length || data.types.length > 3)
     throw new UserInputError('At least one resource type must be set and no more than 3');
+
+  if (data.description && data.description.length > 1000)
+    throw new UserInputError('The resource description must not be longer than 1000 characters');
+
   const createdResource = await createResource(
     { _id: userId },
     omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds'])

@@ -1,3 +1,4 @@
+import { UserInputError } from 'apollo-server-core';
 import { APICreateTopicContextOptions, APICreateTopicPayload } from '../api/schema/types';
 import { TOPIC_HAS_PREREQUISITE_TOPIC_STRENGTH_DEFAULT_VALUE } from '../entities/relationships/TopicHasPrerequisiteTopic';
 import { SUBTOPIC_DEFAULT_INDEX_VALUE } from '../entities/relationships/TopicIsSubTopicOfTopic';
@@ -56,7 +57,10 @@ export const createFullTopic = async (
     contextOptions?: APICreateTopicContextOptions;
   }
 ): Promise<Topic> => {
-  if (!creationData.topicTypes.length) throw new Error('Must have at least one topic type');
+  if (!creationData.topicTypes.length) throw new UserInputError('Must have at least one topic type');
+  if (creationData.description && creationData.description.length > 1000)
+    throw new UserInputError('The topic description must not be longer than 1000 characters');
+
   const createdTopic = await createTopic(
     { _id: user._id },
     {
