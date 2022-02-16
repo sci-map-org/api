@@ -65,7 +65,10 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
 
   const createdResource = await createResource(
     { _id: userId },
-    omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds'])
+    {
+      ...omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds']),
+      name: data.name.trim(),
+    }
   );
   await Promise.all([
     attachResourceTags(createdResource._id, userId, data.tags),
