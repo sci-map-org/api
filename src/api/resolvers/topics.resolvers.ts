@@ -65,10 +65,10 @@ export const searchTopicsResolver: APIQueryResolvers['searchTopics'] = async (_,
   };
 };
 
-export const searchSubTopicsResolver: APIQueryResolvers['searchSubTopics'] = async (_, { topicId, options }) => {
+export const searchSubTopicsResolver: APIQueryResolvers['searchSubTopics'] = async (_, { topicIds, options }) => {
   const { query, pagination } = options;
   return {
-    items: await searchSubTopics(topicId, query, nullToUndefined(pagination)),
+    items: await searchSubTopics(topicIds, query, nullToUndefined(pagination)),
   };
 };
 

@@ -1250,7 +1250,7 @@ export type APIQuerySearchResourcesArgs = {
 
 export type APIQuerySearchSubTopicsArgs = {
   options: APISearchTopicsOptions;
-  topicId: Scalars['String'];
+  topicIds: Array<Scalars['String']>;
 };
 
 
@@ -2554,7 +2554,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   searchLearningGoals?: Resolver<APIResolversTypes['SearchLearningGoalsResult'], ParentType, ContextType, RequireFields<APIQuerySearchLearningGoalsArgs, 'options'>>;
   searchLearningMaterialTags?: Resolver<Array<APIResolversTypes['LearningMaterialTagSearchResult']>, ParentType, ContextType, RequireFields<APIQuerySearchLearningMaterialTagsArgs, 'options'>>;
   searchResources?: Resolver<APIResolversTypes['SearchResourcesResult'], ParentType, ContextType, RequireFields<APIQuerySearchResourcesArgs, 'options' | 'query'>>;
-  searchSubTopics?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQuerySearchSubTopicsArgs, 'options' | 'topicId'>>;
+  searchSubTopics?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQuerySearchSubTopicsArgs, 'options' | 'topicIds'>>;
   searchTopicTypes?: Resolver<Array<APIResolversTypes['TopicType']>, ParentType, ContextType, RequireFields<APIQuerySearchTopicTypesArgs, 'query'>>;
   searchTopics?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQuerySearchTopicsArgs, 'options'>>;
 }>;

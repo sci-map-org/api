@@ -519,22 +519,22 @@ export const getTopicLearningMaterialsTypesFilters = async (
 // TODO include "part_of" topics
 // TODO check if duplicates in results
 export const searchSubTopics = async (
-  rootTopicId: string,
+  rootTopicIds: string[],
   query: string,
   pagination: { offset?: number; limit?: number }
 ): Promise<Topic[]> => {
   const session = neo4jDriver.session();
 
-  const { records } = await session.run(
-    `MATCH (rootTopic:${TopicLabel}) WHERE rootTopic._id = $rootTopicId
+  const { records, summary } = await session.run(
+    `MATCH (rootTopic:${TopicLabel}) WHERE rootTopic._id IN $rootTopicIds
     MATCH (rootTopic)<-[:${TopicIsSubTopicOfTopicLabel}*1..20]-(node:${TopicLabel})
-    AND (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)) 
+    WHERE (toLower(node.name) CONTAINS toLower($query) OR toLower(node.description) CONTAINS toLower($query)) 
      RETURN properties(node) AS node${pagination && pagination.offset ? ' SKIP ' + pagination.offset : ''}${
       pagination && pagination.limit ? ' LIMIT ' + pagination.limit : ''
     }`,
     {
       query,
-      rootTopicId,
+      rootTopicIds,
     }
   );
   session.close();
