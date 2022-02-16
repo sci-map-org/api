@@ -7,14 +7,6 @@
 # import UserRecommendedLearningMaterial from 'relationships/UserRecommendedLearningMaterial.graphql'
 # import User from 'User.graphql'
 
-enum ResourceMediaType {
-  video
-  text
-  audio
-  image
-  interactive_content
-}
-
 enum ResourceType {
   article
   article_series
@@ -48,7 +40,6 @@ type Resource implements LearningMaterial {
   _id: String!
   name: String!
   types: [ResourceType!]!
-  mediaType: ResourceMediaType!
   tags: [LearningMaterialTag!]
   url: String!
   # upvotes: Int
@@ -76,7 +67,6 @@ type Resource implements LearningMaterial {
 input CreateSubResourcePayload {
   name: String!
   types: [ResourceType!]!
-  mediaType: ResourceMediaType!
   url: String!
   description: String
   durationSeconds: Int
@@ -91,7 +81,6 @@ input CreateSubResourcePayload {
 input CreateResourcePayload {
   name: String!
   types: [ResourceType!]!
-  mediaType: ResourceMediaType!
   url: String!
   description: String
   durationSeconds: Int
@@ -110,7 +99,6 @@ input CreateResourceOptions {
 input UpdateResourcePayload {
   name: String
   types: [ResourceType!]
-  mediaType: ResourceMediaType
   url: String
   description: String
   durationSeconds: Int
@@ -157,7 +145,6 @@ type SearchResourcesResult {
 type SubResourceExtractedData {
   name: String!
   types: [ResourceType!]!
-  mediaType: ResourceMediaType!
   url: String!
   description: String
   durationSeconds: Int
@@ -165,7 +152,6 @@ type SubResourceExtractedData {
 type ResourceData {
   name: String
   types: [ResourceType!]
-  mediaType: ResourceMediaType
   description: String
   durationSeconds: Int
   subResourceSeries: [SubResourceExtractedData!]

@@ -1,6 +1,6 @@
 import { UserInputError } from 'apollo-server-core';
 import { omit } from 'lodash';
-import { ResourceMediaType, ResourceType } from '../api/schema/types';
+import { ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import {
   attachLearningMaterialCoversTopics,
@@ -17,7 +17,6 @@ import { sendDiscordNotification } from './discord/discord_webhooks.service';
 interface CreateAndSaveResourceBaseData {
   name: string;
   types: ResourceType[];
-  mediaType: ResourceMediaType;
   url: string;
   description?: string;
   tags?: string[];

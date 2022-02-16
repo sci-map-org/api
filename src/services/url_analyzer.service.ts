@@ -10,7 +10,7 @@ import {
   youtubeVideoExtractorConfig,
 } from '../crawler/extractors/youtube';
 import { extractWebsiteData } from '../crawler/website_extractor';
-import { ResourceMediaType, ResourceType } from '../entities/Resource';
+import { ResourceType } from '../entities/Resource';
 
 type ResourceDataExtractor<T> = {
   extractor: WebsiteExtractor<T>;
@@ -24,7 +24,6 @@ const youtubeVideoConfig: ResourceDataExtractor<YoutubeVideoData> = {
       name: data.title,
       description: data.description,
       types: [ResourceType.youtube_video],
-      mediaType: ResourceMediaType.video,
       durationSeconds: data.durationSeconds,
     };
   },
@@ -37,14 +36,12 @@ const youtubePlaylistConfig: ResourceDataExtractor<YoutubePlaylistData> = {
       name: data.title,
       description: data.description,
       types: [ResourceType.youtube_playlist],
-      mediaType: ResourceMediaType.video,
       durationSeconds: data.durationSeconds,
       subResourceSeries: data.items.map(({ videoData }) => ({
         name: videoData.title,
         url: `https://www.youtube.com/watch?v=${videoData.youtubeId}&list=${data.youtubeId}`,
         description: videoData.description,
         types: [ResourceType.youtube_video],
-        mediaType: ResourceMediaType.video,
         durationSeconds: videoData.durationSeconds,
       })),
     };
@@ -56,7 +53,6 @@ const mediumConfig: ResourceDataExtractor<MediumExtractedData> = {
   postProcess: async (data) => ({
     name: data.title,
     types: [ResourceType.article],
-    mediaType: ResourceMediaType.text,
   }),
 };
 
@@ -65,7 +61,6 @@ const courseraConfig: ResourceDataExtractor<CourseraExtractedData> = {
   postProcess: async (data) => ({
     name: data.title,
     types: [ResourceType.course],
-    mediaType: ResourceMediaType.video,
   }),
 };
 

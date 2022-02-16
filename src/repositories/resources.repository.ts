@@ -20,7 +20,7 @@ import {
   UserCreatedLearningMaterial,
   UserCreatedLearningMaterialLabel,
 } from '../entities/relationships/UserCreatedLearningMaterial';
-import { Resource, ResourceLabel, ResourceMediaType, ResourceType } from '../entities/Resource';
+import { Resource, ResourceLabel, ResourceType } from '../entities/Resource';
 import { User, UserLabel } from '../entities/User';
 import { neo4jDriver, neo4jQb } from '../infra/neo4j';
 import {
@@ -60,7 +60,6 @@ export const searchResources = async (
 interface CreateResourceData {
   name: string;
   types: ResourceType[];
-  mediaType: ResourceMediaType;
   url: string;
   description?: string;
 }
@@ -68,7 +67,6 @@ interface CreateResourceData {
 interface UpdateResourceData {
   name?: string;
   types?: ResourceType[];
-  mediaType?: ResourceMediaType;
   url?: string;
   description?: string;
   durationSeconds?: number | null;

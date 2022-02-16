@@ -1,7 +1,6 @@
 import { ArticleContentType } from '../../entities/Article';
 import { UserRole } from '../../entities/User';
 import { ResourceType } from '../../entities/Resource';
-import { ResourceMediaType } from '../../entities/Resource';
 import { LearningGoalType } from '../../entities/LearningGoal';
 import { SubTopicRelationshipType } from '../../entities/relationships/TopicIsSubTopicOfTopic';
 import { PulledDescriptionSourceName } from '../../services/pull_topic_descriptions.service';
@@ -144,7 +143,6 @@ export type APICreateResourcePayload = {
   coveredSubTopicsIds?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
   durationSeconds?: InputMaybe<Scalars['Int']>;
-  mediaType: ResourceMediaType;
   name: Scalars['String'];
   prerequisitesTopicsIds?: InputMaybe<Array<Scalars['String']>>;
   showInTopicsIds: Array<Scalars['String']>;
@@ -158,7 +156,6 @@ export type APICreateSubResourcePayload = {
   coveredSubTopicsIds?: InputMaybe<Array<Scalars['String']>>;
   description?: InputMaybe<Scalars['String']>;
   durationSeconds?: InputMaybe<Scalars['Int']>;
-  mediaType: ResourceMediaType;
   name: Scalars['String'];
   prerequisitesTopicsIds?: InputMaybe<Array<Scalars['String']>>;
   showInTopicsIds: Array<Scalars['String']>;
@@ -1314,7 +1311,6 @@ export type APIResource = APILearningMaterial & {
   createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   durationSeconds?: Maybe<Scalars['Int']>;
-  mediaType: ResourceMediaType;
   name: Scalars['String'];
   nextResource?: Maybe<APIResource>;
   parentResources?: Maybe<Array<APIResource>>;
@@ -1347,13 +1343,10 @@ export type APIResourceData = {
   __typename?: 'ResourceData';
   description?: Maybe<Scalars['String']>;
   durationSeconds?: Maybe<Scalars['Int']>;
-  mediaType?: Maybe<ResourceMediaType>;
   name?: Maybe<Scalars['String']>;
   subResourceSeries?: Maybe<Array<APISubResourceExtractedData>>;
   types?: Maybe<Array<ResourceType>>;
 };
-
-export { ResourceMediaType };
 
 export { ResourceType };
 
@@ -1451,7 +1444,6 @@ export type APISubResourceExtractedData = {
   __typename?: 'SubResourceExtractedData';
   description?: Maybe<Scalars['String']>;
   durationSeconds?: Maybe<Scalars['Int']>;
-  mediaType: ResourceMediaType;
   name: Scalars['String'];
   types: Array<ResourceType>;
   url: Scalars['String'];
@@ -1620,7 +1612,6 @@ export type APIUpdateLearningPathPayload = {
 export type APIUpdateResourcePayload = {
   description?: InputMaybe<Scalars['String']>;
   durationSeconds?: InputMaybe<Scalars['Int']>;
-  mediaType?: InputMaybe<ResourceMediaType>;
   name?: InputMaybe<Scalars['String']>;
   types?: InputMaybe<Array<ResourceType>>;
   url?: InputMaybe<Scalars['String']>;
@@ -1872,7 +1863,6 @@ export type APIResolversTypes = ResolversObject<{
   ResetPasswordResponse: ResolverTypeWrapper<APIResetPasswordResponse>;
   Resource: ResolverTypeWrapper<APIResource>;
   ResourceData: ResolverTypeWrapper<APIResourceData>;
-  ResourceMediaType: ResourceMediaType;
   ResourceType: ResourceType;
   SearchLearningGoalsOptions: APISearchLearningGoalsOptions;
   SearchLearningGoalsResult: ResolverTypeWrapper<APISearchLearningGoalsResult>;
@@ -2592,7 +2582,6 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>;
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
-  mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>;
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   nextResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>;
   parentResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
@@ -2615,14 +2604,11 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
 export type APIResourceDataResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['ResourceData'] = APIResolversParentTypes['ResourceData']> = ResolversObject<{
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
-  mediaType?: Resolver<Maybe<APIResolversTypes['ResourceMediaType']>, ParentType, ContextType>;
   name?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   subResourceSeries?: Resolver<Maybe<Array<APIResolversTypes['SubResourceExtractedData']>>, ParentType, ContextType>;
   types?: Resolver<Maybe<Array<APIResolversTypes['ResourceType']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
-
-export type APIResourceMediaTypeResolvers = EnumResolverSignature<{ audio?: any, image?: any, interactive_content?: any, text?: any, video?: any }, APIResolversTypes['ResourceMediaType']>;
 
 export type APIResourceTypeResolvers = EnumResolverSignature<{ article?: any, article_series?: any, book?: any, course?: any, documentary?: any, exercise?: any, infographic?: any, online_book?: any, other?: any, podcast?: any, podcast_episode?: any, project?: any, research_paper?: any, talk?: any, tweet?: any, video_game?: any, website?: any, youtube_playlist?: any, youtube_video?: any }, APIResolversTypes['ResourceType']>;
 
@@ -2676,7 +2662,6 @@ export type APISubResourceCreatedResultResolvers<ContextType = APIContext, Paren
 export type APISubResourceExtractedDataResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['SubResourceExtractedData'] = APIResolversParentTypes['SubResourceExtractedData']> = ResolversObject<{
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
-  mediaType?: Resolver<APIResolversTypes['ResourceMediaType'], ParentType, ContextType>;
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   types?: Resolver<Array<APIResolversTypes['ResourceType']>, ParentType, ContextType>;
   url?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
@@ -2896,7 +2881,6 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   ResetPasswordResponse?: APIResetPasswordResponseResolvers<ContextType>;
   Resource?: APIResourceResolvers<ContextType>;
   ResourceData?: APIResourceDataResolvers<ContextType>;
-  ResourceMediaType?: APIResourceMediaTypeResolvers;
   ResourceType?: APIResourceTypeResolvers;
   SearchLearningGoalsResult?: APISearchLearningGoalsResultResolvers<ContextType>;
   SearchResourcesResult?: APISearchResourcesResultResolvers<ContextType>;
