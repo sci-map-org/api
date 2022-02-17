@@ -1,6 +1,6 @@
 import { UserInputError } from 'apollo-server-core';
 import { omit } from 'lodash';
-import { ResourceMediaType, ResourceType } from '../api/schema/types';
+import { ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
 import {
   attachLearningMaterialCoversTopics,
@@ -17,7 +17,6 @@ import { sendDiscordNotification } from './discord/discord_webhooks.service';
 interface CreateAndSaveResourceBaseData {
   name: string;
   types: ResourceType[];
-  mediaType: ResourceMediaType;
   url: string;
   description?: string;
   tags?: string[];
@@ -59,9 +58,16 @@ const attachPrerequisites = async (
 export const createAndSaveResource = async (data: CreateAndSaveResourceData, userId: string): Promise<Resource> => {
   if (!data.types.length || data.types.length > 3)
     throw new UserInputError('At least one resource type must be set and no more than 3');
+
+  if (data.description && data.description.length > 1000)
+    throw new UserInputError('The resource description must not be longer than 1000 characters');
+
   const createdResource = await createResource(
     { _id: userId },
-    omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds'])
+    {
+      ...omit(data, ['tags', 'subResourceSeries', 'showInTopicsIds', 'coveredSubTopicsIds', 'prerequisitesTopicsIds']),
+      name: data.name.trim(),
+    }
   );
   await Promise.all([
     attachResourceTags(createdResource._id, userId, data.tags),

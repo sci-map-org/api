@@ -2,14 +2,6 @@ import { BaseLearningMaterial } from './LearningMaterial';
 
 export const ResourceLabel = 'Resource';
 
-export enum ResourceMediaType {
-  video = 'video',
-  text = 'text',
-  audio = 'audio',
-  image = 'image',
-  interactive_content = 'interactive_content',
-}
-
 export enum ResourceType {
   article = 'article',
   article_series = 'article_series',
@@ -34,9 +26,9 @@ export enum ResourceType {
 }
 
 export interface Resource extends BaseLearningMaterial {
+  key: string;
   name: string;
   types: ResourceType[]; // at least 1, max 3
-  mediaType: ResourceMediaType;
   url: string; // optional in the future ?
   description?: string;
   durationSeconds?: number;

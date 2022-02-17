@@ -1,7 +1,7 @@
-import { UserInputError } from 'apollo-server-koa';
+import { ApolloError, UserInputError } from 'apollo-server-koa';
 import { Resource } from '../../entities/Resource';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { getLearningMaterialRating } from '../../repositories/learning_materials.repository';
+import { getLearningMaterialRating, voteLearningMaterial } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import {
   addSubResourceToSeries,
@@ -10,6 +10,7 @@ import {
   deleteResource,
   deleteResourceCreatedBy,
   findResource,
+  findResourceByUrl,
   getResourceNextResource,
   getResourceParentResources,
   getResourcePreviousResource,
@@ -40,16 +41,24 @@ export const searchResourcesResolver: APIQueryResolvers['searchResources'] = asy
 };
 
 export const analyzeResourceUrlResolver: APIQueryResolvers['analyzeResourceUrl'] = async (_parent, { url }) => {
+  const existingResource = await findResourceByUrl({ url });
+  if (existingResource)
+    throw new ApolloError(`Resource with url ${url} already exists`, 'RESOURCE_ALREADY_EXISTS', { existingResource });
+
   return { resourceData: await analyzeResourceUrl(url) };
 };
 
 export const createResourceResolver: APIMutationResolvers['createResource'] = async (
   _parent,
-  { payload },
+  { payload, options },
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to add a resource');
-  return await createAndSaveResource(nullToUndefined(payload), user._id);
+  const createdResource = await createAndSaveResource(nullToUndefined(payload), user._id);
+  if (options?.recommend) {
+    await voteLearningMaterial(user._id, createdResource._id, 1);
+  }
+  return createdResource;
 };
 
 export const updateResourceResolver: APIMutationResolvers['updateResource'] = async (
@@ -60,7 +69,11 @@ export const updateResourceResolver: APIMutationResolvers['updateResource'] = as
   if (!user) throw new UnauthenticatedError('Must be logged in to update a resource');
   const updatedResource = await updateResource(
     { _id: resourceId },
-    { ...nullToUndefined(payload), durationSeconds: payload.durationSeconds }
+    {
+      ...nullToUndefined(payload),
+      durationSeconds: payload.durationSeconds,
+      ...(payload.name && { name: payload.name.trim() }),
+    }
   );
   if (!updatedResource) throw new NotFoundError('Resource', resourceId);
   return updatedResource;
@@ -86,6 +99,12 @@ export const deleteResourceResolver: APIMutationResolvers['deleteResource'] = as
 export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = async (_parent, { resourceId }) => {
   const resource = await findResource({ _id: resourceId });
   if (!resource) throw new NotFoundError('Resource', resourceId);
+  return resource;
+};
+
+export const getResourceByKeyResolver: APIQueryResolvers['getResourceByKey'] = async (_parent, { resourceKey }) => {
+  const resource = await findResource({ key: resourceKey });
+  if (!resource) throw new NotFoundError('Resource', resourceKey, 'key');
   return resource;
 };
 

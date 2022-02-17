@@ -18,7 +18,7 @@ import { APILearningMaterialResolvers, APIMutationResolvers } from '../schema/ty
 import { restrictAccess } from '../util/auth';
 
 export const learningMaterialResolveType: APILearningMaterialResolvers['__resolveType'] = (obj, ctx, info) => {
-  if (obj['mediaType']) {
+  if (obj['url']) {
     return 'Resource';
   }
   return 'LearningPath';

@@ -178,7 +178,7 @@ type Query {
   getTopicById(topicId: String!): Topic!
   getTopicByKey(topicKey: String!): Topic!
   searchTopics(options: SearchTopicsOptions!): SearchTopicsResult!
-  searchSubTopics(topicId: String!, options: SearchTopicsOptions!): SearchTopicsResult!
+  searchSubTopics(topicIds: [String!]!, options: SearchTopicsOptions!): SearchTopicsResult!
   autocompleteTopicName(partialName: String!): SearchTopicsResult!
   checkTopicKeyAvailability(key: String!): CheckTopicKeyAvailabilityResult!
   getTopicValidContexts(parentTopicId: String!, topicId: String!): GetTopicValidContextsResult!

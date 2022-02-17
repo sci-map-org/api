@@ -7,14 +7,6 @@
 # import UserRecommendedLearningMaterial from 'relationships/UserRecommendedLearningMaterial.graphql'
 # import User from 'User.graphql'
 
-enum ResourceMediaType {
-  video
-  text
-  audio
-  image
-  interactive_content
-}
-
 enum ResourceType {
   article
   article_series
@@ -46,9 +38,9 @@ type ConsumedResource {
 
 type Resource implements LearningMaterial {
   _id: String!
+  key: String!
   name: String!
   types: [ResourceType!]!
-  mediaType: ResourceMediaType!
   tags: [LearningMaterialTag!]
   url: String!
   # upvotes: Int
@@ -76,7 +68,6 @@ type Resource implements LearningMaterial {
 input CreateSubResourcePayload {
   name: String!
   types: [ResourceType!]!
-  mediaType: ResourceMediaType!
   url: String!
   description: String
   durationSeconds: Int
@@ -91,7 +82,6 @@ input CreateSubResourcePayload {
 input CreateResourcePayload {
   name: String!
   types: [ResourceType!]!
-  mediaType: ResourceMediaType!
   url: String!
   description: String
   durationSeconds: Int
@@ -103,10 +93,13 @@ input CreateResourcePayload {
   subResourceSeries: [CreateSubResourcePayload!]
 }
 
+input CreateResourceOptions {
+  recommend: Boolean
+}
+
 input UpdateResourcePayload {
   name: String
   types: [ResourceType!]
-  mediaType: ResourceMediaType
   url: String
   description: String
   durationSeconds: Int
@@ -153,7 +146,6 @@ type SearchResourcesResult {
 type SubResourceExtractedData {
   name: String!
   types: [ResourceType!]!
-  mediaType: ResourceMediaType!
   url: String!
   description: String
   durationSeconds: Int
@@ -161,7 +153,6 @@ type SubResourceExtractedData {
 type ResourceData {
   name: String
   types: [ResourceType!]
-  mediaType: ResourceMediaType
   description: String
   durationSeconds: Int
   subResourceSeries: [SubResourceExtractedData!]
@@ -179,7 +170,7 @@ type Query {
 }
 
 type Mutation {
-  createResource(payload: CreateResourcePayload!): Resource!
+  createResource(payload: CreateResourcePayload!, options: CreateResourceOptions): Resource!
   updateResource(resourceId: String!, payload: UpdateResourcePayload!): Resource!
   deleteResource(resourceId: String!): DeleteResourceResponse! # TODO: if part of series, detach are retach previous and next
   setResourcesConsumed(payload: SetResourcesConsumedPayload!): [Resource!]!

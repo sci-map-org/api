@@ -15,7 +15,6 @@ generates:
         ArticleContentType: ../../entities/Article#ArticleContentType
         UserRole: ../../entities/User#UserRole
         ResourceType: ../../entities/Resource#ResourceType
-        ResourceMediaType: ../../entities/Resource#ResourceMediaType
         # SortingDirection: ../../repositories/util/sorting#SortingDirection
         LearningGoalType: ../../entities/LearningGoal#LearningGoalType
         SubTopicRelationshipType: ../../entities/relationships/TopicIsSubTopicOfTopic#SubTopicRelationshipType

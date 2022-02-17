@@ -12,8 +12,7 @@ export interface YoutubeVideoData {
 export const youtubeVideoExtractorConfig: WebsiteExtractor<YoutubeVideoData> = {
   type: 'integration',
   urlMatch: youtubeVideoRegexp,
-  extractData: async url => {
-    console.log(url);
+  extractData: async (url) => {
     const matchResult = url.match(youtubeVideoRegexp);
     if (!matchResult || !matchResult[1]) throw new Error('failed to extract youtube video id');
     return extractYoutubeVideoData(matchResult[1]);
@@ -34,7 +33,7 @@ export interface YoutubePlaylistData {
 export const youtubePlaylistExtractorConfig: WebsiteExtractor<YoutubePlaylistData> = {
   type: 'integration',
   urlMatch: youtubePlaylistRegexp,
-  extractData: async url => {
+  extractData: async (url) => {
     const matchResult = url.match(youtubePlaylistRegexp);
     if (!matchResult || !matchResult[1]) throw new Error('failed to extract youtube playlist id');
     return extractYoutubePlaylistData(matchResult[1]);
