@@ -102,6 +102,12 @@ export const getResourceByIdResolver: APIQueryResolvers['getResourceById'] = asy
   return resource;
 };
 
+export const getResourceByKeyResolver: APIQueryResolvers['getResourceByKey'] = async (_parent, { resourceKey }) => {
+  const resource = await findResource({ key: resourceKey });
+  if (!resource) throw new NotFoundError('Resource', resourceKey, 'key');
+  return resource;
+};
+
 export const getResourceTagsResolver: APIResourceResolvers['tags'] = async (resource) => {
   return await getLearningMaterialTags(resource._id);
 };

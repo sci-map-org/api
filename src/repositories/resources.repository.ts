@@ -2,6 +2,7 @@ import { node, Query, relation } from 'cypher-query-builder';
 import { map, prop } from 'ramda';
 import * as shortid from 'shortid';
 import { APIUserConsumedResourcesSortingType } from '../api/schema/types';
+import { generateUrlKey } from '../api/util/urlKey';
 import { LearningMaterialLabel } from '../entities/LearningMaterial';
 import {
   ResourceBelongsToResource,
@@ -66,21 +67,24 @@ interface CreateResourceData {
 
 interface UpdateResourceData {
   name?: string;
+  key?: string;
   types?: ResourceType[];
   url?: string;
   description?: string;
   durationSeconds?: number | null;
 }
 
-export const createResource = (user: { _id: string }, data: CreateResourceData): Promise<Resource> =>
-  createRelatedNode<User, UserCreatedLearningMaterial, Resource>({
+export const createResource = (user: { _id: string }, data: CreateResourceData): Promise<Resource> => {
+  const _id = shortid.generate();
+  return createRelatedNode<User, UserCreatedLearningMaterial, Resource>({
     originNode: { label: UserLabel, filter: user },
     relationship: { label: UserCreatedLearningMaterialLabel, props: { createdAt: Date.now() } },
     newNode: {
       labels: [ResourceLabel, LearningMaterialLabel],
-      props: { ...data, createdAt: Date.now(), _id: shortid.generate() },
+      props: { ...data, createdAt: Date.now(), _id, key: _id + '_' + generateUrlKey(data.name) },
     },
   });
+};
 
 export const updateResource = updateOne<Resource, { _id: string }, UpdateResourceData>({ label: ResourceLabel });
 
@@ -105,7 +109,7 @@ export const deleteResourceCreatedBy = (
     },
   });
 
-export const findResource = findOne<Resource, { _id: string }>({ label: ResourceLabel });
+export const findResource = findOne<Resource, { _id: string } | { key: string }>({ label: ResourceLabel });
 
 export const findResourceByUrl = findOne<Resource, { url: string }>({ label: ResourceLabel });
 

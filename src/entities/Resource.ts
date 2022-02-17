@@ -26,6 +26,7 @@ export enum ResourceType {
 }
 
 export interface Resource extends BaseLearningMaterial {
+  key: string;
   name: string;
   types: ResourceType[]; // at least 1, max 3
   url: string; // optional in the future ?

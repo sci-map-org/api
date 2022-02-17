@@ -38,6 +38,7 @@ type ConsumedResource {
 
 type Resource implements LearningMaterial {
   _id: String!
+  key: String!
   name: String!
   types: [ResourceType!]!
   tags: [LearningMaterialTag!]

@@ -1311,6 +1311,7 @@ export type APIResource = APILearningMaterial & {
   createdBy?: Maybe<APIUser>;
   description?: Maybe<Scalars['String']>;
   durationSeconds?: Maybe<Scalars['Int']>;
+  key: Scalars['String'];
   name: Scalars['String'];
   nextResource?: Maybe<APIResource>;
   parentResources?: Maybe<Array<APIResource>>;
@@ -2582,6 +2583,7 @@ export type APIResourceResolvers<ContextType = APIContext, ParentType extends AP
   createdBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>;
   description?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   nextResource?: Resolver<Maybe<APIResolversTypes['Resource']>, ParentType, ContextType>;
   parentResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
