@@ -62,10 +62,14 @@ export const createFullLearningPath = async (
 
 export const updateFullLearningPath = async (
   learningPathId: string,
-  data: UpdateFullLearningPathData
+  data: UpdateFullLearningPathData,
+  userId: string
 ): Promise<LearningPath> => {
   const { resourceItems, ...learningPathData } = data;
-  const updatedLearningPath = await updateLearningPath({ _id: learningPathId }, learningPathData);
+  const updatedLearningPath = await updateLearningPath(
+    { _id: learningPathId },
+    { ...learningPathData, updatedAt: Date.now(), updatedBy: userId }
+  );
   if (!updatedLearningPath) throw new NotFoundError('LearningPath', learningPathId);
 
   if (resourceItems) {

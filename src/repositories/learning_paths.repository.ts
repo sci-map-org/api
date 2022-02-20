@@ -55,6 +55,8 @@ export interface UpdateLearningPathData {
   description?: string;
   public?: boolean;
   durationSeconds?: number | null;
+  updatedBy: string;
+  updatedAt: number;
 }
 
 export const createLearningPath = (userId: string, data: CreateLearningPathData): Promise<LearningPath> =>
@@ -85,7 +87,7 @@ export const findLearningPathCreatedBy = (
     originNode: { label: UserLabel, filter: { _id: userId } },
     relationship: { label: UserCreatedLearningMaterialLabel, direction: 'OUT' },
     destinationNode: { label: LearningPathLabel, filter: learningPathFilter },
-  }).then(result => (result ? result.destinationNode : null));
+  }).then((result) => (result ? result.destinationNode : null));
 
 export const getLearningPathResourceItems = async (learningPathId: string) => {
   const q = new Query(neo4jQb);
@@ -108,7 +110,7 @@ export const getLearningPathResourceItems = async (learningPathId: string) => {
 
   q.raw(`UNWIND ([i_item] + r_item) as resourceItem RETURN resourceItem`);
   const results = await q.run();
-  const b = results.map(r => r.resourceItem);
+  const b = results.map((r) => r.resourceItem);
   return b;
 };
 export const deleteLearningPath = deleteOne<LearningPath, { _id: string }>({ label: 'LearningPath' });
@@ -168,7 +170,7 @@ export const deleteLearningPathResourceItems = async (learningPathId: string): P
 	)`);
   q.return('learningPath');
   const results = await q.run();
-  const [learningPath] = results.map(result => result.learningPath.properties);
+  const [learningPath] = results.map((result) => result.learningPath.properties);
   if (!learningPath) throw new NotFoundError('Learning Path', learningPathId);
   return learningPath;
 };
@@ -254,7 +256,7 @@ export const getUserStartedLearningPath = (
       label: LearningPathLabel,
       filter: { _id: learningPathId },
     },
-  }).then(result => (result ? result.relationship : null));
+  }).then((result) => (result ? result.relationship : null));
 
 export const getLearningPathStartedBy = (
   learningPathId: string,
@@ -273,7 +275,7 @@ export const getLearningPathStartedBy = (
       label: UserLabel,
     },
     pagination,
-  }).then(items =>
+  }).then((items) =>
     items.map(({ relationship, destinationNode }) => ({
       relationship,
       user: destinationNode,
