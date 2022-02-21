@@ -5,6 +5,8 @@ export const LearningMaterialLabel = 'LearningMaterial';
 
 export interface BaseLearningMaterial {
   _id: string;
+  updatedBy?: string;
+  updatedAt?: number;
   createdAt: number;
 }
 

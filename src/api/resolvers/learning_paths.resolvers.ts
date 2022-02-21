@@ -1,7 +1,5 @@
 import { NotFoundError } from '../../errors/NotFoundError';
-import {
-  getLearningMaterialRating,
-} from '../../repositories/learning_materials.repository';
+import { getLearningMaterialRating } from '../../repositories/learning_materials.repository';
 import { getLearningMaterialTags } from '../../repositories/learning_material_tags.repository';
 import {
   attachResourceToLearningPath,
@@ -43,13 +41,19 @@ export const updateLearningPathResolver: APIMutationResolvers['updateLearningPat
   if (!user) throw new UnauthenticatedError('Must be logged in');
 
   const learningPath =
-    user.role === UserRole.ADMIN ? await findLearningPath({ _id: learningPathId }) : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+    user.role === UserRole.ADMIN
+      ? await findLearningPath({ _id: learningPathId })
+      : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
   if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
-  return await updateFullLearningPath(learningPathId, {
-    ...nullToUndefined(payload),
-    durationSeconds: payload.durationSeconds,
-  });
+  return await updateFullLearningPath(
+    learningPathId,
+    {
+      ...nullToUndefined(payload),
+      durationSeconds: payload.durationSeconds,
+    },
+    user._id
+  );
 };
 
 export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPath'] = async (
@@ -75,7 +79,11 @@ export const deleteLearningPathResolver: APIMutationResolvers['deleteLearningPat
   };
 };
 
-export const getLearningPathByIdResolver: APIQueryResolvers['getLearningPathById'] = async (_ctx, { learningPathId }, { user }) => {
+export const getLearningPathByIdResolver: APIQueryResolvers['getLearningPathById'] = async (
+  _ctx,
+  { learningPathId },
+  { user }
+) => {
   const learningPath = await findLearningPathIfAuthorized({ _id: learningPathId }, user?._id);
   return learningPath;
 };
@@ -89,36 +97,30 @@ export const getLearningPathByKeyResolver: APIQueryResolvers['getLearningPathByK
   return learningPath;
 };
 
-export const addComplementaryResourceToLearningPathResolver: APIMutationResolvers['addComplementaryResourceToLearningPath'] = async (
-  _ctx,
-  { learningPathId, resourceId },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in');
+export const addComplementaryResourceToLearningPathResolver: APIMutationResolvers['addComplementaryResourceToLearningPath'] =
+  async (_ctx, { learningPathId, resourceId }, { user }) => {
+    if (!user) throw new UnauthenticatedError('Must be logged in');
 
-  const learningPath =
-    user.role === UserRole.ADMIN
-      ? await findLearningPath({ _id: learningPathId })
-      : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
-  if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
+    const learningPath =
+      user.role === UserRole.ADMIN
+        ? await findLearningPath({ _id: learningPathId })
+        : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+    if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
-  return await attachResourceToLearningPath(learningPathId, resourceId);
-};
-export const removeComplementaryResourceFromLearningPathResolver: APIMutationResolvers['removeComplementaryResourceFromLearningPath'] = async (
-  _ctx,
-  { learningPathId, resourceId },
-  { user }
-) => {
-  if (!user) throw new UnauthenticatedError('Must be logged in');
+    return await attachResourceToLearningPath(learningPathId, resourceId);
+  };
+export const removeComplementaryResourceFromLearningPathResolver: APIMutationResolvers['removeComplementaryResourceFromLearningPath'] =
+  async (_ctx, { learningPathId, resourceId }, { user }) => {
+    if (!user) throw new UnauthenticatedError('Must be logged in');
 
-  const learningPath =
-    user.role === UserRole.ADMIN
-      ? await findLearningPath({ _id: learningPathId })
-      : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
-  if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
+    const learningPath =
+      user.role === UserRole.ADMIN
+        ? await findLearningPath({ _id: learningPathId })
+        : await findLearningPathCreatedBy(user._id, { _id: learningPathId });
+    if (!learningPath) throw new NotFoundError('LearningPath', learningPathId);
 
-  return await detachResourceFromLearningPath(learningPathId, resourceId);
-};
+    return await detachResourceFromLearningPath(learningPathId, resourceId);
+  };
 
 export const startLearningPathResolver: APIMutationResolvers['startLearningPath'] = async (
   _ctx,
@@ -142,18 +144,20 @@ export const completeLearningPathResolver: APIMutationResolvers['completeLearnin
   return await updateUserStartedLearningPath(user._id, learningPathId, { completedAt: completed ? Date.now() : null });
 };
 
-export const getLearningPathResourceItemsResolver: APILearningPathResolvers['resourceItems'] = async learningPath => {
+export const getLearningPathResourceItemsResolver: APILearningPathResolvers['resourceItems'] = async (learningPath) => {
   return await getLearningPathResourceItems(learningPath._id);
 };
 
-export const getLearningPathComplementaryResourcesResolver: APILearningPathResolvers['complementaryResources'] = async learningPath => {
+export const getLearningPathComplementaryResourcesResolver: APILearningPathResolvers['complementaryResources'] = async (
+  learningPath
+) => {
   return await getLearningPathComplementaryResources(learningPath._id);
 };
 
-export const getLearningPathRatingResolver: APILearningPathResolvers['rating'] = learningPath =>
+export const getLearningPathRatingResolver: APILearningPathResolvers['rating'] = (learningPath) =>
   getLearningMaterialRating(learningPath._id);
 
-export const getLearningPathTagsResolver: APILearningPathResolvers['tags'] = async learningPath =>
+export const getLearningPathTagsResolver: APILearningPathResolvers['tags'] = async (learningPath) =>
   getLearningMaterialTags(learningPath._id);
 
 export const getLearningPathStartedResolver: APILearningPathResolvers['started'] = async (

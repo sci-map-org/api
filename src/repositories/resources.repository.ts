@@ -72,6 +72,8 @@ interface UpdateResourceData {
   url?: string;
   description?: string;
   durationSeconds?: number | null;
+  updatedBy: string;
+  updatedAt: number;
 }
 
 export const createResource = (user: { _id: string }, data: CreateResourceData): Promise<Resource> => {

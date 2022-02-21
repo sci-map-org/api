@@ -39,7 +39,9 @@ const youtubePlaylistConfig: ResourceDataExtractor<YoutubePlaylistData> = {
       durationSeconds: data.durationSeconds,
       subResourceSeries: data.items.map(({ videoData }) => ({
         name: videoData.title,
-        url: `https://www.youtube.com/watch?v=${videoData.youtubeId}&list=${data.youtubeId}`,
+        url: `https://www.youtube.com/watch?v=${videoData.youtubeId}`, // &list=${data.youtubeId}`,
+        // => removed because https://github.com/cookpete/react-player/issues/1178
+        // Should be fixed in a cleaner way
         description: videoData.description,
         types: [ResourceType.youtube_video],
         durationSeconds: videoData.durationSeconds,
