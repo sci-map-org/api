@@ -11,6 +11,13 @@ import {
   updateArticleResolver,
 } from './resolvers/articles.resolvers';
 import {
+  getCommentByIdResolver,
+  getCommentChildrenResolver,
+  getCommentParentResolver,
+  getCommentPostedByResolver,
+  postCommentResolver,
+} from './resolvers/comments.resolvers';
+import {
   getLearningMaterialCoveredSubTopicsResolver,
   getLearningMaterialCreatedByResolver,
   getLearningMaterialPrerequisitesResolver,
@@ -101,6 +108,7 @@ import {
   getTopicAliasesResolver,
   getTopicByIdResolver,
   getTopicByKeyResolver,
+  getTopicCommentsResolver,
   getTopicContextTopicResolver,
   getTopicContextualisedTopicsResolver,
   getTopicDisambiguationTopicResolver,
@@ -108,6 +116,7 @@ import {
   getTopicLearningMaterialsAvailableTypeFiltersResolver,
   getTopicLearningMaterialsResolver,
   getTopicLearningMaterialsTotalCountResolver,
+  getTopicManagePageCommentsResolver,
   getTopicParentTopicResolver,
   getTopicPartOfTopicsResolver,
   getTopicPrerequisitesResolver,
@@ -225,6 +234,7 @@ const resolvers: APIResolvers<APIContext> = {
     resetPassword: resetPasswordResolver,
     updateCurrentUser: updateCurrentUserResolver,
     recommendLearningMaterial: recommendLearningMaterialResolver,
+    postComment: postCommentResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -255,6 +265,7 @@ const resolvers: APIResolvers<APIContext> = {
     getTopicValidContextsFromDisambiguation: getTopicValidContextsFromDisambiguationResolver,
     pullTopicDescriptions: pullTopicDescriptionsResolver,
     searchTopicTypes: searchTopicTypesResolver,
+    getCommentById: getCommentByIdResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -340,6 +351,13 @@ const resolvers: APIResolvers<APIContext> = {
     followUps: getTopicFollowUpsResolver,
     createdBy: getTopicsCreatedByResolver,
     partOfTopics: getTopicPartOfTopicsResolver,
+    comments: getTopicCommentsResolver,
+    managePageComments: getTopicManagePageCommentsResolver,
+  },
+  Comment: {
+    parent: getCommentParentResolver,
+    children: getCommentChildrenResolver,
+    postedBy: getCommentPostedByResolver,
   },
   TopicType: {
     usageCount: getTopicTypeUsageCountResolver,

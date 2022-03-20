@@ -10,6 +10,7 @@
 #import * from "Resource.graphql"
 #import * from "LearningPath.graphql"
 #import * from "LearningGoal.graphql"
+#import * from "Comment.graphql"
 #import * from "./relationships/TopicHasPrerequisiteTopic.graphql"
 #import * from "./relationships/TopicIsSubTopicOfTopic.graphql"
 #import * from "./relationships/TopicIsPartOfTopic.graphql"

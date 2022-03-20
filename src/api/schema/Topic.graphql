@@ -3,6 +3,7 @@
 # import TopicIsPartOfTopic from 'relationships/TopicIsPartOfTopic.graphql'
 # import TopicIsSubTopicOfTopic from 'relationships/TopicIsSubTopicOfTopic.graphql'
 # import TopicHasPrerequisiteTopic from 'relationships/TopicHasPrerequisiteTopic.graphql'
+# import CommentOptions, CommentResults from 'Comment.graphql'
 # import User from 'User.graphql'
 # import Date from 'common/Date.graphql'
 # import ResourceType from 'Resource.graphql'
@@ -36,6 +37,8 @@ type Topic {
   # known: KnownTopic TODO -> change schema, both progress and wether marked as known or not
   prerequisites: [TopicHasPrerequisiteTopic!]
   followUps: [TopicHasPrerequisiteTopic!]
+  comments(options: CommentOptions!): CommentResults
+  managePageComments(options: CommentOptions!): CommentResults
   createdBy: User
   createdAt: Date!
 }

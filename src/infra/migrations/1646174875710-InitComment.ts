@@ -1,12 +1,11 @@
 import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey, TableIndex } from 'typeorm';
-
-const tableName = 'comments';
+import { COMMENT_TABLE_NAME } from '../../entities/Comment';
 
 export class InitComment1646174875710 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: tableName,
+        name: COMMENT_TABLE_NAME,
         columns: [
           {
             name: '_id',
@@ -31,6 +30,11 @@ export class InitComment1646174875710 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'author_id',
+            type: 'varchar',
+            isNullable: false,
+          },
+          {
             name: 'created_at',
             type: 'timestamp',
             default: 'now()',
@@ -42,7 +46,7 @@ export class InitComment1646174875710 implements MigrationInterface {
     );
 
     await queryRunner.createIndex(
-      tableName,
+      COMMENT_TABLE_NAME,
       new TableIndex({
         name: 'IDX_COMMENTS_DISCUSSION_ID',
         columnNames: ['discussion_id'],
@@ -50,22 +54,22 @@ export class InitComment1646174875710 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      tableName,
+      COMMENT_TABLE_NAME,
       new TableForeignKey({
         columnNames: ['parent_id'],
         referencedColumnNames: ['_id'],
-        referencedTableName: tableName,
+        referencedTableName: COMMENT_TABLE_NAME,
       })
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    const table = await queryRunner.getTable(tableName);
-    if (!table) throw new Error('No table found: ' + tableName);
+    const table = await queryRunner.getTable(COMMENT_TABLE_NAME);
+    if (!table) throw new Error('No table found: ' + COMMENT_TABLE_NAME);
     const foreignKey = table.foreignKeys.find((fk) => fk.columnNames.indexOf('parent_id') !== -1);
     if (!foreignKey) throw new Error('No foreign key found');
-    await queryRunner.dropForeignKey(tableName, foreignKey);
-    await queryRunner.dropIndex(tableName, 'IDX_COMMENTS_DISCUSSION_ID');
-    await queryRunner.dropTable(tableName);
+    await queryRunner.dropForeignKey(COMMENT_TABLE_NAME, foreignKey);
+    await queryRunner.dropIndex(COMMENT_TABLE_NAME, 'IDX_COMMENTS_DISCUSSION_ID');
+    await queryRunner.dropTable(COMMENT_TABLE_NAME);
   }
 }

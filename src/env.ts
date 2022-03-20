@@ -11,6 +11,17 @@ const NEO4J = typedEnv.envGroup(
   'NEO4J'
 );
 
+const POSTGRES = typedEnv.envGroup(
+  {
+    HOST: typedEnv.types.NonEmptyString,
+    PORT: typedEnv.types.PortNumber,
+    USERNAME: typedEnv.types.NonEmptyString,
+    PASSWORD: typedEnv.types.NonEmptyString,
+    DATABASE: typedEnv.types.NonEmptyString,
+  },
+  'POSTGRES'
+);
+
 const AWS = typedEnv.envGroup(
   {
     ACCESS_KEY_ID: typedEnv.types.NonEmptyString,
@@ -71,6 +82,7 @@ const OTHER = typedEnv.envGroup({
 
 const envSchema = typedEnv.envSchema({
   NEO4J,
+  POSTGRES,
   AWS,
   AUTH,
   EMAIL,

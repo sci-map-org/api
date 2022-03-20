@@ -1,0 +1,44 @@
+# import User from 'User.graphql'
+# import PaginationOptions from 'common/PaginationOptions.graphql'
+
+type Comment {
+  _id: String!
+  discussionId: String! # e.g. MANAGE_TOPIC-2130rufa (2130rufa being topicId)
+  parentId: String
+  parent: Comment
+  children: [Comment!]
+  contentMarkdown: String!
+  postedAt: String!
+  postedByUserId: String!
+  postedBy: User
+}
+
+# Shared enum for building the discussion id:  `${discussionLocation}:${entityId}`
+enum DiscussionLocation {
+  TOPIC_PAGE
+  MANAGE_TOPIC_PAGE
+  LEARNING_MATERIAL_PAGE
+}
+
+input CommentOptions {
+  pagination: PaginationOptions!
+}
+
+type CommentResults {
+  items: [Comment!]!
+  totalCount: Int!
+}
+
+input PostCommentPayload {
+  discussionId: String!
+  parentId: String
+  contentMarkdown: String!
+}
+
+type Mutation {
+  postComment(payload: PostCommentPayload!): Comment!
+}
+
+type Query {
+  getCommentById(commentId: String!): Comment!
+}
