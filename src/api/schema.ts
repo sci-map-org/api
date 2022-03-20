@@ -18,6 +18,7 @@ import {
   postCommentResolver,
 } from './resolvers/comments.resolvers';
 import {
+  getLearningMaterialCommentsResolver,
   getLearningMaterialCoveredSubTopicsResolver,
   getLearningMaterialCreatedByResolver,
   getLearningMaterialPrerequisitesResolver,
@@ -300,6 +301,7 @@ const resolvers: APIResolvers<APIContext> = {
     prerequisites: getLearningMaterialPrerequisitesResolver,
     // outcomes: getLearningMaterialOutcomesResolver,
     createdBy: getLearningMaterialCreatedByResolver,
+    comments: getLearningMaterialCommentsResolver,
   },
   LearningPath: {
     coveredSubTopics: getLearningMaterialCoveredSubTopicsResolver,
@@ -316,6 +318,7 @@ const resolvers: APIResolvers<APIContext> = {
     started: getLearningPathStartedResolver,
     createdBy: getLearningMaterialCreatedByResolver,
     startedBy: getLearningPathStartedByResolver,
+    comments: getLearningMaterialCommentsResolver,
   },
   // LearningGoal: {
   //   showedIn: getLearningGoalShowedInResolver,

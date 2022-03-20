@@ -450,6 +450,7 @@ export { LearningGoalType };
 
 export type APILearningMaterial = {
   _id: Scalars['String'];
+  comments?: Maybe<APICommentResults>;
   coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
   coveredSubTopicsTree?: Maybe<Array<APITopic>>;
   createdAt: Scalars['Date'];
@@ -463,6 +464,11 @@ export type APILearningMaterial = {
   recommendedBy?: Maybe<Array<APIUserRecommendedLearningMaterial>>;
   showedIn?: Maybe<Array<APITopic>>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
+};
+
+
+export type APILearningMaterialCommentsArgs = {
+  options: APICommentOptions;
 };
 
 
@@ -525,6 +531,7 @@ export enum APILearningMaterialType {
 export type APILearningPath = APILearningMaterial & {
   __typename?: 'LearningPath';
   _id: Scalars['String'];
+  comments?: Maybe<APICommentResults>;
   complementaryResources?: Maybe<Array<APIResource>>;
   coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
   coveredSubTopicsTree?: Maybe<Array<APITopic>>;
@@ -545,6 +552,11 @@ export type APILearningPath = APILearningMaterial & {
   started?: Maybe<APILearningPathStarted>;
   startedBy?: Maybe<APILearningPathStartedByResults>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
+};
+
+
+export type APILearningPathCommentsArgs = {
+  options: APICommentOptions;
 };
 
 
@@ -1351,6 +1363,7 @@ export type APIResetPasswordResponse = {
 export type APIResource = APILearningMaterial & {
   __typename?: 'Resource';
   _id: Scalars['String'];
+  comments?: Maybe<APICommentResults>;
   consumed?: Maybe<APIConsumedResource>;
   coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
   coveredSubTopicsTree?: Maybe<Array<APITopic>>;
@@ -1375,6 +1388,11 @@ export type APIResource = APILearningMaterial & {
   tags?: Maybe<Array<APILearningMaterialTag>>;
   types: Array<ResourceType>;
   url: Scalars['String'];
+};
+
+
+export type APIResourceCommentsArgs = {
+  options: APICommentOptions;
 };
 
 
@@ -2396,6 +2414,7 @@ export type APILearningGoalTypeResolvers = EnumResolverSignature<{ Roadmap?: any
 export type APILearningMaterialResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterial'] = APIResolversParentTypes['LearningMaterial']> = ResolversObject<{
   __resolveType: TypeResolveFn<'LearningPath' | 'Resource', ParentType, ContextType>;
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  comments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APILearningMaterialCommentsArgs, 'options'>>;
   coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APILearningMaterialCoveredSubTopicsArgs, 'options'>>;
   coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>;
@@ -2451,6 +2470,7 @@ export type APILearningMaterialTagSearchResultResolvers<ContextType = APIContext
 
 export type APILearningPathResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPath'] = APIResolversParentTypes['LearningPath']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  comments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APILearningPathCommentsArgs, 'options'>>;
   complementaryResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
   coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APILearningPathCoveredSubTopicsArgs, 'options'>>;
   coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
@@ -2665,6 +2685,7 @@ export type APIResetPasswordResponseResolvers<ContextType = APIContext, ParentTy
 
 export type APIResourceResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Resource'] = APIResolversParentTypes['Resource']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  comments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APIResourceCommentsArgs, 'options'>>;
   consumed?: Resolver<Maybe<APIResolversTypes['ConsumedResource']>, ParentType, ContextType>;
   coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredSubTopicsArgs, 'options'>>;
   coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
