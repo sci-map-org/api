@@ -49,7 +49,7 @@ export const getCommentChildren = async (parentCommentId: string): Promise<Comme
 export const findCommentsByDiscussionId = async (
   discussionId: string,
   pagination?: PaginationOptions
-): Promise<{ items: Comment[]; totalCount: number }> => {
+): Promise<{ items: Comment[]; totalCount: number; rootCommentsTotalCount: number }> => {
   const commentRepository = await getCommentRepository();
   const paginationOptions: Required<PaginationOptions> = {
     limit: 20,
@@ -61,6 +61,7 @@ export const findCommentsByDiscussionId = async (
     items: await commentRepository.find({
       where: {
         discussion_id: discussionId,
+        parent_id: null,
       },
       take: paginationOptions.limit,
       skip: paginationOptions.offset,
@@ -68,6 +69,12 @@ export const findCommentsByDiscussionId = async (
     totalCount: await commentRepository.count({
       where: {
         discussion_id: discussionId,
+      },
+    }),
+    rootCommentsTotalCount: await commentRepository.count({
+      where: {
+        discussion_id: discussionId,
+        parent_id: null,
       },
     }),
   };

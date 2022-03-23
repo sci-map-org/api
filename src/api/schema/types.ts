@@ -109,6 +109,7 @@ export type APICommentOptions = {
 export type APICommentResults = {
   __typename?: 'CommentResults';
   items: Array<APIComment>;
+  rootCommentsTotalCount: Scalars['Int'];
   totalCount: Scalars['Int'];
 };
 
@@ -2209,6 +2210,7 @@ export type APICommentResolvers<ContextType = APIContext, ParentType extends API
 
 export type APICommentResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CommentResults'] = APIResolversParentTypes['CommentResults']> = ResolversObject<{
   items?: Resolver<Array<APIResolversTypes['Comment']>, ParentType, ContextType>;
+  rootCommentsTotalCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
   totalCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

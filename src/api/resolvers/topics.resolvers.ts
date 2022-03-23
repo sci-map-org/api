@@ -366,21 +366,23 @@ export const getTopicTopicTypesResolver: APITopicResolvers['topicTypes'] = async
 };
 
 export const getTopicCommentsResolver: APITopicResolvers['comments'] = async (topic) => {
-  const { items, totalCount } = await findCommentsByDiscussionId(
+  const { items, totalCount, rootCommentsTotalCount } = await findCommentsByDiscussionId(
     buildDiscussionId(APIDiscussionLocation.TopicPage, topic._id)
   );
   return {
     items: items.map(toAPIComment),
     totalCount,
+    rootCommentsTotalCount,
   };
 };
 
 export const getTopicManagePageCommentsResolver: APITopicResolvers['managePageComments'] = async (topic) => {
-  const { items, totalCount } = await findCommentsByDiscussionId(
+  const { items, totalCount, rootCommentsTotalCount } = await findCommentsByDiscussionId(
     buildDiscussionId(APIDiscussionLocation.ManageTopicPage, topic._id)
   );
   return {
     items: items.map(toAPIComment),
     totalCount,
+    rootCommentsTotalCount,
   };
 };

@@ -26,6 +26,7 @@ input CommentOptions {
 
 type CommentResults {
   items: [Comment!]!
+  rootCommentsTotalCount: Int!
   totalCount: Int!
 }
 

@@ -171,11 +171,12 @@ export const getLearningMaterialCreatedByResolver: APILearningMaterialResolvers[
 export const getLearningMaterialCommentsResolver: APILearningMaterialResolvers['comments'] = async (
   learningMaterial
 ) => {
-  const { items, totalCount } = await findCommentsByDiscussionId(
+  const { items, totalCount, rootCommentsTotalCount } = await findCommentsByDiscussionId(
     buildDiscussionId(APIDiscussionLocation.LearningMaterialPage, learningMaterial._id)
   );
   return {
     items: items.map(toAPIComment),
     totalCount,
+    rootCommentsTotalCount,
   };
 };
