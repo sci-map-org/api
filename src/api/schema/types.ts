@@ -93,6 +93,7 @@ export type APIComment = {
   __typename?: 'Comment';
   _id: Scalars['String'];
   children?: Maybe<Array<APIComment>>;
+  childrenCount?: Maybe<Scalars['Int']>;
   contentMarkdown: Scalars['String'];
   discussionId: Scalars['String'];
   parent?: Maybe<APIComment>;
@@ -2198,6 +2199,7 @@ export type APICheckTopicKeyAvailabilityResultResolvers<ContextType = APIContext
 export type APICommentResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Comment'] = APIResolversParentTypes['Comment']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   children?: Resolver<Maybe<Array<APIResolversTypes['Comment']>>, ParentType, ContextType>;
+  childrenCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
   contentMarkdown?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   discussionId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   parent?: Resolver<Maybe<APIResolversTypes['Comment']>, ParentType, ContextType>;

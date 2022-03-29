@@ -12,6 +12,7 @@ import {
 } from './resolvers/articles.resolvers';
 import {
   getCommentByIdResolver,
+  getCommentChildrenCountResolver,
   getCommentChildrenResolver,
   getCommentParentResolver,
   getCommentPostedByResolver,
@@ -360,6 +361,7 @@ const resolvers: APIResolvers<APIContext> = {
   Comment: {
     parent: getCommentParentResolver,
     children: getCommentChildrenResolver,
+    childrenCount: getCommentChildrenCountResolver,
     postedBy: getCommentPostedByResolver,
   },
   TopicType: {
@@ -370,7 +372,7 @@ const resolvers: APIResolvers<APIContext> = {
       //@ts-ignore
       if (Object.values(LearningGoalType).indexOf(obj.type) > -1) return 'LearningGoal';
       return 'Topic';
-      throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
+      // throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },
   SearchResultEntity: {

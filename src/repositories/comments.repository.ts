@@ -46,6 +46,15 @@ export const getCommentChildren = async (parentCommentId: string): Promise<Comme
   return results;
 };
 
+export const getCommentChildrenCount = async (parentCommentId: string): Promise<number> => {
+  const commentRepository = await getCommentRepository();
+  const results = await commentRepository.count({
+    where: {
+      parent_id: parentCommentId,
+    },
+  });
+  return results;
+};
 export const findCommentsByDiscussionId = async (
   discussionId: string,
   pagination?: PaginationOptions

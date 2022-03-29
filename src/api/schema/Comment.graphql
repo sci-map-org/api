@@ -7,6 +7,7 @@ type Comment {
   parentId: String
   parent: Comment
   children: [Comment!]
+  childrenCount: Int
   contentMarkdown: String!
   postedAt: String!
   postedByUserId: String!

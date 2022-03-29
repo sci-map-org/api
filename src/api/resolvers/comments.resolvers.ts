@@ -1,6 +1,11 @@
 import { Comment } from '../../entities/Comment';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { createComment, findCommentById, getCommentChildren } from '../../repositories/comments.repository';
+import {
+  createComment,
+  findCommentById,
+  getCommentChildren,
+  getCommentChildrenCount,
+} from '../../repositories/comments.repository';
 import { findUser } from '../../repositories/users.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APIComment, APICommentResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
@@ -45,4 +50,8 @@ export const getCommentPostedByResolver: APICommentResolvers['postedBy'] = async
   const author = await findUser({ _id: parent.postedByUserId });
   if (!author) throw new Error(`Comment ${parent._id} has no valid author (postedByUserId: ${parent.postedByUserId})`);
   return author;
+};
+
+export const getCommentChildrenCountResolver: APICommentResolvers['childrenTotalCount'] = async (parent) => {
+  return getCommentChildrenCount(parent._id);
 };
