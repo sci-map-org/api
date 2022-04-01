@@ -63,3 +63,5 @@ The password will still be reset. After that, run the database, open the browser
 Extensions required:
 
 - uuid-ossp
+
+You need to create the database manually then run migrations
