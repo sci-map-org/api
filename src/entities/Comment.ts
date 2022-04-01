@@ -23,6 +23,9 @@ export class Comment {
   @Column()
   author_id: string;
 
-  @Column()
-  created_at: string;
+  @Column({ type: 'timestamp' })
+  last_updated_at: Date;
+
+  @Column({ type: 'timestamp' })
+  created_at: Date;
 }

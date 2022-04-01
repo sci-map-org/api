@@ -5,10 +5,11 @@ import {
   findCommentById,
   getCommentChildren,
   getCommentChildrenCount,
+  updateComment,
 } from '../../repositories/comments.repository';
 import { findUser } from '../../repositories/users.repository';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import { APIComment, APICommentResolvers, APIMutationResolvers, APIQueryResolvers } from '../schema/types';
+import { APIComment, APICommentResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
 
 export function toAPIComment(comment: Comment): APIComment {
@@ -17,7 +18,8 @@ export function toAPIComment(comment: Comment): APIComment {
     parentId: comment.parent_id,
     contentMarkdown: comment.content_markdown,
     discussionId: comment.discussion_id,
-    postedAt: comment.created_at,
+    lastUpdatedAt: comment.last_updated_at.toISOString(),
+    postedAt: comment.created_at.toISOString(),
     postedByUserId: comment.author_id,
   };
 }
@@ -31,6 +33,16 @@ export const postCommentResolver: APIMutationResolvers['postComment'] = async (_
   if (!user) throw new UnauthenticatedError('Must be logged in to post a comment');
 
   return toAPIComment(await createComment(nullToUndefined(payload), user._id));
+};
+
+export const editCommentResolver: APIMutationResolvers['editComment'] = async (_, { commentId, payload }, { user }) => {
+  if (!user) throw new UnauthenticatedError('Must be logged in to edit a comment');
+  const comment = await findCommentById(commentId);
+  if (!comment) throw new NotFoundError('Comment', commentId);
+  if (comment.author_id !== user._id && user.role !== UserRole.ADMIN)
+    throw new UnauthenticatedError('Must be the author or an admin to edit a comment');
+
+  return toAPIComment(await updateComment(commentId, nullToUndefined(payload)));
 };
 
 export const getCommentParentResolver: APICommentResolvers['parent'] = async (comment, {}, { user }) => {

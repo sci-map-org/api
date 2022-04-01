@@ -11,6 +11,7 @@ import {
   updateArticleResolver,
 } from './resolvers/articles.resolvers';
 import {
+  editCommentResolver,
   getCommentByIdResolver,
   getCommentChildrenCountResolver,
   getCommentChildrenResolver,
@@ -237,6 +238,7 @@ const resolvers: APIResolvers<APIContext> = {
     updateCurrentUser: updateCurrentUserResolver,
     recommendLearningMaterial: recommendLearningMaterialResolver,
     postComment: postCommentResolver,
+    editComment: editCommentResolver,
   },
   Query: {
     currentUser: currentUserResolver,

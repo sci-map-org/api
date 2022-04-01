@@ -9,6 +9,7 @@ type Comment {
   children: [Comment!]
   childrenCount: Int
   contentMarkdown: String!
+  lastUpdatedAt: String!
   postedAt: String!
   postedByUserId: String!
   postedBy: User
@@ -37,8 +38,13 @@ input PostCommentPayload {
   contentMarkdown: String!
 }
 
+input EditCommentPayload {
+  contentMarkdown: String!
+}
+
 type Mutation {
   postComment(payload: PostCommentPayload!): Comment!
+  editComment(commentId: String!, payload: EditCommentPayload!): Comment!
 }
 
 type Query {

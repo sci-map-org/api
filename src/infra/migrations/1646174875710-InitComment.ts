@@ -35,6 +35,12 @@ export class InitComment1646174875710 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'last_updated_at',
+            type: 'timestamp',
+            default: 'now()',
+            isNullable: false,
+          },
+          {
             name: 'created_at',
             type: 'timestamp',
             default: 'now()',

@@ -96,6 +96,7 @@ export type APIComment = {
   childrenCount?: Maybe<Scalars['Int']>;
   contentMarkdown: Scalars['String'];
   discussionId: Scalars['String'];
+  lastUpdatedAt: Scalars['String'];
   parent?: Maybe<APIComment>;
   parentId?: Maybe<Scalars['String']>;
   postedAt: Scalars['String'];
@@ -305,6 +306,10 @@ export enum APIDiscussionLocation {
   ManageTopicPage = 'MANAGE_TOPIC_PAGE',
   TopicPage = 'TOPIC_PAGE'
 }
+
+export type APIEditCommentPayload = {
+  contentMarkdown: Scalars['String'];
+};
 
 export type APIGetHomePageDataResults = {
   __typename?: 'GetHomePageDataResults';
@@ -681,6 +686,7 @@ export type APIMutation = {
   detachTopicIsPartOfTopic: APIDetachTopicIsPartOfTopicResult;
   detachTopicIsSubTopicOfTopic: APIDetachTopicIsSubTopicOfTopicResult;
   downvoteLearningMaterial: APILearningMaterial;
+  editComment: APIComment;
   hideLearningGoalFromTopic: APIShowLearningGoalInTopicResult;
   hideLearningMaterialFromTopic: APILearningMaterial;
   indexLearningGoal: APILearningGoalIndexedResult;
@@ -916,6 +922,12 @@ export type APIMutationDetachTopicIsSubTopicOfTopicArgs = {
 
 export type APIMutationDownvoteLearningMaterialArgs = {
   learningMaterialId: Scalars['String'];
+};
+
+
+export type APIMutationEditCommentArgs = {
+  commentId: Scalars['String'];
+  payload: APIEditCommentPayload;
 };
 
 
@@ -1888,6 +1900,7 @@ export type APIResolversTypes = ResolversObject<{
   DetachTopicIsSubTopicOfTopicResult: ResolverTypeWrapper<APIDetachTopicIsSubTopicOfTopicResult>;
   DiscourseSSO: APIDiscourseSso;
   DiscussionLocation: APIDiscussionLocation;
+  EditCommentPayload: APIEditCommentPayload;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>;
   GetTopLevelTopicsResults: ResolverTypeWrapper<APIGetTopLevelTopicsResults>;
@@ -2046,6 +2059,7 @@ export type APIResolversParentTypes = ResolversObject<{
   DetachTopicIsPartOfTopicResult: APIDetachTopicIsPartOfTopicResult;
   DetachTopicIsSubTopicOfTopicResult: APIDetachTopicIsSubTopicOfTopicResult;
   DiscourseSSO: APIDiscourseSso;
+  EditCommentPayload: APIEditCommentPayload;
   Float: Scalars['Float'];
   GetHomePageDataResults: APIGetHomePageDataResults;
   GetTopLevelTopicsResults: APIGetTopLevelTopicsResults;
@@ -2202,6 +2216,7 @@ export type APICommentResolvers<ContextType = APIContext, ParentType extends API
   childrenCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
   contentMarkdown?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   discussionId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  lastUpdatedAt?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   parent?: Resolver<Maybe<APIResolversTypes['Comment']>, ParentType, ContextType>;
   parentId?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   postedAt?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
@@ -2589,6 +2604,7 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   detachTopicIsPartOfTopic?: Resolver<APIResolversTypes['DetachTopicIsPartOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsPartOfTopicArgs, 'partOfTopicId' | 'subTopicId'>>;
   detachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['DetachTopicIsSubTopicOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId'>>;
   downvoteLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDownvoteLearningMaterialArgs, 'learningMaterialId'>>;
+  editComment?: Resolver<APIResolversTypes['Comment'], ParentType, ContextType, RequireFields<APIMutationEditCommentArgs, 'commentId' | 'payload'>>;
   hideLearningGoalFromTopic?: Resolver<APIResolversTypes['ShowLearningGoalInTopicResult'], ParentType, ContextType, RequireFields<APIMutationHideLearningGoalFromTopicArgs, 'learningGoalId' | 'topicId'>>;
   hideLearningMaterialFromTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationHideLearningMaterialFromTopicArgs, 'learningMaterialId' | 'topicId'>>;
   indexLearningGoal?: Resolver<APIResolversTypes['LearningGoalIndexedResult'], ParentType, ContextType, RequireFields<APIMutationIndexLearningGoalArgs, 'learningGoalId'>>;

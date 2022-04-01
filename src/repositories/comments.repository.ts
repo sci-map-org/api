@@ -1,4 +1,5 @@
 import { Comment } from '../entities/Comment';
+import { NotFoundError } from '../errors/NotFoundError';
 import { getPostgresConnection } from '../infra/postgres';
 import { PaginationOptions } from './util/pagination';
 
@@ -42,6 +43,9 @@ export const getCommentChildren = async (parentCommentId: string): Promise<Comme
     where: {
       parent_id: parentCommentId,
     },
+    order: {
+      created_at: 'DESC',
+    },
   });
   return results;
 };
@@ -74,6 +78,9 @@ export const findCommentsByDiscussionId = async (
       },
       take: paginationOptions.limit,
       skip: paginationOptions.offset,
+      order: {
+        created_at: 'DESC',
+      },
     }),
     totalCount: await commentRepository.count({
       where: {
@@ -87,4 +94,15 @@ export const findCommentsByDiscussionId = async (
       },
     }),
   };
+};
+
+export const updateComment = async (commentId: string, data: { contentMarkdown: string }): Promise<Comment> => {
+  const commentRepository = await getCommentRepository();
+  const comment = await commentRepository.findOne(commentId);
+  if (!comment) throw new NotFoundError('Comment', commentId);
+  comment.content_markdown = data.contentMarkdown;
+  comment.last_updated_at = new Date();
+  await commentRepository.save(comment);
+
+  return comment;
 };
