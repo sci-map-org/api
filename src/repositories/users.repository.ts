@@ -70,7 +70,7 @@ export const createUser = async (data: Omit<User, '_id'>): Promise<User> => {
   return record.get('user');
 };
 
-export const findUser = findOne<User, { key: string } | { email: string }>({ label: 'User' });
+export const findUser = findOne<User, { _id: string } | { key: string } | { email: string }>({ label: 'User' });
 
 export const updateUser = updateOne<User, { _id: string } | { email: string }, UpdateUserData>({ label: 'User' });
 
@@ -79,7 +79,7 @@ export const attachUserKnowsTopics = (
   topicsToKnow: Array<{ topicId: string; level?: number | null }>
 ) =>
   Promise.all(
-    topicsToKnow.map(topicToKnow =>
+    topicsToKnow.map((topicToKnow) =>
       attachNodes<User, UserKnowsTopic, Topic>({
         originNode: {
           label: UserLabel,
@@ -125,7 +125,7 @@ export const attachUserConsumedResources = (
   }>
 ) =>
   Promise.all(
-    resourcesToConsume.map(resourceToConsume =>
+    resourcesToConsume.map((resourceToConsume) =>
       attachNodes<User, UserConsumedResource, Resource>({
         originNode: {
           label: UserLabel,

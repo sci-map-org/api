@@ -5,6 +5,7 @@
 # import Topic from 'Topic.graphql'
 # import LearningMaterialHasPrerequisiteTopic from 'relationships/LearningMaterialHasPrerequisiteTopic.graphql'
 # import UserRecommendedLearningMaterial from 'relationships/UserRecommendedLearningMaterial.graphql'
+# import CommentOptions, CommentResults from 'Comment.graphql'
 # import User from 'User.graphql'
 
 enum ResourceType {
@@ -61,6 +62,7 @@ type Resource implements LearningMaterial {
   coveredSubTopicsTree: [Topic!]
   showedIn: [Topic!]
   prerequisites: [LearningMaterialHasPrerequisiteTopic!]
+  comments(options: CommentOptions!): CommentResults
   createdBy: User
   createdAt: Date!
 }

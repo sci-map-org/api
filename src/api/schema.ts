@@ -11,6 +11,16 @@ import {
   updateArticleResolver,
 } from './resolvers/articles.resolvers';
 import {
+  editCommentResolver,
+  getCommentByIdResolver,
+  getCommentChildrenCountResolver,
+  getCommentChildrenResolver,
+  getCommentParentResolver,
+  getCommentPostedByResolver,
+  postCommentResolver,
+} from './resolvers/comments.resolvers';
+import {
+  getLearningMaterialCommentsResolver,
   getLearningMaterialCoveredSubTopicsResolver,
   getLearningMaterialCreatedByResolver,
   getLearningMaterialPrerequisitesResolver,
@@ -101,6 +111,7 @@ import {
   getTopicAliasesResolver,
   getTopicByIdResolver,
   getTopicByKeyResolver,
+  getTopicCommentsResolver,
   getTopicContextTopicResolver,
   getTopicContextualisedTopicsResolver,
   getTopicDisambiguationTopicResolver,
@@ -108,6 +119,7 @@ import {
   getTopicLearningMaterialsAvailableTypeFiltersResolver,
   getTopicLearningMaterialsResolver,
   getTopicLearningMaterialsTotalCountResolver,
+  getTopicManagePageCommentsResolver,
   getTopicParentTopicResolver,
   getTopicPartOfTopicsResolver,
   getTopicPrerequisitesResolver,
@@ -225,6 +237,8 @@ const resolvers: APIResolvers<APIContext> = {
     resetPassword: resetPasswordResolver,
     updateCurrentUser: updateCurrentUserResolver,
     recommendLearningMaterial: recommendLearningMaterialResolver,
+    postComment: postCommentResolver,
+    editComment: editCommentResolver,
   },
   Query: {
     currentUser: currentUserResolver,
@@ -255,6 +269,7 @@ const resolvers: APIResolvers<APIContext> = {
     getTopicValidContextsFromDisambiguation: getTopicValidContextsFromDisambiguationResolver,
     pullTopicDescriptions: pullTopicDescriptionsResolver,
     searchTopicTypes: searchTopicTypesResolver,
+    getCommentById: getCommentByIdResolver,
   },
   Article: {
     author: getArticleAuthorResolver,
@@ -289,6 +304,7 @@ const resolvers: APIResolvers<APIContext> = {
     prerequisites: getLearningMaterialPrerequisitesResolver,
     // outcomes: getLearningMaterialOutcomesResolver,
     createdBy: getLearningMaterialCreatedByResolver,
+    comments: getLearningMaterialCommentsResolver,
   },
   LearningPath: {
     coveredSubTopics: getLearningMaterialCoveredSubTopicsResolver,
@@ -305,6 +321,7 @@ const resolvers: APIResolvers<APIContext> = {
     started: getLearningPathStartedResolver,
     createdBy: getLearningMaterialCreatedByResolver,
     startedBy: getLearningPathStartedByResolver,
+    comments: getLearningMaterialCommentsResolver,
   },
   // LearningGoal: {
   //   showedIn: getLearningGoalShowedInResolver,
@@ -340,6 +357,14 @@ const resolvers: APIResolvers<APIContext> = {
     followUps: getTopicFollowUpsResolver,
     createdBy: getTopicsCreatedByResolver,
     partOfTopics: getTopicPartOfTopicsResolver,
+    comments: getTopicCommentsResolver,
+    managePageComments: getTopicManagePageCommentsResolver,
+  },
+  Comment: {
+    parent: getCommentParentResolver,
+    children: getCommentChildrenResolver,
+    childrenCount: getCommentChildrenCountResolver,
+    postedBy: getCommentPostedByResolver,
   },
   TopicType: {
     usageCount: getTopicTypeUsageCountResolver,
@@ -349,7 +374,7 @@ const resolvers: APIResolvers<APIContext> = {
       //@ts-ignore
       if (Object.values(LearningGoalType).indexOf(obj.type) > -1) return 'LearningGoal';
       return 'Topic';
-      throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
+      // throw new Error('Unreachable code, issue in returning SubGoal which isnt a Concept or LG');
     },
   },
   SearchResultEntity: {

@@ -1,7 +1,7 @@
-import { UserInputError } from 'apollo-server-errors';
 import { pick } from 'lodash';
 import { Topic, TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
+import { findCommentsByDiscussionId } from '../../repositories/comments.repository';
 import {
   attachTopicHasContextTopic,
   attachTopicHasDisambiguationTopic,
@@ -34,17 +34,14 @@ import {
   updateTopicTopicTypes,
 } from '../../repositories/topics.repository';
 import { getTopicTopicTypes } from '../../repositories/topic_types.repository';
+import { buildDiscussionId } from '../../services/comments.service';
 import { pullTopicDescriptions } from '../../services/pull_topic_descriptions.service';
 import { createFullTopic } from '../../services/topics.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import {
-  APIMutationResolvers,
-  APIQueryResolvers,
-  APITopicLearningMaterialsSortingType,
-  APITopicResolvers,
-} from '../schema/types';
+import { APIDiscussionLocation, APIMutationResolvers, APIQueryResolvers, APITopicResolvers } from '../schema/types';
 import { restrictAccess } from '../util/auth';
 import { nullToUndefined } from '../util/nullToUndefined';
+import { toAPIComment } from './comments.resolvers';
 
 export const getTopicByIdResolver: APIQueryResolvers['getTopicById'] = async (_, { topicId }) => {
   const topic = await getTopicById(topicId);
@@ -366,4 +363,26 @@ export const getTopicContextTopicResolver: APITopicResolvers['contextTopic'] = a
 
 export const getTopicTopicTypesResolver: APITopicResolvers['topicTypes'] = async (topic) => {
   return getTopicTopicTypes(topic._id);
+};
+
+export const getTopicCommentsResolver: APITopicResolvers['comments'] = async (topic) => {
+  const { items, totalCount, rootCommentsTotalCount } = await findCommentsByDiscussionId(
+    buildDiscussionId(APIDiscussionLocation.TopicPage, topic._id)
+  );
+  return {
+    items: items.map(toAPIComment),
+    totalCount,
+    rootCommentsTotalCount,
+  };
+};
+
+export const getTopicManagePageCommentsResolver: APITopicResolvers['managePageComments'] = async (topic) => {
+  const { items, totalCount, rootCommentsTotalCount } = await findCommentsByDiscussionId(
+    buildDiscussionId(APIDiscussionLocation.ManageTopicPage, topic._id)
+  );
+  return {
+    items: items.map(toAPIComment),
+    totalCount,
+    rootCommentsTotalCount,
+  };
 };

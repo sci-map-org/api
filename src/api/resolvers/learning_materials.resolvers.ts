@@ -1,4 +1,5 @@
 import { UserInputError } from 'apollo-server-koa';
+import { findCommentsByDiscussionId } from '../../repositories/comments.repository';
 import {
   getLearningMaterialCoveredTopics,
   getLearningMaterialCreator,
@@ -13,9 +14,11 @@ import {
   unvoteLearningMaterial,
   voteLearningMaterial,
 } from '../../repositories/learning_materials.repository';
+import { buildDiscussionId } from '../../services/comments.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
-import { APILearningMaterialResolvers, APIMutationResolvers } from '../schema/types';
+import { APIDiscussionLocation, APILearningMaterialResolvers, APIMutationResolvers } from '../schema/types';
 import { restrictAccess } from '../util/auth';
+import { toAPIComment } from './comments.resolvers';
 
 export const learningMaterialResolveType: APILearningMaterialResolvers['__resolveType'] = (obj, ctx, info) => {
   if (obj['url']) {
@@ -163,4 +166,17 @@ export const getLearningMaterialCreatedByResolver: APILearningMaterialResolvers[
   learningMaterial
 ) => {
   return getLearningMaterialCreator({ _id: learningMaterial._id });
+};
+
+export const getLearningMaterialCommentsResolver: APILearningMaterialResolvers['comments'] = async (
+  learningMaterial
+) => {
+  const { items, totalCount, rootCommentsTotalCount } = await findCommentsByDiscussionId(
+    buildDiscussionId(APIDiscussionLocation.LearningMaterialPage, learningMaterial._id)
+  );
+  return {
+    items: items.map(toAPIComment),
+    totalCount,
+    rootCommentsTotalCount,
+  };
 };

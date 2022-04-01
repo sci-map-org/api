@@ -6,6 +6,7 @@
 # import LearningMaterialTag from 'LearningMaterialTag.graphql'
 # import LearningMaterialHasPrerequisiteTopic from 'relationships/LearningMaterialHasPrerequisiteTopic.graphql'
 # import UserRecommendedLearningMaterial from 'relationships/UserRecommendedLearningMaterial.graphql'
+# import CommentOptions, CommentResults from 'Comment.graphql'
 # import User, CurrentUser from 'User.graphql'
 
 type LearningPath implements LearningMaterial {
@@ -28,6 +29,7 @@ type LearningPath implements LearningMaterial {
   coveredSubTopicsTree: [Topic!]
   showedIn: [Topic!]
   prerequisites: [LearningMaterialHasPrerequisiteTopic!]
+  comments(options: CommentOptions!): CommentResults
   createdBy: User
   createdAt: Date!
 }

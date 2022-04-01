@@ -89,6 +89,32 @@ export type APICheckTopicKeyAvailabilityResult = {
   existingTopic?: Maybe<APITopic>;
 };
 
+export type APIComment = {
+  __typename?: 'Comment';
+  _id: Scalars['String'];
+  children?: Maybe<Array<APIComment>>;
+  childrenCount?: Maybe<Scalars['Int']>;
+  contentMarkdown: Scalars['String'];
+  discussionId: Scalars['String'];
+  lastUpdatedAt: Scalars['String'];
+  parent?: Maybe<APIComment>;
+  parentId?: Maybe<Scalars['String']>;
+  postedAt: Scalars['String'];
+  postedBy?: Maybe<APIUser>;
+  postedByUserId: Scalars['String'];
+};
+
+export type APICommentOptions = {
+  pagination: APIPaginationOptions;
+};
+
+export type APICommentResults = {
+  __typename?: 'CommentResults';
+  items: Array<APIComment>;
+  rootCommentsTotalCount: Scalars['Int'];
+  totalCount: Scalars['Int'];
+};
+
 export type APIComplementaryResourceUpdatedResult = {
   __typename?: 'ComplementaryResourceUpdatedResult';
   learningPath: APILearningPath;
@@ -275,6 +301,16 @@ export type APIDiscourseSso = {
   sso: Scalars['String'];
 };
 
+export enum APIDiscussionLocation {
+  LearningMaterialPage = 'LEARNING_MATERIAL_PAGE',
+  ManageTopicPage = 'MANAGE_TOPIC_PAGE',
+  TopicPage = 'TOPIC_PAGE'
+}
+
+export type APIEditCommentPayload = {
+  contentMarkdown: Scalars['String'];
+};
+
 export type APIGetHomePageDataResults = {
   __typename?: 'GetHomePageDataResults';
   currentUser?: Maybe<APICurrentUser>;
@@ -421,6 +457,7 @@ export { LearningGoalType };
 
 export type APILearningMaterial = {
   _id: Scalars['String'];
+  comments?: Maybe<APICommentResults>;
   coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
   coveredSubTopicsTree?: Maybe<Array<APITopic>>;
   createdAt: Scalars['Date'];
@@ -434,6 +471,11 @@ export type APILearningMaterial = {
   recommendedBy?: Maybe<Array<APIUserRecommendedLearningMaterial>>;
   showedIn?: Maybe<Array<APITopic>>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
+};
+
+
+export type APILearningMaterialCommentsArgs = {
+  options: APICommentOptions;
 };
 
 
@@ -496,6 +538,7 @@ export enum APILearningMaterialType {
 export type APILearningPath = APILearningMaterial & {
   __typename?: 'LearningPath';
   _id: Scalars['String'];
+  comments?: Maybe<APICommentResults>;
   complementaryResources?: Maybe<Array<APIResource>>;
   coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
   coveredSubTopicsTree?: Maybe<Array<APITopic>>;
@@ -516,6 +559,11 @@ export type APILearningPath = APILearningMaterial & {
   started?: Maybe<APILearningPathStarted>;
   startedBy?: Maybe<APILearningPathStartedByResults>;
   tags?: Maybe<Array<APILearningMaterialTag>>;
+};
+
+
+export type APILearningPathCommentsArgs = {
+  options: APICommentOptions;
 };
 
 
@@ -638,11 +686,13 @@ export type APIMutation = {
   detachTopicIsPartOfTopic: APIDetachTopicIsPartOfTopicResult;
   detachTopicIsSubTopicOfTopic: APIDetachTopicIsSubTopicOfTopicResult;
   downvoteLearningMaterial: APILearningMaterial;
+  editComment: APIComment;
   hideLearningGoalFromTopic: APIShowLearningGoalInTopicResult;
   hideLearningMaterialFromTopic: APILearningMaterial;
   indexLearningGoal: APILearningGoalIndexedResult;
   login: APILoginResponse;
   loginGoogle: APILoginResponse;
+  postComment: APIComment;
   publishLearningGoal: APILearningGoalPublishedResult;
   rateLearningGoal: APILearningGoal;
   rateLearningMaterial: APILearningMaterial;
@@ -875,6 +925,12 @@ export type APIMutationDownvoteLearningMaterialArgs = {
 };
 
 
+export type APIMutationEditCommentArgs = {
+  commentId: Scalars['String'];
+  payload: APIEditCommentPayload;
+};
+
+
 export type APIMutationHideLearningGoalFromTopicArgs = {
   learningGoalId: Scalars['String'];
   topicId: Scalars['String'];
@@ -902,6 +958,11 @@ export type APIMutationLoginArgs = {
 export type APIMutationLoginGoogleArgs = {
   discourseSSO?: InputMaybe<APIDiscourseSso>;
   idToken: Scalars['String'];
+};
+
+
+export type APIMutationPostCommentArgs = {
+  payload: APIPostCommentPayload;
 };
 
 
@@ -1085,6 +1146,12 @@ export type APIPaginationOptions = {
   offset?: InputMaybe<Scalars['Int']>;
 };
 
+export type APIPostCommentPayload = {
+  contentMarkdown: Scalars['String'];
+  discussionId: Scalars['String'];
+  parentId?: InputMaybe<Scalars['String']>;
+};
+
 export type APIPullDescriptionsQueryOptions = {
   aliases?: InputMaybe<Array<Scalars['String']>>;
   contextName?: InputMaybe<Scalars['String']>;
@@ -1110,6 +1177,7 @@ export type APIQuery = {
   checkTopicKeyAvailability: APICheckTopicKeyAvailabilityResult;
   currentUser?: Maybe<APICurrentUser>;
   getArticleByKey: APIArticle;
+  getCommentById: APIComment;
   getHomePageData: APIGetHomePageDataResults;
   getLearningGoalByKey: APILearningGoal;
   getLearningPathById: APILearningPath;
@@ -1157,6 +1225,11 @@ export type APIQueryCheckTopicKeyAvailabilityArgs = {
 
 export type APIQueryGetArticleByKeyArgs = {
   key: Scalars['String'];
+};
+
+
+export type APIQueryGetCommentByIdArgs = {
+  commentId: Scalars['String'];
 };
 
 
@@ -1304,6 +1377,7 @@ export type APIResetPasswordResponse = {
 export type APIResource = APILearningMaterial & {
   __typename?: 'Resource';
   _id: Scalars['String'];
+  comments?: Maybe<APICommentResults>;
   consumed?: Maybe<APIConsumedResource>;
   coveredSubTopics?: Maybe<APILearningMaterialCoveredSubTopicsResults>;
   coveredSubTopicsTree?: Maybe<Array<APITopic>>;
@@ -1328,6 +1402,11 @@ export type APIResource = APILearningMaterial & {
   tags?: Maybe<Array<APILearningMaterialTag>>;
   types: Array<ResourceType>;
   url: Scalars['String'];
+};
+
+
+export type APIResourceCommentsArgs = {
+  options: APICommentOptions;
 };
 
 
@@ -1468,6 +1547,7 @@ export type APITopic = {
   __typename?: 'Topic';
   _id: Scalars['String'];
   aliases?: Maybe<Array<Scalars['String']>>;
+  comments?: Maybe<APICommentResults>;
   context?: Maybe<Scalars['String']>;
   contextTopic?: Maybe<APITopic>;
   contextualisedTopics?: Maybe<Array<APITopic>>;
@@ -1483,6 +1563,7 @@ export type APITopic = {
   learningMaterialsAvailableTypeFilters?: Maybe<APITopicLearningMaterialsAvailableTypeFilters>;
   learningMaterialsTotalCount?: Maybe<Scalars['Int']>;
   level?: Maybe<Scalars['Float']>;
+  managePageComments?: Maybe<APICommentResults>;
   name: Scalars['String'];
   otherContextsTopics?: Maybe<Array<APITopic>>;
   parentTopic?: Maybe<APITopic>;
@@ -1495,8 +1576,18 @@ export type APITopic = {
 };
 
 
+export type APITopicCommentsArgs = {
+  options: APICommentOptions;
+};
+
+
 export type APITopicLearningMaterialsArgs = {
   options: APITopicLearningMaterialsOptions;
+};
+
+
+export type APITopicManagePageCommentsArgs = {
+  options: APICommentOptions;
 };
 
 export type APITopicHasPrerequisiteTopic = {
@@ -1781,6 +1872,9 @@ export type APIResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CheckLearningGoalKeyAvailabilityResult: ResolverTypeWrapper<APICheckLearningGoalKeyAvailabilityResult>;
   CheckTopicKeyAvailabilityResult: ResolverTypeWrapper<APICheckTopicKeyAvailabilityResult>;
+  Comment: ResolverTypeWrapper<APIComment>;
+  CommentOptions: APICommentOptions;
+  CommentResults: ResolverTypeWrapper<APICommentResults>;
   ComplementaryResourceUpdatedResult: ResolverTypeWrapper<APIComplementaryResourceUpdatedResult>;
   ConsumedResource: ResolverTypeWrapper<APIConsumedResource>;
   CreateArticlePayload: APICreateArticlePayload;
@@ -1805,6 +1899,8 @@ export type APIResolversTypes = ResolversObject<{
   DetachTopicIsPartOfTopicResult: ResolverTypeWrapper<APIDetachTopicIsPartOfTopicResult>;
   DetachTopicIsSubTopicOfTopicResult: ResolverTypeWrapper<APIDetachTopicIsSubTopicOfTopicResult>;
   DiscourseSSO: APIDiscourseSso;
+  DiscussionLocation: APIDiscussionLocation;
+  EditCommentPayload: APIEditCommentPayload;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   GetHomePageDataResults: ResolverTypeWrapper<APIGetHomePageDataResults>;
   GetTopLevelTopicsResults: ResolverTypeWrapper<APIGetTopLevelTopicsResults>;
@@ -1852,6 +1948,7 @@ export type APIResolversTypes = ResolversObject<{
   LoginResponse: ResolverTypeWrapper<APILoginResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   PaginationOptions: APIPaginationOptions;
+  PostCommentPayload: APIPostCommentPayload;
   PullDescriptionsQueryOptions: APIPullDescriptionsQueryOptions;
   PulledDescription: ResolverTypeWrapper<APIPulledDescription>;
   PulledDescriptionSourceName: PulledDescriptionSourceName;
@@ -1935,6 +2032,9 @@ export type APIResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
   CheckLearningGoalKeyAvailabilityResult: APICheckLearningGoalKeyAvailabilityResult;
   CheckTopicKeyAvailabilityResult: APICheckTopicKeyAvailabilityResult;
+  Comment: APIComment;
+  CommentOptions: APICommentOptions;
+  CommentResults: APICommentResults;
   ComplementaryResourceUpdatedResult: APIComplementaryResourceUpdatedResult;
   ConsumedResource: APIConsumedResource;
   CreateArticlePayload: APICreateArticlePayload;
@@ -1959,6 +2059,7 @@ export type APIResolversParentTypes = ResolversObject<{
   DetachTopicIsPartOfTopicResult: APIDetachTopicIsPartOfTopicResult;
   DetachTopicIsSubTopicOfTopicResult: APIDetachTopicIsSubTopicOfTopicResult;
   DiscourseSSO: APIDiscourseSso;
+  EditCommentPayload: APIEditCommentPayload;
   Float: Scalars['Float'];
   GetHomePageDataResults: APIGetHomePageDataResults;
   GetTopLevelTopicsResults: APIGetTopLevelTopicsResults;
@@ -2004,6 +2105,7 @@ export type APIResolversParentTypes = ResolversObject<{
   LoginResponse: APILoginResponse;
   Mutation: {};
   PaginationOptions: APIPaginationOptions;
+  PostCommentPayload: APIPostCommentPayload;
   PullDescriptionsQueryOptions: APIPullDescriptionsQueryOptions;
   PulledDescription: APIPulledDescription;
   Query: {};
@@ -2105,6 +2207,28 @@ export type APICheckLearningGoalKeyAvailabilityResultResolvers<ContextType = API
 export type APICheckTopicKeyAvailabilityResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CheckTopicKeyAvailabilityResult'] = APIResolversParentTypes['CheckTopicKeyAvailabilityResult']> = ResolversObject<{
   available?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>;
   existingTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type APICommentResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Comment'] = APIResolversParentTypes['Comment']> = ResolversObject<{
+  _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  children?: Resolver<Maybe<Array<APIResolversTypes['Comment']>>, ParentType, ContextType>;
+  childrenCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
+  contentMarkdown?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  discussionId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  lastUpdatedAt?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  parent?: Resolver<Maybe<APIResolversTypes['Comment']>, ParentType, ContextType>;
+  parentId?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
+  postedAt?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  postedBy?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>;
+  postedByUserId?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type APICommentResultsResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CommentResults'] = APIResolversParentTypes['CommentResults']> = ResolversObject<{
+  items?: Resolver<Array<APIResolversTypes['Comment']>, ParentType, ContextType>;
+  rootCommentsTotalCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
+  totalCount?: Resolver<APIResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2309,6 +2433,7 @@ export type APILearningGoalTypeResolvers = EnumResolverSignature<{ Roadmap?: any
 export type APILearningMaterialResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningMaterial'] = APIResolversParentTypes['LearningMaterial']> = ResolversObject<{
   __resolveType: TypeResolveFn<'LearningPath' | 'Resource', ParentType, ContextType>;
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  comments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APILearningMaterialCommentsArgs, 'options'>>;
   coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APILearningMaterialCoveredSubTopicsArgs, 'options'>>;
   coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   createdAt?: Resolver<APIResolversTypes['Date'], ParentType, ContextType>;
@@ -2364,6 +2489,7 @@ export type APILearningMaterialTagSearchResultResolvers<ContextType = APIContext
 
 export type APILearningPathResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['LearningPath'] = APIResolversParentTypes['LearningPath']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  comments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APILearningPathCommentsArgs, 'options'>>;
   complementaryResources?: Resolver<Maybe<Array<APIResolversTypes['Resource']>>, ParentType, ContextType>;
   coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APILearningPathCoveredSubTopicsArgs, 'options'>>;
   coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
@@ -2478,11 +2604,13 @@ export type APIMutationResolvers<ContextType = APIContext, ParentType extends AP
   detachTopicIsPartOfTopic?: Resolver<APIResolversTypes['DetachTopicIsPartOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsPartOfTopicArgs, 'partOfTopicId' | 'subTopicId'>>;
   detachTopicIsSubTopicOfTopic?: Resolver<APIResolversTypes['DetachTopicIsSubTopicOfTopicResult'], ParentType, ContextType, RequireFields<APIMutationDetachTopicIsSubTopicOfTopicArgs, 'parentTopicId' | 'subTopicId'>>;
   downvoteLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationDownvoteLearningMaterialArgs, 'learningMaterialId'>>;
+  editComment?: Resolver<APIResolversTypes['Comment'], ParentType, ContextType, RequireFields<APIMutationEditCommentArgs, 'commentId' | 'payload'>>;
   hideLearningGoalFromTopic?: Resolver<APIResolversTypes['ShowLearningGoalInTopicResult'], ParentType, ContextType, RequireFields<APIMutationHideLearningGoalFromTopicArgs, 'learningGoalId' | 'topicId'>>;
   hideLearningMaterialFromTopic?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationHideLearningMaterialFromTopicArgs, 'learningMaterialId' | 'topicId'>>;
   indexLearningGoal?: Resolver<APIResolversTypes['LearningGoalIndexedResult'], ParentType, ContextType, RequireFields<APIMutationIndexLearningGoalArgs, 'learningGoalId'>>;
   login?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginArgs, 'email' | 'password'>>;
   loginGoogle?: Resolver<APIResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<APIMutationLoginGoogleArgs, 'idToken'>>;
+  postComment?: Resolver<APIResolversTypes['Comment'], ParentType, ContextType, RequireFields<APIMutationPostCommentArgs, 'payload'>>;
   publishLearningGoal?: Resolver<APIResolversTypes['LearningGoalPublishedResult'], ParentType, ContextType, RequireFields<APIMutationPublishLearningGoalArgs, 'learningGoalId'>>;
   rateLearningGoal?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIMutationRateLearningGoalArgs, 'learningGoalId' | 'value'>>;
   rateLearningMaterial?: Resolver<APIResolversTypes['LearningMaterial'], ParentType, ContextType, RequireFields<APIMutationRateLearningMaterialArgs, 'learningMaterialId' | 'value'>>;
@@ -2533,6 +2661,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   checkTopicKeyAvailability?: Resolver<APIResolversTypes['CheckTopicKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckTopicKeyAvailabilityArgs, 'key'>>;
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>;
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>;
+  getCommentById?: Resolver<APIResolversTypes['Comment'], ParentType, ContextType, RequireFields<APIQueryGetCommentByIdArgs, 'commentId'>>;
   getHomePageData?: Resolver<APIResolversTypes['GetHomePageDataResults'], ParentType, ContextType>;
   getLearningGoalByKey?: Resolver<APIResolversTypes['LearningGoal'], ParentType, ContextType, RequireFields<APIQueryGetLearningGoalByKeyArgs, 'key'>>;
   getLearningPathById?: Resolver<APIResolversTypes['LearningPath'], ParentType, ContextType, RequireFields<APIQueryGetLearningPathByIdArgs, 'learningPathId'>>;
@@ -2576,6 +2705,7 @@ export type APIResetPasswordResponseResolvers<ContextType = APIContext, ParentTy
 
 export type APIResourceResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Resource'] = APIResolversParentTypes['Resource']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  comments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APIResourceCommentsArgs, 'options'>>;
   consumed?: Resolver<Maybe<APIResolversTypes['ConsumedResource']>, ParentType, ContextType>;
   coveredSubTopics?: Resolver<Maybe<APIResolversTypes['LearningMaterialCoveredSubTopicsResults']>, ParentType, ContextType, RequireFields<APIResourceCoveredSubTopicsArgs, 'options'>>;
   coveredSubTopicsTree?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
@@ -2687,6 +2817,7 @@ export type APITagFilterResolvers<ContextType = APIContext, ParentType extends A
 export type APITopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Topic'] = APIResolversParentTypes['Topic']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   aliases?: Resolver<Maybe<Array<APIResolversTypes['String']>>, ParentType, ContextType>;
+  comments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APITopicCommentsArgs, 'options'>>;
   context?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   contextTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;
   contextualisedTopics?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
@@ -2702,6 +2833,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   learningMaterialsAvailableTypeFilters?: Resolver<Maybe<APIResolversTypes['TopicLearningMaterialsAvailableTypeFilters']>, ParentType, ContextType>;
   learningMaterialsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
   level?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;
+  managePageComments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APITopicManagePageCommentsArgs, 'options'>>;
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   otherContextsTopics?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
   parentTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;
@@ -2826,6 +2958,8 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   AttachLearningGoalRequiresSubGoalResult?: APIAttachLearningGoalRequiresSubGoalResultResolvers<ContextType>;
   CheckLearningGoalKeyAvailabilityResult?: APICheckLearningGoalKeyAvailabilityResultResolvers<ContextType>;
   CheckTopicKeyAvailabilityResult?: APICheckTopicKeyAvailabilityResultResolvers<ContextType>;
+  Comment?: APICommentResolvers<ContextType>;
+  CommentResults?: APICommentResultsResolvers<ContextType>;
   ComplementaryResourceUpdatedResult?: APIComplementaryResourceUpdatedResultResolvers<ContextType>;
   ConsumedResource?: APIConsumedResourceResolvers<ContextType>;
   CurrentUser?: APICurrentUserResolvers<ContextType>;
