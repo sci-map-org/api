@@ -8,7 +8,7 @@ import { PaginationOptions } from '../repositories/util/pagination';
 function escapeSpecialCaseChar(text: string) {
   // Needs to escape some characters, other Lucene fails to parse
   // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
-  return text.replace(/["]/, '').replace(/[-[\]:{}()*+?."\/,\\^$|#\s]/g, '\\$&');
+  return text.replace(/[-[\]:{}()*+?."\/,\\^$|#\s]/g, '\\$&');
 }
 
 export const searchEntities = async (
@@ -27,7 +27,7 @@ export const searchEntities = async (
         ? `name:${word}* key:${word}* description:${word}* `
         : `name:${word}~ key:${word}~ description:${word}~ `)
     );
-  }, `"${queryString}"^2`);
+  }, `"${escapeSpecialCaseChar(queryString)}"^2`);
 
   const { records } = await session.run(
     `CALL db.index.fulltext.queryNodes("${env.NEO4J.FULL_TEXT_SEARCH_INDEX_NAME}", $query) YIELD node, score
