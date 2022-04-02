@@ -8,6 +8,7 @@ import {
   updateComment,
 } from '../../repositories/comments.repository';
 import { findUser } from '../../repositories/users.repository';
+import { sendDiscordNotification } from '../../services/discord/discord_webhooks.service';
 import { UnauthenticatedError } from '../errors/UnauthenticatedError';
 import { APIComment, APICommentResolvers, APIMutationResolvers, APIQueryResolvers, UserRole } from '../schema/types';
 import { nullToUndefined } from '../util/nullToUndefined';
@@ -32,7 +33,12 @@ export const getCommentByIdResolver: APIQueryResolvers['getCommentById'] = async
 export const postCommentResolver: APIMutationResolvers['postComment'] = async (_, { payload }, { user }) => {
   if (!user) throw new UnauthenticatedError('Must be logged in to post a comment');
 
-  return toAPIComment(await createComment(nullToUndefined(payload), user._id));
+  const comment = toAPIComment(await createComment(nullToUndefined(payload), user._id));
+
+  sendDiscordNotification(`New comment on discussion ${comment.discussionId} by user @${user.key}: 
+  "${comment.contentMarkdown}"
+  `);
+  return comment;
 };
 
 export const editCommentResolver: APIMutationResolvers['editComment'] = async (_, { commentId, payload }, { user }) => {
