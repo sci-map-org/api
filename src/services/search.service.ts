@@ -1,10 +1,15 @@
-import { LearningGoal, LearningGoalLabel } from '../entities/LearningGoal';
 import { LearningMaterial } from '../entities/LearningMaterial';
 import { LearningPathLabel } from '../entities/LearningPath';
 import { Topic } from '../entities/Topic';
 import { env } from '../env';
 import { neo4jDriver } from '../infra/neo4j';
 import { PaginationOptions } from '../repositories/util/pagination';
+
+function escapeSpecialCaseChar(text: string) {
+  // Needs to escape some characters, other Lucene fails to parse
+  // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
+  return text.replace(/["]/, '').replace(/[-[\]:{}()*+?."\/,\\^$|#\s]/g, '\\$&');
+}
 
 export const searchEntities = async (
   queryString: string,
@@ -13,7 +18,8 @@ export const searchEntities = async (
   const { offset, limit } = { offset: 0, limit: 20, ...paginationOptions };
   const session = neo4jDriver.session();
   const hasTrailingSpace = queryString[queryString.length - 1] === ' ';
-  const queryWords = queryString.trim().split(' ');
+  const queryWords = queryString.trim().split(' ').map(escapeSpecialCaseChar);
+
   const query = queryWords.reduce((query, word, idx) => {
     return (
       query +
@@ -33,5 +39,5 @@ export const searchEntities = async (
   );
   // AND (NOT node:${LearningGoalLabel} OR (node.publishedAt IS NOT NULL AND node.hidden = false))
   session.close();
-  return records.map(r => ({ entity: r.get('node'), score: r.get('score') }));
+  return records.map((r) => ({ entity: r.get('node'), score: r.get('score') }));
 };
