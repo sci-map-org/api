@@ -18,7 +18,7 @@ if (process.env.NODE_ENV !== 'production') {
       awsAccessKeyId: env.AWS.ACCESS_KEY_ID,
       awsSecretKey: env.AWS.SECRET_KEY,
       awsRegion: env.AWS.REGION,
-      logGroupName: 'sci-map-api',
+      logGroupName: 'mapedia-api',
       logStreamName: 'logs',
     })
   );
@@ -28,7 +28,7 @@ if (process.env.NODE_ENV !== 'production') {
       awsAccessKeyId: env.AWS.ACCESS_KEY_ID,
       awsSecretKey: env.AWS.SECRET_KEY,
       awsRegion: env.AWS.REGION,
-      logGroupName: 'sci-map-api',
+      logGroupName: 'mapedia-api',
       logStreamName: 'errors',
     })
   );

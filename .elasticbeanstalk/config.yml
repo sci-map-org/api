@@ -1,11 +1,11 @@
 branch-defaults:
   master:
-    environment: SciMapApiProduction
+    environment: mapedia-api-production
 global:
-  application_name: sci-map-api
+  application_name: mapedia-api
   default_ec2_keyname: XXXXXX
   default_platform: Node.js 12 running on 64bit Amazon Linux 2
   default_region: eu-central-1
   sc: git
 deploy:
-  artifact: sci-map-api.zip
+  artifact: mapedia-api.zip

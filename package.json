@@ -1,7 +1,7 @@
 {
-  "name": "sci-map-api",
+  "name": "mapedia-api",
   "version": "1.0.0",
-  "description": "GraphQl API for Sci-Map.org",
+  "description": "GraphQl API for Mapedia.org",
   "main": "index.js",
   "scripts": {
     "build": "yarn codegen && rm -rf ./dist && tsc",
@@ -10,9 +10,9 @@
     "start": "node ./dist/index.js",
     "dev": "tsc-watch --onSuccess \"node ./dist/index.js\" --onFailure \"echo Beep! Compilation Failed\" --compiler typescript/bin/tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docker:build": "docker build -t scimaporg/api:latest .",
-    "docker:run": "docker run -it -p 8000:8000 --env-file .env scimaporg/api:latest",
-    "docker:push": "docker push scimaporg/api:latest",
+    "docker:build": "docker build -t scimaporg/mapedia-api:latest .",
+    "docker:run": "docker run -it -p 8000:8000 --env-file .env scimaporg/mapedia-api:latest",
+    "docker:push": "docker push scimaporg/mapedia-api:latest",
     "deploy": "yarn docker:build && yarn docker:push && yarn dist && echo 'Just upload the zip file now'",
     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
     "migration:run": "yarn typeorm migration:run",

@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "scimaporg/api",
+    "Name": "scimaporg/mapedia-api",
     "Update": "true"
   },
   "Ports": [
