@@ -84,7 +84,7 @@ export const getLearningPathByIdResolver: APIQueryResolvers['getLearningPathById
   { learningPathId },
   { user }
 ) => {
-  const learningPath = await findLearningPathIfAuthorized({ _id: learningPathId }, user?._id);
+  const learningPath = await findLearningPathIfAuthorized({ _id: learningPathId }, user);
   return learningPath;
 };
 
@@ -93,7 +93,7 @@ export const getLearningPathByKeyResolver: APIQueryResolvers['getLearningPathByK
   { learningPathKey },
   { user }
 ) => {
-  const learningPath = await findLearningPathIfAuthorized({ key: learningPathKey }, user?._id);
+  const learningPath = await findLearningPathIfAuthorized({ key: learningPathKey }, user);
   return learningPath;
 };
 
@@ -128,7 +128,7 @@ export const startLearningPathResolver: APIMutationResolvers['startLearningPath'
   { user }
 ) => {
   if (!user) throw new UnauthenticatedError('Must be logged in');
-  return await startUserLearningPath(user._id, learningPathId);
+  return await startUserLearningPath(user, learningPathId);
 };
 
 /**

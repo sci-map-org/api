@@ -1,7 +1,7 @@
 import { generate } from 'shortid';
 import { generateUrlKey } from '../api/util/urlKey';
 import { LearningPath } from '../entities/LearningPath';
-import { User } from '../entities/User';
+import { User, UserRole } from '../entities/User';
 import { NotFoundError } from '../errors/NotFoundError';
 import {
   attachTagsToLearningMaterial,
@@ -18,6 +18,7 @@ import {
   LearningPathResourceItem,
   updateLearningPath,
 } from '../repositories/learning_paths.repository';
+import { JWTPayload } from './auth/jwt';
 
 interface CreateFullLearningPathData {
   name: string;
@@ -93,23 +94,23 @@ function generateLearningPathUniqueKey(name: string): string {
  */
 export const findLearningPathIfAuthorized = async (
   learningPathFilter: { key: string } | { _id: string },
-  userId?: string
+  user?: JWTPayload
 ): Promise<LearningPath> => {
   const learningPath = await findLearningPath(learningPathFilter);
 
   if (!learningPath) throw new NotFoundError('LearningPath', JSON.stringify(learningPathFilter), 'filter');
 
-  if (!learningPath.public) {
-    if (!userId || !(await findLearningPathCreatedBy(userId, learningPathFilter)))
+  if (!learningPath.public && user?.role !== UserRole.ADMIN) {
+    if (!user?._id || !(await findLearningPathCreatedBy(user._id, learningPathFilter)))
       throw new NotFoundError('LearningPath', JSON.stringify(learningPathFilter), 'filter');
   }
   return learningPath;
 };
 
 export const startUserLearningPath = async (
-  userId: string,
+  user: JWTPayload,
   learningPathId: string
 ): Promise<{ user: User; learningPath: LearningPath }> => {
-  await findLearningPathIfAuthorized({ _id: learningPathId }, userId);
-  return attachUserStartedLearningPath(userId, learningPathId);
+  await findLearningPathIfAuthorized({ _id: learningPathId }, user);
+  return attachUserStartedLearningPath(user._id, learningPathId);
 };
