@@ -556,7 +556,10 @@ export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> 
 };
 
 export const getTopicSubTopics = async (
-  topicId: string
+  topicId: string,
+  filter?: {
+    topicTypesNotIn?: string[];
+  }
 ): Promise<
   {
     parentTopic: Topic;
@@ -582,6 +585,11 @@ export const getTopicSubTopics = async (
       field: 'index',
       direction: 'ASC',
     },
+    ...(!!filter?.topicTypesNotIn?.length && {
+      customClause: (originNode, destinationNode, relationship) =>
+        `AND NOT EXISTS { (${destinationNode})-[r:${TopicHasTopicTypeLabel}]-(type:${TopicTypeLabel}) WHERE type.name IN $topicTypeNotIn } `,
+      customVariables: { topicTypeNotIn: filter.topicTypesNotIn },
+    }),
   }).then((items) =>
     items.map(({ relationship, destinationNode, originNode, originalRelationship }) => ({
       parentTopic: originNode,

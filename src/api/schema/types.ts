@@ -1590,6 +1590,11 @@ export type APITopicManagePageCommentsArgs = {
   options: APICommentOptions;
 };
 
+
+export type APITopicSubTopicsArgs = {
+  options?: InputMaybe<APITopicSubTopicsOptions>;
+};
+
 export type APITopicHasPrerequisiteTopic = {
   __typename?: 'TopicHasPrerequisiteTopic';
   followUpTopic: APITopic;
@@ -1651,6 +1656,14 @@ export enum APITopicLearningMaterialsSortingType {
   MostRecommended = 'most_recommended',
   Newest = 'newest'
 }
+
+export type APITopicSubTopicsFilterOptions = {
+  topicTypesNotIn?: InputMaybe<Array<Scalars['String']>>;
+};
+
+export type APITopicSubTopicsOptions = {
+  filter?: InputMaybe<APITopicSubTopicsFilterOptions>;
+};
 
 export type APITopicType = {
   __typename?: 'TopicType';
@@ -1995,6 +2008,8 @@ export type APIResolversTypes = ResolversObject<{
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: ResolverTypeWrapper<APITopicLearningMaterialsResults>;
   TopicLearningMaterialsSortingType: APITopicLearningMaterialsSortingType;
+  TopicSubTopicsFilterOptions: APITopicSubTopicsFilterOptions;
+  TopicSubTopicsOptions: APITopicSubTopicsOptions;
   TopicType: ResolverTypeWrapper<APITopicType>;
   TopicTypeColor: TopicTypeColor;
   TriggerResetPasswordResponse: ResolverTypeWrapper<APITriggerResetPasswordResponse>;
@@ -2147,6 +2162,8 @@ export type APIResolversParentTypes = ResolversObject<{
   TopicLearningMaterialsFilterOptions: APITopicLearningMaterialsFilterOptions;
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: APITopicLearningMaterialsResults;
+  TopicSubTopicsFilterOptions: APITopicSubTopicsFilterOptions;
+  TopicSubTopicsOptions: APITopicSubTopicsOptions;
   TopicType: APITopicType;
   TriggerResetPasswordResponse: APITriggerResetPasswordResponse;
   UpdateArticlePayload: APIUpdateArticlePayload;
@@ -2839,7 +2856,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   parentTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;
   partOfTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsPartOfTopic']>>, ParentType, ContextType>;
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopic']>>, ParentType, ContextType>;
-  subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType>;
+  subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType, RequireFields<APITopicSubTopicsArgs, never>>;
   subTopicsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
   topicTypes?: Resolver<Maybe<Array<APIResolversTypes['TopicType']>>, ParentType, ContextType>;
   wikipediaPageUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;

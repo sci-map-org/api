@@ -272,8 +272,8 @@ export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] = asy
   return parent?.parentTopic || null;
 };
 
-export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic) => {
-  const result = await getTopicSubTopics(topic._id);
+export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic, { options }) => {
+  const result = await getTopicSubTopics(topic._id, nullToUndefined(options?.filter || {}));
   return result.map(({ parentTopic, subTopic, relationship, relationshipType }) => ({
     subTopic,
     ...relationship,

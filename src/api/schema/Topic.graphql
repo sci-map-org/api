@@ -27,7 +27,7 @@ type Topic {
   contextualisedTopics: [Topic!]
   parentTopic: Topic
   partOfTopics: [TopicIsPartOfTopic!]
-  subTopics: [TopicIsSubTopicOfTopic!]
+  subTopics(options: TopicSubTopicsOptions): [TopicIsSubTopicOfTopic!]
   subTopicsTotalCount: Int
   learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults
   learningMaterialsAvailableTypeFilters: TopicLearningMaterialsAvailableTypeFilters
@@ -41,6 +41,14 @@ type Topic {
   managePageComments(options: CommentOptions!): CommentResults
   createdBy: User
   createdAt: Date!
+}
+
+input TopicSubTopicsOptions {
+  filter: TopicSubTopicsFilterOptions
+}
+
+input TopicSubTopicsFilterOptions {
+  topicTypesNotIn: [String!]
 }
 
 input SearchTopicsOptions {
