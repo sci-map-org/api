@@ -44,9 +44,9 @@ export type APIAdminUpdateUserPayload = {
 
 export type APIAggregatedSubtopicPrerequisite = {
   __typename?: 'AggregatedSubtopicPrerequisite';
-  prerequisiteParentsPath?: Maybe<Array<APITopic>>;
+  prerequisiteParentsPath: Array<APITopic>;
   relationship: APITopicHasPrerequisiteTopic;
-  subTopicPath?: Maybe<Array<APITopic>>;
+  subTopicPath: Array<APITopic>;
 };
 
 export type APIAggregatedSubtopicsPrerequisitesOptions = {
@@ -1680,7 +1680,7 @@ export enum APITopicLearningMaterialsSortingType {
 }
 
 export type APITopicSubTopicsFilterOptions = {
-  topicTypesNotIn?: InputMaybe<Array<Scalars['String']>>;
+  currentTopicTypesNotIn?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type APITopicSubTopicsOptions = {
@@ -2220,9 +2220,9 @@ export type APIAddTopicHasPrerequisiteTopicResultResolvers<ContextType = APICont
 }>;
 
 export type APIAggregatedSubtopicPrerequisiteResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['AggregatedSubtopicPrerequisite'] = APIResolversParentTypes['AggregatedSubtopicPrerequisite']> = ResolversObject<{
-  prerequisiteParentsPath?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
+  prerequisiteParentsPath?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>;
   relationship?: Resolver<APIResolversTypes['TopicHasPrerequisiteTopic'], ParentType, ContextType>;
-  subTopicPath?: Resolver<Maybe<Array<APIResolversTypes['Topic']>>, ParentType, ContextType>;
+  subTopicPath?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

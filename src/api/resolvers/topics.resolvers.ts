@@ -274,7 +274,18 @@ export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] = asy
 };
 
 export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic, { options }) => {
-  const result = await getTopicSubTopics(topic._id, nullToUndefined(options?.filter || {}));
+  if (options?.filter?.currentTopicTypesNotIn?.length) {
+    const currentTopicTypes = await getTopicTopicTypes(topic._id);
+    if (
+      intersection(
+        currentTopicTypes.map(({ name }) => name),
+        options.filter.currentTopicTypesNotIn
+      ).length
+    ) {
+      return [];
+    }
+  }
+  const result = await getTopicSubTopics(topic._id); //, nullToUndefined(options?.filter || {})
   return result.map(({ parentTopic, subTopic, relationship, relationshipType }) => ({
     subTopic,
     ...relationship,

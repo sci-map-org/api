@@ -556,10 +556,10 @@ export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> 
 };
 
 export const getTopicSubTopics = async (
-  topicId: string,
-  filter?: {
-    topicTypesNotIn?: string[];
-  }
+  topicId: string
+  // filter?: {
+  //   topicTypesNotIn?: string[];
+  // }
 ): Promise<
   {
     parentTopic: Topic;
@@ -585,11 +585,11 @@ export const getTopicSubTopics = async (
       field: 'index',
       direction: 'ASC',
     },
-    ...(!!filter?.topicTypesNotIn?.length && {
-      customClause: (originNode, destinationNode, relationship) =>
-        `AND NOT EXISTS { (${destinationNode})-[r:${TopicHasTopicTypeLabel}]-(type:${TopicTypeLabel}) WHERE type.name IN $topicTypeNotIn } `,
-      customVariables: { topicTypeNotIn: filter.topicTypesNotIn },
-    }),
+    // ...(!!filter?.topicTypesNotIn?.length && {
+    //   customClause: (originNode, destinationNode, relationship) =>
+    //     `AND NOT EXISTS { (${destinationNode})-[r:${TopicHasTopicTypeLabel}]-(type:${TopicTypeLabel}) WHERE type.name IN $topicTypeNotIn } `,
+    //   customVariables: { topicTypeNotIn: filter.topicTypesNotIn },
+    // }),
   }).then((items) =>
     items.map(({ relationship, destinationNode, originNode, originalRelationship }) => ({
       parentTopic: originNode,
@@ -817,7 +817,6 @@ export const getTopicAggregatedSubtopicsPrerequisites = async (
     }
   );
 
-  if (!records.length) throw new Error('no results');
   const results = records.map((record) => ({
     relationship: {
       followUpTopic: record.get('s').properties as Topic,

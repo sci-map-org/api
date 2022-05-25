@@ -55,8 +55,8 @@ input AggregatedSubtopicsPrerequisitesOptions {
 
 type AggregatedSubtopicPrerequisite {
   relationship: TopicHasPrerequisiteTopic!
-  subTopicPath: [Topic!]
-  prerequisiteParentsPath: [Topic!]
+  subTopicPath: [Topic!]!
+  prerequisiteParentsPath: [Topic!]!
 }
 
 input TopicSubTopicsOptions {
@@ -64,7 +64,7 @@ input TopicSubTopicsOptions {
 }
 
 input TopicSubTopicsFilterOptions {
-  topicTypesNotIn: [String!]
+  currentTopicTypesNotIn: [String!] # if the current Topic has one of those topic types, will not query the subtopics
 }
 
 input SearchTopicsOptions {
