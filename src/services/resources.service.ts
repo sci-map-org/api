@@ -2,6 +2,7 @@ import { UserInputError } from 'apollo-server-core';
 import { omit } from 'lodash';
 import { ResourceType } from '../api/schema/types';
 import { Resource } from '../entities/Resource';
+import { env } from '../env';
 import {
   attachLearningMaterialCoversTopics,
   attachLearningMaterialHasPrerequisiteTopic,
@@ -92,7 +93,7 @@ export const createAndSaveResource = async (data: CreateAndSaveResourceData, use
   }
 
   sendDiscordNotification(
-    `Yay, new resource created: ${createdResource.name}, id: ${createdResource._id} (by user with id ${userId})`
+    `Yay, new resource created: ${createdResource.name} (${env.OTHER.FRONTEND_BASE_URL}/resources/${createdResource.key}), id: ${createdResource._id} (by user with id ${userId})`
   );
   return createdResource;
 };
