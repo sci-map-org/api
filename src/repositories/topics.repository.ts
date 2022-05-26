@@ -557,9 +557,6 @@ export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> 
 
 export const getTopicSubTopics = async (
   topicId: string
-  // filter?: {
-  //   topicTypesNotIn?: string[];
-  // }
 ): Promise<
   {
     parentTopic: Topic;
