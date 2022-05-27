@@ -42,6 +42,18 @@ export type APIAdminUpdateUserPayload = {
   role?: InputMaybe<UserRole>;
 };
 
+export type APIAggregatedSubtopicPrerequisite = {
+  __typename?: 'AggregatedSubtopicPrerequisite';
+  prerequisiteParentsPath: Array<APITopic>;
+  relationship: APITopicHasPrerequisiteTopic;
+  subTopicPath: Array<APITopic>;
+};
+
+export type APIAggregatedSubtopicsPrerequisitesOptions = {
+  onlyIfTopicHasTopicTypes?: InputMaybe<Array<Scalars['String']>>;
+  prereqParentsPathStopCondition: APIPrereqParentsPathStopCondition;
+};
+
 export type APIAnalyzeResourceUrlResult = {
   __typename?: 'AnalyzeResourceUrlResult';
   resourceData?: Maybe<APIResourceData>;
@@ -1152,6 +1164,10 @@ export type APIPostCommentPayload = {
   parentId?: InputMaybe<Scalars['String']>;
 };
 
+export enum APIPrereqParentsPathStopCondition {
+  CommonParent = 'common_parent'
+}
+
 export type APIPullDescriptionsQueryOptions = {
   aliases?: InputMaybe<Array<Scalars['String']>>;
   contextName?: InputMaybe<Scalars['String']>;
@@ -1546,6 +1562,7 @@ export type APITagFilter = {
 export type APITopic = {
   __typename?: 'Topic';
   _id: Scalars['String'];
+  aggregatedSubtopicsPrerequisites?: Maybe<Array<APIAggregatedSubtopicPrerequisite>>;
   aliases?: Maybe<Array<Scalars['String']>>;
   comments?: Maybe<APICommentResults>;
   context?: Maybe<Scalars['String']>;
@@ -1576,6 +1593,11 @@ export type APITopic = {
 };
 
 
+export type APITopicAggregatedSubtopicsPrerequisitesArgs = {
+  options: APIAggregatedSubtopicsPrerequisitesOptions;
+};
+
+
 export type APITopicCommentsArgs = {
   options: APICommentOptions;
 };
@@ -1588,6 +1610,11 @@ export type APITopicLearningMaterialsArgs = {
 
 export type APITopicManagePageCommentsArgs = {
   options: APICommentOptions;
+};
+
+
+export type APITopicSubTopicsArgs = {
+  options?: InputMaybe<APITopicSubTopicsOptions>;
 };
 
 export type APITopicHasPrerequisiteTopic = {
@@ -1651,6 +1678,14 @@ export enum APITopicLearningMaterialsSortingType {
   MostRecommended = 'most_recommended',
   Newest = 'newest'
 }
+
+export type APITopicSubTopicsFilterOptions = {
+  currentTopicTypesNotIn?: InputMaybe<Array<Scalars['String']>>;
+};
+
+export type APITopicSubTopicsOptions = {
+  filter?: InputMaybe<APITopicSubTopicsFilterOptions>;
+};
 
 export type APITopicType = {
   __typename?: 'TopicType';
@@ -1862,6 +1897,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type APIResolversTypes = ResolversObject<{
   AddTopicHasPrerequisiteTopicResult: ResolverTypeWrapper<APIAddTopicHasPrerequisiteTopicResult>;
   AdminUpdateUserPayload: APIAdminUpdateUserPayload;
+  AggregatedSubtopicPrerequisite: ResolverTypeWrapper<APIAggregatedSubtopicPrerequisite>;
+  AggregatedSubtopicsPrerequisitesOptions: APIAggregatedSubtopicsPrerequisitesOptions;
   AnalyzeResourceUrlResult: ResolverTypeWrapper<APIAnalyzeResourceUrlResult>;
   Article: ResolverTypeWrapper<APIArticle>;
   ArticleContentType: ArticleContentType;
@@ -1949,6 +1986,7 @@ export type APIResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   PaginationOptions: APIPaginationOptions;
   PostCommentPayload: APIPostCommentPayload;
+  PrereqParentsPathStopCondition: APIPrereqParentsPathStopCondition;
   PullDescriptionsQueryOptions: APIPullDescriptionsQueryOptions;
   PulledDescription: ResolverTypeWrapper<APIPulledDescription>;
   PulledDescriptionSourceName: PulledDescriptionSourceName;
@@ -1995,6 +2033,8 @@ export type APIResolversTypes = ResolversObject<{
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: ResolverTypeWrapper<APITopicLearningMaterialsResults>;
   TopicLearningMaterialsSortingType: APITopicLearningMaterialsSortingType;
+  TopicSubTopicsFilterOptions: APITopicSubTopicsFilterOptions;
+  TopicSubTopicsOptions: APITopicSubTopicsOptions;
   TopicType: ResolverTypeWrapper<APITopicType>;
   TopicTypeColor: TopicTypeColor;
   TriggerResetPasswordResponse: ResolverTypeWrapper<APITriggerResetPasswordResponse>;
@@ -2023,6 +2063,8 @@ export type APIResolversTypes = ResolversObject<{
 export type APIResolversParentTypes = ResolversObject<{
   AddTopicHasPrerequisiteTopicResult: APIAddTopicHasPrerequisiteTopicResult;
   AdminUpdateUserPayload: APIAdminUpdateUserPayload;
+  AggregatedSubtopicPrerequisite: APIAggregatedSubtopicPrerequisite;
+  AggregatedSubtopicsPrerequisitesOptions: APIAggregatedSubtopicsPrerequisitesOptions;
   AnalyzeResourceUrlResult: APIAnalyzeResourceUrlResult;
   Article: APIArticle;
   AttachLearningGoalRequiresSubGoalPayload: APIAttachLearningGoalRequiresSubGoalPayload;
@@ -2147,6 +2189,8 @@ export type APIResolversParentTypes = ResolversObject<{
   TopicLearningMaterialsFilterOptions: APITopicLearningMaterialsFilterOptions;
   TopicLearningMaterialsOptions: APITopicLearningMaterialsOptions;
   TopicLearningMaterialsResults: APITopicLearningMaterialsResults;
+  TopicSubTopicsFilterOptions: APITopicSubTopicsFilterOptions;
+  TopicSubTopicsOptions: APITopicSubTopicsOptions;
   TopicType: APITopicType;
   TriggerResetPasswordResponse: APITriggerResetPasswordResponse;
   UpdateArticlePayload: APIUpdateArticlePayload;
@@ -2172,6 +2216,13 @@ export type APIAddTopicHasPrerequisiteTopicResultResolvers<ContextType = APICont
   prerequisiteTopic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>;
   strength?: Resolver<APIResolversTypes['Float'], ParentType, ContextType>;
   topic?: Resolver<APIResolversTypes['Topic'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type APIAggregatedSubtopicPrerequisiteResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['AggregatedSubtopicPrerequisite'] = APIResolversParentTypes['AggregatedSubtopicPrerequisite']> = ResolversObject<{
+  prerequisiteParentsPath?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>;
+  relationship?: Resolver<APIResolversTypes['TopicHasPrerequisiteTopic'], ParentType, ContextType>;
+  subTopicPath?: Resolver<Array<APIResolversTypes['Topic']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2816,6 +2867,7 @@ export type APITagFilterResolvers<ContextType = APIContext, ParentType extends A
 
 export type APITopicResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['Topic'] = APIResolversParentTypes['Topic']> = ResolversObject<{
   _id?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  aggregatedSubtopicsPrerequisites?: Resolver<Maybe<Array<APIResolversTypes['AggregatedSubtopicPrerequisite']>>, ParentType, ContextType, RequireFields<APITopicAggregatedSubtopicsPrerequisitesArgs, 'options'>>;
   aliases?: Resolver<Maybe<Array<APIResolversTypes['String']>>, ParentType, ContextType>;
   comments?: Resolver<Maybe<APIResolversTypes['CommentResults']>, ParentType, ContextType, RequireFields<APITopicCommentsArgs, 'options'>>;
   context?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
@@ -2839,7 +2891,7 @@ export type APITopicResolvers<ContextType = APIContext, ParentType extends APIRe
   parentTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;
   partOfTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsPartOfTopic']>>, ParentType, ContextType>;
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['TopicHasPrerequisiteTopic']>>, ParentType, ContextType>;
-  subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType>;
+  subTopics?: Resolver<Maybe<Array<APIResolversTypes['TopicIsSubTopicOfTopic']>>, ParentType, ContextType, RequireFields<APITopicSubTopicsArgs, never>>;
   subTopicsTotalCount?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
   topicTypes?: Resolver<Maybe<Array<APIResolversTypes['TopicType']>>, ParentType, ContextType>;
   wikipediaPageUrl?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
@@ -2952,6 +3004,7 @@ export type APIVerifyEmailResponseResolvers<ContextType = APIContext, ParentType
 
 export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   AddTopicHasPrerequisiteTopicResult?: APIAddTopicHasPrerequisiteTopicResultResolvers<ContextType>;
+  AggregatedSubtopicPrerequisite?: APIAggregatedSubtopicPrerequisiteResolvers<ContextType>;
   AnalyzeResourceUrlResult?: APIAnalyzeResourceUrlResultResolvers<ContextType>;
   Article?: APIArticleResolvers<ContextType>;
   ArticleContentType?: APIArticleContentTypeResolvers;

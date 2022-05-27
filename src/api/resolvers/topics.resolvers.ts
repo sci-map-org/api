@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { intersection, pick } from 'lodash';
 import { Topic, TopicLabel } from '../../entities/Topic';
 import { NotFoundError } from '../../errors/NotFoundError';
 import { findCommentsByDiscussionId } from '../../repositories/comments.repository';
@@ -9,6 +9,7 @@ import {
   countLearningMaterialsShowedInTopic,
   createTopic,
   deleteTopic,
+  getTopicAggregatedSubtopicsPrerequisites,
   getTopicById,
   getTopicByKey,
   getTopicContextTopic,
@@ -272,7 +273,18 @@ export const getTopicParentTopicResolver: APITopicResolvers['parentTopic'] = asy
   return parent?.parentTopic || null;
 };
 
-export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic) => {
+export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (topic, { options }) => {
+  if (options?.filter?.currentTopicTypesNotIn?.length) {
+    const currentTopicTypes = await getTopicTopicTypes(topic._id);
+    if (
+      intersection(
+        currentTopicTypes.map(({ name }) => name),
+        options.filter.currentTopicTypesNotIn
+      ).length
+    ) {
+      return [];
+    }
+  }
   const result = await getTopicSubTopics(topic._id);
   return result.map(({ parentTopic, subTopic, relationship, relationshipType }) => ({
     subTopic,
@@ -321,6 +333,24 @@ export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] =
     })
   );
 };
+
+// Used for Progress Map
+export const getTopicAggregatedSubtopicsPrerequisitesResolver: APITopicResolvers['aggregatedSubtopicsPrerequisites'] =
+  async (topic, { options }) => {
+    const topicTypes = await getTopicTopicTypes(topic._id);
+    if (
+      !!options.onlyIfTopicHasTopicTypes?.length &&
+      !intersection(
+        topicTypes.map(({ name }) => name),
+        options.onlyIfTopicHasTopicTypes
+      ).length
+    )
+      return null;
+
+    return getTopicAggregatedSubtopicsPrerequisites(topic._id, {
+      prereqParentsPathStopCondition: options.prereqParentsPathStopCondition,
+    });
+  };
 
 export const getTopicLearningMaterialsAvailableTypeFiltersResolver: APITopicResolvers['learningMaterialsAvailableTypeFilters'] =
   async (topic) => {

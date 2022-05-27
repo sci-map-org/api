@@ -27,7 +27,7 @@ type Topic {
   contextualisedTopics: [Topic!]
   parentTopic: Topic
   partOfTopics: [TopicIsPartOfTopic!]
-  subTopics: [TopicIsSubTopicOfTopic!]
+  subTopics(options: TopicSubTopicsOptions): [TopicIsSubTopicOfTopic!]
   subTopicsTotalCount: Int
   learningMaterials(options: TopicLearningMaterialsOptions!): TopicLearningMaterialsResults
   learningMaterialsAvailableTypeFilters: TopicLearningMaterialsAvailableTypeFilters
@@ -36,11 +36,35 @@ type Topic {
   # progress | completion
   # known: KnownTopic TODO -> change schema, both progress and wether marked as known or not
   prerequisites: [TopicHasPrerequisiteTopic!]
+  aggregatedSubtopicsPrerequisites(options: AggregatedSubtopicsPrerequisitesOptions!): [AggregatedSubtopicPrerequisite!]
   followUps: [TopicHasPrerequisiteTopic!]
   comments(options: CommentOptions!): CommentResults
   managePageComments(options: CommentOptions!): CommentResults
   createdBy: User
   createdAt: Date!
+}
+
+enum PrereqParentsPathStopCondition {
+  common_parent
+}
+
+input AggregatedSubtopicsPrerequisitesOptions {
+  onlyIfTopicHasTopicTypes: [String!] # because we can't just query this field conditionally
+  prereqParentsPathStopCondition: PrereqParentsPathStopCondition!
+}
+
+type AggregatedSubtopicPrerequisite {
+  relationship: TopicHasPrerequisiteTopic!
+  subTopicPath: [Topic!]!
+  prerequisiteParentsPath: [Topic!]!
+}
+
+input TopicSubTopicsOptions {
+  filter: TopicSubTopicsFilterOptions
+}
+
+input TopicSubTopicsFilterOptions {
+  currentTopicTypesNotIn: [String!] # if the current Topic has one of those topic types, will not query the subtopics
 }
 
 input SearchTopicsOptions {

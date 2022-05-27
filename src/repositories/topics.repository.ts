@@ -1,7 +1,7 @@
 import { node, Query, relation } from 'cypher-query-builder';
 import { omit } from 'lodash';
 import * as shortid from 'shortid';
-import { APITopicLearningMaterialsSortingType } from '../api/schema/types';
+import { APIPrereqParentsPathStopCondition, APITopicLearningMaterialsSortingType } from '../api/schema/types';
 import { recommendationEngineConfig } from '../config';
 import { LearningMaterial, LearningMaterialLabel, LearningMaterialType } from '../entities/LearningMaterial';
 import { LearningMaterialTagLabel } from '../entities/LearningMaterialTag';
@@ -775,6 +775,52 @@ export const getTopicFollowUps = (
       followUpTopic: destinationTopic,
     }))
   );
+
+export const getTopicAggregatedSubtopicsPrerequisites = async (
+  topicId: string,
+  { prereqParentsPathStopCondition }: { prereqParentsPathStopCondition: APIPrereqParentsPathStopCondition }
+): Promise<
+  {
+    relationship: { prerequisiteTopic: Topic; followUpTopic: Topic } & TopicHasPrerequisiteTopic;
+    subTopicPath: Topic[];
+    prerequisiteParentsPath: Topic[];
+  }[]
+> => {
+  if (prereqParentsPathStopCondition !== APIPrereqParentsPathStopCondition.CommonParent)
+    throw new Error('Not common parent condition');
+  // match path= (n:Topic {key: 'functional_programming'})<-[:IS_SUBTOPIC_OF*0..5]-(s:Topic)
+  // match (s)-[r:HAS_PREREQUISITE]->(p:Topic) WHERE NOT EXISTS { (p)-[:IS_SUBTOPIC_OF*0..5]->(n)}
+  // with p,r,s,path,n match prereqParentPath = (p)-[:IS_SUBTOPIC_OF*0..10]->(c:Topic)
+  // match (c)<-[:IS_SUBTOPIC_OF*0..5]-(n) return n, s, p, r, nodes(path) as path, nodes(prereqParentPath) as prereqPath
+  const SUBTOPIC_DEPTH = 5;
+
+  const session = neo4jDriver.session();
+  const { records } = await session.run(
+    `
+    match path = (n:${TopicLabel} {_id: $topicId})<-[:${TopicIsSubTopicOfTopicLabel}*0..${SUBTOPIC_DEPTH}]-(s:${TopicLabel}) 
+    match (s)-[r:${TopicHasPrerequisiteTopicLabel}]->(p:${TopicLabel}) WHERE NOT EXISTS { (p)-[:${TopicIsSubTopicOfTopicLabel}*0..${SUBTOPIC_DEPTH}]->(n)} 
+    with p,r,s,path,n match prereqParentPath = (p)-[:${TopicIsSubTopicOfTopicLabel}*0..${
+      SUBTOPIC_DEPTH * 2
+    }]->(c:${TopicLabel}) 
+    match (c)<-[:${TopicIsSubTopicOfTopicLabel}*0..${SUBTOPIC_DEPTH}]-(n) return n, s, p, r, nodes(path) as path, nodes(prereqParentPath) as prereqPath
+    `,
+    {
+      topicId,
+    }
+  );
+
+  const results = records.map((record) => ({
+    relationship: {
+      followUpTopic: record.get('s').properties as Topic,
+      prerequisiteTopic: record.get('p').properties as Topic,
+      ...(record.get('r').properties as TopicHasPrerequisiteTopic),
+    },
+    subTopicPath: record.get('path').map((n) => n.properties) as Topic[],
+    prerequisiteParentsPath: record.get('prereqPath').map((p) => p.properties) as Topic[],
+  }));
+
+  return results;
+};
 
 export const getSubTopicsMaxIndex = async (topicId: string): Promise<number | null> => {
   const q = new Query(neo4jQb);
