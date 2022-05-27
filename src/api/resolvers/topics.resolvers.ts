@@ -285,7 +285,7 @@ export const getTopicSubTopicsResolver: APITopicResolvers['subTopics'] = async (
       return [];
     }
   }
-  const result = await getTopicSubTopics(topic._id); //, nullToUndefined(options?.filter || {})
+  const result = await getTopicSubTopics(topic._id);
   return result.map(({ parentTopic, subTopic, relationship, relationshipType }) => ({
     subTopic,
     ...relationship,
@@ -334,6 +334,7 @@ export const getTopicPrerequisitesResolver: APITopicResolvers['prerequisites'] =
   );
 };
 
+// Used for Progress Map
 export const getTopicAggregatedSubtopicsPrerequisitesResolver: APITopicResolvers['aggregatedSubtopicsPrerequisites'] =
   async (topic, { options }) => {
     const topicTypes = await getTopicTopicTypes(topic._id);

@@ -582,11 +582,6 @@ export const getTopicSubTopics = async (
       field: 'index',
       direction: 'ASC',
     },
-    // ...(!!filter?.topicTypesNotIn?.length && {
-    //   customClause: (originNode, destinationNode, relationship) =>
-    //     `AND NOT EXISTS { (${destinationNode})-[r:${TopicHasTopicTypeLabel}]-(type:${TopicTypeLabel}) WHERE type.name IN $topicTypeNotIn } `,
-    //   customVariables: { topicTypeNotIn: filter.topicTypesNotIn },
-    // }),
   }).then((items) =>
     items.map(({ relationship, destinationNode, originNode, originalRelationship }) => ({
       parentTopic: originNode,
