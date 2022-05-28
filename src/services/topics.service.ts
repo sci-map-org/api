@@ -71,7 +71,7 @@ export const createFullTopic = async (
       wikipediaPageUrl: creationData.wikipediaPageUrl || undefined,
       isDisambiguation: false,
       aliases: creationData.aliases || undefined,
-      level: creationData.level || undefined,
+      level: creationData.level ?? undefined,
     }
   );
 
