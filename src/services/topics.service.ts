@@ -58,8 +58,8 @@ export const createFullTopic = async (
   }
 ): Promise<Topic> => {
   if (!creationData.topicTypes.length) throw new UserInputError('Must have at least one topic type');
-  if (creationData.description && creationData.description.length > 1000)
-    throw new UserInputError('The topic description must not be longer than 1000 characters');
+  if (creationData.description && creationData.description.length > 3000)
+    throw new UserInputError('The topic description must not be longer than 3000 characters');
 
   const createdTopic = await createTopic(
     { _id: user._id },
