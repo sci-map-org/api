@@ -12,6 +12,7 @@
 // seed topic types
 // WITH [{ name: 'concept', color: 'orange' },
 // { name: 'field', color: 'red' },
+// { name: 'programming language', color: 'red' },
 // { name: 'tool', color: 'green' },
 // { name: 'problem', color: 'green' },
 // { name: 'theory', color: 'red' },
