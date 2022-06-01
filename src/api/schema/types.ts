@@ -163,6 +163,7 @@ export type APICreateLearningPathPayload = {
   durationSeconds?: InputMaybe<Scalars['Int']>;
   key?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
+  outro?: InputMaybe<Scalars['String']>;
   public?: InputMaybe<Scalars['Boolean']>;
   resourceItems: Array<APICreateLearningPathResourceItem>;
   tags?: InputMaybe<Array<Scalars['String']>>;
@@ -560,6 +561,7 @@ export type APILearningPath = APILearningMaterial & {
   durationSeconds?: Maybe<Scalars['Int']>;
   key: Scalars['String'];
   name: Scalars['String'];
+  outro?: Maybe<Scalars['String']>;
   prerequisites?: Maybe<Array<APILearningMaterialHasPrerequisiteTopic>>;
   public: Scalars['Boolean'];
   rating?: Maybe<Scalars['Float']>;
@@ -1732,6 +1734,7 @@ export type APIUpdateLearningPathPayload = {
   description?: InputMaybe<Scalars['String']>;
   durationSeconds?: InputMaybe<Scalars['Int']>;
   name?: InputMaybe<Scalars['String']>;
+  outro?: InputMaybe<Scalars['String']>;
   public?: InputMaybe<Scalars['Boolean']>;
   resourceItems?: InputMaybe<Array<APICreateLearningPathResourceItem>>;
 };
@@ -2550,6 +2553,7 @@ export type APILearningPathResolvers<ContextType = APIContext, ParentType extend
   durationSeconds?: Resolver<Maybe<APIResolversTypes['Int']>, ParentType, ContextType>;
   key?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<APIResolversTypes['String'], ParentType, ContextType>;
+  outro?: Resolver<Maybe<APIResolversTypes['String']>, ParentType, ContextType>;
   prerequisites?: Resolver<Maybe<Array<APIResolversTypes['LearningMaterialHasPrerequisiteTopic']>>, ParentType, ContextType>;
   public?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>;
   rating?: Resolver<Maybe<APIResolversTypes['Float']>, ParentType, ContextType>;

@@ -14,6 +14,7 @@ type LearningPath implements LearningMaterial {
   key: String!
   name: String!
   description: String
+  outro: String
   public: Boolean!
   durationSeconds: Int
   resourceItems: [LearningPathResourceItem!]
@@ -64,6 +65,7 @@ input CreateLearningPathPayload {
   name: String!
   key: String
   description: String
+  outro: String
   public: Boolean
   durationSeconds: Int
   tags: [String!]
@@ -89,6 +91,7 @@ input UpdateLearningPathPayload {
   name: String
   public: Boolean
   description: String
+  outro: String
   durationSeconds: Int
   resourceItems: [CreateLearningPathResourceItem!]
 }
