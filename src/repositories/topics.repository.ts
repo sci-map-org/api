@@ -545,7 +545,7 @@ export const searchSubTopics = async (
 export const getTopicSubTopicsTotalCount = async (_id: string): Promise<number> => {
   const q = new Query(neo4jQb);
   q.raw(
-    `match (n:${TopicLabel} {_id: $topicId})<-[:${TopicIsSubTopicOfTopicLabel}*1..20]-(c:${TopicLabel})  return count(DISTINCT c) as size`,
+    `match (n:${TopicLabel} {_id: $topicId})<-[:${TopicIsSubTopicOfTopicLabel}|${TopicIsPartOfTopicLabel}*1..20]-(c:${TopicLabel})  return count(DISTINCT c) as size`,
     {
       topicId: _id,
     }
