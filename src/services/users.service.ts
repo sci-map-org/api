@@ -10,7 +10,7 @@ import { sendEmail } from './email/email.client';
 async function sendEmailVerificationEmail(user: User, timestamp: number): Promise<void> {
   const token: string = await createEmailVerificationToken(user, timestamp);
   await sendEmail({
-    from: 'Sci-map.org <email_verification@sci-map.org>',
+    from: 'Mapedia.org <email_verification@mapedia.org>',
     to: user.email,
     subject: 'Verify your email address',
     html: `<p>Click here to verify your email address: ${env.OTHER.FRONTEND_BASE_URL}/verify_email?token=${token}</p>`,
@@ -69,10 +69,10 @@ const accessRuleMapping: {
   [key in RoleAccessAllowedRule]: (user?: Pick<User, 'role'>) => boolean;
 } = {
   all: () => true,
-  loggedInUser: user => !!user,
-  notLoggedInUser: user => !user,
-  admin: user => !!user && user.role === UserRole.ADMIN,
-  contributorOrAdmin: user => !!user && (user.role === UserRole.CONTRIBUTOR || user.role === UserRole.ADMIN),
+  loggedInUser: (user) => !!user,
+  notLoggedInUser: (user) => !user,
+  admin: (user) => !!user && user.role === UserRole.ADMIN,
+  contributorOrAdmin: (user) => !!user && (user.role === UserRole.CONTRIBUTOR || user.role === UserRole.ADMIN),
 };
 
 export const hasAccess = (accessRule: RoleAccessAllowedRule, user?: Pick<User, 'role'>): boolean => {
@@ -100,7 +100,7 @@ export const resetUserPassword = async (token: string, newPassword: string): Pro
 export const sendResetPasswordEmail = async (user: User, timestamp: number): Promise<void> => {
   const token: string = await createEmailVerificationToken(user, timestamp);
   await sendEmail({
-    from: 'Sci-map.org <no_reply@sci-map.org>',
+    from: 'Mapedia.org <no_reply@mapedia.org>',
     to: user.email,
     subject: 'Password Reset',
     html: `<p>Hello ${user.displayName},</p><p>Click here to reset your password: ${env.OTHER.FRONTEND_BASE_URL}/reset_pwd?token=${token}</p>`,

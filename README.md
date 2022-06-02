@@ -1,6 +1,6 @@
-# Sci-Map.org api
+# Mapedia.org api
 
-Backend (GraphQl API) for [Sci-map.org](https://sci-map.org).
+Backend (GraphQl API) for [mapedia.org](https://mapedia.org).
 
 ## Tech stack and design
 
@@ -39,7 +39,7 @@ yarn build && yarn start
 
 ## Contributing
 
-Please check out our [Contribution guide](https://sci-map.org/about/contributing).
+Please check out our [Contribution guide](https://beta.mapedia.org/about/contributing).
 
 ## License
 
