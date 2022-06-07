@@ -101,6 +101,12 @@ export type APICheckTopicKeyAvailabilityResult = {
   existingTopic?: Maybe<APITopic>;
 };
 
+export type APICheckUserKeyAvailabilityResult = {
+  __typename?: 'CheckUserKeyAvailabilityResult';
+  available: Scalars['Boolean'];
+  existingUser?: Maybe<APIUser>;
+};
+
 export type APIComment = {
   __typename?: 'Comment';
   _id: Scalars['String'];
@@ -1193,6 +1199,7 @@ export type APIQuery = {
   autocompleteTopicName: APISearchTopicsResult;
   checkLearningGoalKeyAvailability: APICheckLearningGoalKeyAvailabilityResult;
   checkTopicKeyAvailability: APICheckTopicKeyAvailabilityResult;
+  checkUserKeyAvailability: APICheckUserKeyAvailabilityResult;
   currentUser?: Maybe<APICurrentUser>;
   getArticleByKey: APIArticle;
   getCommentById: APIComment;
@@ -1237,6 +1244,11 @@ export type APIQueryCheckLearningGoalKeyAvailabilityArgs = {
 
 
 export type APIQueryCheckTopicKeyAvailabilityArgs = {
+  key: Scalars['String'];
+};
+
+
+export type APIQueryCheckUserKeyAvailabilityArgs = {
   key: Scalars['String'];
 };
 
@@ -1912,6 +1924,7 @@ export type APIResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CheckLearningGoalKeyAvailabilityResult: ResolverTypeWrapper<APICheckLearningGoalKeyAvailabilityResult>;
   CheckTopicKeyAvailabilityResult: ResolverTypeWrapper<APICheckTopicKeyAvailabilityResult>;
+  CheckUserKeyAvailabilityResult: ResolverTypeWrapper<APICheckUserKeyAvailabilityResult>;
   Comment: ResolverTypeWrapper<APIComment>;
   CommentOptions: APICommentOptions;
   CommentResults: ResolverTypeWrapper<APICommentResults>;
@@ -2077,6 +2090,7 @@ export type APIResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
   CheckLearningGoalKeyAvailabilityResult: APICheckLearningGoalKeyAvailabilityResult;
   CheckTopicKeyAvailabilityResult: APICheckTopicKeyAvailabilityResult;
+  CheckUserKeyAvailabilityResult: APICheckUserKeyAvailabilityResult;
   Comment: APIComment;
   CommentOptions: APICommentOptions;
   CommentResults: APICommentResults;
@@ -2261,6 +2275,12 @@ export type APICheckLearningGoalKeyAvailabilityResultResolvers<ContextType = API
 export type APICheckTopicKeyAvailabilityResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CheckTopicKeyAvailabilityResult'] = APIResolversParentTypes['CheckTopicKeyAvailabilityResult']> = ResolversObject<{
   available?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>;
   existingTopic?: Resolver<Maybe<APIResolversTypes['Topic']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type APICheckUserKeyAvailabilityResultResolvers<ContextType = APIContext, ParentType extends APIResolversParentTypes['CheckUserKeyAvailabilityResult'] = APIResolversParentTypes['CheckUserKeyAvailabilityResult']> = ResolversObject<{
+  available?: Resolver<APIResolversTypes['Boolean'], ParentType, ContextType>;
+  existingUser?: Resolver<Maybe<APIResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2714,6 +2734,7 @@ export type APIQueryResolvers<ContextType = APIContext, ParentType extends APIRe
   autocompleteTopicName?: Resolver<APIResolversTypes['SearchTopicsResult'], ParentType, ContextType, RequireFields<APIQueryAutocompleteTopicNameArgs, 'partialName'>>;
   checkLearningGoalKeyAvailability?: Resolver<APIResolversTypes['CheckLearningGoalKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckLearningGoalKeyAvailabilityArgs, 'key'>>;
   checkTopicKeyAvailability?: Resolver<APIResolversTypes['CheckTopicKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckTopicKeyAvailabilityArgs, 'key'>>;
+  checkUserKeyAvailability?: Resolver<APIResolversTypes['CheckUserKeyAvailabilityResult'], ParentType, ContextType, RequireFields<APIQueryCheckUserKeyAvailabilityArgs, 'key'>>;
   currentUser?: Resolver<Maybe<APIResolversTypes['CurrentUser']>, ParentType, ContextType>;
   getArticleByKey?: Resolver<APIResolversTypes['Article'], ParentType, ContextType, RequireFields<APIQueryGetArticleByKeyArgs, 'key'>>;
   getCommentById?: Resolver<APIResolversTypes['Comment'], ParentType, ContextType, RequireFields<APIQueryGetCommentByIdArgs, 'commentId'>>;
@@ -3015,6 +3036,7 @@ export type APIResolvers<ContextType = APIContext> = ResolversObject<{
   AttachLearningGoalRequiresSubGoalResult?: APIAttachLearningGoalRequiresSubGoalResultResolvers<ContextType>;
   CheckLearningGoalKeyAvailabilityResult?: APICheckLearningGoalKeyAvailabilityResultResolvers<ContextType>;
   CheckTopicKeyAvailabilityResult?: APICheckTopicKeyAvailabilityResultResolvers<ContextType>;
+  CheckUserKeyAvailabilityResult?: APICheckUserKeyAvailabilityResultResolvers<ContextType>;
   Comment?: APICommentResolvers<ContextType>;
   CommentResults?: APICommentResultsResolvers<ContextType>;
   ComplementaryResourceUpdatedResult?: APIComplementaryResourceUpdatedResultResolvers<ContextType>;

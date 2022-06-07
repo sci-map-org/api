@@ -146,6 +146,7 @@ import {
 } from './resolvers/topic_types.resolvers';
 import {
   adminUpdateUserResolver,
+  checkUserKeyAvailabilityResolver,
   currentUserResolver,
   getCurrentUserConsumedResourcesResolver,
   getCurrentUserCreatedArticlesResolver,
@@ -246,6 +247,7 @@ const resolvers: APIResolvers<APIContext> = {
     getArticleByKey: getArticleByKeyResolver,
     listArticles: listArticlesResolver,
     getUser: getUserResolver,
+    checkUserKeyAvailability: checkUserKeyAvailabilityResolver,
     getResourceById: getResourceByIdResolver,
     getResourceByKey: getResourceByKeyResolver,
     searchLearningMaterialTags: searchLearningMaterialTagsResolver,

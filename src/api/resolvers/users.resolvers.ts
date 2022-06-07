@@ -1,3 +1,4 @@
+import { UserInputError } from 'apollo-server-core';
 import { User, UserRole } from '../../entities/User';
 import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
@@ -184,6 +185,18 @@ export const getUserResolver: APIQueryResolvers['getUser'] = async (_parent, { k
   return toAPIUser(foundUser);
 };
 
+export const checkUserKeyAvailabilityResolver: APIQueryResolvers['checkUserKeyAvailability'] = async (
+  _parent,
+  { key }
+) => {
+  if (key.length < 3) throw new UserInputError('user key must be at least 3 characters long');
+  const foundUser = await findUser({ key });
+  return {
+    available: !foundUser,
+    existingUser: foundUser,
+  };
+};
+
 export const updateCurrentUserResolver: APIMutationResolvers['updateCurrentUser'] = async (
   _parent,
   { payload },
@@ -214,11 +227,15 @@ export const adminUpdateUserResolver: APIMutationResolvers['adminUpdateUser'] = 
   return toAPIUser(updatedUser);
 };
 
-export const getCurrentUserCreatedLearningPathsResolver: APICurrentUserResolvers['createdLearningPaths'] = async currentUser => {
+export const getCurrentUserCreatedLearningPathsResolver: APICurrentUserResolvers['createdLearningPaths'] = async (
+  currentUser
+) => {
   return await getLearningPathsCreatedBy(currentUser._id);
 };
 
-export const getCurrentUserStartedLearningPathsResolver: APICurrentUserResolvers['startedLearningPaths'] = async currentUser => {
+export const getCurrentUserStartedLearningPathsResolver: APICurrentUserResolvers['startedLearningPaths'] = async (
+  currentUser
+) => {
   const results = await getLearningPathsStartedBy(currentUser._id);
   return results.map(({ learningPath, relationship }) => ({
     learningPath,
@@ -226,7 +243,9 @@ export const getCurrentUserStartedLearningPathsResolver: APICurrentUserResolvers
   }));
 };
 
-export const getCurrentUserCreatedLearningGoalsResolver: APICurrentUserResolvers['createdLearningGoals'] = async currentUser => {
+export const getCurrentUserCreatedLearningGoalsResolver: APICurrentUserResolvers['createdLearningGoals'] = async (
+  currentUser
+) => {
   const results = await getLearningGoalsCreatedBy(currentUser._id);
   return results.map(({ learningGoal, relationship }) => ({
     learningGoal,
@@ -234,7 +253,9 @@ export const getCurrentUserCreatedLearningGoalsResolver: APICurrentUserResolvers
   }));
 };
 
-export const getCurrentUserStartedLearningGoalsResolver: APICurrentUserResolvers['startedLearningGoals'] = async currentUser => {
+export const getCurrentUserStartedLearningGoalsResolver: APICurrentUserResolvers['startedLearningGoals'] = async (
+  currentUser
+) => {
   const results = await getLearningGoalsStartedBy(currentUser._id);
   return results.map(({ learningGoal, relationship }) => ({
     learningGoal,

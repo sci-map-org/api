@@ -25,8 +25,6 @@ type User {
   articles(options: ListArticlesOptions!): ListArticlesResult
 }
 
-
-
 # input UserLearningGoalsOptions {
 #   pagination: PaginationOptions
 # }
@@ -98,6 +96,12 @@ type LoginResponse {
 type Query {
   currentUser: CurrentUser
   getUser(key: String!): User!
+  checkUserKeyAvailability(key: String!): CheckUserKeyAvailabilityResult!
+}
+
+type CheckUserKeyAvailabilityResult {
+  available: Boolean!
+  existingUser: User
 }
 
 input RegisterPayload {
