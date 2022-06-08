@@ -47,6 +47,7 @@ const EMAIL = typedEnv.envGroup(
     SMTP_PORT: typedEnv.types.PortNumber,
     SMTP_USERNAME: typedEnv.types.NonEmptyString,
     SMPT_PASSWORD: typedEnv.types.NonEmptyString,
+    MAILERLITE_API_TOKEN: typedEnv.types.OptionalString,
   },
   'EMAIL'
 );
@@ -74,6 +75,7 @@ const API = typedEnv.envGroup({
 });
 
 const OTHER = typedEnv.envGroup({
+  NODE_ENV: typedEnv.types.NonEmptyString,
   FRONTEND_BASE_URL: typedEnv.types.NonEmptyString,
   APIFY_LOCAL_STORAGE_DIR: typedEnv.types.NonEmptyString,
   GOOGLE_APIS_KEY: typedEnv.types.NonEmptyString,

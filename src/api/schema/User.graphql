@@ -109,12 +109,14 @@ input RegisterPayload {
   displayName: String!
   email: String!
   password: String!
+  subscribeToNewsletter: Boolean
 }
 
 input RegisterGooglePayload {
   key: String!
   displayName: String!
   idToken: String!
+  subscribeToNewsletter: Boolean
 }
 
 input AdminUpdateUserPayload {

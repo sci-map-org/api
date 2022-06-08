@@ -1,4 +1,5 @@
 import { UserInputError } from 'apollo-server-core';
+import { omit } from 'lodash';
 import { User, UserRole } from '../../entities/User';
 import { NotFoundError, UserNotFoundError } from '../../errors/NotFoundError';
 import { findArticlesCreatedBy } from '../../repositories/articles.repository';
@@ -106,11 +107,21 @@ export const loginGoogleResolver: APIMutationResolvers['loginGoogle'] = async (_
 };
 
 export const registerResolver: APIMutationResolvers['register'] = async (_parent, { payload }) => {
-  return toAPICurrentUser(await registerUser(payload));
+  return toAPICurrentUser(
+    await registerUser({
+      ...omit(payload, 'subscribeToNewsletter'),
+      subscribeToNewsletter: !!payload.subscribeToNewsletter,
+    })
+  );
 };
 
 export const registerGoogleResolver: APIMutationResolvers['registerGoogle'] = async (_parent, { payload }) => {
-  return toAPICurrentUser(await registerUserGoogleAuth(payload));
+  return toAPICurrentUser(
+    await registerUserGoogleAuth({
+      ...omit(payload, 'subscribeToNewsletter'),
+      subscribeToNewsletter: !!payload.subscribeToNewsletter,
+    })
+  );
 };
 
 export const verifyEmailAddressResolver: APIMutationResolvers['verifyEmailAddress'] = async (_parent, { token }) => {

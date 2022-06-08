@@ -1373,6 +1373,7 @@ export type APIRegisterGooglePayload = {
   displayName: Scalars['String'];
   idToken: Scalars['String'];
   key: Scalars['String'];
+  subscribeToNewsletter?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type APIRegisterPayload = {
@@ -1380,6 +1381,7 @@ export type APIRegisterPayload = {
   email: Scalars['String'];
   key: Scalars['String'];
   password: Scalars['String'];
+  subscribeToNewsletter?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type APIRemoveTopicHasPrerequisiteTopicResult = {

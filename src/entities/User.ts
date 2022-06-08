@@ -17,4 +17,5 @@ export interface User {
   googleUserId?: string;
   role: UserRole;
   active: boolean; //email verified
+  subscribedToNewsletterAt?: number;
 }
