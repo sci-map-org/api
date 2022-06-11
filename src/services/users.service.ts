@@ -7,6 +7,7 @@ import { createEmailVerificationToken, verifyAndDecodeEmailVerificationToken } f
 import { encryptPassword } from './auth/password_hashing';
 import { sendDiscordNotification } from './discord/discord_webhooks.service';
 import { sendEmail } from './email/email.client';
+import { EmailTemplateName, generateHtmlFromTemplate } from './email/mjml.service';
 
 // Access stuff
 const accessRuleMapping: {
@@ -73,6 +74,7 @@ export const registerUserGoogleAuth = async ({
     subscribedToNewsletterAt: shouldSubscribeToNewsletter ? Date.now() : undefined,
   });
   completeRegistration(user, { shouldSubscribeToNewsletter });
+  sendWelcomeEmail(user);
   return user;
 };
 
@@ -129,6 +131,21 @@ async function sendEmailVerificationEmail(user: User, timestamp: number): Promis
     html: `<p>Click here to verify your email address: ${env.OTHER.FRONTEND_BASE_URL}/verify_email?token=${token}</p>`,
   });
 }
+
+export const sendWelcomeEmail = async (user: User): Promise<void> => {
+  const welcomeMailHtml = generateHtmlFromTemplate(EmailTemplateName.WELCOME, {
+    user,
+    frontendBaseUrl: env.OTHER.FRONTEND_BASE_URL,
+    discordInviteLink: env.OTHER.DISCORD_INVITE_LINK,
+  });
+
+  await sendEmail({
+    from: 'Mapedia.org <community@mapedia.org>',
+    to: user.email,
+    subject: 'Welcome to Mapedia.org',
+    html: welcomeMailHtml,
+  });
+};
 
 // reset
 export const sendResetPasswordEmail = async (user: User, timestamp: number): Promise<void> => {

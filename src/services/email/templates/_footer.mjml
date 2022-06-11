@@ -1,0 +1,26 @@
+<mj-section background-color="#319795">
+  <mj-column width="180px" vertical-align="middle"
+    ><mj-text color="white" font-weight="700" font-size="20px">
+      <a href="https://mapedia.org" style="color: white; text-decoration: none">Mapedia.org</a>
+    </mj-text>
+  </mj-column>
+  <mj-column width="100px">
+    <mj-text font-size="12px"
+      ><a href="https://twitter.com/Mapedia_org" style="color: white; text-decoration: none">Twitter</a></mj-text
+    >
+    <mj-text font-size="12px"
+      ><a href="https://github.com/Mapedia-org" style="color: white; text-decoration: none">Github</a></mj-text
+    >
+    <mj-text font-size="12px"
+      ><a href="https://mapedia-org.medium.com/" style="color: white; text-decoration: none">Medium</a></mj-text
+    >
+  </mj-column>
+  <mj-column width="100px">
+    <mj-text font-size="12px"
+      ><a href="https://forum.mapedia.org/" style="color: white; text-decoration: none">Forum</a></mj-text
+    >
+    <mj-text font-size="12px"
+      ><a href="info@mapedia.org" style="color: white; text-decoration: none">Contact</a></mj-text
+    >
+  </mj-column>
+</mj-section>

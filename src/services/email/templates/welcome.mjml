@@ -1,0 +1,46 @@
+<mjml>
+  <mj-head>
+    <mj-font
+      name="Lato"
+      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900"
+    />
+  </mj-head>
+  <mj-body>
+    <mj-include path="_header.mjml" />
+    <mj-section padding-top="40px" background-color="#F3F3F3" padding-bottom="0px">
+      <mj-column padding="14px 10px 26px 10px" width="500px" background-color="white">
+        <mj-text font-size="24px" color="#353535" font-weight="700" padding-bottom="24px"
+          >Welcome to the Mapedia community!</mj-text
+        >
+        <mj-text font-size="14px">
+          Hello {{user.displayName}}, thank you for joining the Mapedia Community - we are very happy to have you!
+          <br />
+          <br />
+          Whether you're looking to start a new
+          <a
+            style="color: #3182ce"
+            href="{{frontendBaseUrl}}/learning_paths/X29KKPapO_how_to_learn_online_a_quick_guide_to_get_you_on_the_right_track"
+            >learning path</a
+          >
+          or <a style="color: #3182ce" href="{{frontendBaseUrl}}/explore">explore</a> new topics, we hope to support you
+          every step of the way. Please let us know how we can support you better!
+          <br />
+          <br />
+          <span style="font-style: italic; text-align: center"
+            >There is no power for change greater than a community discovering what it cares about." – Margaret J.
+            Wheatley</span
+          >
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#F3F3F3" padding-bottom="20px">
+      <mj-column width="500px">
+        <!-- TODO (update manifesto link) -->
+        <mj-button background-color="#319795" href="https://mapedia.org">Read our Manifesto</mj-button>
+        <mj-button background-color="#3182ce" href="https://forum.mapedia.org">Checkout the Forum</mj-button>
+        <mj-button background-color="#7289da" href="{{discordInviteLink}}">Join our Discord</mj-button>
+      </mj-column>
+    </mj-section>
+    <mj-include path="_footer.mjml" />
+  </mj-body>
+</mjml>

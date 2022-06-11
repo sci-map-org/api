@@ -77,6 +77,7 @@ const API = typedEnv.envGroup({
 const OTHER = typedEnv.envGroup({
   NODE_ENV: typedEnv.types.NonEmptyString,
   FRONTEND_BASE_URL: typedEnv.types.NonEmptyString,
+  DISCORD_INVITE_LINK: typedEnv.types.NonEmptyString,
   APIFY_LOCAL_STORAGE_DIR: typedEnv.types.NonEmptyString,
   GOOGLE_APIS_KEY: typedEnv.types.NonEmptyString,
   TOP_LEVEL_TOPICS_KEYS: typedEnv.types.NonEmptyString, // comma separated

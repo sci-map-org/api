@@ -26,6 +26,7 @@ import {
   registerUserGoogleAuth,
   resetUserPassword,
   sendResetPasswordEmail,
+  sendWelcomeEmail,
 } from '../../services/users.service';
 import { UnauthorizedError } from '../errors/UnauthenticatedError';
 import {
@@ -134,6 +135,7 @@ export const verifyEmailAddressResolver: APIMutationResolvers['verifyEmailAddres
   const user = await updateUser({ email: email }, { active: true });
 
   if (!user) throw new Error('This should never happen, no users found with email in token');
+  await sendWelcomeEmail(user);
 
   return {
     email,

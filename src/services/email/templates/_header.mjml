@@ -1,0 +1,16 @@
+<mj-section
+  background-url="https://beta.mapedia.org/images/newsletter/header.png"
+  background-size="cover"
+  background-repeat="no-repeat"
+>
+  <mj-column vertical-align="middle" width="110px">
+    <mj-image width="60px" src="https://beta.mapedia.org/images/newsletter/logo.png" />
+  </mj-column>
+
+  <mj-column vertical-align="middle" width="210px">
+    <mj-text font-size="26px" font-weight="700" color="white" align="center">
+      <a href="https://mapedia.org" style="color: white; text-decoration: none">Mapedia.org</a>
+    </mj-text>
+  </mj-column>
+  <mj-column></mj-column>
+</mj-section>
