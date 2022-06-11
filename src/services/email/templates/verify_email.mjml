@@ -1,0 +1,28 @@
+<mjml>
+  <mj-head>
+    <!-- <mj-font
+      name="Lato"
+      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900"
+    /> -->
+  </mj-head>
+  <mj-body>
+    <mj-include path="_header.mjml" />
+    <mj-section padding-top="40px" background-color="#F3F3F3" padding-bottom="40px">
+      <mj-column padding="14px 10px 26px 10px" width="500px" background-color="white">
+        <mj-text font-size="24px" color="#353535" font-weight="700" padding-bottom="24px"
+          >Please verify your email address</mj-text
+        >
+        <mj-text font-size="14px">
+          Please click here to verify your email address:
+          <br />
+          <br />
+          <a style="color: #3182ce" href="{{frontendBaseUrl}}/verify_email?token={{token}}"
+            >{{frontendBaseUrl}}/verify_email?token={{token}}</a
+          >
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-include path="_footer.mjml" />
+  </mj-body>
+</mjml>

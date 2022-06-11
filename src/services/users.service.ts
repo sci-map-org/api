@@ -124,11 +124,16 @@ async function subscribeToNewsletter(user: User) {
 
 async function sendEmailVerificationEmail(user: User, timestamp: number): Promise<void> {
   const token: string = await createEmailVerificationToken(user, timestamp);
+
+  const verifyEmailHtml = generateHtmlFromTemplate(EmailTemplateName.VERIFY_EMAIL, {
+    frontendBaseUrl: env.OTHER.FRONTEND_BASE_URL,
+    token,
+  });
   await sendEmail({
-    from: 'Mapedia.org <email_verification@mapedia.org>',
+    from: 'Mapedia.org <no_reply@mapedia.org>',
     to: user.email,
-    subject: 'Verify your email address',
-    html: `<p>Click here to verify your email address: ${env.OTHER.FRONTEND_BASE_URL}/verify_email?token=${token}</p>`,
+    subject: 'Please verify your email address',
+    html: verifyEmailHtml,
   });
 }
 

@@ -6,16 +6,23 @@ import { User } from '../../entities/User';
 
 export enum EmailTemplateName {
   WELCOME = 'WELCOME',
+  VERIFY_EMAIL = 'VERIFY_EMAIL',
 }
 
 const EmailTemplatePathMapping: { [key in EmailTemplateName]: string } = {
   WELCOME: './templates/welcome.mjml',
+  VERIFY_EMAIL: './templates/verify_email.mjml',
 };
+
 export type EmailTemplateVariables = {
   [EmailTemplateName.WELCOME]: {
     user: User;
     frontendBaseUrl: string;
     discordInviteLink: string;
+  };
+  [EmailTemplateName.VERIFY_EMAIL]: {
+    frontendBaseUrl: string;
+    token: string;
   };
 };
 
@@ -30,7 +37,6 @@ export const generateHtmlFromTemplate = <T extends EmailTemplateName>(
   }, template);
 
   const result = mjml2html(populatedTemplate, { filePath: join(__dirname, 'templates') });
-  console.log(result);
   return result.html;
 };
 
