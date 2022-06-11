@@ -23,10 +23,12 @@ export type EmailTemplateVariables = {
     discordInviteLink: string;
   };
   [EmailTemplateName.VERIFY_EMAIL]: {
+    user: User;
     frontendBaseUrl: string;
     token: string;
   };
   [EmailTemplateName.RESET_PASSWORD]: {
+    user: User;
     frontendBaseUrl: string;
     token: string;
   };

@@ -126,6 +126,7 @@ async function sendEmailVerificationEmail(user: User, timestamp: number): Promis
   const token: string = await createEmailVerificationToken(user, timestamp);
 
   const verifyEmailHtml = generateHtmlFromTemplate(EmailTemplateName.VERIFY_EMAIL, {
+    user,
     frontendBaseUrl: env.OTHER.FRONTEND_BASE_URL,
     token,
   });
@@ -156,7 +157,8 @@ export const sendWelcomeEmail = async (user: User): Promise<void> => {
 export const sendResetPasswordEmail = async (user: User, timestamp: number): Promise<void> => {
   const token: string = await createEmailVerificationToken(user, timestamp);
 
-  const resetPasswordMailHtml = generateHtmlFromTemplate(EmailTemplateName.VERIFY_EMAIL, {
+  const resetPasswordMailHtml = generateHtmlFromTemplate(EmailTemplateName.RESET_PASSWORD, {
+    user,
     frontendBaseUrl: env.OTHER.FRONTEND_BASE_URL,
     token,
   });

@@ -21,7 +21,9 @@
           <br />
           <br />
         </mj-text>
-        <mj-button background-color="#3182ce">Verify Email Address</mj-button>
+        <mj-button background-color="#3182ce" href="{{frontendBaseUrl}}/verify_email?token={{token}}"
+          >Verify Email Address</mj-button
+        >
         <mj-text>
           <br /><br /><br />
           <br />
