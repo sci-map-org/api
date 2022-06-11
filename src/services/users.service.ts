@@ -155,13 +155,20 @@ export const sendWelcomeEmail = async (user: User): Promise<void> => {
 // reset
 export const sendResetPasswordEmail = async (user: User, timestamp: number): Promise<void> => {
   const token: string = await createEmailVerificationToken(user, timestamp);
+
+  const resetPasswordMailHtml = generateHtmlFromTemplate(EmailTemplateName.VERIFY_EMAIL, {
+    frontendBaseUrl: env.OTHER.FRONTEND_BASE_URL,
+    token,
+  });
+
   await sendEmail({
     from: 'Mapedia.org <no_reply@mapedia.org>',
     to: user.email,
     subject: 'Password Reset',
-    html: `<p>Hello ${user.displayName},</p><p>Click here to reset your password: ${env.OTHER.FRONTEND_BASE_URL}/reset_pwd?token=${token}</p>`,
+    html: resetPasswordMailHtml,
   });
 };
+
 export const resetUserPassword = async (token: string, newPassword: string): Promise<User> => {
   const { email, timestamp } = await verifyAndDecodeEmailVerificationToken(token);
 

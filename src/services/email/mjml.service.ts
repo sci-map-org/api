@@ -7,11 +7,13 @@ import { User } from '../../entities/User';
 export enum EmailTemplateName {
   WELCOME = 'WELCOME',
   VERIFY_EMAIL = 'VERIFY_EMAIL',
+  RESET_PASSWORD = 'RESET_PASSWORD',
 }
 
 const EmailTemplatePathMapping: { [key in EmailTemplateName]: string } = {
   WELCOME: './templates/welcome.mjml',
   VERIFY_EMAIL: './templates/verify_email.mjml',
+  RESET_PASSWORD: './templates/reset_password.mjml',
 };
 
 export type EmailTemplateVariables = {
@@ -21,6 +23,10 @@ export type EmailTemplateVariables = {
     discordInviteLink: string;
   };
   [EmailTemplateName.VERIFY_EMAIL]: {
+    frontendBaseUrl: string;
+    token: string;
+  };
+  [EmailTemplateName.RESET_PASSWORD]: {
     frontendBaseUrl: string;
     token: string;
   };
